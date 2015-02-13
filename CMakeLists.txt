@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 2.8.7)
 set(eos_VERSION_MAJOR 0)
 set(eos_VERSION_MINOR 1)
 set(eos_VERSION_PATCH 0)
+set(eos_VERSION ${eos_VERSION_MAJOR}.${eos_VERSION_MINOR}.${eos_VERSION_PATCH})
 
 # g++ needs a compiler flag to enable C++11 support
 include(CheckCXXCompilerFlag)
@@ -71,9 +72,15 @@ add_library(eos ${SOURCES} ${HEADERS})
 target_link_libraries(eos ${OpenCV_LIBS} ${Boost_LIBRARIES})
 
 # The install target:
-install(TARGETS eos DESTINATION lib)
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/ DESTINATION include)
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/share/ DESTINATION share)
+install(TARGETS eos DESTINATION ${CMAKE_INSTALL_PREFIX}/lib EXPORT eos-targets)
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/ DESTINATION ${CMAKE_INSTALL_PREFIX}/include)
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/share/ DESTINATION ${CMAKE_INSTALL_PREFIX}/share)
+
+# Export the target:
+install(EXPORT eos-targets DESTINATION ${CMAKE_INSTALL_PREFIX}/) # creates eos-targets.cmake
+install(FILES eos-config.cmake DESTINATION ${CMAKE_INSTALL_PREFIX}/)
+configure_file(eos-config-version.cmake.in "${PROJECT_BINARY_DIR}/eos-config-version.cmake" @ONLY)
+install(FILES "${PROJECT_BINARY_DIR}/eos-config-version.cmake" DESTINATION ${CMAKE_INSTALL_PREFIX}/)
 
 if(BUILD_EXAMPLES)
 	add_subdirectory(examples)
