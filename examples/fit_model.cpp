@@ -141,7 +141,7 @@ int main(int argc, char *argv[])
 	Mat image = cv::imread(imagefile.string());
 	auto landmarks = readPtsLandmarks(landmarksfile.string());
 	morphablemodel::MorphableModel morphableModel = morphablemodel::loadScmModel(modelfile, isomapfile);
-	morphablemodel::LandmarkMapper landmarkMapper = mappingsfile.empty() ? morphablemodel::LandmarkMapper() : morphablemodel::LandmarkMapper(mappingsfile);
+	core::LandmarkMapper landmarkMapper = mappingsfile.empty() ? core::LandmarkMapper() : core::LandmarkMapper(mappingsfile);
 
 	// Draw the loaded landmarks:
 	Mat outimg = image.clone();
