@@ -28,7 +28,7 @@ using boost::property_tree::ptree;
 using std::string;
 
 namespace eos {
-	namespace morphablemodel {
+	namespace core {
 
 LandmarkMapper::LandmarkMapper(boost::filesystem::path filename)
 {
@@ -66,5 +66,5 @@ string LandmarkMapper::convert(string landmarkName)
 	}
 }
 
-	} /* namespace morphablemodel */
+	} /* namespace core */
 } /* namespace eos */

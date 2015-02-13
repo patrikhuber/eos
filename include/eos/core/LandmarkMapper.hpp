@@ -32,7 +32,7 @@
 #include <map>
 
 namespace eos {
-	namespace morphablemodel {
+	namespace core {
 
 /**
  * Represents a mapping from one kind of landmarks
@@ -69,7 +69,7 @@ private:
 	std::map<std::string, std::string> landmarkMappings; ///< Mapping from one landmark name to a name in a different format.
 };
 
-	} /* namespace morphablemodel */
+	} /* namespace core */
 } /* namespace eos */
 
 #endif /* LANDMARKMAPPER_HPP_ */
