@@ -27,6 +27,9 @@ set(CPACK_PACKAGE_VERSION_MINOR "${eos_VERSION_MINOR}")
 set(CPACK_PACKAGE_VERSION_PATCH "${eos_VERSION_PATCH}")
 include(CPack)
 
+# Set debug library postfix:
+set(CMAKE_DEBUG_POSTFIX "-d")
+
 # Find dependencies:
 find_package(OpenCV 2.4.3 REQUIRED core)
 message(STATUS "OpenCV include dir found at ${OpenCV_INCLUDE_DIRS}")
