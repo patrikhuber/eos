@@ -1,4 +1,4 @@
-# Eos: A 3D Morphable Model fitting library in modern C++11/14.
+# Eos: A lightweight 3D Morphable Model fitting library in modern C++11/14.
 
 
 Eos is a tiny 3D Morphable Model fitting library that provides just the bare minimum to load a model and perform camera and shape fitting. It's written in modern C++11/14.
