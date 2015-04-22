@@ -55,6 +55,15 @@ public:
  */
 void write_obj(Mesh mesh, std::string filename);
 
+/**
+ * Writes an obj file of the given Mesh that can be read by e.g. Meshlab.
+ * Saves texture coordinates and texture information as well.
+ *
+ * @param[in] mesh The mesh to save as obj.
+ * @param[in] filename Output filename.
+ */
+void write_textured_obj(Mesh mesh, std::string filename);
+
 	} /* namespace render */
 } /* namespace eos */
 
