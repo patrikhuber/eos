@@ -25,19 +25,19 @@
 namespace eos {
 	namespace render {
 
-void writeObj(Mesh mesh, std::string filename)
+void write_obj(Mesh mesh, std::string filename)
 {
-	std::ofstream objFile(filename);
-
 	assert(mesh.vertices.size() == mesh.colors.size());
 	
+	std::ofstream obj_file(filename);
+	
 	for (std::size_t i = 0; i < mesh.vertices.size(); ++i) {
-		objFile << "v " << mesh.vertices[i][0] << " " << mesh.vertices[i][1] << " " << mesh.vertices[i][2] << " " << mesh.colors[i][0] << " " << mesh.colors[i][1] << " " << mesh.colors[i][2] << " " << std::endl;
+		obj_file << "v " << mesh.vertices[i][0] << " " << mesh.vertices[i][1] << " " << mesh.vertices[i][2] << " " << mesh.colors[i][0] << " " << mesh.colors[i][1] << " " << mesh.colors[i][2] << " " << std::endl;
 	}
 
 	for (auto&& v : mesh.tvi) {
 		// Add one because obj starts counting triangle indices at 1
-		objFile << "f " << v[0] + 1 << " " << v[1] + 1 << " " << v[2] + 1 << std::endl;
+		obj_file << "f " << v[0] + 1 << " " << v[1] + 1 << " " << v[2] + 1 << std::endl;
 	}
 
 	return;

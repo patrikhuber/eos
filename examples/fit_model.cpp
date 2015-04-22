@@ -188,7 +188,7 @@ int main(int argc, char *argv[])
 
 	// Obtain the full mesh and draw it using the estimated camera:
 	render::Mesh mesh = morphableModel.drawSample(fittedCoeffs, vector<float>());
-	render::writeObj(mesh, "out.obj"); // save the mesh as obj
+	render::write_obj(mesh, "out.obj"); // save the mesh as obj
 
 	// Draw the projected points again, this time using the fitted model shape:
 	for (auto&& idx : vertexIndices) {
@@ -199,7 +199,7 @@ int main(int argc, char *argv[])
 
 	// Save the output image:
 	cv::imwrite("out.png", outimg);
-	std::cout << "Finished fitting and wrote result to out.png." << std::endl;
+	cout << "Finished fitting and wrote result to out.png." << endl;
 
 	return EXIT_SUCCESS;
 }

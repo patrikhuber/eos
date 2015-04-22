@@ -53,7 +53,7 @@ public:
  * @param[in] mesh The mesh to save as obj.
  * @param[in] filename Output filename.
  */
-void writeObj(Mesh mesh, std::string filename);
+void write_obj(Mesh mesh, std::string filename);
 
 	} /* namespace render */
 } /* namespace eos */
