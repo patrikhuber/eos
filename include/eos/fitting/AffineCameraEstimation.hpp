@@ -22,6 +22,8 @@
 #ifndef AFFINECAMERAESTIMATION_HPP_
 #define AFFINECAMERAESTIMATION_HPP_
 
+#include "eos/render/utils.hpp"
+
 #include "opencv2/core/core.hpp"
 
 #include <vector>
@@ -51,13 +53,23 @@ cv::Mat estimateAffineCamera(std::vector<cv::Vec2f> imagePoints, std::vector<cv:
  * also flips the y-axis (the image origin is top-left, while in
  * clip space top is +1 and bottom is -1).
  *
+ * Note: Assumes the affine camera matrix only projects from world
+ * to clip space, because a subsequent window transform is applied.
+ *
  * @param[in] vertex A vertex in 3D space. vertex[3] = 1.0f.
- * @param[in] affineCameraMatrix A 3x4 affine camera matrix.
- * @param[in] screenWidth Width of the screen or window used for projection.
- * @param[in] screenHeight Height of the screen or window used for projection.
+ * @param[in] affine_camera_matrix A 3x4 affine camera matrix.
+ * @param[in] screen_width Width of the screen or window used for projection.
+ * @param[in] screen_height Height of the screen or window used for projection.
  * @return A vector with x and y coordinates transformed to screen coordinates.
  */
-cv::Vec2f projectAffine(cv::Vec4f vertex, cv::Mat affineCameraMatrix, int screenWidth, int screenHeight);
+inline cv::Vec2f project_affine(cv::Vec4f vertex, cv::Mat affine_camera_matrix, int screen_width, int screen_height)
+{
+	// Transform to clip space:
+	cv::Mat clip_coords = affine_camera_matrix * cv::Mat(vertex);
+	// Take the x and y coordinates in clip space and apply the window transform:
+	cv::Vec2f screen_coords = render::clip_to_screen_space(cv::Vec2f(clip_coords.rowRange(0, 2)), screen_width, screen_height);
+	return screen_coords;
+};
 
 	} /* namespace fitting */
 } /* namespace eos */

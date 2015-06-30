@@ -39,12 +39,25 @@ namespace eos {
  * we flip y at the end.
  * Qt: Origin top-left. OpenGL: bottom-left. OCV: top-left.
  *
- * @param[in] clipCoordinates A point in clip coordinates.
- * @param[in] screenWidth Width of the screen or window.
- * @param[in] screenHeight Height of the screen or window.
+ * @param[in] clip_coordinates A point in clip coordinates.
+ * @param[in] screen_width Width of the screen or window.
+ * @param[in] screen_height Height of the screen or window.
  * @return A vector with x and y coordinates transformed to screen space.
  */
-cv::Vec2f clipToScreenSpace(cv::Vec2f clipCoordinates, int screenWidth, int screenHeight);
+inline cv::Vec2f clip_to_screen_space(cv::Vec2f clip_coordinates, int screen_width, int screen_height)
+{
+	// Window transform:
+	float x_ss = (clip_coordinates[0] + 1.0f) * (screen_width / 2.0f);
+	float y_ss = screen_height - (clip_coordinates[1] + 1.0f) * (screen_height / 2.0f); // also flip y; Qt: Origin top-left. OpenGL: bottom-left.
+	return cv::Vec2f(x_ss, y_ss);
+	/* Note: What we do here is equivalent to
+	   x_w = (x *  vW/2) + vW/2;
+	   However, Shirley says we should do:
+	   x_w = (x *  vW/2) + (vW-1)/2;
+	   (analogous for y)
+	   Todo: Check the consequences.
+	*/
+};
 
 /**
  * Transforms a point from image (screen) coordinates to

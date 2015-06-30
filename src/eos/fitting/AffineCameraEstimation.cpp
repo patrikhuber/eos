@@ -144,14 +144,5 @@ Mat estimateAffineCamera(vector<Vec2f> imagePoints, vector<Vec4f> modelPoints)
 	return P_Affine;
 }
 
-cv::Vec2f projectAffine(cv::Vec4f vertex, cv::Mat affineCameraMatrix, int screenWidth, int screenHeight)
-{
-	// Transform to clip space:
-	Mat clipCoords = affineCameraMatrix * Mat(vertex);
-	// Take the x and y coordinates in clip space and apply the window transform:
-	cv::Vec2f screenCoords = render::clipToScreenSpace(cv::Vec2f(clipCoords.rowRange(0, 2)), screenWidth, screenHeight);
-	return screenCoords;
-}
-
 	} /* namespace fitting */
 } /* namespace eos */

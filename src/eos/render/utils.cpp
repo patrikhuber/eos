@@ -24,21 +24,6 @@ using cv::Vec2f;
 namespace eos {
 	namespace render {
 
-Vec2f clipToScreenSpace(Vec2f clipCoordinates, int screenWidth, int screenHeight)
-{
-	// Window transform:
-	float x_ss = (clipCoordinates[0] + 1.0f) * (screenWidth / 2.0f);
-	float y_ss = screenHeight - (clipCoordinates[1] + 1.0f) * (screenHeight / 2.0f); // also flip y; Qt: Origin top-left. OpenGL: bottom-left.
-	return Vec2f(x_ss, y_ss);
-	/* Note: What we do here is equivalent to
-	   x_w = (x *  vW/2) + vW/2;
-	   However, Shirley says we should do:
-	   x_w = (x *  vW/2) + (vW-1)/2;
-	   (analogous for y)
-	   Todo: Check the consequences.
-	*/
-}
-
 Vec2f screenToClipSpace(Vec2f screenCoordinates, int screenWidth, int screenHeight)
 {
 	float x_cs = screenCoordinates[0] / (screenWidth / 2.0f) - 1.0f;

@@ -167,7 +167,7 @@ int main(int argc, char *argv[])
 			vertexIndices.emplace_back(vertexIdx);
 			imagePoints.emplace_back(landmarks[i]);
 		}
-		catch (std::out_of_range& e) {
+		catch (const std::out_of_range&) {
 			// just continue if the point isn't defined in the mapping
 		}
 		++ibugId;
@@ -178,7 +178,7 @@ int main(int argc, char *argv[])
 
 	// Draw the mean-face landmarks projected using the estimated camera:
 	for (auto&& vertex : modelPoints) {
-		Vec2f screenPoint = fitting::projectAffine(vertex, affineCam, image.cols, image.rows);
+		Vec2f screenPoint = fitting::project_affine(vertex, affineCam, image.cols, image.rows);
 		cv::circle(outimg, cv::Point2f(screenPoint), 5.0f, { 0.0f, 255.0f, 0.0f });
 	}
 
@@ -193,7 +193,7 @@ int main(int argc, char *argv[])
 	// Draw the projected points again, this time using the fitted model shape:
 	for (auto&& idx : vertexIndices) {
 		Vec4f modelPoint(mesh.vertices[idx][0], mesh.vertices[idx][1], mesh.vertices[idx][2], mesh.vertices[idx][3]);
-		Vec2f screenPoint = fitting::projectAffine(modelPoint, affineCam, image.cols, image.rows);
+		Vec2f screenPoint = fitting::project_affine(modelPoint, affineCam, image.cols, image.rows);
 		cv::circle(outimg, cv::Point2f(screenPoint), 3.0f, { 0.0f, 0.0f, 255.0f });
 	}
 
