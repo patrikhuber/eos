@@ -174,7 +174,7 @@ int main(int argc, char *argv[])
 	}
 	
 	// Estimate the camera from the 2D - 3D point correspondences
-	Mat affineCam = fitting::estimateAffineCamera(imagePoints, modelPoints);
+	Mat affineCam = fitting::estimate_affine_camera(imagePoints, modelPoints);
 
 	// Draw the mean-face landmarks projected using the estimated camera:
 	for (auto&& vertex : modelPoints) {
@@ -184,7 +184,7 @@ int main(int argc, char *argv[])
 
 	// Estimate the shape coefficients by fitting the shape to the landmarks:
 	float lambda = 5.0f; ///< the regularisation parameter
-	vector<float> fittedCoeffs = fitting::fitShapeToLandmarksLinear(morphableModel, affineCam, imagePoints, vertexIndices, lambda);
+	vector<float> fittedCoeffs = fitting::fit_shape_to_landmarks_linear(morphableModel, affineCam, imagePoints, vertexIndices, lambda);
 
 	// Obtain the full mesh and draw it using the estimated camera:
 	render::Mesh mesh = morphableModel.drawSample(fittedCoeffs, vector<float>());

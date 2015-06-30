@@ -48,8 +48,6 @@ set(SOURCES
 	src/eos/morphablemodel/PcaModel.cpp
 	src/eos/morphablemodel/MorphableModel.cpp
 	src/eos/morphablemodel/io/cvssp.cpp
-	src/eos/fitting/AffineCameraEstimation.cpp
-	src/eos/fitting/LinearShapeFitting.cpp
 	src/eos/render/Mesh.cpp
 	src/eos/render/utils.cpp
 )
