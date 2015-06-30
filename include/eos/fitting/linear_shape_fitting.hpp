@@ -1,7 +1,7 @@
 /*
  * Eos - A 3D Morphable Model fitting library written in modern C++11/14.
  *
- * File: include/eos/fitting/LinearShapeFitting.hpp
+ * File: include/eos/fitting/linear_shape_fitting.hpp
  *
  * Copyright 2014, 2015 Patrik Huber
  *
@@ -91,7 +91,7 @@ inline std::vector<float> fit_shape_to_landmarks_linear(morphablemodel::Morphabl
 		Sigma.at<float>(i, i) = 1.0f / sigma_2D_3D; // the higher the sigma_2D_3D, the smaller the diagonal entries of Sigma will be
 	}
 	Mat Omega = Sigma.t() * Sigma; // just squares the diagonal
-								   // The landmarks in matrix notation (in homogeneous coordinates), $3N\times 1$
+	// The landmarks in matrix notation (in homogeneous coordinates), $3N\times 1$
 	Mat y = Mat::ones(3 * landmarks.size(), 1, CV_32FC1);
 	for (int i = 0; i < landmarks.size(); ++i) {
 		y.at<float>(3 * i, 0) = landmarks[i][0];
@@ -112,8 +112,8 @@ inline std::vector<float> fit_shape_to_landmarks_linear(morphablemodel::Morphabl
 	// Bring into standard regularised quadratic form with diagonal distance matrix Omega
 	Mat A = P * V_hat_h; // camera matrix times the basis
 	Mat b = P * v_bar - y; // camera matrix times the mean, minus the landmarks.
-						   //Mat c_s; // The x, we solve for this! (the variance-normalised shape parameter vector, $c_s = [a_1/sigma_{s,1} , ..., a_m-1/sigma_{s,m-1}]^t$
-						   //int numShapePc = morphableModel.getShapeModel().getNumberOfPrincipalComponents();
+	//Mat c_s; // The x, we solve for this! (the variance-normalised shape parameter vector, $c_s = [a_1/sigma_{s,1} , ..., a_m-1/sigma_{s,m-1}]^t$
+	//int numShapePc = morphableModel.getShapeModel().getNumberOfPrincipalComponents();
 	int num_shape_pc = num_coeffs_to_fit;
 	Mat AtOmegaA = A.t() * Omega * A;
 	Mat AtOmegaAReg = AtOmegaA + lambda * Mat::eye(num_shape_pc, num_shape_pc, CV_32FC1);

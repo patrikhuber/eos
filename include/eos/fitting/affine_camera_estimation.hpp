@@ -1,7 +1,7 @@
 /*
  * Eos - A 3D Morphable Model fitting library written in modern C++11/14.
  *
- * File: include/eos/fitting/AffineCameraEstimation.hpp
+ * File: include/eos/fitting/affine_camera_estimation.hpp
  *
  * Copyright 2014, 2015 Patrik Huber
  *
@@ -84,8 +84,8 @@ cv::Mat estimate_affine_camera(std::vector<cv::Vec2f> image_points, std::vector<
 	// 2) multiply every vectors coordinate by sqrt(2)/avgnorm
 	float scaleFactor = std::sqrt(2) / averageNorm;
 	matImagePoints *= scaleFactor; // add unit homogeneous component here
-								   // The points in matImagePoints now have a RMS distance from the origin of sqrt(2).
-								   // The normalisation matrix so that the 2D points are mean-free and their norm is as described above.
+	// The points in matImagePoints now have a RMS distance from the origin of sqrt(2).
+	// The normalisation matrix so that the 2D points are mean-free and their norm is as described above.
 	Mat T = Mat::zeros(3, 3, CV_32FC1);
 	T.at<float>(0, 0) = scaleFactor; // s_x
 	T.at<float>(1, 1) = scaleFactor; // s_y
@@ -95,7 +95,7 @@ cv::Mat estimate_affine_camera(std::vector<cv::Vec2f> image_points, std::vector<
 
 	// center the model points to the origin:
 	Mat tmpOrigMdlPoints = matModelPoints.clone(); // Temp for testing: Save the original coordinates.
-												   // translate the centroid of the model points to the origin:
+	// translate the centroid of the model points to the origin:
 	Mat modelPointsMean; // use non-homogeneous coords for the next few steps? (less submatrices etc overhead)
 	cv::reduce(matModelPoints, modelPointsMean, 0, CV_REDUCE_AVG);
 	modelPointsMean = cv::repeat(modelPointsMean, matModelPoints.rows, 1);
@@ -110,8 +110,8 @@ cv::Mat estimate_affine_camera(std::vector<cv::Vec2f> image_points, std::vector<
 	// 2) multiply every vectors coordinate by sqrt(3)/avgnorm
 	scaleFactor = std::sqrt(3) / averageNorm;
 	matModelPoints *= scaleFactor; // add unit homogeneous component here
-								   // The points in matModelPoints now have a RMS distance from the origin of sqrt(3).
-								   // The normalisation matrix so that the 3D points are mean-free and their norm is as described above.
+	// The points in matModelPoints now have a RMS distance from the origin of sqrt(3).
+	// The normalisation matrix so that the 3D points are mean-free and their norm is as described above.
 	Mat U = Mat::zeros(4, 4, CV_32FC1);
 	U.at<float>(0, 0) = scaleFactor; // s_x
 	U.at<float>(1, 1) = scaleFactor; // s_y

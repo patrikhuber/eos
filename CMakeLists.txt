@@ -57,8 +57,8 @@ set(HEADERS
 	include/eos/morphablemodel/PcaModel.hpp
 	include/eos/morphablemodel/MorphableModel.hpp
 	include/eos/morphablemodel/io/cvssp.hpp
-	include/eos/fitting/AffineCameraEstimation.hpp
-	include/eos/fitting/LinearShapeFitting.hpp
+	include/eos/fitting/affine_camera_estimation.hpp
+	include/eos/fitting/linear_shape_fitting.hpp
 	include/eos/render/Mesh.hpp
 	include/eos/render/utils.hpp
 )
