@@ -123,7 +123,7 @@ inline std::vector<float> fit_shape_to_landmarks_linear(morphablemodel::Morphabl
 	using RowMajorMatrixXf = Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
 	Eigen::Map<RowMajorMatrixXf> AtOmegaAReg_Eigen(AtOmegaAReg.ptr<float>(), AtOmegaAReg.rows, AtOmegaAReg.cols);
 	Eigen::FullPivLU<RowMajorMatrixXf> luOfAtOmegaAReg(AtOmegaAReg_Eigen); // Calculate the full-pivoting LU decomposition of the regularized AtA. Note: We could also try FullPivHouseholderQR if our system is non-minimal (i.e. there are more constraints than unknowns).
-	float rankOfAtOmegaAReg = luOfAtOmegaAReg.rank();
+	auto rankOfAtOmegaAReg = luOfAtOmegaAReg.rank();
 	bool isAtOmegaARegInvertible = luOfAtOmegaAReg.isInvertible();
 	float threshold = /*2 * */ std::abs(luOfAtOmegaAReg.maxPivot()) * luOfAtOmegaAReg.threshold();
 	RowMajorMatrixXf AtARegInv_EigenFullLU = luOfAtOmegaAReg.inverse(); // Note: We should use ::solve() instead

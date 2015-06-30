@@ -51,7 +51,7 @@ cv::Mat estimate_affine_camera(std::vector<cv::Vec2f> image_points, std::vector<
 	assert(image_points.size() == model_points.size());
 	assert(image_points.size() >= 4); // Number of correspondence points given needs to be equal to or larger than 4
 
-	const auto numCorrespondences = image_points.size();
+	const int numCorrespondences = static_cast<int>(image_points.size());
 
 	Mat matImagePoints; // will be numCorrespondences x 2, CV_32FC1
 	Mat matModelPoints; // will be numCorrespondences x 3, CV_32FC1
@@ -76,13 +76,13 @@ cv::Mat estimate_affine_camera(std::vector<cv::Vec2f> image_points, std::vector<
 	matImagePoints = matImagePoints - imagePointsMean;
 	// scale the image points such that the RMS distance from the origin is sqrt(2):
 	// 1) calculate the average norm (root mean squared distance) of all vectors
-	float averageNorm = 0.0f; // TODO change to double!
+	float average_norm = 0.0f;
 	for (int row = 0; row < matImagePoints.rows; ++row) {
-		averageNorm += cv::norm(matImagePoints.row(row), cv::NORM_L2);
+		average_norm += static_cast<float>(cv::norm(matImagePoints.row(row), cv::NORM_L2));
 	}
-	averageNorm /= matImagePoints.rows;
-	// 2) multiply every vectors coordinate by sqrt(2)/avgnorm
-	float scaleFactor = std::sqrt(2) / averageNorm;
+	average_norm /= matImagePoints.rows;
+	// 2) multiply every vectors coordinate by sqrt(2)/average_norm
+	float scaleFactor = static_cast<float>(std::sqrt(2)) / average_norm;
 	matImagePoints *= scaleFactor; // add unit homogeneous component here
 	// The points in matImagePoints now have a RMS distance from the origin of sqrt(2).
 	// The normalisation matrix so that the 2D points are mean-free and their norm is as described above.
@@ -102,13 +102,13 @@ cv::Mat estimate_affine_camera(std::vector<cv::Vec2f> image_points, std::vector<
 	matModelPoints = matModelPoints - modelPointsMean;
 	// scale the model points such that the RMS distance from the origin is sqrt(3):
 	// 1) calculate the average norm (root mean squared distance) of all vectors
-	averageNorm = 0.0f;
+	average_norm = 0.0f;
 	for (int row = 0; row < matModelPoints.rows; ++row) {
-		averageNorm += cv::norm(matModelPoints.row(row), cv::NORM_L2);
+		average_norm += static_cast<float>(cv::norm(matModelPoints.row(row), cv::NORM_L2));
 	}
-	averageNorm /= matModelPoints.rows;
+	average_norm /= matModelPoints.rows;
 	// 2) multiply every vectors coordinate by sqrt(3)/avgnorm
-	scaleFactor = std::sqrt(3) / averageNorm;
+	scaleFactor = static_cast<float>(std::sqrt(3)) / average_norm;
 	matModelPoints *= scaleFactor; // add unit homogeneous component here
 	// The points in matModelPoints now have a RMS distance from the origin of sqrt(3).
 	// The normalisation matrix so that the 3D points are mean-free and their norm is as described above.

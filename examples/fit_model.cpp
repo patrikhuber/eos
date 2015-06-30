@@ -179,7 +179,7 @@ int main(int argc, char *argv[])
 	// Draw the mean-face landmarks projected using the estimated camera:
 	for (auto&& vertex : modelPoints) {
 		Vec2f screenPoint = fitting::project_affine(vertex, affineCam, image.cols, image.rows);
-		cv::circle(outimg, cv::Point2f(screenPoint), 5.0f, { 0.0f, 255.0f, 0.0f });
+		cv::circle(outimg, cv::Point2f(screenPoint), 5, { 0.0f, 255.0f, 0.0f });
 	}
 
 	// Estimate the shape coefficients by fitting the shape to the landmarks:
@@ -194,7 +194,7 @@ int main(int argc, char *argv[])
 	for (auto&& idx : vertexIndices) {
 		Vec4f modelPoint(mesh.vertices[idx][0], mesh.vertices[idx][1], mesh.vertices[idx][2], mesh.vertices[idx][3]);
 		Vec2f screenPoint = fitting::project_affine(modelPoint, affineCam, image.cols, image.rows);
-		cv::circle(outimg, cv::Point2f(screenPoint), 3.0f, { 0.0f, 0.0f, 255.0f });
+		cv::circle(outimg, cv::Point2f(screenPoint), 3, { 0.0f, 0.0f, 255.0f });
 	}
 
 	// Save the output image:
