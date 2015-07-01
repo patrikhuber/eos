@@ -33,7 +33,7 @@ namespace eos {
 	namespace morphablemodel {
 
 /**
- * Forward declarations
+ * Forward declarations of free functions
  */
 cv::Mat normalisePcaBasis(cv::Mat unnormalisedBasis, cv::Mat eigenvalues);
 cv::Mat unnormalisePcaBasis(cv::Mat normalisedBasis, cv::Mat eigenvalues);
@@ -64,7 +64,7 @@ public:
 	 * @param[in] eigenvalues The eigenvalues used to build the PCA model.
 	 * @param[in] triangleList An index list of how to assemble the mesh.
 	 */
-	PcaModel(cv::Mat mean, cv::Mat pcaBasis, cv::Mat eigenvalues, std::vector<std::array<int, 3>> triangleList)
+	PcaModel(cv::Mat mean, cv::Mat pcaBasis, cv::Mat eigenvalues, std::vector<std::array<int, 3>> triangleList) : mean(mean), normalisedPcaBasis(pcaBasis), eigenvalues(eigenvalues), triangleList(triangleList)
 	{
 		const auto seed = std::random_device()();
 		engine.seed(seed);

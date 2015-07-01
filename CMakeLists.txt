@@ -45,7 +45,6 @@ endif()
 # Source and header files:
 set(SOURCES
 	src/eos/core/LandmarkMapper.cpp
-	src/eos/morphablemodel/MorphableModel.cpp
 	src/eos/morphablemodel/io/cvssp.cpp
 	src/eos/render/utils.cpp
 )
