@@ -70,7 +70,13 @@ inline cv::Vec2f clip_to_screen_space(cv::Vec2f clip_coordinates, int screen_wid
  * @param[in] screenHeight Height of the screen or window.
  * @return A vector with x and y coordinates transformed to clip space.
  */
-cv::Vec2f screenToClipSpace(cv::Vec2f screenCoordinates, int screenWidth, int screenHeight);
+inline cv::Vec2f screenToClipSpace(cv::Vec2f screenCoordinates, int screenWidth, int screenHeight)
+{
+	float x_cs = screenCoordinates[0] / (screenWidth / 2.0f) - 1.0f;
+	float y_cs = screenCoordinates[1] / (screenHeight / 2.0f) - 1.0f;
+	y_cs *= -1.0f;
+	return cv::Vec2f(x_cs, y_cs);
+};
 
 	} /* namespace render */
 } /* namespace eos */

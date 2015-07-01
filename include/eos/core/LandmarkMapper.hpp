@@ -27,6 +27,8 @@
 	#define BOOST_ALL_NO_LIB	// Don't use the automatic library linking by boost with VS2010 (#pragma ...). Instead, we specify everything in cmake.
 #endif
 #include "boost/filesystem/path.hpp"
+#include "boost/property_tree/ptree.hpp"
+#include "boost/property_tree/info_parser.hpp"
 
 #include <string>
 #include <map>
@@ -52,8 +54,34 @@ public:
 	 * Constructs a new landmark mapper from a mappings-file.
 	 *
 	 * @param[in] filename A file with landmark mappings.
+	 * @throws runtime_error exception if there is an error
+	 *         loading the mappings from the file.
 	 */
-	LandmarkMapper(boost::filesystem::path filename);
+	LandmarkMapper(boost::filesystem::path filename)
+	{
+		using std::string;
+		using boost::property_tree::ptree;
+		ptree configTree;
+		try {
+			boost::property_tree::info_parser::read_info(filename.string(), configTree);
+		}
+		catch (const boost::property_tree::ptree_error& error) {
+			throw std::runtime_error(string("LandmarkMapper: Error reading landmark-mappings file: ") + error.what());
+		}
+
+		try {
+			ptree ptLandmarkMappings = configTree.get_child("landmarkMappings");
+			for (auto&& mapping : ptLandmarkMappings) {
+				landmarkMappings.insert(make_pair(mapping.first, mapping.second.get_value<string>()));
+			}
+		}
+		catch (const boost::property_tree::ptree_error& error) {
+			throw std::runtime_error(string("LandmarkMapper: Error while parsing the mappings file: ") + error.what());
+		}
+		catch (const std::runtime_error& error) {
+			throw std::runtime_error(string("LandmarkMapper: Error while parsing the mappings file: ") + error.what());
+		}
+	};
 
 	/**
 	 * Converts the given landmark name to the mapped name.
@@ -63,7 +91,26 @@ public:
 	 * @throws out_of_range exception if there is no mapping
 	 *         for the given landmarkName.
 	 */
-	std::string convert(std::string landmarkName);
+	std::string convert(std::string landmarkName) const
+	{
+		if (landmarkMappings.empty()) {
+			// perform identity mapping, i.e. return the input
+			return landmarkName;
+		}
+		else {
+			return landmarkMappings.at(landmarkName); // throws an out_of_range exception if landmarkName does not match the key of any element in the map
+		}
+	};
+
+	/**
+	 * Returns the number of loaded landmark mappings.
+	 *
+	 * @return The number of landmark mappings.
+	 */
+	auto size() const
+	{
+		return landmarkMappings.size();
+	};
 
 private:
 	std::map<std::string, std::string> landmarkMappings; ///< Mapping from one landmark name to a name in a different format.

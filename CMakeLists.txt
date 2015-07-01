@@ -42,12 +42,7 @@ else(Boost_FOUND)
   message(FATAL_ERROR "Boost not found")
 endif()
 
-# Source and header files:
-set(SOURCES
-	src/eos/core/LandmarkMapper.cpp
-	src/eos/morphablemodel/io/cvssp.cpp
-	src/eos/render/utils.cpp
-)
+# Header files:
 
 set(HEADERS
 	include/eos/core/LandmarkMapper.hpp
