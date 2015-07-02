@@ -5,6 +5,8 @@ set(eos_VERSION_MINOR 2)
 set(eos_VERSION_PATCH 0)
 set(eos_VERSION ${eos_VERSION_MAJOR}.${eos_VERSION_MINOR}.${eos_VERSION_PATCH})
 
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
 # g++ needs a compiler flag to enable C++11 support
 include(CheckCXXCompilerFlag)
 check_cxx_compiler_flag(-std=c++11 HAS_CXX11_FLAG)
@@ -59,6 +61,13 @@ include_directories(${OpenCV_INCLUDE_DIRS})
 
 # Custom target for the library, to make the headers show up in IDEs:
 add_custom_target(eos SOURCES ${HEADERS})
+source_group(core include/eos/core/*)
+source_group(morphablemodel include/eos/morphablemodel/*)
+source_group(morphablemodel\\io include/eos/morphablemodel/io/*)
+source_group(fitting include/eos/fitting/*)
+source_group(render include/eos/render/*)
+source_group(render\\detail include/eos/render/detail/*)
+
 
 # The install target:
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/ DESTINATION ${CMAKE_INSTALL_PREFIX}/include)
