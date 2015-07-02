@@ -78,9 +78,9 @@ vector<Vec2f> readPtsLandmarks(std::string filename)
 		if (line == "}") { // end of the file
 			break;
 		}
-		std::stringstream lineStream(line);
+		std::stringstream line_stream(line);
 		Vec2f landmark(0.0f, 0.0f);
-		if (!(lineStream >> landmark[0] >> landmark[1])) {
+		if (!(line_stream >> landmark[0] >> landmark[1])) {
 			throw std::runtime_error(string("Landmark format error while parsing the line: " + line));
 		}
 		// From the iBug website:
@@ -140,8 +140,8 @@ int main(int argc, char *argv[])
 	// Load the image, landmarks, LandmarkMapper and the Morphable Model:
 	Mat image = cv::imread(imagefile.string());
 	auto landmarks = readPtsLandmarks(landmarksfile.string());
-	morphablemodel::MorphableModel morphableModel = morphablemodel::loadScmModel(modelfile, isomapfile);
-	core::LandmarkMapper landmarkMapper = mappingsfile.empty() ? core::LandmarkMapper() : core::LandmarkMapper(mappingsfile);
+	morphablemodel::MorphableModel morphable_model = morphablemodel::loadScmModel(modelfile, isomapfile);
+	core::LandmarkMapper landmark_mapper = mappingsfile.empty() ? core::LandmarkMapper() : core::LandmarkMapper(mappingsfile);
 
 	// Draw the loaded landmarks:
 	Mat outimg = image.clone();
@@ -153,48 +153,48 @@ int main(int argc, char *argv[])
 	std::transform(begin(landmarks), end(landmarks), begin(landmarks), [&image](const Vec2f& lm) { return render::screenToClipSpace(lm, image.cols, image.rows); });
 
 	// These will be the final 2D and 3D points used for the fitting:
-	vector<Vec4f> modelPoints; ///< the points in the 3D shape model
-	vector<int> vertexIndices; ///< their vertex indices
-	vector<Vec2f> imagePoints; ///< the corresponding 2D landmark points
+	vector<Vec4f> model_points; ///< the points in the 3D shape model
+	vector<int> vertex_indices; ///< their vertex indices
+	vector<Vec2f> image_points; ///< the corresponding 2D landmark points
 
 	// Sub-select all the landmarks which we have a mapping for (i.e. that are defined in the 3DMM):
-	int ibugId = 1;
+	int ibug_id = 1;
 	for (int i = 0; i < landmarks.size(); ++i) {
 		try {
-			int vertexIdx = boost::lexical_cast<int>(landmarkMapper.convert(std::to_string(ibugId)));
-			Vec4f vertex = morphableModel.getShapeModel().getMeanAtPoint(vertexIdx);
-			modelPoints.emplace_back(vertex);
-			vertexIndices.emplace_back(vertexIdx);
-			imagePoints.emplace_back(landmarks[i]);
+			int vertex_idx = boost::lexical_cast<int>(landmark_mapper.convert(std::to_string(ibug_id)));
+			Vec4f vertex = morphable_model.get_shape_model().get_mean_at_point(vertex_idx);
+			model_points.emplace_back(vertex);
+			vertex_indices.emplace_back(vertex_idx);
+			image_points.emplace_back(landmarks[i]);
 		}
 		catch (const std::out_of_range&) {
 			// just continue if the point isn't defined in the mapping
 		}
-		++ibugId;
+		++ibug_id;
 	}
 	
 	// Estimate the camera from the 2D - 3D point correspondences
-	Mat affineCam = fitting::estimate_affine_camera(imagePoints, modelPoints);
+	Mat affine_cam = fitting::estimate_affine_camera(image_points, model_points);
 
 	// Draw the mean-face landmarks projected using the estimated camera:
-	for (auto&& vertex : modelPoints) {
-		Vec2f screenPoint = fitting::project_affine(vertex, affineCam, image.cols, image.rows);
-		cv::circle(outimg, cv::Point2f(screenPoint), 5, { 0.0f, 255.0f, 0.0f });
+	for (auto&& vertex : model_points) {
+		Vec2f screen_point = fitting::project_affine(vertex, affine_cam, image.cols, image.rows);
+		cv::circle(outimg, cv::Point2f(screen_point), 5, { 0.0f, 255.0f, 0.0f });
 	}
 
 	// Estimate the shape coefficients by fitting the shape to the landmarks:
 	float lambda = 5.0f; ///< the regularisation parameter
-	vector<float> fittedCoeffs = fitting::fit_shape_to_landmarks_linear(morphableModel, affineCam, imagePoints, vertexIndices, lambda);
+	vector<float> fitted_coeffs = fitting::fit_shape_to_landmarks_linear(morphable_model, affine_cam, image_points, vertex_indices, lambda);
 
 	// Obtain the full mesh and draw it using the estimated camera:
-	render::Mesh mesh = morphableModel.drawSample(fittedCoeffs, vector<float>());
+	render::Mesh mesh = morphable_model.draw_sample(fitted_coeffs, vector<float>());
 	render::write_obj(mesh, "out.obj"); // save the mesh as obj
 
 	// Draw the projected points again, this time using the fitted model shape:
-	for (auto&& idx : vertexIndices) {
-		Vec4f modelPoint(mesh.vertices[idx][0], mesh.vertices[idx][1], mesh.vertices[idx][2], mesh.vertices[idx][3]);
-		Vec2f screenPoint = fitting::project_affine(modelPoint, affineCam, image.cols, image.rows);
-		cv::circle(outimg, cv::Point2f(screenPoint), 3, { 0.0f, 0.0f, 255.0f });
+	for (auto&& idx : vertex_indices) {
+		Vec4f model_point(mesh.vertices[idx][0], mesh.vertices[idx][1], mesh.vertices[idx][2], mesh.vertices[idx][3]);
+		Vec2f screen_point = fitting::project_affine(model_point, affine_cam, image.cols, image.rows);
+		cv::circle(outimg, cv::Point2f(screen_point), 3, { 0.0f, 0.0f, 255.0f });
 	}
 
 	// Save the output image:

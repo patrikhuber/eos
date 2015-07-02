@@ -61,14 +61,14 @@ inline std::vector<float> fit_shape_to_landmarks_linear(morphablemodel::Morphabl
 	using cv::Mat;
 	assert(landmarks.size() == vertex_ids.size());
 
-	int num_coeffs_to_fit = num_coefficients_to_fit.get_value_or(morphable_model.getShapeModel().getNumberOfPrincipalComponents());
+	int num_coeffs_to_fit = num_coefficients_to_fit.get_value_or(morphable_model.get_shape_model().get_num_principal_components());
 
 	// $\hat{V} \in R^{3N\times m-1}$, subselect the rows of the eigenvector matrix $V$ associated with the $N$ feature points
 	// And we insert a row of zeros after every third row, resulting in matrix $\hat{V}_h \in R^{4N\times m-1}$:
 	Mat V_hat_h = Mat::zeros(4 * landmarks.size(), num_coeffs_to_fit, CV_32FC1);
 	int row_index = 0;
 	for (int i = 0; i < landmarks.size(); ++i) {
-		Mat basis_rows = morphable_model.getShapeModel().getNormalisedPcaBasis(vertex_ids[i]); // In the paper, the not-normalised basis might be used? I'm not sure, check it. It's even a mess in the paper. PH 26.5.2014: I think the normalised basis is fine/better.
+		Mat basis_rows = morphable_model.get_shape_model().get_normalised_pca_basis(vertex_ids[i]); // In the paper, the not-normalised basis might be used? I'm not sure, check it. It's even a mess in the paper. PH 26.5.2014: I think the normalised basis is fine/better.
 																							//basisRows.copyTo(V_hat_h.rowRange(rowIndex, rowIndex + 3));
 		basis_rows.colRange(0, num_coeffs_to_fit).copyTo(V_hat_h.rowRange(row_index, row_index + 3));
 		row_index += 4; // replace 3 rows and skip the 4th one, it has all zeros
@@ -101,7 +101,7 @@ inline std::vector<float> fit_shape_to_landmarks_linear(morphablemodel::Morphabl
 	// The mean, with an added homogeneous coordinate (x_1, y_1, z_1, 1, x_2, ...)^t
 	Mat v_bar = Mat::ones(4 * landmarks.size(), 1, CV_32FC1);
 	for (int i = 0; i < landmarks.size(); ++i) {
-		cv::Vec4f model_mean = morphable_model.getShapeModel().getMeanAtPoint(vertex_ids[i]);
+		cv::Vec4f model_mean = morphable_model.get_shape_model().get_mean_at_point(vertex_ids[i]);
 		v_bar.at<float>(4 * i, 0) = model_mean[0];
 		v_bar.at<float>((4 * i) + 1, 0) = model_mean[1];
 		v_bar.at<float>((4 * i) + 2, 0) = model_mean[2];

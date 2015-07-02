@@ -158,7 +158,7 @@ MorphableModel loadScmModel(boost::filesystem::path modelFilename, boost::filesy
 	}
 
 	// We read the unnormalised basis from the file. Now let's normalise it and store the normalised basis separately.
-	Mat normalisedPcaBasisShape = normalisePcaBasis(unnormalisedPcaBasisShape, eigenvaluesShape);
+	Mat normalisedPcaBasisShape = normalise_pca_basis(unnormalisedPcaBasisShape, eigenvaluesShape);
 	PcaModel shapeModel(meanShape, normalisedPcaBasisShape, eigenvaluesShape, triangleList);
 
 	// Reading the color model
@@ -207,7 +207,7 @@ MorphableModel loadScmModel(boost::filesystem::path modelFilename, boost::filesy
 	}
 
 	// We read the unnormalised basis from the file. Now let's normalise it and store the normalised basis separately.
-	Mat normalisedPcaBasisColor = normalisePcaBasis(unnormalisedPcaBasisColor, eigenvaluesColor);
+	Mat normalisedPcaBasisColor = normalise_pca_basis(unnormalisedPcaBasisColor, eigenvaluesColor);
 	PcaModel colorModel(meanColor, normalisedPcaBasisColor, eigenvaluesColor, triangleList);
 
 	modelFile.close();
@@ -216,7 +216,7 @@ MorphableModel loadScmModel(boost::filesystem::path modelFilename, boost::filesy
 	std::vector<cv::Vec2f> texCoords;
 	if (!isomapFile.empty()) {
 		texCoords = loadIsomap(isomapFile);
-		if (shapeModel.getDataDimension() / 3.0f != texCoords.size()) {
+		if (shapeModel.get_data_dimension() / 3.0f != texCoords.size()) {
 			std::string errorMessage("Error, wrong number of texture coordinates. Don't have the same number of texcoords than the shape model has vertices.");
 			std::cout << errorMessage << std::endl;
 			throw std::runtime_error(errorMessage);

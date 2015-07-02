@@ -35,8 +35,8 @@ namespace eos {
 /**
  * Forward declarations of free functions
  */
-cv::Mat normalisePcaBasis(cv::Mat unnormalisedBasis, cv::Mat eigenvalues);
-cv::Mat unnormalisePcaBasis(cv::Mat normalisedBasis, cv::Mat eigenvalues);
+cv::Mat normalise_pca_basis(cv::Mat unnormalisedBasis, cv::Mat eigenvalues);
+cv::Mat unnormalise_pca_basis(cv::Mat normalisedBasis, cv::Mat eigenvalues);
 
 /**
  * This class represents a PCA-model that consists of:
@@ -60,15 +60,15 @@ public:
 	 * be arranged.
 	 *
 	 * @param[in] mean The mean used to build the PCA model.
-	 * @param[in] pcaBasis The PCA basis (eigenvectors), normalised (multiplied by the eigenvalues).
+	 * @param[in] pca_basis The PCA basis (eigenvectors), normalised (multiplied by the eigenvalues).
 	 * @param[in] eigenvalues The eigenvalues used to build the PCA model.
-	 * @param[in] triangleList An index list of how to assemble the mesh.
+	 * @param[in] triangle_list An index list of how to assemble the mesh.
 	 */
-	PcaModel(cv::Mat mean, cv::Mat pcaBasis, cv::Mat eigenvalues, std::vector<std::array<int, 3>> triangleList) : mean(mean), normalisedPcaBasis(pcaBasis), eigenvalues(eigenvalues), triangleList(triangleList)
+	PcaModel(cv::Mat mean, cv::Mat pca_basis, cv::Mat eigenvalues, std::vector<std::array<int, 3>> triangle_list) : mean(mean), normalised_pca_basis(pca_basis), eigenvalues(eigenvalues), triangle_list(triangle_list)
 	{
 		const auto seed = std::random_device()();
 		engine.seed(seed);
-		unnormalisedPcaBasis = unnormalisePcaBasis(normalisedPcaBasis, eigenvalues);
+		unnormalised_pca_basis = unnormalise_pca_basis(normalised_pca_basis, eigenvalues);
 	};
 
 	/**
@@ -76,10 +76,10 @@ public:
 	 *
 	 * @return The number of principal components in the model.
 	 */
-	int getNumberOfPrincipalComponents() const
+	int get_num_principal_components() const
 	{
 		// Note: we could assert(normalisedPcaBasis.cols==unnormalisedPcaBasis.cols)
-		return normalisedPcaBasis.cols;
+		return normalised_pca_basis.cols;
 	};
 
 	/**
@@ -90,10 +90,10 @@ public:
 	 *
 	 * @return The dimension of the data.
 	 */
-	int getDataDimension() const
+	int get_data_dimension() const
 	{
 		// Note: we could assert(normalisedPcaBasis.rows==unnormalisedPcaBasis.rows)
-		return normalisedPcaBasis.rows;
+		return normalised_pca_basis.rows;
 	};
 
 	/**
@@ -101,9 +101,9 @@ public:
 	 *
 	 * @return The list of triangles to build a mesh.
 	 */
-	std::vector<std::array<int, 3>> getTriangleList() const
+	std::vector<std::array<int, 3>> get_triangle_list() const
 	{
-		return triangleList;
+		return triangle_list;
 	};
 
 	/**
@@ -111,7 +111,7 @@ public:
 	 *
 	 * @return The mean of the model.
 	 */
-	cv::Mat getMean() const
+	cv::Mat get_mean() const
 	{
 		return mean;
 	};
@@ -122,13 +122,13 @@ public:
 	 * @param[in] vertexIndex A vertex id.
 	 * @return A homogeneous vector containing the values at the given vertex id.
 	 */
-	cv::Vec4f getMeanAtPoint(int vertexIndex) const
+	cv::Vec4f get_mean_at_point(int vertex_index) const
 	{
-		vertexIndex *= 3;
-		if (vertexIndex >= mean.rows) {
+		vertex_index *= 3;
+		if (vertex_index >= mean.rows) {
 			throw std::out_of_range("The given vertex id is larger than the dimension of the mean.");
 		}
-		return cv::Vec4f(mean.at<float>(vertexIndex), mean.at<float>(vertexIndex + 1), mean.at<float>(vertexIndex + 2), 1.0f);
+		return cv::Vec4f(mean.at<float>(vertex_index), mean.at<float>(vertex_index + 1), mean.at<float>(vertex_index + 2), 1.0f);
 	};
 
 	/**
@@ -138,17 +138,17 @@ public:
 	 * @param[in] sigma The standard deviation.
 	 * @return A random sample from the model.
 	 */
-	cv::Mat drawSample(float sigma = 1.0f)
+	cv::Mat draw_sample(float sigma = 1.0f)
 	{
 		std::normal_distribution<float> distribution(0.0f, sigma); // this constructor takes the stddev
 
-		std::vector<float> alphas(getNumberOfPrincipalComponents());
+		std::vector<float> alphas(get_num_principal_components());
 
 		for (auto&& a : alphas) {
 			a = distribution(engine);
 		}
 
-		return drawSample(alphas);
+		return draw_sample(alphas);
 	};
 
 	/**
@@ -159,17 +159,17 @@ public:
 	 * @param[in] coefficients The PCA coefficients used to generate the sample.
 	 * @return A model instance with given coefficients.
 	 */
-	cv::Mat drawSample(std::vector<float> coefficients)
+	cv::Mat draw_sample(std::vector<float> coefficients)
 	{
 		// Fill the rest with zeros if not all coefficients are given:
-		if (coefficients.size() < getNumberOfPrincipalComponents()) {
-			coefficients.resize(getNumberOfPrincipalComponents());
+		if (coefficients.size() < get_num_principal_components()) {
+			coefficients.resize(get_num_principal_components());
 		}
 		cv::Mat alphas(coefficients);
 
-		cv::Mat modelSample = mean + normalisedPcaBasis * alphas;
+		cv::Mat model_sample = mean + normalised_pca_basis * alphas;
 
-		return modelSample;
+		return model_sample;
 	};
 
 	/**
@@ -183,9 +183,9 @@ public:
 	 *
 	 * @return Returns the normalised PCA basis matrix.
 	 */
-	cv::Mat getNormalisedPcaBasis() const
+	cv::Mat get_normalised_pca_basis() const
 	{
-		return normalisedPcaBasis.clone();
+		return normalised_pca_basis.clone();
 	};
 	
 	/**
@@ -196,10 +196,10 @@ public:
 	 * @param[in] vertexId A vertex index. Make sure it is valid.
 	 * @return A Mat that points to the rows in the original basis.
 	 */
-	cv::Mat getNormalisedPcaBasis(int vertexId) const
+	cv::Mat get_normalised_pca_basis(int vertex_id) const
 	{
-		vertexId *= 3; // the basis is stored in the format [x y z x y z ...]
-		return normalisedPcaBasis.rowRange(vertexId, vertexId + 3);
+		vertex_id *= 3; // the basis is stored in the format [x y z x y z ...]
+		return normalised_pca_basis.rowRange(vertex_id, vertex_id + 3);
 	};
 
 	/**
@@ -212,9 +212,9 @@ public:
 	 *
 	 * @return Returns the unnormalised PCA basis matrix.
 	 */
-	cv::Mat getUnnormalisedPcaBasis() const
+	cv::Mat get_unnormalised_pca_basis() const
 	{
-		return unnormalisedPcaBasis.clone();
+		return unnormalised_pca_basis.clone();
 	};
 
 	/**
@@ -224,10 +224,10 @@ public:
 	 * @param[in] vertexId A vertex index. Make sure it is valid.
 	 * @return A Mat that points to the rows in the original basis.
 	 */
-	cv::Mat getUnnormalisedPcaBasis(int vertexId) const
+	cv::Mat get_unnormalised_pca_basis(int vertex_id) const
 	{
-		vertexId *= 3; // the basis is stored in the format [x y z x y z ...]
-		return unnormalisedPcaBasis.rowRange(vertexId, vertexId + 3);
+		vertex_id *= 3; // the basis is stored in the format [x y z x y z ...]
+		return unnormalised_pca_basis.rowRange(vertex_id, vertex_id + 3);
 	};
 
 	/**
@@ -236,7 +236,7 @@ public:
 	 * @param[in] index The index of the eigenvalue to return.
 	 * @return The eigenvalue.
 	 */
-	float getEigenvalue(int index) const
+	float get_eigenvalue(int index) const
 	{
 		return eigenvalues.at<float>(index);
 	};
@@ -245,11 +245,11 @@ private:
 	std::mt19937 engine; ///< Random number engine used to draw random coefficients.
 	
 	cv::Mat mean; ///< A 3m x 1 col-vector (xyzxyz...)', where m is the number of model-vertices.
-	cv::Mat normalisedPcaBasis; ///< The normalised PCA basis matrix. m x n (rows x cols) = numShapeDims x numShapePcaCoeffs, (=eigenvector matrix V). Each column is an eigenvector.
-	cv::Mat unnormalisedPcaBasis; ///< The unnormalised PCA basis matrix. m x n (rows x cols) = numShapeDims x numShapePcaCoeffs, (=eigenvector matrix V). Each column is an eigenvector.
+	cv::Mat normalised_pca_basis; ///< The normalised PCA basis matrix. m x n (rows x cols) = numShapeDims x numShapePcaCoeffs, (=eigenvector matrix V). Each column is an eigenvector.
+	cv::Mat unnormalised_pca_basis; ///< The unnormalised PCA basis matrix. m x n (rows x cols) = numShapeDims x numShapePcaCoeffs, (=eigenvector matrix V). Each column is an eigenvector.
 	cv::Mat eigenvalues; ///< A col-vector of the eigenvalues (variances in the PCA space).
 
-	std::vector<std::array<int, 3>> triangleList; ///< List of triangles that make up the mesh of the model.
+	std::vector<std::array<int, 3>> triangle_list; ///< List of triangles that make up the mesh of the model.
 };
 
 
@@ -263,7 +263,7 @@ private:
  * @param[in] eigenvalues A row or column vector of eigenvalues.
  * @return The normalised PCA basis matrix.
  */
-inline cv::Mat normalisePcaBasis(cv::Mat unnormalisedBasis, cv::Mat eigenvalues)
+inline cv::Mat normalise_pca_basis(cv::Mat unnormalisedBasis, cv::Mat eigenvalues)
 {
 	using cv::Mat;
 	Mat normalisedPcaBasis(unnormalisedBasis.size(), unnormalisedBasis.type()); // empty matrix with the same dimensions
@@ -290,7 +290,7 @@ inline cv::Mat normalisePcaBasis(cv::Mat unnormalisedBasis, cv::Mat eigenvalues)
  * @param[in] eigenvalues A row or column vector of eigenvalues.
  * @return The unnormalised PCA basis matrix.
  */
-inline cv::Mat unnormalisePcaBasis(cv::Mat normalisedBasis, cv::Mat eigenvalues)
+inline cv::Mat unnormalise_pca_basis(cv::Mat normalisedBasis, cv::Mat eigenvalues)
 {
 	using cv::Mat;
 	Mat unnormalisedBasis(normalisedBasis.size(), normalisedBasis.type()); // empty matrix with the same dimensions

@@ -51,7 +51,7 @@ cv::Mat estimate_affine_camera(std::vector<cv::Vec2f> image_points, std::vector<
 	assert(image_points.size() == model_points.size());
 	assert(image_points.size() >= 4); // Number of correspondence points given needs to be equal to or larger than 4
 
-	const int numCorrespondences = static_cast<int>(image_points.size());
+	const int num_correspondences = static_cast<int>(image_points.size());
 
 	Mat matImagePoints; // will be numCorrespondences x 2, CV_32FC1
 	Mat matModelPoints; // will be numCorrespondences x 3, CV_32FC1
@@ -125,10 +125,10 @@ cv::Mat estimate_affine_camera(std::vector<cv::Vec2f> image_points, std::vector<
 	// We are solving the system $A_8 * p_8 = b$
 	// The solution is obtained by the pseudo-inverse of A_8:
 	// $p_8 = A_8^+ * b$
-	Mat A_8 = Mat::zeros(numCorrespondences * 2, 8, CV_32FC1);
+	Mat A_8 = Mat::zeros(num_correspondences * 2, 8, CV_32FC1);
 	//Mat p_8(); // p_8 is 8 x 1. We are solving for it.
-	Mat b(numCorrespondences * 2, 1, CV_32FC1);
-	for (int i = 0; i < numCorrespondences; ++i) {
+	Mat b(num_correspondences * 2, 1, CV_32FC1);
+	for (int i = 0; i < num_correspondences; ++i) {
 		A_8.at<float>(2 * i, 0) = matModelPoints.at<float>(i, 0); // could maybe made faster by assigning the whole row/col-range if possible?
 		A_8.at<float>(2 * i, 1) = matModelPoints.at<float>(i, 1);
 		A_8.at<float>(2 * i, 2) = matModelPoints.at<float>(i, 2);

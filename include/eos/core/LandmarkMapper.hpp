@@ -61,18 +61,18 @@ public:
 	{
 		using std::string;
 		using boost::property_tree::ptree;
-		ptree configTree;
+		ptree configtree;
 		try {
-			boost::property_tree::info_parser::read_info(filename.string(), configTree);
+			boost::property_tree::info_parser::read_info(filename.string(), configtree);
 		}
 		catch (const boost::property_tree::ptree_error& error) {
 			throw std::runtime_error(string("LandmarkMapper: Error reading landmark-mappings file: ") + error.what());
 		}
 
 		try {
-			ptree ptLandmarkMappings = configTree.get_child("landmarkMappings");
-			for (auto&& mapping : ptLandmarkMappings) {
-				landmarkMappings.insert(make_pair(mapping.first, mapping.second.get_value<string>()));
+			ptree pt_landmark_mappings = configtree.get_child("landmarkMappings");
+			for (auto&& mapping : pt_landmark_mappings) {
+				landmark_mappings.insert(make_pair(mapping.first, mapping.second.get_value<string>()));
 			}
 		}
 		catch (const boost::property_tree::ptree_error& error) {
@@ -91,14 +91,14 @@ public:
 	 * @throws out_of_range exception if there is no mapping
 	 *         for the given landmarkName.
 	 */
-	std::string convert(std::string landmarkName) const
+	std::string convert(std::string landmark_name) const
 	{
-		if (landmarkMappings.empty()) {
+		if (landmark_mappings.empty()) {
 			// perform identity mapping, i.e. return the input
-			return landmarkName;
+			return landmark_name;
 		}
 		else {
-			return landmarkMappings.at(landmarkName); // throws an out_of_range exception if landmarkName does not match the key of any element in the map
+			return landmark_mappings.at(landmark_name); // throws an out_of_range exception if landmarkName does not match the key of any element in the map
 		}
 	};
 
@@ -109,11 +109,11 @@ public:
 	 */
 	auto size() const
 	{
-		return landmarkMappings.size();
+		return landmark_mappings.size();
 	};
 
 private:
-	std::map<std::string, std::string> landmarkMappings; ///< Mapping from one landmark name to a name in a different format.
+	std::map<std::string, std::string> landmark_mappings; ///< Mapping from one landmark name to a name in a different format.
 };
 
 	} /* namespace core */

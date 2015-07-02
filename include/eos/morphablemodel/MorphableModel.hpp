@@ -33,7 +33,7 @@
  * Forward declaration of an internal function
  */
 namespace eos { namespace morphablemodel { namespace detail {
-	eos::render::Mesh sampleToMesh(cv::Mat shape, cv::Mat color, std::vector<std::array<int, 3>> tvi, std::vector<std::array<int, 3>> tci, std::vector<cv::Vec2f> textureCoordinates = std::vector<cv::Vec2f>());
+	eos::render::Mesh sample_to_mesh(cv::Mat shape, cv::Mat color, std::vector<std::array<int, 3>> tvi, std::vector<std::array<int, 3>> tci, std::vector<cv::Vec2f> textureCoordinates = std::vector<cv::Vec2f>());
 } } }
 
 namespace eos {
@@ -58,7 +58,7 @@ public:
 	 * @param[in] colorModel A PCA model over the color (albedo).
 	 * @param[in] textureCoordinates Optional texture coordinates for every vertex.
 	 */
-	MorphableModel(PcaModel shapeModel, PcaModel colorModel, std::vector<cv::Vec2f> textureCoordinates = std::vector<cv::Vec2f>()) : shapeModel(shapeModel), colorModel(colorModel), textureCoordinates(textureCoordinates)
+	MorphableModel(PcaModel shape_model, PcaModel color_model, std::vector<cv::Vec2f> texture_coordinates = std::vector<cv::Vec2f>()) : shape_model(shape_model), color_model(color_model), texture_coordinates(texture_coordinates)
 	{
 	};
 
@@ -68,9 +68,9 @@ public:
 	 *
 	 * @return The shape model.
 	 */
-	PcaModel getShapeModel() const
+	PcaModel get_shape_model() const
 	{
-		return shapeModel;
+		return shape_model;
 	};
 	
 	/**
@@ -78,9 +78,9 @@ public:
 	 *
 	 * @return The color model.
 	 */	
-	PcaModel getColorModel() const
+	PcaModel get_color_model() const
 	{
-		return colorModel;
+		return color_model;
 	};
 
 	/**
@@ -88,19 +88,19 @@ public:
 	 *
 	 * @return An mesh instance of the mean of the Morphable Model.
 	 */
-	render::Mesh getMean() const
+	render::Mesh get_mean() const
 	{
-		assert(shapeModel.getDataDimension() == colorModel.getDataDimension()); // The number of vertices (= model.getDataDimension() / 3) has to be equal for both models.
+		assert(shape_model.get_data_dimension() == color_model.get_data_dimension()); // The number of vertices (= model.getDataDimension() / 3) has to be equal for both models.
 
-		cv::Mat shape = shapeModel.getMean();
-		cv::Mat color = colorModel.getMean();
+		cv::Mat shape = shape_model.get_mean();
+		cv::Mat color = color_model.get_mean();
 
 		render::Mesh mesh;
-		if (hasTextureCoordinates()) {
-			mesh = detail::sampleToMesh(shape, color, shapeModel.getTriangleList(), colorModel.getTriangleList(), textureCoordinates);
+		if (has_texture_coordinates()) {
+			mesh = detail::sample_to_mesh(shape, color, shape_model.get_triangle_list(), color_model.get_triangle_list(), texture_coordinates);
 		}
 		else {
-			mesh = detail::sampleToMesh(shape, color, shapeModel.getTriangleList(), colorModel.getTriangleList());
+			mesh = detail::sample_to_mesh(shape, color, shape_model.get_triangle_list(), color_model.get_triangle_list());
 		}
 		return mesh;
 	};
@@ -114,19 +114,19 @@ public:
 	 * @param[in] colorSigma The color model standard deviation.
 	 * @return A random sample from the model.
 	 */
-	render::Mesh drawSample(float shapeSigma = 1.0f, float colorSigma = 1.0f)
+	render::Mesh draw_sample(float shapeSigma = 1.0f, float colorSigma = 1.0f)
 	{
-		assert(shapeModel.getDataDimension() == colorModel.getDataDimension()); // The number of vertices (= model.getDataDimension() / 3) has to be equal for both models.
+		assert(shape_model.get_data_dimension() == color_model.get_data_dimension()); // The number of vertices (= model.getDataDimension() / 3) has to be equal for both models.
 
-		cv::Mat shapeSample = shapeModel.drawSample(shapeSigma);
-		cv::Mat colorSample = colorModel.drawSample(colorSigma);
+		cv::Mat shapeSample = shape_model.draw_sample(shapeSigma);
+		cv::Mat colorSample = color_model.draw_sample(colorSigma);
 
 		render::Mesh mesh;
-		if (hasTextureCoordinates()) {
-			mesh = detail::sampleToMesh(shapeSample, colorSample, shapeModel.getTriangleList(), colorModel.getTriangleList(), textureCoordinates);
+		if (has_texture_coordinates()) {
+			mesh = detail::sample_to_mesh(shapeSample, colorSample, shape_model.get_triangle_list(), color_model.get_triangle_list(), texture_coordinates);
 		}
 		else {
-			mesh = detail::sampleToMesh(shapeSample, colorSample, shapeModel.getTriangleList(), colorModel.getTriangleList());
+			mesh = detail::sample_to_mesh(shapeSample, colorSample, shape_model.get_triangle_list(), color_model.get_triangle_list());
 		}
 		return mesh;
 	};
@@ -142,40 +142,40 @@ public:
 	 * @param[in] colorCoefficients The PCA coefficients used to generate the shape sample.
 	 * @return A model instance with given coefficients.
 	 */
-	render::Mesh drawSample(std::vector<float> shapeCoefficients, std::vector<float> colorCoefficients)
+	render::Mesh draw_sample(std::vector<float> shapeCoefficients, std::vector<float> colorCoefficients)
 	{
-		assert(shapeModel.getDataDimension() == colorModel.getDataDimension()); // The number of vertices (= model.getDataDimension() / 3) has to be equal for both models.
+		assert(shape_model.get_data_dimension() == color_model.get_data_dimension()); // The number of vertices (= model.getDataDimension() / 3) has to be equal for both models.
 
 		cv::Mat shapeSample;
 		cv::Mat colorSample;
 
 		if (shapeCoefficients.empty()) {
-			shapeSample = shapeModel.getMean();
+			shapeSample = shape_model.get_mean();
 		}
 		else {
-			shapeSample = shapeModel.drawSample(shapeCoefficients);
+			shapeSample = shape_model.draw_sample(shapeCoefficients);
 		}
 		if (colorCoefficients.empty()) {
-			colorSample = colorModel.getMean();
+			colorSample = color_model.get_mean();
 		}
 		else {
-			colorSample = colorModel.drawSample(colorCoefficients);
+			colorSample = color_model.draw_sample(colorCoefficients);
 		}
 
 		render::Mesh mesh;
-		if (hasTextureCoordinates()) {
-			mesh = detail::sampleToMesh(shapeSample, colorSample, shapeModel.getTriangleList(), colorModel.getTriangleList(), textureCoordinates);
+		if (has_texture_coordinates()) {
+			mesh = detail::sample_to_mesh(shapeSample, colorSample, shape_model.get_triangle_list(), color_model.get_triangle_list(), texture_coordinates);
 		}
 		else {
-			mesh = detail::sampleToMesh(shapeSample, colorSample, shapeModel.getTriangleList(), colorModel.getTriangleList());
+			mesh = detail::sample_to_mesh(shapeSample, colorSample, shape_model.get_triangle_list(), color_model.get_triangle_list());
 		}
 		return mesh;
 	};
 
 private:
-	PcaModel shapeModel; ///< A PCA model of the shape
-	PcaModel colorModel; ///< A PCA model of vertex color information
-	std::vector<cv::Vec2f> textureCoordinates; ///< uv-coordinates for every vertex
+	PcaModel shape_model; ///< A PCA model of the shape
+	PcaModel color_model; ///< A PCA model of vertex color information
+	std::vector<cv::Vec2f> texture_coordinates; ///< uv-coordinates for every vertex
 
 	/**
 	 * Returns whether the model has texture mapping coordinates, i.e.
@@ -183,8 +183,8 @@ private:
 	 *
 	 * @return True if the model contains texture mapping coordinates.
 	 */
-	bool hasTextureCoordinates() const {
-		return textureCoordinates.size() > 0 ? true : false;
+	bool has_texture_coordinates() const {
+		return texture_coordinates.size() > 0 ? true : false;
 	};
 
 };
@@ -202,7 +202,7 @@ private:
  * @param[in] textureCoordinates Optional texture coordinates for each vertex.
  * @return A mesh created from given parameters.
  */
-eos::render::Mesh sampleToMesh(cv::Mat shape, cv::Mat color, std::vector<std::array<int, 3>> tvi, std::vector<std::array<int, 3>> tci, std::vector<cv::Vec2f> textureCoordinates /* = std::vector<cv::Vec2f>() */)
+eos::render::Mesh sample_to_mesh(cv::Mat shape, cv::Mat color, std::vector<std::array<int, 3>> tvi, std::vector<std::array<int, 3>> tci, std::vector<cv::Vec2f> textureCoordinates /* = std::vector<cv::Vec2f>() */)
 {
 	assert(shape.rows == color.rows); // The number of vertices (= model.getDataDimension() / 3) has to be equal for both models.
 	
