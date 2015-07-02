@@ -15,7 +15,7 @@ endif()
 
 # Model fitting (affine cam & shape to landmarks) example:
 add_executable(fit_model fit_model.cpp)
-target_link_libraries(fit_model eos ${OpenCV_LIBS} ${Boost_LIBRARIES})
+target_link_libraries(fit_model ${OpenCV_LIBS} ${Boost_LIBRARIES})
 # TODO Add dependency to library-target??
 
 # install target:

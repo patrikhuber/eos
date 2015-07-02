@@ -27,9 +27,6 @@ set(CPACK_PACKAGE_VERSION_MINOR "${eos_VERSION_MINOR}")
 set(CPACK_PACKAGE_VERSION_PATCH "${eos_VERSION_PATCH}")
 include(CPack)
 
-# Set debug library postfix:
-set(CMAKE_DEBUG_POSTFIX "-d")
-
 # Find dependencies:
 find_package(OpenCV 2.4.3 REQUIRED core)
 message(STATUS "OpenCV include dir found at ${OpenCV_INCLUDE_DIRS}")
@@ -42,8 +39,8 @@ else(Boost_FOUND)
   message(FATAL_ERROR "Boost not found")
 endif()
 
-# Header files:
 
+# Header files:
 set(HEADERS
 	include/eos/core/LandmarkMapper.hpp
 	include/eos/morphablemodel/PcaModel.hpp
@@ -60,20 +57,12 @@ include_directories("include")
 include_directories(${Boost_INCLUDE_DIRS})
 include_directories(${OpenCV_INCLUDE_DIRS})
 
-# Make the library:
-add_library(eos ${SOURCES} ${HEADERS})
-target_link_libraries(eos ${OpenCV_LIBS} ${Boost_LIBRARIES})
+# Custom target for the library, to make the headers show up in IDEs:
+add_custom_target(eos SOURCES ${HEADERS})
 
 # The install target:
-install(TARGETS eos DESTINATION ${CMAKE_INSTALL_PREFIX}/lib EXPORT eos-targets)
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/ DESTINATION ${CMAKE_INSTALL_PREFIX}/include)
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/share/ DESTINATION ${CMAKE_INSTALL_PREFIX}/share)
-
-# Export the target:
-install(EXPORT eos-targets DESTINATION ${CMAKE_INSTALL_PREFIX}/) # creates eos-targets.cmake
-install(FILES eos-config.cmake DESTINATION ${CMAKE_INSTALL_PREFIX}/)
-configure_file(eos-config-version.cmake.in "${PROJECT_BINARY_DIR}/eos-config-version.cmake" @ONLY)
-install(FILES "${PROJECT_BINARY_DIR}/eos-config-version.cmake" DESTINATION ${CMAKE_INSTALL_PREFIX}/)
 
 if(BUILD_EXAMPLES)
 	add_subdirectory(examples)
