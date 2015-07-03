@@ -62,20 +62,21 @@ inline std::vector<float> fit_shape_to_landmarks_linear(morphablemodel::Morphabl
 	assert(landmarks.size() == vertex_ids.size());
 
 	int num_coeffs_to_fit = num_coefficients_to_fit.get_value_or(morphable_model.get_shape_model().get_num_principal_components());
+	int num_landmarks = static_cast<int>(landmarks.size());
 
 	// $\hat{V} \in R^{3N\times m-1}$, subselect the rows of the eigenvector matrix $V$ associated with the $N$ feature points
 	// And we insert a row of zeros after every third row, resulting in matrix $\hat{V}_h \in R^{4N\times m-1}$:
-	Mat V_hat_h = Mat::zeros(4 * landmarks.size(), num_coeffs_to_fit, CV_32FC1);
+	Mat V_hat_h = Mat::zeros(4 * num_landmarks, num_coeffs_to_fit, CV_32FC1);
 	int row_index = 0;
-	for (int i = 0; i < landmarks.size(); ++i) {
+	for (int i = 0; i < num_landmarks; ++i) {
 		Mat basis_rows = morphable_model.get_shape_model().get_normalised_pca_basis(vertex_ids[i]); // In the paper, the not-normalised basis might be used? I'm not sure, check it. It's even a mess in the paper. PH 26.5.2014: I think the normalised basis is fine/better.
 																							//basisRows.copyTo(V_hat_h.rowRange(rowIndex, rowIndex + 3));
 		basis_rows.colRange(0, num_coeffs_to_fit).copyTo(V_hat_h.rowRange(row_index, row_index + 3));
 		row_index += 4; // replace 3 rows and skip the 4th one, it has all zeros
 	}
 	// Form a block diagonal matrix $P \in R^{3N\times 4N}$ in which the camera matrix C (P_Affine, affineCam) is placed on the diagonal:
-	Mat P = Mat::zeros(3 * landmarks.size(), 4 * landmarks.size(), CV_32FC1);
-	for (int i = 0; i < landmarks.size(); ++i) {
+	Mat P = Mat::zeros(3 * num_landmarks, 4 * num_landmarks, CV_32FC1);
+	for (int i = 0; i < num_landmarks; ++i) {
 		Mat submatrix_to_replace = P.colRange(4 * i, (4 * i) + 4).rowRange(3 * i, (3 * i) + 3);
 		affine_camera_matrix.copyTo(submatrix_to_replace);
 	}
@@ -86,21 +87,21 @@ inline std::vector<float> fit_shape_to_landmarks_linear(morphablemodel::Morphabl
 	// 3D (model) variance: 0.0f. It only makes sense to set it to something when we have a different variance for different vertices.
 	float sigma_2D_3D = detector_standard_deviation.get_value_or(0.003f) + model_standard_deviation.get_value_or(0.0f);
 	// Note: Isn't it a bit strange to add these as they have different units/normalisations? Check the paper.
-	Mat Sigma = Mat::zeros(3 * landmarks.size(), 3 * landmarks.size(), CV_32FC1);
-	for (int i = 0; i < 3 * landmarks.size(); ++i) {
+	Mat Sigma = Mat::zeros(3 * num_landmarks, 3 * num_landmarks, CV_32FC1);
+	for (int i = 0; i < 3 * num_landmarks; ++i) {
 		Sigma.at<float>(i, i) = 1.0f / sigma_2D_3D; // the higher the sigma_2D_3D, the smaller the diagonal entries of Sigma will be
 	}
 	Mat Omega = Sigma.t() * Sigma; // just squares the diagonal
 	// The landmarks in matrix notation (in homogeneous coordinates), $3N\times 1$
-	Mat y = Mat::ones(3 * landmarks.size(), 1, CV_32FC1);
-	for (int i = 0; i < landmarks.size(); ++i) {
+	Mat y = Mat::ones(3 * num_landmarks, 1, CV_32FC1);
+	for (int i = 0; i < num_landmarks; ++i) {
 		y.at<float>(3 * i, 0) = landmarks[i][0];
 		y.at<float>((3 * i) + 1, 0) = landmarks[i][1];
 		//y.at<float>((3 * i) + 2, 0) = 1; // already 1, stays (homogeneous coordinate)
 	}
 	// The mean, with an added homogeneous coordinate (x_1, y_1, z_1, 1, x_2, ...)^t
-	Mat v_bar = Mat::ones(4 * landmarks.size(), 1, CV_32FC1);
-	for (int i = 0; i < landmarks.size(); ++i) {
+	Mat v_bar = Mat::ones(4 * num_landmarks, 1, CV_32FC1);
+	for (int i = 0; i < num_landmarks; ++i) {
 		cv::Vec4f model_mean = morphable_model.get_shape_model().get_mean_at_point(vertex_ids[i]);
 		v_bar.at<float>(4 * i, 0) = model_mean[0];
 		v_bar.at<float>((4 * i) + 1, 0) = model_mean[1];
