@@ -144,8 +144,8 @@ public:
 	 * If one of the given vectors is empty, the mean is used.
 	 * The coefficient vectors should contain normalised, i.e. standard normal distributed coefficients.
 	 *
-	 * @param[in] shapeCoefficients The PCA coefficients used to generate the shape sample.
-	 * @param[in] colorCoefficients The PCA coefficients used to generate the shape sample.
+	 * @param[in] shape_coefficients The PCA coefficients used to generate the shape sample.
+	 * @param[in] color_coefficients The PCA coefficients used to generate the shape sample.
 	 * @return A model instance with given coefficients.
 	 */
 	render::Mesh draw_sample(std::vector<float> shape_coefficients, std::vector<float> color_coefficients)
