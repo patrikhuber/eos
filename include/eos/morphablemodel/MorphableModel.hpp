@@ -60,9 +60,9 @@ public:
 	 * Create a Morphable Model from a shape and a color PCA model, and optional
 	 * texture coordinates.
 	 *
-	 * @param[in] shapeModel A PCA model over the shape.
-	 * @param[in] colorModel A PCA model over the color (albedo).
-	 * @param[in] textureCoordinates Optional texture coordinates for every vertex.
+	 * @param[in] shape_model A PCA model over the shape.
+	 * @param[in] color_model A PCA model over the color (albedo).
+	 * @param[in] texture_coordinates Optional texture coordinates for every vertex.
 	 */
 	MorphableModel(PcaModel shape_model, PcaModel color_model, std::vector<cv::Vec2f> texture_coordinates = std::vector<cv::Vec2f>()) : shape_model(shape_model), color_model(color_model), texture_coordinates(texture_coordinates)
 	{

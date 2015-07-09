@@ -2,8 +2,7 @@ PROJECT_NAME           = "@CMAKE_PROJECT_NAME@"
 PROJECT_NUMBER         = @eos_VERSION_MAJOR@.@eos_VERSION_MINOR@.@eos_VERSION_PATCH@
 STRIP_FROM_PATH        = @PROJECT_SOURCE_DIR@
 INPUT                  = @PROJECT_SOURCE_DIR@/README.md \
-                         @PROJECT_SOURCE_DIR@/include \
-						 @PROJECT_SOURCE_DIR@/src
+                         @PROJECT_SOURCE_DIR@/include
 RECURSIVE              = YES
 USE_MDFILE_AS_MAINPAGE = README.md
 

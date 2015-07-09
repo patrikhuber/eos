@@ -104,7 +104,7 @@ void load(Archive& ar, cv::Mat& mat)
  * Serialisation for a cv::Vec2f using cereal.
  *
  * @param[in] ar The archive to (de)serialise.
- * @param[in] mat The vector to (de)serialise.
+ * @param[in] vec The vector to (de)serialise.
  */
 template <class Archive>
 void serialize(Archive& ar, cv::Vec2f& vec)

@@ -86,7 +86,7 @@ public:
 	/**
 	 * Converts the given landmark name to the mapped name.
 	 *
-	 * @param[in] landmarkName A landmark name to convert.
+	 * @param[in] landmark_name A landmark name to convert.
 	 * @return The mapped landmark name.
 	 * @throws out_of_range exception if there is no mapping
 	 *         for the given landmarkName.

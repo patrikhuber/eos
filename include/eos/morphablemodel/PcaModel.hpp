@@ -125,7 +125,7 @@ public:
 	/**
 	 * Return the value of the mean at a given vertex id.
 	 *
-	 * @param[in] vertexIndex A vertex id.
+	 * @param[in] vertex_index A vertex id.
 	 * @return A homogeneous vector containing the values at the given vertex id.
 	 */
 	cv::Vec4f get_mean_at_point(int vertex_index) const
@@ -199,7 +199,7 @@ public:
 	 * The returned basis is normalised, i.e. every eigenvector
 	 * is normalised by multiplying it with the square root of its eigenvalue.
 	 *
-	 * @param[in] vertexId A vertex index. Make sure it is valid.
+	 * @param[in] vertex_id A vertex index. Make sure it is valid.
 	 * @return A Mat that points to the rows in the original basis.
 	 */
 	cv::Mat get_normalised_pca_basis(int vertex_id) const
@@ -227,7 +227,7 @@ public:
 	 * Returns the PCA basis for a particular vertex.
 	 * The returned basis is unnormalised, i.e. not scaled by their eigenvalues.
 	 *
-	 * @param[in] vertexId A vertex index. Make sure it is valid.
+	 * @param[in] vertex_id A vertex index. Make sure it is valid.
 	 * @return A Mat that points to the rows in the original basis.
 	 */
 	cv::Mat get_unnormalised_pca_basis(int vertex_id) const
