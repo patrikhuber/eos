@@ -48,6 +48,7 @@ set(HEADERS
 	include/eos/morphablemodel/PcaModel.hpp
 	include/eos/morphablemodel/MorphableModel.hpp
 	include/eos/morphablemodel/io/cvssp.hpp
+	include/eos/morphablemodel/io/mat_cerealisation.hpp
 	include/eos/fitting/affine_camera_estimation.hpp
 	include/eos/fitting/linear_shape_fitting.hpp
 	include/eos/render/Mesh.hpp
