@@ -38,7 +38,7 @@
  * Forward declaration of an internal function
  */
 namespace eos { namespace morphablemodel { namespace detail {
-	eos::render::Mesh sample_to_mesh(cv::Mat shape, cv::Mat color, std::vector<std::array<int, 3>> tvi, std::vector<std::array<int, 3>> tci, std::vector<cv::Vec2f> textureCoordinates = std::vector<cv::Vec2f>());
+	eos::render::Mesh sample_to_mesh(cv::Mat shape, cv::Mat color, std::vector<std::array<int, 3>> tvi, std::vector<std::array<int, 3>> tci, std::vector<cv::Vec2f> texture_coordinates = std::vector<cv::Vec2f>());
 } } }
 
 namespace eos {
@@ -116,16 +116,16 @@ public:
 	 * for the shape- and color models are both drawn from a standard
 	 * normal (or with the given standard deviation).
 	 *
-	 * @param[in] shapeSigma The shape model standard deviation.
-	 * @param[in] colorSigma The color model standard deviation.
+	 * @param[in] shape_sigma The shape model standard deviation.
+	 * @param[in] color_sigma The color model standard deviation.
 	 * @return A random sample from the model.
 	 */
-	render::Mesh draw_sample(float shapeSigma = 1.0f, float colorSigma = 1.0f)
+	render::Mesh draw_sample(float shape_sigma = 1.0f, float color_sigma = 1.0f)
 	{
 		assert(shape_model.get_data_dimension() == color_model.get_data_dimension()); // The number of vertices (= model.getDataDimension() / 3) has to be equal for both models.
 
-		cv::Mat shapeSample = shape_model.draw_sample(shapeSigma);
-		cv::Mat colorSample = color_model.draw_sample(colorSigma);
+		cv::Mat shapeSample = shape_model.draw_sample(shape_sigma);
+		cv::Mat colorSample = color_model.draw_sample(color_sigma);
 
 		render::Mesh mesh;
 		if (has_texture_coordinates()) {
@@ -148,32 +148,32 @@ public:
 	 * @param[in] colorCoefficients The PCA coefficients used to generate the shape sample.
 	 * @return A model instance with given coefficients.
 	 */
-	render::Mesh draw_sample(std::vector<float> shapeCoefficients, std::vector<float> colorCoefficients)
+	render::Mesh draw_sample(std::vector<float> shape_coefficients, std::vector<float> color_coefficients)
 	{
 		assert(shape_model.get_data_dimension() == color_model.get_data_dimension()); // The number of vertices (= model.getDataDimension() / 3) has to be equal for both models.
 
-		cv::Mat shapeSample;
-		cv::Mat colorSample;
+		cv::Mat shape_sample;
+		cv::Mat color_sample;
 
-		if (shapeCoefficients.empty()) {
-			shapeSample = shape_model.get_mean();
+		if (shape_coefficients.empty()) {
+			shape_sample = shape_model.get_mean();
 		}
 		else {
-			shapeSample = shape_model.draw_sample(shapeCoefficients);
+			shape_sample = shape_model.draw_sample(shape_coefficients);
 		}
-		if (colorCoefficients.empty()) {
-			colorSample = color_model.get_mean();
+		if (color_coefficients.empty()) {
+			color_sample = color_model.get_mean();
 		}
 		else {
-			colorSample = color_model.draw_sample(colorCoefficients);
+			color_sample = color_model.draw_sample(color_coefficients);
 		}
 
 		render::Mesh mesh;
 		if (has_texture_coordinates()) {
-			mesh = detail::sample_to_mesh(shapeSample, colorSample, shape_model.get_triangle_list(), color_model.get_triangle_list(), texture_coordinates);
+			mesh = detail::sample_to_mesh(shape_sample, color_sample, shape_model.get_triangle_list(), color_model.get_triangle_list(), texture_coordinates);
 		}
 		else {
-			mesh = detail::sample_to_mesh(shapeSample, colorSample, shape_model.get_triangle_list(), color_model.get_triangle_list());
+			mesh = detail::sample_to_mesh(shape_sample, color_sample, shape_model.get_triangle_list(), color_model.get_triangle_list());
 		}
 		return mesh;
 	};
@@ -248,21 +248,21 @@ void save_model(MorphableModel model, std::string filename)
  * @param[in] color PCA color model instance.
  * @param[in] tvi Triangle vertex indices.
  * @param[in] tci Triangle color indices (usually identical to the vertex indices).
- * @param[in] textureCoordinates Optional texture coordinates for each vertex.
+ * @param[in] texture_coordinates Optional texture coordinates for each vertex.
  * @return A mesh created from given parameters.
  */
-eos::render::Mesh sample_to_mesh(cv::Mat shape, cv::Mat color, std::vector<std::array<int, 3>> tvi, std::vector<std::array<int, 3>> tci, std::vector<cv::Vec2f> textureCoordinates /* = std::vector<cv::Vec2f>() */)
+eos::render::Mesh sample_to_mesh(cv::Mat shape, cv::Mat color, std::vector<std::array<int, 3>> tvi, std::vector<std::array<int, 3>> tci, std::vector<cv::Vec2f> texture_coordinates /* = std::vector<cv::Vec2f>() */)
 {
 	assert(shape.rows == color.rows); // The number of vertices (= model.getDataDimension() / 3) has to be equal for both models.
 	
-	auto numVertices = shape.rows / 3;
+	auto num_vertices = shape.rows / 3;
 	
 	eos::render::Mesh mesh;
 
 	// Construct the mesh vertices and vertex color information:
-	mesh.vertices.resize(numVertices);
-	mesh.colors.resize(numVertices);
-	for (auto i = 0; i < numVertices; ++i) {
+	mesh.vertices.resize(num_vertices);
+	mesh.colors.resize(num_vertices);
+	for (auto i = 0; i < num_vertices; ++i) {
 		mesh.vertices[i] = cv::Vec4f(shape.at<float>(i * 3 + 0), shape.at<float>(i * 3 + 1), shape.at<float>(i * 3 + 2), 1.0f);
 		mesh.colors[i] = cv::Vec3f(color.at<float>(i * 3 + 0), color.at<float>(i * 3 + 1), color.at<float>(i * 3 + 2));        // order in hdf5: RGB. Order in OCV: BGR. But order in vertex.color: RGB
 	}
@@ -272,10 +272,10 @@ eos::render::Mesh sample_to_mesh(cv::Mat shape, cv::Mat color, std::vector<std::
 	mesh.tci = tci;
 
 	// Texture coordinates, if the model has them:
-	if (!textureCoordinates.empty()) {
-		mesh.texcoords.resize(numVertices);
-		for (auto i = 0; i < numVertices; ++i) {
-			mesh.texcoords[i] = textureCoordinates[i];
+	if (!texture_coordinates.empty()) {
+		mesh.texcoords.resize(num_vertices);
+		for (auto i = 0; i < num_vertices; ++i) {
+			mesh.texcoords[i] = texture_coordinates[i];
 		}
 	}
 

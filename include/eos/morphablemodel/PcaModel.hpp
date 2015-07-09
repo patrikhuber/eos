@@ -279,25 +279,25 @@ private:
  * eigenvector by the square root of its corresponding
  * eigenvalue.
  *
- * @param[in] unnormalisedBasis An unnormalised PCA basis matrix.
+ * @param[in] unnormalised_basis An unnormalised PCA basis matrix.
  * @param[in] eigenvalues A row or column vector of eigenvalues.
  * @return The normalised PCA basis matrix.
  */
-inline cv::Mat normalise_pca_basis(cv::Mat unnormalisedBasis, cv::Mat eigenvalues)
+inline cv::Mat normalise_pca_basis(cv::Mat unnormalised_basis, cv::Mat eigenvalues)
 {
 	using cv::Mat;
-	Mat normalisedPcaBasis(unnormalisedBasis.size(), unnormalisedBasis.type()); // empty matrix with the same dimensions
-	Mat sqrtOfEigenvalues = eigenvalues.clone();
+	Mat normalised_basis(unnormalised_basis.size(), unnormalised_basis.type()); // empty matrix with the same dimensions
+	Mat sqrt_of_eigenvalues = eigenvalues.clone();
 	for (int i = 0; i < eigenvalues.rows; ++i) {
-		sqrtOfEigenvalues.at<float>(i) = std::sqrt(eigenvalues.at<float>(i));
+		sqrt_of_eigenvalues.at<float>(i) = std::sqrt(eigenvalues.at<float>(i));
 	}
 	// Normalise the basis: We multiply each eigenvector (i.e. each column) with the square root of its corresponding eigenvalue
-	for (int basis = 0; basis < unnormalisedBasis.cols; ++basis) {
-		Mat normalisedEigenvector = unnormalisedBasis.col(basis).mul(sqrtOfEigenvalues.at<float>(basis));
-		normalisedEigenvector.copyTo(normalisedPcaBasis.col(basis));
+	for (int basis = 0; basis < unnormalised_basis.cols; ++basis) {
+		Mat normalised_eigenvector = unnormalised_basis.col(basis).mul(sqrt_of_eigenvalues.at<float>(basis));
+		normalised_eigenvector.copyTo(normalised_basis.col(basis));
 	}
 
-	return normalisedPcaBasis;
+	return normalised_basis;
 };
 
 /**
@@ -306,25 +306,25 @@ inline cv::Mat normalise_pca_basis(cv::Mat unnormalisedBasis, cv::Mat eigenvalue
  * eigenvector by 1 over the square root of its corresponding
  * eigenvalue.
  *
- * @param[in] normalisedBasis A normalised PCA basis matrix.
+ * @param[in] normalised_basis A normalised PCA basis matrix.
  * @param[in] eigenvalues A row or column vector of eigenvalues.
  * @return The unnormalised PCA basis matrix.
  */
-inline cv::Mat unnormalise_pca_basis(cv::Mat normalisedBasis, cv::Mat eigenvalues)
+inline cv::Mat unnormalise_pca_basis(cv::Mat normalised_basis, cv::Mat eigenvalues)
 {
 	using cv::Mat;
-	Mat unnormalisedBasis(normalisedBasis.size(), normalisedBasis.type()); // empty matrix with the same dimensions
-	Mat oneOverSqrtOfEigenvalues = eigenvalues.clone();
+	Mat unnormalised_basis(normalised_basis.size(), normalised_basis.type()); // empty matrix with the same dimensions
+	Mat one_over_sqrt_of_eigenvalues = eigenvalues.clone();
 	for (int i = 0; i < eigenvalues.rows; ++i) {
-		oneOverSqrtOfEigenvalues.at<float>(i) = 1.0f / std::sqrt(eigenvalues.at<float>(i));
+		one_over_sqrt_of_eigenvalues.at<float>(i) = 1.0f / std::sqrt(eigenvalues.at<float>(i));
 	}
 	// De-normalise the basis: We multiply each eigenvector (i.e. each column) with 1 over the square root of its corresponding eigenvalue
-	for (int basis = 0; basis < normalisedBasis.cols; ++basis) {
-		Mat unnormalisedEigenvector = normalisedBasis.col(basis).mul(oneOverSqrtOfEigenvalues.at<float>(basis));
-		unnormalisedEigenvector.copyTo(unnormalisedBasis.col(basis));
+	for (int basis = 0; basis < normalised_basis.cols; ++basis) {
+		Mat unnormalised_eigenvector = normalised_basis.col(basis).mul(one_over_sqrt_of_eigenvalues.at<float>(basis));
+		unnormalised_eigenvector.copyTo(unnormalised_basis.col(basis));
 	}
 
-	return unnormalisedBasis;
+	return unnormalised_basis;
 };
 
 	} /* namespace morphablemodel */
