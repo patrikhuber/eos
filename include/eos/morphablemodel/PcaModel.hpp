@@ -22,6 +22,11 @@
 #ifndef PCAMODEL_HPP_
 #define PCAMODEL_HPP_
 
+#include "eos/morphablemodel/io/mat_cerealisation.hpp"
+#include "cereal/access.hpp"
+#include "cereal/types/array.hpp"
+#include "cereal/types/vector.hpp"
+
 #include "opencv2/core/core.hpp"
 
 #include <string>
@@ -251,6 +256,20 @@ private:
 	cv::Mat eigenvalues; ///< A col-vector of the eigenvalues (variances in the PCA space).
 
 	std::vector<std::array<int, 3>> triangle_list; ///< List of triangles that make up the mesh of the model.
+
+	friend class cereal::access;
+	/**
+	 * Serialises this class using cereal.
+	 *
+	 * @param[in] ar The archive to serialise to (or to serialise from).
+	 */
+	template<class Archive>
+	void serialize(Archive& archive)
+	{
+		archive(mean, normalised_pca_basis, unnormalised_pca_basis, eigenvalues, triangle_list);
+		// Note: If the files are too big, We could split this in save/load, only
+		// store one of the bases, and calculate the other one when loading.
+	};
 };
 
 

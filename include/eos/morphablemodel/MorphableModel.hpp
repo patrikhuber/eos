@@ -26,6 +26,11 @@
 
 #include "eos/render/Mesh.hpp"
 
+#include "eos/morphablemodel/io/mat_cerealisation.hpp"
+#include "cereal/access.hpp"
+#include "cereal/types/vector.hpp"
+#include "cereal/archives/binary.hpp"
+
 #include <vector>
 #include <array>
 
@@ -49,6 +54,7 @@ namespace eos {
 class MorphableModel
 {
 public:
+	MorphableModel() = default;
 
 	/**
 	 * Create a Morphable Model from a shape and a color PCA model, and optional
@@ -187,6 +193,49 @@ private:
 		return texture_coordinates.size() > 0 ? true : false;
 	};
 
+	friend class cereal::access;
+	/**
+	 * Serialises this class using cereal.
+	 *
+	 * @param[in] ar The archive to serialise to (or to serialise from).
+	 */
+	template<class Archive>
+	void serialize(Archive& archive)
+	{
+		archive(shape_model, color_model, texture_coordinates);
+	};
+};
+
+/**
+ * Helper method to load a Morphable Model from
+ * a cereal::BinaryInputArchive from the harddisk.
+ *
+ * @param[in] filename Filename to a model.
+ * @return The loaded Morphable Model.
+ */
+MorphableModel load_model(std::string filename)
+{
+	MorphableModel model;
+	
+	std::ifstream file(filename, std::ios::binary);
+	cereal::BinaryInputArchive input_archive(file);
+	input_archive(model);
+
+	return model;
+};
+
+/**
+ * Helper method to save a Morphable Model to the
+ * harddrive as cereal::BinaryInputArchive.
+ *
+ * @param[in] model The model to be saved.
+ * @param[in] filename Filename for the model.
+ */
+void save_model(MorphableModel model, std::string filename)
+{
+	std::ofstream file(filename, std::ios::binary);
+	cereal::BinaryOutputArchive output_archive(file);
+	output_archive(model);
 };
 
 		namespace detail { /* eos::morphablemodel::detail */

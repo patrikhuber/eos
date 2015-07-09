@@ -42,6 +42,8 @@ else(Boost_FOUND)
 endif()
 
 
+set(CEREAL_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/3rdparty/cereal-1.1.1/include")
+
 # Header files:
 set(HEADERS
 	include/eos/core/LandmarkMapper.hpp
@@ -57,6 +59,7 @@ set(HEADERS
 
 # Add header includes:
 include_directories("include")
+include_directories(${CEREAL_INCLUDE_DIR})
 include_directories(${Boost_INCLUDE_DIRS})
 include_directories(${OpenCV_INCLUDE_DIRS})
 
@@ -73,6 +76,7 @@ source_group(render\\detail include/eos/render/detail/*)
 # The install target:
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/ DESTINATION ${CMAKE_INSTALL_PREFIX}/include)
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/share/ DESTINATION ${CMAKE_INSTALL_PREFIX}/share)
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/3rdparty/cereal-1.1.1/include/ DESTINATION 3rdparty/cereal-1.1.1/include) # cereal headers
 
 if(BUILD_EXAMPLES)
 	add_subdirectory(examples)
