@@ -1,4 +1,4 @@
-# Eos: A lightweight 3D Morphable Model fitting library in modern C++11/14.
+# Eos: A lightweight header-only 3D Morphable Model fitting library in modern C++11/14.
 
 
 Eos is a tiny 3D Morphable Model fitting library that provides just the bare minimum to load a model and perform camera and shape fitting. It's written in modern C++11/14.
@@ -29,7 +29,7 @@ See examples/fit_model.cpp.
 
 ## Documentation
 
-The code is fully documented with Doxygen and you can also build the `doc` target.
+The code is fully documented with Doxygen, and an online version of the documentation can be accessed here (todo - add link). Alternatively, an up-to-date version can be built by setting `-DBUILD_DOCUMENTATION=on` and then building the `doc` target.
 
 
 ## License & contributions
@@ -38,6 +38,4 @@ This code is licensed under the Apache License, Version 2.0
 
 Contributions are very welcome! (best in the form of pull requests.) Please use Github issues for any bug reports, ideas, and discussions.
 
-If you use this code in your own work, please cite the following paper: _Random Cascaded-Regression Copse for Robust Facial Landmark Detection_, Z. Feng, P. Huber, J. Kittler, W. Christmas, X.J. Wu, IEEE Signal Processing Letters, Vol: 22(1), 2015 (http://ieeexplore.ieee.org/xpl/articleDetails.jsp?tp=&arnumber=6877655).
-
-(_We are working on publishing a paper that more closely resembles this library, and we will replace the previously mentioned paper here with the new one as soon as it is published._)
+If you use this code in your own work, please cite the following paper: _Fitting 3D Morphable Models using Local Features_, P. Huber, Z. Feng, W. Christmas, J. Kittler, M. Rätsch, IEEE International Conference on Image Processing (ICIP) 2015, Québec City, Canada (http://arxiv.org/abs/1503.02330).
