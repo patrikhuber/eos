@@ -62,12 +62,19 @@ struct Mesh
  */
 inline void write_obj(Mesh mesh, std::string filename)
 {
-	assert(mesh.vertices.size() == mesh.colors.size());
+	assert(mesh.vertices.size() == mesh.colors.size() || mesh.colors.empty());
 
 	std::ofstream obj_file(filename);
 
-	for (std::size_t i = 0; i < mesh.vertices.size(); ++i) {
-		obj_file << "v " << mesh.vertices[i][0] << " " << mesh.vertices[i][1] << " " << mesh.vertices[i][2] << " " << mesh.colors[i][0] << " " << mesh.colors[i][1] << " " << mesh.colors[i][2] << " " << std::endl;
+	if (mesh.colors.empty()) {
+		for (std::size_t i = 0; i < mesh.vertices.size(); ++i) {
+			obj_file << "v " << mesh.vertices[i][0] << " " << mesh.vertices[i][1] << " " << mesh.vertices[i][2] << " " << std::endl;
+		}
+	}
+	else {
+		for (std::size_t i = 0; i < mesh.vertices.size(); ++i) {
+			obj_file << "v " << mesh.vertices[i][0] << " " << mesh.vertices[i][1] << " " << mesh.vertices[i][2] << " " << mesh.colors[i][0] << " " << mesh.colors[i][1] << " " << mesh.colors[i][2] << " " << std::endl;
+		}
 	}
 
 	for (auto&& v : mesh.tvi) {
@@ -87,7 +94,7 @@ inline void write_obj(Mesh mesh, std::string filename)
  */
 inline void write_textured_obj(Mesh mesh, std::string filename)
 {
-	assert(mesh.vertices.size() == mesh.colors.size() && !mesh.texcoords.empty());
+	assert((mesh.vertices.size() == mesh.colors.size() || mesh.colors.empty()) && !mesh.texcoords.empty());
 
 	std::ofstream obj_file(filename);
 
@@ -96,9 +103,18 @@ inline void write_textured_obj(Mesh mesh, std::string filename)
 
 	obj_file << "mtllib " << mtl_filename.string() << std::endl; // first line of the obj file
 
-	for (std::size_t i = 0; i < mesh.vertices.size(); ++i) { //  same as in write_obj()
-		obj_file << "v " << mesh.vertices[i][0] << " " << mesh.vertices[i][1] << " " << mesh.vertices[i][2] << " " << mesh.colors[i][0] << " " << mesh.colors[i][1] << " " << mesh.colors[i][2] << " " << std::endl;
+	// same as in write_obj():
+	if (mesh.colors.empty()) {
+		for (std::size_t i = 0; i < mesh.vertices.size(); ++i) {
+			obj_file << "v " << mesh.vertices[i][0] << " " << mesh.vertices[i][1] << " " << mesh.vertices[i][2] << " " << std::endl;
+		}
 	}
+	else {
+		for (std::size_t i = 0; i < mesh.vertices.size(); ++i) {
+			obj_file << "v " << mesh.vertices[i][0] << " " << mesh.vertices[i][1] << " " << mesh.vertices[i][2] << " " << mesh.colors[i][0] << " " << mesh.colors[i][1] << " " << mesh.colors[i][2] << " " << std::endl;
+		}
+	}
+	// end
 
 	for (std::size_t i = 0; i < mesh.texcoords.size(); ++i) {
 		obj_file << "vt " << mesh.texcoords[i][0] << " " << 1.0f - mesh.texcoords[i][1] << std::endl;

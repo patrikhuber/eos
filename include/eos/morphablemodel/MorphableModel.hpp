@@ -139,18 +139,20 @@ public:
 
 	/**
 	 * Returns a sample from the model with the given shape- and
-	 * color PCA coefficients. 
+	 * colour PCA coefficients. 
 	 *
 	 * If one of the given vectors is empty, the mean is used.
 	 * The coefficient vectors should contain normalised, i.e. standard normal distributed coefficients.
+	 * If the Morphable Model is a shape-only model (without colour model), make sure to
+	 * leave \c color_coefficients empty.
 	 *
 	 * @param[in] shape_coefficients The PCA coefficients used to generate the shape sample.
-	 * @param[in] color_coefficients The PCA coefficients used to generate the shape sample.
+	 * @param[in] color_coefficients The PCA coefficients used to generate the vertex colouring.
 	 * @return A model instance with given coefficients.
 	 */
 	render::Mesh draw_sample(std::vector<float> shape_coefficients, std::vector<float> color_coefficients)
 	{
-		assert(shape_model.get_data_dimension() == color_model.get_data_dimension()); // The number of vertices (= model.getDataDimension() / 3) has to be equal for both models.
+		assert(shape_model.get_data_dimension() == color_model.get_data_dimension() || !has_color_model()); // The number of vertices (= model.getDataDimension() / 3) has to be equal for both models, or, alternatively, it has to be a shape-only model.
 
 		cv::Mat shape_sample;
 		cv::Mat color_sample;
@@ -177,6 +179,19 @@ public:
 		}
 		return mesh;
 	};
+
+	/**
+	 * Returns true if this Morphable Model contains a colour
+	 * model. Returns false if it is a shape-only model.
+	 *
+	 * @return True if the Morphable Model has a colour model (i.e. is not a shape-only model).
+	 */
+	bool has_color_model() const
+	{
+		return !color_model.get_mean().empty();
+	};
+
+	std::vector<cv::Vec2f> gtc() const { return texture_coordinates; };
 
 private:
 	PcaModel shape_model; ///< A PCA model of the shape
@@ -240,9 +255,11 @@ void save_model(MorphableModel model, std::string filename)
 
 		namespace detail { /* eos::morphablemodel::detail */
 /**
- * Internal helper function that creates a Mesh from given shape and color
+ * Internal helper function that creates a Mesh from given shape and colour
  * PCA instances. Needs the vertex index lists as well to assemble the mesh -
  * and optional texture coordinates.
+ *
+ * If \c color is empty, it will create a mesh without vertex colouring.
  *
  * @param[in] shape PCA shape model instance.
  * @param[in] color PCA color model instance.
@@ -253,18 +270,24 @@ void save_model(MorphableModel model, std::string filename)
  */
 eos::render::Mesh sample_to_mesh(cv::Mat shape, cv::Mat color, std::vector<std::array<int, 3>> tvi, std::vector<std::array<int, 3>> tci, std::vector<cv::Vec2f> texture_coordinates /* = std::vector<cv::Vec2f>() */)
 {
-	assert(shape.rows == color.rows); // The number of vertices (= model.getDataDimension() / 3) has to be equal for both models.
+	assert(shape.rows == color.rows || color.empty()); // The number of vertices (= model.getDataDimension() / 3) has to be equal for both models, or, alternatively, it has to be a shape-only model.
 	
 	auto num_vertices = shape.rows / 3;
 	
 	eos::render::Mesh mesh;
 
-	// Construct the mesh vertices and vertex color information:
+	// Construct the mesh vertices:
 	mesh.vertices.resize(num_vertices);
-	mesh.colors.resize(num_vertices);
 	for (auto i = 0; i < num_vertices; ++i) {
 		mesh.vertices[i] = cv::Vec4f(shape.at<float>(i * 3 + 0), shape.at<float>(i * 3 + 1), shape.at<float>(i * 3 + 2), 1.0f);
-		mesh.colors[i] = cv::Vec3f(color.at<float>(i * 3 + 0), color.at<float>(i * 3 + 1), color.at<float>(i * 3 + 2));        // order in hdf5: RGB. Order in OCV: BGR. But order in vertex.color: RGB
+	}
+
+	// Assign the vertex color information if it's not a shape-only model:
+	if (!color.empty()) {
+		mesh.colors.resize(num_vertices);
+		for (auto i = 0; i < num_vertices; ++i) {
+			mesh.colors[i] = cv::Vec3f(color.at<float>(i * 3 + 0), color.at<float>(i * 3 + 1), color.at<float>(i * 3 + 2));        // order in hdf5: RGB. Order in OCV: BGR. But order in vertex.color: RGB
+		}
 	}
 
 	// Assign the triangle lists:
