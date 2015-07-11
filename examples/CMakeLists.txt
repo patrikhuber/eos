@@ -16,8 +16,8 @@ endif()
 #include_directories(${eos_SOURCE_DIR})
 
 # Model fitting (affine cam & shape to landmarks) example:
-add_executable(fit_model fit_model.cpp)
-target_link_libraries(fit_model ${OpenCV_LIBS} ${Boost_LIBRARIES})
+add_executable(fit-model fit-model.cpp)
+target_link_libraries(fit-model ${OpenCV_LIBS} ${Boost_LIBRARIES})
 # TODO Add dependency to library-target??
 
 # Converts a CVSSP .scm Morphable Model to a cereal binary file:
@@ -25,6 +25,6 @@ add_executable(scm-to-cereal scm-to-cereal.cpp)
 target_link_libraries(scm-to-cereal ${OpenCV_LIBS} ${Boost_LIBRARIES})
 
 # install target:
-install(TARGETS fit_model DESTINATION bin)
+install(TARGETS fit-model DESTINATION bin)
 install(TARGETS scm-to-cereal DESTINATION bin)
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/examples/data DESTINATION bin)

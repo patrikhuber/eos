@@ -1,7 +1,7 @@
 /*
  * Eos - A 3D Morphable Model fitting library written in modern C++11/14.
  *
- * File: examples/fit_model.cpp
+ * File: examples/fit-model.cpp
  *
  * Copyright 2015 Patrik Huber
  *
