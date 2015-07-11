@@ -105,33 +105,33 @@ vector<Vec2f> readPtsLandmarks(std::string filename)
  */
 int main(int argc, char *argv[])
 {
-	fs::path modelfile, isomapfile, imagefile, landmarksfile, mappingsfile;
+	fs::path modelfile, isomapfile, imagefile, landmarksfile, mappingsfile, outputfile;
 	try {
 		po::options_description desc("Allowed options");
 		desc.add_options()
 			("help,h",
 				"display the help message")
 			("model,m", po::value<fs::path>(&modelfile)->required(),
-				"a CVSSP .scm Morphable Model file")
-			("isomap,t", po::value<fs::path>(&isomapfile),
-				"optional isomap containing the texture mapping coordinates")
+				"a Morphable Model stored as cereal BinaryArchive")
 			("image,i", po::value<fs::path>(&imagefile)->required()->default_value("data/image_0001.png"),
 				"an input image")
 			("landmarks,l", po::value<fs::path>(&landmarksfile)->required()->default_value("data/image_0001.pts"),
 				"2D landmarks for the image, in ibug .pts format")
 			("mapping,p", po::value<fs::path>(&mappingsfile)->required()->default_value("../share/ibug2did.txt"),
 				"landmark identifier to model vertex number mapping")
+			("output,o", po::value<fs::path>(&outputfile)->required()->default_value("out"),
+				"basename for the output rendering and obj files")
 			;
 		po::variables_map vm;
 		po::store(po::command_line_parser(argc, argv).options(desc).run(), vm);
 		if (vm.count("help")) {
-			cout << "Usage: fit_model [options]" << endl;
+			cout << "Usage: fit-model [options]" << endl;
 			cout << desc;
 			return EXIT_SUCCESS;
 		}
 		po::notify(vm);
 	}
-	catch (po::error& e) {
+	catch (const po::error& e) {
 		cout << "Error while parsing command-line arguments: " << e.what() << endl;
 		cout << "Use --help to display a list of options." << endl;
 		return EXIT_SUCCESS;
@@ -140,7 +140,7 @@ int main(int argc, char *argv[])
 	// Load the image, landmarks, LandmarkMapper and the Morphable Model:
 	Mat image = cv::imread(imagefile.string());
 	auto landmarks = readPtsLandmarks(landmarksfile.string());
-	morphablemodel::MorphableModel morphable_model = morphablemodel::loadScmModel(modelfile, isomapfile);
+	morphablemodel::MorphableModel morphable_model = morphablemodel::load_model(modelfile.string());
 	core::LandmarkMapper landmark_mapper = mappingsfile.empty() ? core::LandmarkMapper() : core::LandmarkMapper(mappingsfile);
 
 	// Draw the loaded landmarks:
@@ -188,7 +188,8 @@ int main(int argc, char *argv[])
 
 	// Obtain the full mesh and draw it using the estimated camera:
 	render::Mesh mesh = morphable_model.draw_sample(fitted_coeffs, vector<float>());
-	render::write_obj(mesh, "out.obj"); // save the mesh as obj
+	outputfile += fs::path(".obj");
+	render::write_obj(mesh, outputfile.string()); // save the mesh as obj
 
 	// Draw the projected points again, this time using the fitted model shape:
 	for (auto&& idx : vertex_indices) {
@@ -198,8 +199,9 @@ int main(int argc, char *argv[])
 	}
 
 	// Save the output image:
-	cv::imwrite("out.png", outimg);
-	cout << "Finished fitting and wrote result to out.png." << endl;
+	outputfile.replace_extension(".png");
+	cv::imwrite(outputfile.string(), outimg);
+	cout << "Finished fitting and wrote result image " << outputfile.string() << "." << endl;
 
 	return EXIT_SUCCESS;
 }
