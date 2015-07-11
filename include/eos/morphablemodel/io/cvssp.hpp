@@ -41,7 +41,7 @@ namespace eos {
 /**
  * Forward declarations
  */
-std::vector<cv::Vec2f> loadIsomap(boost::filesystem::path isomapFile);
+std::vector<cv::Vec2f> load_isomap(boost::filesystem::path isomap_file);
 
 /**
  * Load a shape or color model from a .scm file containing
@@ -57,12 +57,12 @@ std::vector<cv::Vec2f> loadIsomap(boost::filesystem::path isomapFile);
  *
  * - The pcaBasis matrix stored in the file and loaded is the orthogonal PCA basis, i.e. it is not normalised by the eigenvalues.
  *
- * @param[in] modelFilename A binary .scm-file containing the model.
- * @param[in] isomapFile An optional path to an isomap containing texture coordinates.
+ * @param[in] model_filename A binary .scm-file containing the model.
+ * @param[in] isomap_file An optional path to an isomap containing texture coordinates.
  * @return The Morphable Model loaded from the file.
  * @throws ...
  */
-MorphableModel loadScmModel(boost::filesystem::path modelFilename, boost::filesystem::path isomapFile = boost::filesystem::path())
+MorphableModel load_scm_model(boost::filesystem::path model_filename, boost::filesystem::path isomap_file = boost::filesystem::path())
 {
 	using cv::Mat;
 	if (sizeof(unsigned int) != 4) { // note/todo: maybe use uint32 or similar instead? Yep, but still we could encounter endianness-trouble.
@@ -72,9 +72,9 @@ MorphableModel loadScmModel(boost::filesystem::path modelFilename, boost::filesy
 		std::cout << "Warning: We're reading 8 Bytes from the file but sizeof(double) != 8. Check the code/behaviour." << std::endl;
 	}
 
-	std::ifstream modelFile(modelFilename.string(), std::ios::binary);
+	std::ifstream modelFile(model_filename.string(), std::ios::binary);
 	if (!modelFile.is_open()) {
-		std::string msg("Unable to open model file: " + modelFilename.string());
+		std::string msg("Unable to open model file: " + model_filename.string());
 		std::cout << msg << std::endl;
 		throw std::runtime_error(msg);
 	}
@@ -214,8 +214,8 @@ MorphableModel loadScmModel(boost::filesystem::path modelFilename, boost::filesy
 
 	// Load the isomap with texture coordinates if a filename has been given:
 	std::vector<cv::Vec2f> texCoords;
-	if (!isomapFile.empty()) {
-		texCoords = loadIsomap(isomapFile);
+	if (!isomap_file.empty()) {
+		texCoords = load_isomap(isomap_file);
 		if (shapeModel.get_data_dimension() / 3.0f != texCoords.size()) {
 			std::string errorMessage("Error, wrong number of texture coordinates. Don't have the same number of texcoords than the shape model has vertices.");
 			std::cout << errorMessage << std::endl;
@@ -234,7 +234,7 @@ MorphableModel loadScmModel(boost::filesystem::path modelFilename, boost::filesy
  * @return The 2D texture coordinates for every vertex.
  * @throws ...
  */
-std::vector<cv::Vec2f> loadIsomap(boost::filesystem::path isomapFile)
+std::vector<cv::Vec2f> load_isomap(boost::filesystem::path isomapFile)
 {
 	using std::string;
 	std::vector<float> xCoords, yCoords;
