@@ -26,6 +26,7 @@
 	#define BOOST_ALL_DYN_LINK	// Link against the dynamic boost lib. Seems to be necessary because we use /MD, i.e. link to the dynamic CRT.
 	#define BOOST_ALL_NO_LIB	// Don't use the automatic library linking by boost with VS2010 (#pragma ...). Instead, we specify everything in cmake.
 #endif
+#include "boost/optional.hpp"
 #include "boost/filesystem/path.hpp"
 #include "boost/property_tree/ptree.hpp"
 #include "boost/property_tree/info_parser.hpp"
@@ -52,6 +53,8 @@ public:
 
 	/**
 	 * Constructs a new landmark mapper from a mappings-file.
+	 * In case the file contains no mappings, a landmark mapper
+	 * that performs an identity mapping is constructed.
 	 *
 	 * @param[in] filename A file with landmark mappings.
 	 * @throws runtime_error exception if there is an error
@@ -87,18 +90,25 @@ public:
 	 * Converts the given landmark name to the mapped name.
 	 *
 	 * @param[in] landmark_name A landmark name to convert.
-	 * @return The mapped landmark name.
+	 * @return The mapped landmark name if a mapping exists, an empty optional otherwise.
 	 * @throws out_of_range exception if there is no mapping
 	 *         for the given landmarkName.
 	 */
-	std::string convert(std::string landmark_name) const
+	boost::optional<std::string> convert(std::string landmark_name) const
 	{
 		if (landmark_mappings.empty()) {
 			// perform identity mapping, i.e. return the input
 			return landmark_name;
 		}
 		else {
-			return landmark_mappings.at(landmark_name); // throws an out_of_range exception if landmarkName does not match the key of any element in the map
+			auto&& converted_landmark = landmark_mappings.find(landmark_name);
+			if (converted_landmark != std::end(landmark_mappings)) {
+				// landmark mapping found, return it
+				return converted_landmark->second;
+			}
+			else { // landmark_name does not match the key of any element in the map
+				return boost::none;
+			}
 		}
 	};
 
