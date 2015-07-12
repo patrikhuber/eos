@@ -46,6 +46,7 @@ set(CEREAL_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/3rdparty/cereal-1.1.1/include")
 
 # Header files:
 set(HEADERS
+	include/eos/core/Landmark.hpp
 	include/eos/core/LandmarkMapper.hpp
 	include/eos/morphablemodel/PcaModel.hpp
 	include/eos/morphablemodel/MorphableModel.hpp
