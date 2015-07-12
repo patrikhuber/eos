@@ -22,6 +22,7 @@
 #include "eos/fitting/linear_shape_fitting.hpp"
 #include "eos/morphablemodel/io/cvssp.hpp"
 #include "eos/render/utils.hpp"
+#include "eos/core/Landmark.hpp"
 
 #include "opencv2/core/core.hpp"
 #include "opencv2/highgui/highgui.hpp"
@@ -40,6 +41,8 @@
 using namespace eos;
 namespace po = boost::program_options;
 namespace fs = boost::filesystem;
+using eos::core::Landmark;
+using eos::core::LandmarkCollection;
 using cv::Mat;
 using cv::Vec2f;
 using cv::Vec3f;
@@ -56,15 +59,17 @@ using std::string;
  * @param[in] filename Path to a .pts file.
  * @return An ordered vector with the 68 ibug landmarks.
  */
-vector<Vec2f> readPtsLandmarks(std::string filename)
+LandmarkCollection<cv::Vec2f> read_pts_landmarks(std::string filename)
 {
 	using std::getline;
-	vector<Vec2f> landmarks;
+	using cv::Vec2f;
+	using std::string;
+	LandmarkCollection<Vec2f> landmarks;
 	landmarks.reserve(68);
 
 	std::ifstream file(filename);
 	if (!file.is_open()) {
-		throw std::runtime_error(string("Unable to open landmark file: " + filename));
+		throw std::runtime_error(string("Could not open landmark file: " + filename));
 	}
 	
 	string line;
@@ -73,23 +78,27 @@ vector<Vec2f> readPtsLandmarks(std::string filename)
 	getline(file, line); // 'n_points : 68'
 	getline(file, line); // '{'
 
+	int ibugId = 1;
 	while (getline(file, line))
 	{
 		if (line == "}") { // end of the file
 			break;
 		}
-		std::stringstream line_stream(line);
-		Vec2f landmark(0.0f, 0.0f);
-		if (!(line_stream >> landmark[0] >> landmark[1])) {
+		std::stringstream lineStream(line);
+
+		Landmark<Vec2f> landmark;
+		landmark.name = std::to_string(ibugId);
+		if (!(lineStream >> landmark.coordinates[0] >> landmark.coordinates[1])) {
 			throw std::runtime_error(string("Landmark format error while parsing the line: " + line));
 		}
 		// From the iBug website:
 		// "Please note that the re-annotated data for this challenge are saved in the Matlab convention of 1 being 
 		// the first index, i.e. the coordinates of the top left pixel in an image are x=1, y=1."
 		// ==> So we shift every point by 1:
-		landmark[0] -= 1.0f;
-		landmark[1] -= 1.0f;
+		landmark.coordinates[0] -= 1.0f;
+		landmark.coordinates[1] -= 1.0f;
 		landmarks.emplace_back(landmark);
+		++ibugId;
 	}
 	return landmarks;
 };
@@ -139,38 +148,36 @@ int main(int argc, char *argv[])
 
 	// Load the image, landmarks, LandmarkMapper and the Morphable Model:
 	Mat image = cv::imread(imagefile.string());
-	auto landmarks = readPtsLandmarks(landmarksfile.string());
+	auto landmarks = read_pts_landmarks(landmarksfile.string());
 	morphablemodel::MorphableModel morphable_model = morphablemodel::load_model(modelfile.string());
 	core::LandmarkMapper landmark_mapper = mappingsfile.empty() ? core::LandmarkMapper() : core::LandmarkMapper(mappingsfile);
 
 	// Draw the loaded landmarks:
 	Mat outimg = image.clone();
 	for (auto&& lm : landmarks) {
-		cv::rectangle(outimg, cv::Point2f(lm[0] - 2.0f, lm[1] - 2.0f), cv::Point2f(lm[0] + 2.0f, lm[1] + 2.0f), { 255, 0, 0 });
+		cv::rectangle(outimg, cv::Point2f(lm.coordinates[0] - 2.0f, lm.coordinates[1] - 2.0f), cv::Point2f(lm.coordinates[0] + 2.0f, lm.coordinates[1] + 2.0f), { 255, 0, 0 });
 	}
 	
 	// Convert the landmarks to clip-space:
-	std::transform(begin(landmarks), end(landmarks), begin(landmarks), [&image](const Vec2f& lm) { return render::screenToClipSpace(lm, image.cols, image.rows); });
+	std::for_each(begin(landmarks), end(landmarks), [&image](Landmark<Vec2f>& lm) { lm.coordinates = render::screen_to_clip_space(lm.coordinates, image.cols, image.rows); });
 
 	// These will be the final 2D and 3D points used for the fitting:
-	vector<Vec4f> model_points; ///< the points in the 3D shape model
-	vector<int> vertex_indices; ///< their vertex indices
-	vector<Vec2f> image_points; ///< the corresponding 2D landmark points
+	vector<Vec4f> model_points; // the points in the 3D shape model
+	vector<int> vertex_indices; // their vertex indices
+	vector<Vec2f> image_points; // the corresponding 2D landmark points
 
 	// Sub-select all the landmarks which we have a mapping for (i.e. that are defined in the 3DMM):
-	int ibug_id = 1;
+	//std::transform(begin(landmarks), end(landmarks), begin(landmarks), [&landmark_mapper](const Landmark<Vec2f>& lm) {  });
 	for (int i = 0; i < landmarks.size(); ++i) {
-		try {
-			int vertex_idx = boost::lexical_cast<int>(landmark_mapper.convert(std::to_string(ibug_id)));
-			Vec4f vertex = morphable_model.get_shape_model().get_mean_at_point(vertex_idx);
-			model_points.emplace_back(vertex);
-			vertex_indices.emplace_back(vertex_idx);
-			image_points.emplace_back(landmarks[i]);
+		auto converted_name = landmark_mapper.convert(landmarks[i].name);
+		if (!converted_name) { // no mapping defined for the current landmark
+			continue;
 		}
-		catch (const std::out_of_range&) {
-			// just continue if the point isn't defined in the mapping
-		}
-		++ibug_id;
+		int vertex_idx = std::stoi(converted_name.get());
+		Vec4f vertex = morphable_model.get_shape_model().get_mean_at_point(vertex_idx);
+		model_points.emplace_back(vertex);
+		vertex_indices.emplace_back(vertex_idx);
+		image_points.emplace_back(landmarks[i].coordinates);
 	}
 	
 	// Estimate the camera from the 2D - 3D point correspondences
