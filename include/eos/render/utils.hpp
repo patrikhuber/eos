@@ -44,7 +44,7 @@ namespace eos {
  * @param[in] screen_height Height of the screen or window.
  * @return A vector with x and y coordinates transformed to screen space.
  */
-inline cv::Vec2f clip_to_screen_space(cv::Vec2f clip_coordinates, int screen_width, int screen_height)
+inline cv::Vec2f clip_to_screen_space(const cv::Vec2f& clip_coordinates, int screen_width, int screen_height)
 {
 	// Window transform:
 	float x_ss = (clip_coordinates[0] + 1.0f) * (screen_width / 2.0f);
@@ -70,10 +70,10 @@ inline cv::Vec2f clip_to_screen_space(cv::Vec2f clip_coordinates, int screen_wid
  * @param[in] screenHeight Height of the screen or window.
  * @return A vector with x and y coordinates transformed to clip space.
  */
-inline cv::Vec2f screenToClipSpace(cv::Vec2f screenCoordinates, int screenWidth, int screenHeight)
+inline cv::Vec2f screen_to_clip_space(const cv::Vec2f& screen_coordinates, int screen_width, int screen_height)
 {
-	float x_cs = screenCoordinates[0] / (screenWidth / 2.0f) - 1.0f;
-	float y_cs = screenCoordinates[1] / (screenHeight / 2.0f) - 1.0f;
+	float x_cs = screen_coordinates[0] / (screen_width / 2.0f) - 1.0f;
+	float y_cs = screen_coordinates[1] / (screen_height / 2.0f) - 1.0f;
 	y_cs *= -1.0f;
 	return cv::Vec2f(x_cs, y_cs);
 };
