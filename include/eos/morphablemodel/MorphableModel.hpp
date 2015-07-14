@@ -227,12 +227,16 @@ private:
  *
  * @param[in] filename Filename to a model.
  * @return The loaded Morphable Model.
+ * @throw std::runtime_error When the file given in \c filename fails to be opened (most likely because the file doesn't exist).
  */
 MorphableModel load_model(std::string filename)
 {
 	MorphableModel model;
 	
 	std::ifstream file(filename, std::ios::binary);
+	if (file.fail()) {
+		throw std::runtime_error("Error opening given file: " + filename);
+	}
 	cereal::BinaryInputArchive input_archive(file);
 	input_archive(model);
 
