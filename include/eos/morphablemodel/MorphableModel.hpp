@@ -96,7 +96,7 @@ public:
 	 */
 	render::Mesh get_mean() const
 	{
-		assert(shape_model.get_data_dimension() == color_model.get_data_dimension()); // The number of vertices (= model.getDataDimension() / 3) has to be equal for both models.
+		assert(shape_model.get_data_dimension() == color_model.get_data_dimension() || !has_color_model()); // The number of vertices (= model.getDataDimension() / 3) has to be equal for both models, or, alternatively, it has to be a shape-only model.
 
 		cv::Mat shape = shape_model.get_mean();
 		cv::Mat color = color_model.get_mean();
@@ -296,7 +296,7 @@ eos::render::Mesh sample_to_mesh(cv::Mat shape, cv::Mat color, std::vector<std::
 
 	// Assign the triangle lists:
 	mesh.tvi = tvi;
-	mesh.tci = tci;
+	mesh.tci = tci; // tci will be empty in case of a shape-only model
 
 	// Texture coordinates, if the model has them:
 	if (!texture_coordinates.empty()) {
