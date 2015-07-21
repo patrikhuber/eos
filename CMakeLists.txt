@@ -9,9 +9,9 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 # g++ needs a compiler flag to enable C++11 support
 include(CheckCXXCompilerFlag)
-check_cxx_compiler_flag(-std=c++11 HAS_CXX11_FLAG)
-if (HAS_CXX11_FLAG)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+check_cxx_compiler_flag(-std=c++14 HAS_CXX14_FLAG)
+if (HAS_CXX14_FLAG)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 endif()
 
 # All the options for building the library. Can be changed on the command-line or in initial_cache.cmake.
