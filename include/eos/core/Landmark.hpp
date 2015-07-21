@@ -19,8 +19,8 @@
  */
 #pragma once
 
-#ifndef LANDMARK_HPP_
-#define LANDMARK_HPP_
+#ifndef EOS_LANDMARK_HPP_
+#define EOS_LANDMARK_HPP_
 
 #include <string>
 #include <vector>
@@ -67,4 +67,4 @@ LandmarkCollection<T> filter(const LandmarkCollection<T>& landmarks, const std::
 	} /* namespace core */
 } /* namespace eos */
 
-#endif /* LANDMARK_HPP_ */
+#endif /* EOS_LANDMARK_HPP_ */
