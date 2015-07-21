@@ -20,7 +20,6 @@
 #include "eos/core/LandmarkMapper.hpp"
 #include "eos/fitting/affine_camera_estimation.hpp"
 #include "eos/fitting/linear_shape_fitting.hpp"
-#include "eos/morphablemodel/io/cvssp.hpp"
 #include "eos/render/utils.hpp"
 #include "eos/core/Landmark.hpp"
 
@@ -190,7 +189,7 @@ int main(int argc, char *argv[])
 	}
 
 	// Estimate the shape coefficients by fitting the shape to the landmarks:
-	float lambda = 5.0f; ///< the regularisation parameter
+	float lambda = 5.0f; // the regularisation parameter
 	vector<float> fitted_coeffs = fitting::fit_shape_to_landmarks_linear(morphable_model, affine_cam, image_points, vertex_indices, lambda);
 
 	// Obtain the full mesh and draw it using the estimated camera:

@@ -74,12 +74,14 @@ int main(int argc, char *argv[])
 	}
 
 	// Load the .scm Morphable Model and save it as cereal model:
-	morphablemodel::MorphableModel morphable_model = morphablemodel::loadScmModel(scmmodelfile, isomapfile);
+	morphablemodel::MorphableModel morphable_model = morphablemodel::load_scm_model(scmmodelfile, isomapfile);
 
 	morphablemodel::save_model(morphable_model, outputfile.string());
 	
 	// Save only the shape model - to generate the public sfm_shape_3448.bin
 	//morphablemodel::MorphableModel shape_only_model(morphable_model.get_shape_model(), morphablemodel::PcaModel(), morphable_model.gtc());
 	//morphablemodel::save_model(shape_only_model, outputfile.string());
+
+	cout << "Saved converted model as " << outputfile.string() << "." << endl;
 	return EXIT_SUCCESS;
 }
