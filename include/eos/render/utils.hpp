@@ -47,8 +47,8 @@ namespace eos {
 inline cv::Vec2f clip_to_screen_space(const cv::Vec2f& clip_coordinates, int screen_width, int screen_height)
 {
 	// Window transform:
-	float x_ss = (clip_coordinates[0] + 1.0f) * (screen_width / 2.0f);
-	float y_ss = screen_height - (clip_coordinates[1] + 1.0f) * (screen_height / 2.0f); // also flip y; Qt: Origin top-left. OpenGL: bottom-left.
+	const float x_ss = (clip_coordinates[0] + 1.0f) * (screen_width / 2.0f);
+	const float y_ss = screen_height - (clip_coordinates[1] + 1.0f) * (screen_height / 2.0f); // also flip y; Qt: Origin top-left. OpenGL: bottom-left.
 	return cv::Vec2f(x_ss, y_ss);
 	/* Note: What we do here is equivalent to
 	   x_w = (x *  vW/2) + vW/2;
@@ -72,7 +72,7 @@ inline cv::Vec2f clip_to_screen_space(const cv::Vec2f& clip_coordinates, int scr
  */
 inline cv::Vec2f screen_to_clip_space(const cv::Vec2f& screen_coordinates, int screen_width, int screen_height)
 {
-	float x_cs = screen_coordinates[0] / (screen_width / 2.0f) - 1.0f;
+	const float x_cs = screen_coordinates[0] / (screen_width / 2.0f) - 1.0f;
 	float y_cs = screen_coordinates[1] / (screen_height / 2.0f) - 1.0f;
 	y_cs *= -1.0f;
 	return cv::Vec2f(x_cs, y_cs);
