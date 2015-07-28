@@ -1,5 +1,5 @@
 project(eos)
-cmake_minimum_required(VERSION 2.8.7)
+cmake_minimum_required(VERSION 2.8.10)
 set(eos_VERSION_MAJOR 0)
 set(eos_VERSION_MINOR 4)
 set(eos_VERSION_PATCH 0)
@@ -7,11 +7,43 @@ set(eos_VERSION ${eos_VERSION_MAJOR}.${eos_VERSION_MINOR}.${eos_VERSION_PATCH})
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-# g++ needs a compiler flag to enable C++11 support
+# Check if a supported compiler is used and add c++11/14 flag
 include(CheckCXXCompilerFlag)
-check_cxx_compiler_flag(-std=c++14 HAS_CXX14_FLAG)
-if (HAS_CXX14_FLAG)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+	if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.8)
+		message(FATAL_ERROR "Need at least gcc 4.8 to compile.")
+	elseif(CMAKE_CXX_COMPILER_VERSION VERSION_EQUAL 4.8 OR (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 4.8 AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.9))
+		# This compiles with a warning at the moment, but support for gcc 4.8.x will be removed in the very near future.
+		check_cxx_compiler_flag(-std=c++11 HAS_CXX11_FLAG)
+		if(HAS_CXX11_FLAG)
+			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+		endif()
+		message(WARNING "Support for gcc 4.8 will be removed in the very near future. Please upgrade your compiler.")
+	else() # gcc version is >4.8
+		check_cxx_compiler_flag(-std=c++14 HAS_CXX14_FLAG)
+		if(HAS_CXX14_FLAG)
+			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
+		endif()
+	endif()
+elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC") # the quotes are needed here, maybe because "MSVC" seems to be a keyword
+	if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19)
+		message(FATAL_ERROR "Visual Studio 2015 or newer is required.")
+	endif()
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+	# >=3.5 works, not sure about older versions. Also, libstdc++ from gcc >=4.9 may be needed.
+	if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 3.5)
+		message(WARNING "Clang below version 3.5 may or may not work. Please upgrade your compiler.")
+	endif()
+	check_cxx_compiler_flag(-std=c++14 HAS_CXX14_FLAG)
+	if(HAS_CXX14_FLAG)
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
+	endif()
+else()
+	message(WARNING "You are using an unsupported compiler. Compilation has only been tested with MSVC, GCC and Clang.")
+	check_cxx_compiler_flag(-std=c++14 HAS_CXX14_FLAG)
+	if(HAS_CXX14_FLAG)
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
+	endif()
 endif()
 
 # All the options for building the library. Can be changed on the command-line or in initial_cache.cmake.
