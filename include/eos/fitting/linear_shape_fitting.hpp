@@ -24,7 +24,7 @@
 
 #include "eos/morphablemodel/MorphableModel.hpp"
 
-#include "Eigen/LU"
+//#include "Eigen/LU"
 
 #include "opencv2/core/core.hpp"
 
@@ -120,15 +120,17 @@ inline std::vector<float> fit_shape_to_landmarks_linear(morphablemodel::Morphabl
 	Mat AtOmegaAReg = AtOmegaA + lambda * Mat::eye(num_shape_pc, num_shape_pc, CV_32FC1);
 	// Invert using OpenCV:
 	Mat AtOmegaARegInv = AtOmegaAReg.inv(cv::DECOMP_SVD); // DECOMP_SVD calculates the pseudo-inverse if the matrix is not invertible.
-														  // Invert (and perform some sanity checks) using Eigen:
-	using RowMajorMatrixXf = Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
+	
+	// Invert (and perform some sanity checks) using Eigen:
+/*	using RowMajorMatrixXf = Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
 	Eigen::Map<RowMajorMatrixXf> AtOmegaAReg_Eigen(AtOmegaAReg.ptr<float>(), AtOmegaAReg.rows, AtOmegaAReg.cols);
 	Eigen::FullPivLU<RowMajorMatrixXf> luOfAtOmegaAReg(AtOmegaAReg_Eigen); // Calculate the full-pivoting LU decomposition of the regularized AtA. Note: We could also try FullPivHouseholderQR if our system is non-minimal (i.e. there are more constraints than unknowns).
 	auto rankOfAtOmegaAReg = luOfAtOmegaAReg.rank();
 	bool isAtOmegaARegInvertible = luOfAtOmegaAReg.isInvertible();
-	float threshold = /*2 * */ std::abs(luOfAtOmegaAReg.maxPivot()) * luOfAtOmegaAReg.threshold();
+	float threshold = std::abs(luOfAtOmegaAReg.maxPivot()) * luOfAtOmegaAReg.threshold(); // originaly "2 * ..." but I commented it out
 	RowMajorMatrixXf AtARegInv_EigenFullLU = luOfAtOmegaAReg.inverse(); // Note: We should use ::solve() instead
 	Mat AtOmegaARegInvFullLU(AtARegInv_EigenFullLU.rows(), AtARegInv_EigenFullLU.cols(), CV_32FC1, AtARegInv_EigenFullLU.data()); // create an OpenCV Mat header for the Eigen data
+*/
 
 	Mat AtOmegatb = A.t() * Omega.t() * b;
 	Mat c_s = -AtOmegaARegInv * AtOmegatb; // Note/Todo: We get coefficients ~ N(0, sigma) I think. They are not multiplied with the eigenvalues.
