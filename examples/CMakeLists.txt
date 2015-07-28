@@ -6,7 +6,7 @@ find_package(OpenCV 2.4.3 REQUIRED core imgproc highgui)
 message(STATUS "OpenCV include dir found at ${OpenCV_INCLUDE_DIRS}")
 message(STATUS "OpenCV lib dir found at ${OpenCV_LIB_DIR}")
 
-find_package(Boost 1.48.0 COMPONENTS system filesystem program_options REQUIRED)
+find_package(Boost 1.50.0 COMPONENTS system filesystem program_options REQUIRED)
 if(Boost_FOUND)
   message(STATUS "Boost found at ${Boost_INCLUDE_DIRS}")
 else(Boost_FOUND)
