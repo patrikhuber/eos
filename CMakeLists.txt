@@ -56,6 +56,7 @@ set(HEADERS
 	include/eos/fitting/linear_shape_fitting.hpp
 	include/eos/render/Mesh.hpp
 	include/eos/render/utils.hpp
+	include/eos/render/texture.hpp
 )
 
 # Add header includes:
