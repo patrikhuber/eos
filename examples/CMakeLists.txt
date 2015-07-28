@@ -1,5 +1,5 @@
 project(examples)
-cmake_minimum_required(VERSION 2.8.7)
+cmake_minimum_required(VERSION 2.8.10)
 
 # The examples need a few additional dependencies (e.g. boost filesystem and OpenCV highgui):
 find_package(OpenCV 2.4.3 REQUIRED core imgproc highgui)
@@ -13,12 +13,9 @@ else(Boost_FOUND)
   message(FATAL_ERROR "Boost not found")
 endif()
 
-#include_directories(${eos_SOURCE_DIR})
-
 # Model fitting (affine cam & shape to landmarks) example:
 add_executable(fit-model fit-model.cpp)
 target_link_libraries(fit-model ${OpenCV_LIBS} ${Boost_LIBRARIES})
-# TODO Add dependency to library-target??
 
 # Converts a CVSSP .scm Morphable Model to a cereal binary file:
 add_executable(scm-to-cereal scm-to-cereal.cpp)
