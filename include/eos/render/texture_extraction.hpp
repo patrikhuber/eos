@@ -31,16 +31,18 @@ namespace eos {
 	namespace render {
 inline cv::Rect calculate_bounding_box(cv::Vec4f v0, cv::Vec4f v1, cv::Vec4f v2, int viewportWidth, int viewportHeight)
 {
+	using std::min;
+	using std::max;
 	/* Old, producing artifacts:
 	t.minX = max(min(t.v0.position[0], min(t.v1.position[0], t.v2.position[0])), 0.0f);
 	t.maxX = min(max(t.v0.position[0], max(t.v1.position[0], t.v2.position[0])), (float)(viewportWidth - 1));
 	t.minY = max(min(t.v0.position[1], min(t.v1.position[1], t.v2.position[1])), 0.0f);
 	t.maxY = min(max(t.v0.position[1], max(t.v1.position[1], t.v2.position[1])), (float)(viewportHeight - 1));*/
 
-	int minX = std::max(std::min(floor(v0[0]), std::min(floor(v1[0]), floor(v2[0]))), 0.0f);
-	int maxX = std::min(std::max(ceil(v0[0]), std::max(ceil(v1[0]), ceil(v2[0]))), static_cast<float>(viewportWidth - 1));
-	int minY = std::max(std::min(floor(v0[1]), std::min(floor(v1[1]), floor(v2[1]))), 0.0f);
-	int maxY = std::min(std::max(ceil(v0[1]), std::max(ceil(v1[1]), ceil(v2[1]))), static_cast<float>(viewportHeight - 1));
+	int minX = max(min(floor(v0[0]), min(floor(v1[0]), floor(v2[0]))), 0.0f);
+	int maxX = min(max(ceil(v0[0]), max(ceil(v1[0]), ceil(v2[0]))), static_cast<float>(viewportWidth - 1));
+	int minY = max(min(floor(v0[1]), min(floor(v1[1]), floor(v2[1]))), 0.0f);
+	int maxY = min(max(ceil(v0[1]), max(ceil(v1[1]), ceil(v2[1]))), static_cast<float>(viewportHeight - 1));
 	return cv::Rect(minX, minY, maxX - minX, maxY - minY);
 };
 
@@ -84,39 +86,41 @@ inline double implicit_line(float x, float y, const cv::Vec4f& v1, const cv::Vec
 };
 
 // enum of transformation types used in mapping
-enum class MappingTransformation {
-	NN,
-	BILINEAR,
-	AREA
+enum class TextureInterpolation {
+	NearestNeighbour,
+	Bilinear,
+	Area
 };
 
 /**
-* extracts the texture of the face from the image
-*
-*
-* @param[in] mesh TODO
-* @param[in] mvpMatrix Atm working with a 4x4 (full) affine. But anything would work, just take care with the w-division.
-* @param[in] view_port_width TODO
-* @param[in] view_port_height TODO
-* @param[in] image Where to extract the texture from
-* @param[in] depth_buffer TODO note: We could also pass an instance of a Renderer here. Depending on how "stateful" the renderer is, this might make more sense.
-* @param[in] mapping_type Which Transformation type to use for mapping
-* @return A Mat with the texture as an isomap
-* // note: framebuffer should have size of the image (ok not necessarily. What about mobile?) (well it should, to get optimal quality (and everywhere the same quality)?)
-*/
-inline cv::Mat extract_texture(Mesh mesh, cv::Mat mvpMatrix, int view_port_width, int view_port_height, cv::Mat image, cv::Mat depth_buffer, MappingTransformation mapping_type) {
+ * extracts the texture of the face from the image
+ *
+ *
+ * @param[in] mesh TODO
+ * @param[in] mvp_matrix Atm working with a 4x4 (full) affine. But anything would work, just take care with the w-division.
+ * @param[in] viewport_width TODO
+ * @param[in] viewport_height TODO
+ * @param[in] image Where to extract the texture from
+ * @param[in] depth_buffer TODO note: We could also pass an instance of a Renderer here. Depending on how "stateful" the renderer is, this might make more sense.
+ * @param[in] mapping_type Which Transformation type to use for mapping
+ * @return A Mat with the texture as an isomap
+ * // note: framebuffer should have size of the image (ok not necessarily. What about mobile?) (well it should, to get optimal quality (and everywhere the same quality)?)
+ */
+inline cv::Mat extract_texture(Mesh mesh, cv::Mat mvp_matrix, int viewport_width, int viewport_height, cv::Mat image, cv::Mat depth_buffer, TextureInterpolation mapping_type) {
 
 	using cv::Mat;
 	using cv::Vec4f;
 	using cv::Vec2f;
+	using std::min;
+	using std::max;
+	using std::floor;
+	using std::ceil;
 
 	// optional param  cv::Mat texture_map = Mat(512, 512, CV_8UC3) ?
 	// cv::Mat texture_map(512, 512, inputImage.type());
 	Mat texture_map = Mat::zeros(512, 512, CV_8UC3); // We don't want an alpha channel. We might want to handle grayscale input images though.
-	Mat visibilityMask = Mat::zeros(512, 512, CV_8UC3);
 
-
-	for (const auto& triangleIndices : mesh.tvi) {
+	for (const auto& triangle_indices : mesh.tvi) {
 
 		// Find out if the current triangle is visible:
 		// We do a second rendering-pass here. We use the depth-buffer of the final image, and then, here,
@@ -124,17 +128,17 @@ inline cv::Mat extract_texture(Mesh mesh, cv::Mat mvpMatrix, int view_port_width
 		// the texture.
 		// Possible improvement: - If only part of the triangle is visible, split it
 		// - Share more code with the renderer?
-		Vec4f v0_3d = mesh.vertices[triangleIndices[0]];
-		Vec4f v1_3d = mesh.vertices[triangleIndices[1]];
-		Vec4f v2_3d = mesh.vertices[triangleIndices[2]];
+		Vec4f v0_3d = mesh.vertices[triangle_indices[0]];
+		Vec4f v1_3d = mesh.vertices[triangle_indices[1]];
+		Vec4f v2_3d = mesh.vertices[triangle_indices[2]];
 
 		Vec4f v0, v1, v2; // we don't copy the color and texcoords, we only do the visibility check here.
 		// This could be optimized in 2 ways though:
 		// - Use render(), or as in render(...), transfer the vertices once, not in a loop over all triangles (vertices are getting transformed multiple times)
 		// - We transform them later (below) a second time. Only do it once.
-		v0 = Mat(mvpMatrix * Mat(v0_3d));
-		v1 = Mat(mvpMatrix * Mat(v1_3d));
-		v2 = Mat(mvpMatrix * Mat(v2_3d));
+		v0 = Mat(mvp_matrix * Mat(v0_3d));
+		v1 = Mat(mvp_matrix * Mat(v1_3d));
+		v2 = Mat(mvp_matrix * Mat(v2_3d));
 
 		// Well, in in principle, we'd have to do the whole stuff as in render(), like
 		// clipping against the frustums etc.
@@ -147,9 +151,9 @@ inline cv::Mat extract_texture(Mesh mesh, cv::Mat mvpMatrix, int view_port_width
 		v2 = v2 / v2[3];
 
 		// Todo: This is all very similar to processProspectiveTri(...), except the other function does texturing stuff as well. Remove code duplication!
-		Vec2f v0_clip = clip_to_screen_space(Vec2f(v0[0], v0[1]), view_port_width, view_port_height);
-		Vec2f v1_clip = clip_to_screen_space(Vec2f(v1[0], v1[1]), view_port_width, view_port_height);
-		Vec2f v2_clip = clip_to_screen_space(Vec2f(v2[0], v2[1]), view_port_width, view_port_height);
+		Vec2f v0_clip = clip_to_screen_space(Vec2f(v0[0], v0[1]), viewport_width, viewport_height);
+		Vec2f v1_clip = clip_to_screen_space(Vec2f(v1[0], v1[1]), viewport_width, viewport_height);
+		Vec2f v2_clip = clip_to_screen_space(Vec2f(v2[0], v2[1]), viewport_width, viewport_height);
 		v0[0] = v0_clip[0]; v0[1] = v0_clip[1];
 		v1[0] = v1_clip[0]; v1[1] = v1_clip[1];
 		v2[0] = v2_clip[0]; v2[1] = v2_clip[1];
@@ -159,7 +163,7 @@ inline cv::Mat extract_texture(Mesh mesh, cv::Mat mvpMatrix, int view_port_width
 			continue;
 		//}
 
-		cv::Rect bbox = calculate_bounding_box(v0, v1, v2, view_port_width, view_port_height);
+		cv::Rect bbox = calculate_bounding_box(v0, v1, v2, viewport_width, viewport_height);
 		int minX = bbox.x;
 		int maxX = bbox.x + bbox.width;
 		int minY = bbox.y;
@@ -168,7 +172,7 @@ inline cv::Mat extract_texture(Mesh mesh, cv::Mat mvpMatrix, int view_port_width
 		//if (t.maxX <= t.minX || t.maxY <= t.minY) 	// Note: Can the width/height of the bbox be negative? Maybe we only need to check for equality here?
 		//	continue;
 
-		bool wholeTriangleIsVisible = true;
+		bool whole_triangle_is_visible = true;
 		for (int yi = minY; yi <= maxY; yi++)
 		{
 			for (int xi = minX; xi <= maxX; xi++)
@@ -190,7 +194,7 @@ inline cv::Mat extract_texture(Mesh mesh, cv::Mat mvpMatrix, int view_port_width
 					double z_affine = alpha*(double)v0[2] + beta*(double)v1[2] + gamma*(double)v2[2];
 					// The '<= 1.0' clips against the far-plane in NDC. We clip against the near-plane earlier.
 					if (z_affine < depth_buffer.at<double>(yi, xi)/* && z_affine <= 1.0*/) {
-						wholeTriangleIsVisible = false;
+						whole_triangle_is_visible = false;
 						break;
 					}
 					else {
@@ -198,51 +202,48 @@ inline cv::Mat extract_texture(Mesh mesh, cv::Mat mvpMatrix, int view_port_width
 					}
 				}
 			}
-			if (!wholeTriangleIsVisible) {
+			if (!whole_triangle_is_visible) {
 				break;
 			}
 		}
 
-		if (!wholeTriangleIsVisible) {
+		if (!whole_triangle_is_visible) {
 			continue;
 		}
 
-		cv::Point2f srcTri[3];
-		cv::Point2f dstTri[3];
-		cv::Vec4f vec(mesh.vertices[triangleIndices[0]][0], mesh.vertices[triangleIndices[0]][1], mesh.vertices[triangleIndices[0]][2], 1.0f);
-		cv::Vec4f res = Mat(mvpMatrix * Mat(vec));
+		cv::Point2f src_tri[3];
+		cv::Point2f dst_tri[3];
+		cv::Vec4f vec(mesh.vertices[triangle_indices[0]][0], mesh.vertices[triangle_indices[0]][1], mesh.vertices[triangle_indices[0]][2], 1.0f);
+		cv::Vec4f res = Mat(mvp_matrix * Mat(vec));
 		res /= res[3];
-		Vec2f screenSpace = clip_to_screen_space(Vec2f(res[0], res[1]), view_port_width, view_port_height);
-		srcTri[0] = screenSpace;
+		Vec2f screen_space = clip_to_screen_space(Vec2f(res[0], res[1]), viewport_width, viewport_height);
+		src_tri[0] = screen_space;
 
-		vec = cv::Vec4f(mesh.vertices[triangleIndices[1]][0], mesh.vertices[triangleIndices[1]][1], mesh.vertices[triangleIndices[1]][2], 1.0f);
-		res = Mat(mvpMatrix * Mat(vec));
+		vec = cv::Vec4f(mesh.vertices[triangle_indices[1]][0], mesh.vertices[triangle_indices[1]][1], mesh.vertices[triangle_indices[1]][2], 1.0f);
+		res = Mat(mvp_matrix * Mat(vec));
 		res /= res[3];
-		screenSpace = clip_to_screen_space(Vec2f(res[0], res[1]), view_port_width, view_port_height);
-		srcTri[1] = screenSpace;
+		screen_space = clip_to_screen_space(Vec2f(res[0], res[1]), viewport_width, viewport_height);
+		src_tri[1] = screen_space;
 
-		vec = cv::Vec4f(mesh.vertices[triangleIndices[2]][0], mesh.vertices[triangleIndices[2]][1], mesh.vertices[triangleIndices[2]][2], 1.0f);
-		res = Mat(mvpMatrix * Mat(vec));
+		vec = cv::Vec4f(mesh.vertices[triangle_indices[2]][0], mesh.vertices[triangle_indices[2]][1], mesh.vertices[triangle_indices[2]][2], 1.0f);
+		res = Mat(mvp_matrix * Mat(vec));
 		res /= res[3];
-		screenSpace = clip_to_screen_space(Vec2f(res[0], res[1]), view_port_width, view_port_height);
-		srcTri[2] = screenSpace;
+		screen_space = clip_to_screen_space(Vec2f(res[0], res[1]), viewport_width, viewport_height);
+		src_tri[2] = screen_space;
 
-		dstTri[0] = cv::Point2f(texture_map.cols*mesh.texcoords[triangleIndices[0]][0], texture_map.rows*mesh.texcoords[triangleIndices[0]][1] - 1.0f);
-		dstTri[1] = cv::Point2f(texture_map.cols*mesh.texcoords[triangleIndices[1]][0], texture_map.rows*mesh.texcoords[triangleIndices[1]][1] - 1.0f);
-		dstTri[2] = cv::Point2f(texture_map.cols*mesh.texcoords[triangleIndices[2]][0], texture_map.rows*mesh.texcoords[triangleIndices[2]][1] - 1.0f);
-
+		dst_tri[0] = cv::Point2f(texture_map.cols*mesh.texcoords[triangle_indices[0]][0], texture_map.rows*mesh.texcoords[triangle_indices[0]][1] - 1.0f);
+		dst_tri[1] = cv::Point2f(texture_map.cols*mesh.texcoords[triangle_indices[1]][0], texture_map.rows*mesh.texcoords[triangle_indices[1]][1] - 1.0f);
+		dst_tri[2] = cv::Point2f(texture_map.cols*mesh.texcoords[triangle_indices[2]][0], texture_map.rows*mesh.texcoords[triangle_indices[2]][1] - 1.0f);
 
 		// Get the inverse Affine Transform from original image: from dst to src
-		cv::Mat warp_mat_org_inv = cv::getAffineTransform(dstTri, srcTri);
+		cv::Mat warp_mat_org_inv = cv::getAffineTransform(dst_tri, src_tri);
 		warp_mat_org_inv.convertTo(warp_mat_org_inv, CV_32FC1);
 
 		// We now loop over all pixels in the triangle and select, depending on the mapping type, the corresponding texel(s) in the source image
-		for (int x = std::min(dstTri[0].x, std::min(dstTri[1].x, dstTri[2].x)); x < std::max(dstTri[0].x, std::max(dstTri[1].x, dstTri[2].x)); ++x) {
-			for (int y = std::min(dstTri[0].y, std::min(dstTri[1].y, dstTri[2].y)); y < std::max(dstTri[0].y, std::max(dstTri[1].y, dstTri[2].y)); ++y) {
-				if (is_point_in_triangle(cv::Point2f(x, y), dstTri[0], dstTri[1], dstTri[2])) {
-
-
-					if (mapping_type == MappingTransformation::AREA){
+		for (int x = min(dst_tri[0].x, min(dst_tri[1].x, dst_tri[2].x)); x < max(dst_tri[0].x, max(dst_tri[1].x, dst_tri[2].x)); ++x) {
+			for (int y = min(dst_tri[0].y, min(dst_tri[1].y, dst_tri[2].y)); y < max(dst_tri[0].y, max(dst_tri[1].y, dst_tri[2].y)); ++y) {
+				if (is_point_in_triangle(cv::Point2f(x, y), dst_tri[0], dst_tri[1], dst_tri[2])) {
+					if (mapping_type == TextureInterpolation::Area){
 
 						//calculate positions of 4 corners of pixel in image (src)
 						cv::Vec3f homogenous_dst_upper_left = cv::Vec3f(x - 0.5, y - 0.5, 1.f);
@@ -250,15 +251,15 @@ inline cv::Mat extract_texture(Mesh mesh, cv::Mat mvpMatrix, int view_port_width
 						cv::Vec3f homogenous_dst_lower_left = cv::Vec3f(x - 0.5, y + 0.5, 1.f);
 						cv::Vec3f homogenous_dst_lower_right = cv::Vec3f(x + 0.5, y + 0.5, 1.f);
 
-						cv::Vec2f srcTexel_upper_left = Mat(warp_mat_org_inv * Mat(homogenous_dst_upper_left));
-						cv::Vec2f srcTexel_upper_right = Mat(warp_mat_org_inv * Mat(homogenous_dst_upper_right));
-						cv::Vec2f srcTexel_lower_left = Mat(warp_mat_org_inv * Mat(homogenous_dst_lower_left));
-						cv::Vec2f srcTexel_lower_right = Mat(warp_mat_org_inv * Mat(homogenous_dst_lower_right));
+						cv::Vec2f src_texel_upper_left = Mat(warp_mat_org_inv * Mat(homogenous_dst_upper_left));
+						cv::Vec2f src_texel_upper_right = Mat(warp_mat_org_inv * Mat(homogenous_dst_upper_right));
+						cv::Vec2f src_texel_lower_left = Mat(warp_mat_org_inv * Mat(homogenous_dst_lower_left));
+						cv::Vec2f src_texel_lower_right = Mat(warp_mat_org_inv * Mat(homogenous_dst_lower_right));
 
-						float min_a = std::min(std::min(srcTexel_upper_left[0], srcTexel_upper_right[0]), std::min(srcTexel_lower_left[0], srcTexel_lower_right[0]));
-						float max_a = std::max(std::max(srcTexel_upper_left[0], srcTexel_upper_right[0]), std::max(srcTexel_lower_left[0], srcTexel_lower_right[0]));
-						float min_b = std::min(std::min(srcTexel_upper_left[1], srcTexel_upper_right[1]), std::min(srcTexel_lower_left[1], srcTexel_lower_right[1]));
-						float max_b = std::max(std::max(srcTexel_upper_left[1], srcTexel_upper_right[1]), std::max(srcTexel_lower_left[1], srcTexel_lower_right[1]));
+						float min_a = min(min(src_texel_upper_left[0], src_texel_upper_right[0]), min(src_texel_lower_left[0], src_texel_lower_right[0]));
+						float max_a = max(max(src_texel_upper_left[0], src_texel_upper_right[0]), max(src_texel_lower_left[0], src_texel_lower_right[0]));
+						float min_b = min(min(src_texel_upper_left[1], src_texel_upper_right[1]), min(src_texel_lower_left[1], src_texel_lower_right[1]));
+						float max_b = max(max(src_texel_upper_left[1], src_texel_upper_right[1]), max(src_texel_lower_left[1], src_texel_lower_right[1]));
 
 						cv::Vec3i color = cv::Vec3i();
 						int num_texels = 0;
@@ -267,13 +268,12 @@ inline cv::Mat extract_texture(Mesh mesh, cv::Mat mvpMatrix, int view_port_width
 						{
 							for (int b = ceil(min_b); b <= floor(max_b); ++b)
 							{
-								if (is_point_in_triangle(cv::Point2f(a, b), srcTexel_upper_left, srcTexel_lower_left, srcTexel_upper_right) || is_point_in_triangle(cv::Point2f(a, b), srcTexel_lower_left, srcTexel_upper_right, srcTexel_lower_right)) {
-									if (a < image.cols && b < image.rows){ //if srcTexel in triangle and in image
+								if (is_point_in_triangle(cv::Point2f(a, b), src_texel_upper_left, src_texel_lower_left, src_texel_upper_right) || is_point_in_triangle(cv::Point2f(a, b), src_texel_lower_left, src_texel_upper_right, src_texel_lower_right)) {
+									if (a < image.cols && b < image.rows){ //if src_texel in triangle and in image
 										num_texels++;
 										color += image.at<cv::Vec3b>(b, a);
 									}
 								}
-
 							}
 						}
 						if (num_texels > 0)
@@ -281,27 +281,25 @@ inline cv::Mat extract_texture(Mesh mesh, cv::Mat mvpMatrix, int view_port_width
 						else{ //if no corresponding texel found, nearest neighbor interpolation
 							//calculate corrresponding position of dst_coord pixel center in image (src)
 							cv::Vec3f homogenous_dst_coord = cv::Vec3f(x, y, 1.f);
-							cv::Vec2f srcTexel = Mat(warp_mat_org_inv * Mat(homogenous_dst_coord));
+							cv::Vec2f src_texel = Mat(warp_mat_org_inv * Mat(homogenous_dst_coord));
 
-							if ((cvRound(srcTexel[1]) < image.rows) && cvRound(srcTexel[0]) < image.cols) {
-								color = image.at<cv::Vec3b>(cvRound(srcTexel[1]), cvRound(srcTexel[0]));
+							if ((cvRound(src_texel[1]) < image.rows) && cvRound(src_texel[0]) < image.cols) {
+								color = image.at<cv::Vec3b>(cvRound(src_texel[1]), cvRound(src_texel[0]));
 							}
-
-
 						}
 						texture_map.at<cv::Vec3b>(y, x) = color;
 					}
-					else if (mapping_type == MappingTransformation::BILINEAR){
+					else if (mapping_type == TextureInterpolation::Bilinear){
 
 						//calculate corrresponding position of dst_coord pixel center in image (src)
 						cv::Vec3f homogenous_dst_coord = cv::Vec3f(x, y, 1.f);
-						cv::Vec2f srcTexel = Mat(warp_mat_org_inv * Mat(homogenous_dst_coord));
+						cv::Vec2f src_texel = Mat(warp_mat_org_inv * Mat(homogenous_dst_coord));
 
 						//calculate distances to next 4 pixels
-						float distance_upper_left = sqrt(powf(srcTexel[0] - floor(srcTexel[0]), 2) + powf(srcTexel[1] - floor(srcTexel[1]), 2));
-						float distance_upper_right = sqrt(powf(srcTexel[0] - floor(srcTexel[0]), 2) + powf(srcTexel[1] - ceil(srcTexel[1]), 2));
-						float distance_lower_left = sqrt(powf(srcTexel[0] - ceil(srcTexel[0]), 2) + powf(srcTexel[1] - floor(srcTexel[1]), 2));
-						float distance_lower_right = sqrt(powf(srcTexel[0] - ceil(srcTexel[0]), 2) + powf(srcTexel[1] - ceil(srcTexel[1]), 2));
+						float distance_upper_left = sqrt(powf(src_texel[0] - floor(src_texel[0]), 2) + powf(src_texel[1] - floor(src_texel[1]), 2));
+						float distance_upper_right = sqrt(powf(src_texel[0] - floor(src_texel[0]), 2) + powf(src_texel[1] - ceil(src_texel[1]), 2));
+						float distance_lower_left = sqrt(powf(src_texel[0] - ceil(src_texel[0]), 2) + powf(src_texel[1] - floor(src_texel[1]), 2));
+						float distance_lower_right = sqrt(powf(src_texel[0] - ceil(src_texel[0]), 2) + powf(src_texel[1] - ceil(src_texel[1]), 2));
 
 						//normalize distances
 						float sum_distances = distance_lower_left + distance_lower_right + distance_upper_left + distance_upper_right;
@@ -312,33 +310,26 @@ inline cv::Mat extract_texture(Mesh mesh, cv::Mat mvpMatrix, int view_port_width
 
 						// set color depending on distance from next 4 pixels
 						for (int color = 0; color < 3; color++){
-							float color_upper_left = image.at<cv::Vec3b>(floor(srcTexel[1]), floor(srcTexel[0]))[color] * distance_upper_left;
-							float color_upper_right = image.at<cv::Vec3b>(floor(srcTexel[1]), ceil(srcTexel[0]))[color] * distance_upper_right;
-							float color_lower_left = image.at<cv::Vec3b>(ceil(srcTexel[1]), floor(srcTexel[0]))[color] * distance_lower_left;
-							float color_lower_right = image.at<cv::Vec3b>(ceil(srcTexel[1]), ceil(srcTexel[0]))[color] * distance_lower_right;
+							float color_upper_left = image.at<cv::Vec3b>(floor(src_texel[1]), floor(src_texel[0]))[color] * distance_upper_left;
+							float color_upper_right = image.at<cv::Vec3b>(floor(src_texel[1]), ceil(src_texel[0]))[color] * distance_upper_right;
+							float color_lower_left = image.at<cv::Vec3b>(ceil(src_texel[1]), floor(src_texel[0]))[color] * distance_lower_left;
+							float color_lower_right = image.at<cv::Vec3b>(ceil(src_texel[1]), ceil(src_texel[0]))[color] * distance_lower_right;
 
 							texture_map.at<cv::Vec3b>(y, x)[color] = color_upper_left + color_upper_right + color_lower_left + color_lower_right;
 						}
-
 					}
-					else if (mapping_type == MappingTransformation::NN){
+					else if (mapping_type == TextureInterpolation::NearestNeighbour){
 
 						//calculate corrresponding position of dst_coord pixel center in image (src)
 						cv::Vec3f homogenous_dst_coord = cv::Vec3f(x, y, 1.f);
-						cv::Vec2f srcTexel = Mat(warp_mat_org_inv * Mat(homogenous_dst_coord));
+						cv::Vec2f src_texel = Mat(warp_mat_org_inv * Mat(homogenous_dst_coord));
 
-						if ((cvRound(srcTexel[1]) < image.rows) && (cvRound(srcTexel[0]) < image.cols))
-							texture_map.at<cv::Vec3b>(y, x) = image.at<cv::Vec3b>(cvRound(srcTexel[1]), cvRound(srcTexel[0]));
-
+						if ((cvRound(src_texel[1]) < image.rows) && (cvRound(src_texel[0]) < image.cols))
+							texture_map.at<cv::Vec3b>(y, x) = image.at<cv::Vec3b>(cvRound(src_texel[1]), cvRound(src_texel[0]));
 					}
-
-
-
 				}
 			}
 		}
-
-
 	}
 	return texture_map;
 };
