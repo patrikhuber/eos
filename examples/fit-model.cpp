@@ -70,7 +70,7 @@ LandmarkCollection<cv::Vec2f> read_pts_landmarks(std::string filename)
 	if (!file.is_open()) {
 		throw std::runtime_error(string("Could not open landmark file: " + filename));
 	}
-	
+
 	string line;
 	// Skip the first 3 lines, they're header lines:
 	getline(file, line); // 'version: 1'
@@ -91,7 +91,7 @@ LandmarkCollection<cv::Vec2f> read_pts_landmarks(std::string filename)
 			throw std::runtime_error(string("Landmark format error while parsing the line: " + line));
 		}
 		// From the iBug website:
-		// "Please note that the re-annotated data for this challenge are saved in the Matlab convention of 1 being 
+		// "Please note that the re-annotated data for this challenge are saved in the Matlab convention of 1 being
 		// the first index, i.e. the coordinates of the top left pixel in an image are x=1, y=1."
 		// ==> So we shift every point by 1:
 		landmark.coordinates[0] -= 1.0f;
@@ -147,8 +147,22 @@ int main(int argc, char *argv[])
 
 	// Load the image, landmarks, LandmarkMapper and the Morphable Model:
 	Mat image = cv::imread(imagefile.string());
-	auto landmarks = read_pts_landmarks(landmarksfile.string());
-	morphablemodel::MorphableModel morphable_model = morphablemodel::load_model(modelfile.string());
+	LandmarkCollection<cv::Vec2f> landmarks;
+	try {
+		landmarks = read_pts_landmarks(landmarksfile.string());
+	}
+	catch (const std::runtime_error& e) {
+		cout << "Error reading the landmarks: " << e.what() << endl;
+		return EXIT_FAILURE;
+	}
+	morphablemodel::MorphableModel morphable_model;
+	try {
+		morphable_model = morphablemodel::load_model(modelfile.string());
+	}
+	catch (const std::runtime_error& e) {
+		cout << "Error loading the Morphable Model: " << e.what() << endl;
+		return EXIT_FAILURE;
+	}
 	core::LandmarkMapper landmark_mapper = mappingsfile.empty() ? core::LandmarkMapper() : core::LandmarkMapper(mappingsfile);
 
 	// Draw the loaded landmarks:
@@ -156,7 +170,7 @@ int main(int argc, char *argv[])
 	for (auto&& lm : landmarks) {
 		cv::rectangle(outimg, cv::Point2f(lm.coordinates[0] - 2.0f, lm.coordinates[1] - 2.0f), cv::Point2f(lm.coordinates[0] + 2.0f, lm.coordinates[1] + 2.0f), { 255, 0, 0 });
 	}
-	
+
 	// Convert the landmarks to clip-space:
 	std::for_each(begin(landmarks), end(landmarks), [&image](Landmark<Vec2f>& lm) { lm.coordinates = render::screen_to_clip_space(lm.coordinates, image.cols, image.rows); });
 
@@ -178,7 +192,7 @@ int main(int argc, char *argv[])
 		vertex_indices.emplace_back(vertex_idx);
 		image_points.emplace_back(landmarks[i].coordinates);
 	}
-	
+
 	// Estimate the camera from the 2D - 3D point correspondences
 	Mat affine_cam = fitting::estimate_affine_camera(image_points, model_points);
 
