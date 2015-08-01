@@ -99,7 +99,7 @@ inline cv::Mat extract_texture(Mesh mesh, cv::Mat affine_camera_matrix, cv::Mat 
 
 	affine_camera_matrix = detail::calculate_affine_z_direction(affine_camera_matrix);
 
-	Mat texture_map = Mat::zeros(isomap_resolution, isomap_resolution, CV_8UC3); // #Todo: We do want an alpha channel. Will be added soon-ish.
+	Mat isomap = Mat::zeros(isomap_resolution, isomap_resolution, CV_8UC3); // #Todo: We do want an alpha channel. Will be added soon-ish.
 	// #Todo: We should handle gray images, but output a 3-channel isomap nevertheless I think.
 
 	for (const auto& triangle_indices : mesh.tvi) {
@@ -139,9 +139,9 @@ inline cv::Mat extract_texture(Mesh mesh, cv::Mat affine_camera_matrix, cv::Mat 
 		res = Mat(affine_camera_matrix * Mat(vec));
 		src_tri[2] = Vec2f(res[0], res[1]);
 
-		dst_tri[0] = cv::Point2f(texture_map.cols*mesh.texcoords[triangle_indices[0]][0], texture_map.rows*mesh.texcoords[triangle_indices[0]][1] - 1.0f);
-		dst_tri[1] = cv::Point2f(texture_map.cols*mesh.texcoords[triangle_indices[1]][0], texture_map.rows*mesh.texcoords[triangle_indices[1]][1] - 1.0f);
-		dst_tri[2] = cv::Point2f(texture_map.cols*mesh.texcoords[triangle_indices[2]][0], texture_map.rows*mesh.texcoords[triangle_indices[2]][1] - 1.0f);
+		dst_tri[0] = cv::Point2f(isomap.cols*mesh.texcoords[triangle_indices[0]][0], isomap.rows*mesh.texcoords[triangle_indices[0]][1] - 1.0f);
+		dst_tri[1] = cv::Point2f(isomap.cols*mesh.texcoords[triangle_indices[1]][0], isomap.rows*mesh.texcoords[triangle_indices[1]][1] - 1.0f);
+		dst_tri[2] = cv::Point2f(isomap.cols*mesh.texcoords[triangle_indices[2]][0], isomap.rows*mesh.texcoords[triangle_indices[2]][1] - 1.0f);
 
 		// Get the inverse Affine Transform from original image: from dst to src
 		Mat warp_mat_org_inv = cv::getAffineTransform(dst_tri, src_tri);
@@ -195,7 +195,7 @@ inline cv::Mat extract_texture(Mesh mesh, cv::Mat affine_camera_matrix, cv::Mat 
 								color = image.at<cv::Vec3b>(cvRound(src_texel[1]), cvRound(src_texel[0]));
 							}
 						}
-						texture_map.at<cv::Vec3b>(y, x) = color;
+						isomap.at<cv::Vec3b>(y, x) = color;
 					}
 					else if (mapping_type == TextureInterpolation::Bilinear) {
 
@@ -223,7 +223,7 @@ inline cv::Mat extract_texture(Mesh mesh, cv::Mat affine_camera_matrix, cv::Mat 
 							float color_lower_left = image.at<cv::Vec3b>(ceil(src_texel[1]), floor(src_texel[0]))[color] * distance_lower_left;
 							float color_lower_right = image.at<cv::Vec3b>(ceil(src_texel[1]), ceil(src_texel[0]))[color] * distance_lower_right;
 
-							texture_map.at<cv::Vec3b>(y, x)[color] = color_upper_left + color_upper_right + color_lower_left + color_lower_right;
+							isomap.at<cv::Vec3b>(y, x)[color] = color_upper_left + color_upper_right + color_lower_left + color_lower_right;
 						}
 					}
 					else if (mapping_type == TextureInterpolation::NearestNeighbour) {
@@ -233,13 +233,13 @@ inline cv::Mat extract_texture(Mesh mesh, cv::Mat affine_camera_matrix, cv::Mat 
 						Vec2f src_texel = Mat(warp_mat_org_inv * Mat(homogenous_dst_coord));
 
 						if ((cvRound(src_texel[1]) < image.rows) && (cvRound(src_texel[0]) < image.cols))
-							texture_map.at<cv::Vec3b>(y, x) = image.at<cv::Vec3b>(cvRound(src_texel[1]), cvRound(src_texel[0]));
+							isomap.at<cv::Vec3b>(y, x) = image.at<cv::Vec3b>(cvRound(src_texel[1]), cvRound(src_texel[0]));
 					}
 				}
 			}
 		}
 	}
-	return texture_map;
+	return isomap;
 };
 
 	} /* namespace render */
