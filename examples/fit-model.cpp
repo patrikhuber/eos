@@ -171,9 +171,6 @@ int main(int argc, char *argv[])
 		cv::rectangle(outimg, cv::Point2f(lm.coordinates[0] - 2.0f, lm.coordinates[1] - 2.0f), cv::Point2f(lm.coordinates[0] + 2.0f, lm.coordinates[1] + 2.0f), { 255, 0, 0 });
 	}
 
-	// Convert the landmarks to clip-space:
-	std::for_each(begin(landmarks), end(landmarks), [&image](Landmark<Vec2f>& lm) { lm.coordinates = render::screen_to_clip_space(lm.coordinates, image.cols, image.rows); });
-
 	// These will be the final 2D and 3D points used for the fitting:
 	vector<Vec4f> model_points; // the points in the 3D shape model
 	vector<int> vertex_indices; // their vertex indices
@@ -198,12 +195,12 @@ int main(int argc, char *argv[])
 
 	// Draw the mean-face landmarks projected using the estimated camera:
 	for (auto&& vertex : model_points) {
-		Vec2f screen_point = fitting::project_affine(vertex, affine_cam, image.cols, image.rows);
+		Vec2f screen_point(Mat(affine_cam * Mat(vertex)).at<float>(0), Mat(affine_cam * Mat(vertex)).at<float>(1));
 		cv::circle(outimg, cv::Point2f(screen_point), 5, { 0.0f, 255.0f, 0.0f });
 	}
 
 	// Estimate the shape coefficients by fitting the shape to the landmarks:
-	float lambda = 5.0f; // the regularisation parameter
+	float lambda = 100'000.0f; // the regularisation parameter
 	vector<float> fitted_coeffs = fitting::fit_shape_to_landmarks_linear(morphable_model, affine_cam, image_points, vertex_indices, lambda);
 
 	// Obtain the full mesh and draw it using the estimated camera:
@@ -214,7 +211,7 @@ int main(int argc, char *argv[])
 	// Draw the projected points again, this time using the fitted model shape:
 	for (auto&& idx : vertex_indices) {
 		Vec4f model_point(mesh.vertices[idx][0], mesh.vertices[idx][1], mesh.vertices[idx][2], mesh.vertices[idx][3]);
-		Vec2f screen_point = fitting::project_affine(model_point, affine_cam, image.cols, image.rows);
+		Vec2f screen_point(Mat(affine_cam * Mat(model_point)).at<float>(0), Mat(affine_cam * Mat(model_point)).at<float>(1));
 		cv::circle(outimg, cv::Point2f(screen_point), 3, { 0.0f, 0.0f, 255.0f });
 	}
 
