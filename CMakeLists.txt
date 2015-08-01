@@ -90,6 +90,7 @@ set(HEADERS
 	include/eos/render/utils.hpp
 	include/eos/render/render_affine.hpp
 	include/eos/render/detail/render_detail.hpp
+	include/eos/render/texture_extraction.hpp
 )
 
 # Add header includes:
