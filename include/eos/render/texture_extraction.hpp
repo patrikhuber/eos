@@ -28,6 +28,8 @@
 #include "opencv2/core/core.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 
+#include <cassert>
+
 namespace eos {
 	namespace render {
 
@@ -90,6 +92,8 @@ enum class TextureInterpolation {
  */
 inline cv::Mat extract_texture(Mesh mesh, cv::Mat affine_camera_matrix, int viewport_width, int viewport_height, cv::Mat image, cv::Mat depthbuffer, TextureInterpolation mapping_type, int isomap_resolution = 512)
 {
+	assert(mesh.vertices.size() == mesh.texcoords.size());
+
 	using cv::Mat;
 	using cv::Vec2f;
 	using cv::Vec3f;
@@ -105,7 +109,6 @@ inline cv::Mat extract_texture(Mesh mesh, cv::Mat affine_camera_matrix, int view
 	// #Todo: We should handle gray images, but output a 3-channel isomap nevertheless I think.
 
 	for (const auto& triangle_indices : mesh.tvi) {
-
 		// Find out if the current triangle is visible:
 		// We do a second rendering-pass here. We use the depth-buffer of the final image, and then, here,
 		// check if each pixel in a triangle is visible. If the whole triangle is visible, we use it to extract
@@ -149,27 +152,25 @@ inline cv::Mat extract_texture(Mesh mesh, cv::Mat affine_camera_matrix, int view
 		{
 			for (int xi = minX; xi <= maxX; xi++)
 			{
-				// we want centers of pixels to be used in computations. TODO: Do we?
-				float x = (float)xi + 0.5f;
-				float y = (float)yi + 0.5f;
+				// we want centers of pixels to be used in computations. Do we?
+				const float x = static_cast<float>(xi) + 0.5f;
+				const float y = static_cast<float>(yi) + 0.5f;
 				// these will be used for barycentric weights computation
-				double one_over_v0ToLine12 = 1.0 / detail::implicit_line(v0[0], v0[1], v1, v2);
-				double one_over_v1ToLine20 = 1.0 / detail::implicit_line(v1[0], v1[1], v2, v0);
-				double one_over_v2ToLine01 = 1.0 / detail::implicit_line(v2[0], v2[1], v0, v1);
+				const double one_over_v0ToLine12 = 1.0 / detail::implicit_line(v0[0], v0[1], v1, v2);
+				const double one_over_v1ToLine20 = 1.0 / detail::implicit_line(v1[0], v1[1], v2, v0);
+				const double one_over_v2ToLine01 = 1.0 / detail::implicit_line(v2[0], v2[1], v0, v1);
 				// affine barycentric weights
-				double alpha = detail::implicit_line(x, y, v1, v2) * one_over_v0ToLine12;
-				double beta = detail::implicit_line(x, y, v2, v0) * one_over_v1ToLine20;
-				double gamma = detail::implicit_line(x, y, v0, v1) * one_over_v2ToLine01;
+				const double alpha = detail::implicit_line(x, y, v1, v2) * one_over_v0ToLine12;
+				const double beta = detail::implicit_line(x, y, v2, v0) * one_over_v1ToLine20;
+				const double gamma = detail::implicit_line(x, y, v0, v1) * one_over_v2ToLine01;
+
 				// if pixel (x, y) is inside the triangle or on one of its edges
 				if (alpha >= 0 && beta >= 0 && gamma >= 0)
 				{
-					double z_affine = alpha*(double)v0[2] + beta*(double)v1[2] + gamma*(double)v2[2];
-					// The '<= 1.0' clips against the far-plane in NDC. We clip against the near-plane earlier.
-					if (z_affine < depthbuffer.at<double>(yi, xi)/* && z_affine <= 1.0*/) {
+					const double z_affine = alpha*static_cast<double>(v0[2]) + beta*static_cast<double>(v1[2]) + gamma*static_cast<double>(v2[2]);
+					if (z_affine < depthbuffer.at<double>(yi, xi)) {
 						whole_triangle_is_visible = false;
 						break;
-					}
-					else {
 					}
 				}
 			}
@@ -227,7 +228,7 @@ inline cv::Mat extract_texture(Mesh mesh, cv::Mat affine_camera_matrix, int view
 						float min_b = min(min(src_texel_upper_left[1], src_texel_upper_right[1]), min(src_texel_lower_left[1], src_texel_lower_right[1]));
 						float max_b = max(max(src_texel_upper_left[1], src_texel_upper_right[1]), max(src_texel_lower_left[1], src_texel_lower_right[1]));
 
-						cv::Vec3i color = cv::Vec3i();
+						cv::Vec3i color;
 						int num_texels = 0;
 
 						for (int a = ceil(min_a); a <= floor(max_a); ++a)
