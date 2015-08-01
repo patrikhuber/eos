@@ -24,6 +24,7 @@
 
 #include "eos/render/detail/texture_extraction_detail.hpp"
 #include "eos/render/Mesh.hpp"
+#include "eos/render/render_affine.hpp"
 #include "eos/render/detail/render_detail.hpp"
 
 #include "opencv2/core/core.hpp"
