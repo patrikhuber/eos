@@ -201,7 +201,7 @@ int main(int argc, char *argv[])
 	}
 
 	// Estimate the shape coefficients by fitting the shape to the landmarks:
-	float lambda = 100'000.0f; // the regularisation parameter
+	float lambda = 1e4f; // the regularisation parameter
 	vector<float> fitted_coeffs = fitting::fit_shape_to_landmarks_linear(morphable_model, affine_cam, image_points, vertex_indices, lambda);
 
 	// Obtain the full mesh and draw it using the estimated camera:

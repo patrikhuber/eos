@@ -70,7 +70,7 @@ inline std::vector<float> fit_shape_to_landmarks_linear(morphablemodel::Morphabl
 	int row_index = 0;
 	for (int i = 0; i < num_landmarks; ++i) {
 		Mat basis_rows = morphable_model.get_shape_model().get_normalised_pca_basis(vertex_ids[i]); // In the paper, the not-normalised basis might be used? I'm not sure, check it. It's even a mess in the paper. PH 26.5.2014: I think the normalised basis is fine/better.
-																							//basisRows.copyTo(V_hat_h.rowRange(rowIndex, rowIndex + 3));
+		//basisRows.copyTo(V_hat_h.rowRange(rowIndex, rowIndex + 3));
 		basis_rows.colRange(0, num_coeffs_to_fit).copyTo(V_hat_h.rowRange(row_index, row_index + 3));
 		row_index += 4; // replace 3 rows and skip the 4th one, it has all zeros
 	}
@@ -82,10 +82,9 @@ inline std::vector<float> fit_shape_to_landmarks_linear(morphablemodel::Morphabl
 	}
 	// The variances: Add the 2D and 3D standard deviations.
 	// If the user doesn't provide them, we choose the following:
-	// 2D (detector) variance: Assuming the detector has a standard deviation of 3 pixels, and the face size (IED) is around 80px. That's 3.75% of the IED. Assume that an image is on average 512x512px so 80/512 = 0.16 is the size the IED occupies inside an image.
-	//                         Now we're in clip-coords ([-1, 1]) and take 0.16 of the range [-1, 1], 0.16/2 = 0.08, and then the standard deviation of the detector is 3.75% of 0.08, i.e. 0.0375*0.08 = 0.003.
+	// 2D (detector) variance: Assuming the detector has a standard deviation of 3 pixels, and the face size (IED) is around 80px. That's 3.75% of the IED.
 	// 3D (model) variance: 0.0f. It only makes sense to set it to something when we have a different variance for different vertices.
-	float sigma_2D_3D = detector_standard_deviation.get_value_or(0.003f) + model_standard_deviation.get_value_or(0.0f);
+	float sigma_2D_3D = detector_standard_deviation.get_value_or(0.04f) + model_standard_deviation.get_value_or(0.0f);
 	// Note: Isn't it a bit strange to add these as they have different units/normalisations? Check the paper.
 	Mat Sigma = Mat::zeros(3 * num_landmarks, 3 * num_landmarks, CV_32FC1);
 	for (int i = 0; i < 3 * num_landmarks; ++i) {
@@ -120,7 +119,7 @@ inline std::vector<float> fit_shape_to_landmarks_linear(morphablemodel::Morphabl
 	Mat AtOmegaAReg = AtOmegaA + lambda * Mat::eye(num_shape_pc, num_shape_pc, CV_32FC1);
 	// Invert using OpenCV:
 	Mat AtOmegaARegInv = AtOmegaAReg.inv(cv::DECOMP_SVD); // DECOMP_SVD calculates the pseudo-inverse if the matrix is not invertible.
-	
+
 	// Invert (and perform some sanity checks) using Eigen:
 /*	using RowMajorMatrixXf = Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
 	Eigen::Map<RowMajorMatrixXf> AtOmegaAReg_Eigen(AtOmegaAReg.ptr<float>(), AtOmegaAReg.rows, AtOmegaAReg.cols);
