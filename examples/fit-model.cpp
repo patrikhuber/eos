@@ -17,11 +17,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "eos/core/Landmark.hpp"
 #include "eos/core/LandmarkMapper.hpp"
 #include "eos/fitting/affine_camera_estimation.hpp"
 #include "eos/fitting/linear_shape_fitting.hpp"
 #include "eos/render/utils.hpp"
-#include "eos/core/Landmark.hpp"
+#include "eos/render/texture_extraction.hpp"
 
 #include "opencv2/core/core.hpp"
 #include "opencv2/highgui/highgui.hpp"
@@ -218,7 +219,13 @@ int main(int argc, char *argv[])
 	// Save the output image:
 	outputfile.replace_extension(".png");
 	cv::imwrite(outputfile.string(), outimg);
-	cout << "Finished fitting and wrote result image " << outputfile.string() << "." << endl;
+
+	// Extract the texture and save the extracted texture map (isomap):
+	Mat isomap = render::extract_texture(mesh, affine_cam, image, render::TextureInterpolation::NearestNeighbour);
+	outputfile.replace_extension(".isomap.png");
+	cv::imwrite(outputfile.string(), isomap);
+
+	cout << "Finished fitting and wrote result image and isomap " << outputfile.string() << "." << endl;
 
 	return EXIT_SUCCESS;
 }
