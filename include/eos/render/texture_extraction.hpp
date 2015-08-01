@@ -90,8 +90,9 @@ enum class TextureInterpolation {
 inline cv::Mat extract_texture(Mesh mesh, cv::Mat mvp_matrix, int viewport_width, int viewport_height, cv::Mat image, cv::Mat depth_buffer, TextureInterpolation mapping_type)
 {
 	using cv::Mat;
-	using cv::Vec4f;
 	using cv::Vec2f;
+	using cv::Vec3f;
+	using cv::Vec4f;
 	using std::min;
 	using std::max;
 	using std::floor;
@@ -185,16 +186,16 @@ inline cv::Mat extract_texture(Mesh mesh, cv::Mat mvp_matrix, int viewport_width
 		cv::Point2f src_tri[3];
 		cv::Point2f dst_tri[3];
 
-		cv::Vec4f vec(mesh.vertices[triangle_indices[0]][0], mesh.vertices[triangle_indices[0]][1], mesh.vertices[triangle_indices[0]][2], 1.0f);
-		cv::Vec4f res = Mat(mvp_matrix * Mat(vec));
+		Vec4f vec(mesh.vertices[triangle_indices[0]][0], mesh.vertices[triangle_indices[0]][1], mesh.vertices[triangle_indices[0]][2], 1.0f);
+		Vec4f res = Mat(affine_camera_matrix * Mat(vec));
 		src_tri[0] = Vec2f(res[0], res[1]);
 
-		vec = cv::Vec4f(mesh.vertices[triangle_indices[1]][0], mesh.vertices[triangle_indices[1]][1], mesh.vertices[triangle_indices[1]][2], 1.0f);
-		res = Mat(mvp_matrix * Mat(vec));
+		vec = Vec4f(mesh.vertices[triangle_indices[1]][0], mesh.vertices[triangle_indices[1]][1], mesh.vertices[triangle_indices[1]][2], 1.0f);
+		res = Mat(affine_camera_matrix * Mat(vec));
 		src_tri[1] = Vec2f(res[0], res[1]);
 
-		vec = cv::Vec4f(mesh.vertices[triangle_indices[2]][0], mesh.vertices[triangle_indices[2]][1], mesh.vertices[triangle_indices[2]][2], 1.0f);
-		res = Mat(mvp_matrix * Mat(vec));
+		vec = Vec4f(mesh.vertices[triangle_indices[2]][0], mesh.vertices[triangle_indices[2]][1], mesh.vertices[triangle_indices[2]][2], 1.0f);
+		res = Mat(affine_camera_matrix * Mat(vec));
 		src_tri[2] = Vec2f(res[0], res[1]);
 
 		dst_tri[0] = cv::Point2f(texture_map.cols*mesh.texcoords[triangle_indices[0]][0], texture_map.rows*mesh.texcoords[triangle_indices[0]][1] - 1.0f);
@@ -202,7 +203,7 @@ inline cv::Mat extract_texture(Mesh mesh, cv::Mat mvp_matrix, int viewport_width
 		dst_tri[2] = cv::Point2f(texture_map.cols*mesh.texcoords[triangle_indices[2]][0], texture_map.rows*mesh.texcoords[triangle_indices[2]][1] - 1.0f);
 
 		// Get the inverse Affine Transform from original image: from dst to src
-		cv::Mat warp_mat_org_inv = cv::getAffineTransform(dst_tri, src_tri);
+		Mat warp_mat_org_inv = cv::getAffineTransform(dst_tri, src_tri);
 		warp_mat_org_inv.convertTo(warp_mat_org_inv, CV_32FC1);
 
 		// We now loop over all pixels in the triangle and select, depending on the mapping type, the corresponding texel(s) in the source image
@@ -212,15 +213,15 @@ inline cv::Mat extract_texture(Mesh mesh, cv::Mat mvp_matrix, int viewport_width
 					if (mapping_type == TextureInterpolation::Area){
 
 						//calculate positions of 4 corners of pixel in image (src)
-						cv::Vec3f homogenous_dst_upper_left = cv::Vec3f(x - 0.5, y - 0.5, 1.f);
-						cv::Vec3f homogenous_dst_upper_right = cv::Vec3f(x + 0.5, y - 0.5, 1.f);
-						cv::Vec3f homogenous_dst_lower_left = cv::Vec3f(x - 0.5, y + 0.5, 1.f);
-						cv::Vec3f homogenous_dst_lower_right = cv::Vec3f(x + 0.5, y + 0.5, 1.f);
+						Vec3f homogenous_dst_upper_left = Vec3f(x - 0.5, y - 0.5, 1.f);
+						Vec3f homogenous_dst_upper_right = Vec3f(x + 0.5, y - 0.5, 1.f);
+						Vec3f homogenous_dst_lower_left = Vec3f(x - 0.5, y + 0.5, 1.f);
+						Vec3f homogenous_dst_lower_right = Vec3f(x + 0.5, y + 0.5, 1.f);
 
-						cv::Vec2f src_texel_upper_left = Mat(warp_mat_org_inv * Mat(homogenous_dst_upper_left));
-						cv::Vec2f src_texel_upper_right = Mat(warp_mat_org_inv * Mat(homogenous_dst_upper_right));
-						cv::Vec2f src_texel_lower_left = Mat(warp_mat_org_inv * Mat(homogenous_dst_lower_left));
-						cv::Vec2f src_texel_lower_right = Mat(warp_mat_org_inv * Mat(homogenous_dst_lower_right));
+						Vec2f src_texel_upper_left = Mat(warp_mat_org_inv * Mat(homogenous_dst_upper_left));
+						Vec2f src_texel_upper_right = Mat(warp_mat_org_inv * Mat(homogenous_dst_upper_right));
+						Vec2f src_texel_lower_left = Mat(warp_mat_org_inv * Mat(homogenous_dst_lower_left));
+						Vec2f src_texel_lower_right = Mat(warp_mat_org_inv * Mat(homogenous_dst_lower_right));
 
 						float min_a = min(min(src_texel_upper_left[0], src_texel_upper_right[0]), min(src_texel_lower_left[0], src_texel_lower_right[0]));
 						float max_a = max(max(src_texel_upper_left[0], src_texel_upper_right[0]), max(src_texel_lower_left[0], src_texel_lower_right[0]));
@@ -246,8 +247,8 @@ inline cv::Mat extract_texture(Mesh mesh, cv::Mat mvp_matrix, int viewport_width
 							color = color / num_texels;
 						else{ //if no corresponding texel found, nearest neighbor interpolation
 							//calculate corrresponding position of dst_coord pixel center in image (src)
-							cv::Vec3f homogenous_dst_coord = cv::Vec3f(x, y, 1.f);
-							cv::Vec2f src_texel = Mat(warp_mat_org_inv * Mat(homogenous_dst_coord));
+							Vec3f homogenous_dst_coord = Vec3f(x, y, 1.f);
+							Vec2f src_texel = Mat(warp_mat_org_inv * Mat(homogenous_dst_coord));
 
 							if ((cvRound(src_texel[1]) < image.rows) && cvRound(src_texel[0]) < image.cols) {
 								color = image.at<cv::Vec3b>(cvRound(src_texel[1]), cvRound(src_texel[0]));
@@ -258,8 +259,8 @@ inline cv::Mat extract_texture(Mesh mesh, cv::Mat mvp_matrix, int viewport_width
 					else if (mapping_type == TextureInterpolation::Bilinear){
 
 						//calculate corrresponding position of dst_coord pixel center in image (src)
-						cv::Vec3f homogenous_dst_coord = cv::Vec3f(x, y, 1.f);
-						cv::Vec2f src_texel = Mat(warp_mat_org_inv * Mat(homogenous_dst_coord));
+						Vec3f homogenous_dst_coord = Vec3f(x, y, 1.f);
+						Vec2f src_texel = Mat(warp_mat_org_inv * Mat(homogenous_dst_coord));
 
 						//calculate distances to next 4 pixels
 						float distance_upper_left = sqrt(powf(src_texel[0] - floor(src_texel[0]), 2) + powf(src_texel[1] - floor(src_texel[1]), 2));
@@ -287,8 +288,8 @@ inline cv::Mat extract_texture(Mesh mesh, cv::Mat mvp_matrix, int viewport_width
 					else if (mapping_type == TextureInterpolation::NearestNeighbour){
 
 						//calculate corrresponding position of dst_coord pixel center in image (src)
-						cv::Vec3f homogenous_dst_coord = cv::Vec3f(x, y, 1.f);
-						cv::Vec2f src_texel = Mat(warp_mat_org_inv * Mat(homogenous_dst_coord));
+						Vec3f homogenous_dst_coord = Vec3f(x, y, 1.f);
+						Vec2f src_texel = Mat(warp_mat_org_inv * Mat(homogenous_dst_coord));
 
 						if ((cvRound(src_texel[1]) < image.rows) && (cvRound(src_texel[0]) < image.cols))
 							texture_map.at<cv::Vec3b>(y, x) = image.at<cv::Vec3b>(cvRound(src_texel[1]), cvRound(src_texel[0]));
