@@ -50,15 +50,13 @@ enum class TextureInterpolation {
  *
  * @param[in] mesh A mesh with texture coordinates.
  * @param[in] affine_camera_matrix An estimated 3x4 affine camera matrix.
- * @param[in] viewport_width Screen width.
- * @param[in] viewport_height Screen height.
  * @param[in] image The image to extract the texture from.
- * @param[in] depthbuffer A precalculated depthbuffer image.
+ * @param[in] depthbuffer A pre-calculated depthbuffer image.
  * @param[in] mapping_type The interpolation type to be used for the extraction.
  * @param[in] isomap_resolution The resolution of the generated isomap. Defaults to 512x512.
  * @return The extracted texture as isomap (texture map).
  */
-inline cv::Mat extract_texture(Mesh mesh, cv::Mat affine_camera_matrix, int viewport_width, int viewport_height, cv::Mat image, cv::Mat depthbuffer, TextureInterpolation mapping_type, int isomap_resolution = 512)
+inline cv::Mat extract_texture(Mesh mesh, cv::Mat affine_camera_matrix, cv::Mat image, cv::Mat depthbuffer, TextureInterpolation mapping_type, int isomap_resolution = 512)
 {
 	assert(mesh.vertices.size() == mesh.texcoords.size());
 
