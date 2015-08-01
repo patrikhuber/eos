@@ -44,9 +44,37 @@ enum class TextureInterpolation {
 	Area
 };
 
+// Just a forward declaration
+inline cv::Mat extract_texture(Mesh mesh, cv::Mat affine_camera_matrix, cv::Mat image, cv::Mat depthbuffer, TextureInterpolation mapping_type, int isomap_resolution);
+
 /**
  * Extracts the texture of the face from the given image
  * and stores it as isomap (a rectangular texture map).
+ *
+ * @param[in] mesh A mesh with texture coordinates.
+ * @param[in] affine_camera_matrix An estimated 3x4 affine camera matrix.
+ * @param[in] image The image to extract the texture from.
+ * @param[in] mapping_type The interpolation type to be used for the extraction.
+ * @param[in] isomap_resolution The resolution of the generated isomap. Defaults to 512x512.
+ * @return The extracted texture as isomap (texture map).
+ */
+inline cv::Mat extract_texture(Mesh mesh, cv::Mat affine_camera_matrix, cv::Mat image, TextureInterpolation mapping_type, int isomap_resolution = 512)
+{
+	// Render the model to get a depth buffer:
+	cv::Mat depthbuffer;
+	std::tie(cv::Mat(), depthbuffer) = render::render_affine(mesh, affine_camera_matrix, image.cols, image.rows);
+	// Note: There's potential for optimisation here - we don't need to do everything that is done in render_affine to just get the depthbuffer.
+
+	// Now forward the call to the actual texture extraction function:
+	return extract_texture(mesh, affine_camera_matrix, image, depthbuffer, mapping_type, isomap_resolution);
+};
+
+/**
+ * Extracts the texture of the face from the given image
+ * and stores it as isomap (a rectangular texture map).
+ * This function can be used if a depth buffer has already been computed.
+ * To just run the texture extraction, see the overload
+ * extract_texture(Mesh, cv::Mat, cv::Mat, TextureInterpolation, int).
  *
  * @param[in] mesh A mesh with texture coordinates.
  * @param[in] affine_camera_matrix An estimated 3x4 affine camera matrix.
