@@ -19,8 +19,8 @@
  */
 #pragma once
 
-#ifndef RENDERDETAIL_HPP_
-#define RENDERDETAIL_HPP_
+#ifndef RENDER_DETAIL_HPP_
+#define RENDER_DETAIL_HPP_
 
 #include "opencv2/core/core.hpp"
 
@@ -218,4 +218,4 @@ void raster_triangle(TriangleToRasterize triangle, cv::Mat colourbuffer, cv::Mat
 	} /* namespace render */
 } /* namespace eos */
 
-#endif /* RENDERDETAIL_HPP_ */
+#endif /* RENDER_DETAIL_HPP_ */
