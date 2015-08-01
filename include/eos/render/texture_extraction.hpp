@@ -49,7 +49,7 @@ inline cv::Rect calculate_bounding_box(cv::Vec4f v0, cv::Vec4f v1, cv::Vec4f v2,
 // Returns true if inside the tri or on the border
 inline bool is_point_in_triangle(cv::Point2f point, cv::Point2f triV0, cv::Point2f triV1, cv::Point2f triV2) {
 	/* See http://www.blackpawn.com/texts/pointinpoly/ */
-	// Compute vectors        
+	// Compute vectors
 	cv::Point2f v0 = triV2 - triV0;
 	cv::Point2f v1 = triV1 - triV0;
 	cv::Point2f v2 = point - triV0;
@@ -116,6 +116,8 @@ inline cv::Mat extract_texture(Mesh mesh, cv::Mat mvp_matrix, int viewport_width
 	using std::floor;
 	using std::ceil;
 
+	mvp_matrix = detail::calculate_affine_z_direction(mvp_matrix);
+
 	// optional param  cv::Mat texture_map = Mat(512, 512, CV_8UC3) ?
 	// cv::Mat texture_map(512, 512, inputImage.type());
 	Mat texture_map = Mat::zeros(512, 512, CV_8UC3); // We don't want an alpha channel. We might want to handle grayscale input images though.
@@ -144,19 +146,7 @@ inline cv::Mat extract_texture(Mesh mesh, cv::Mat mvp_matrix, int viewport_width
 		// clipping against the frustums etc.
 		// But as long as our model is fully on the screen, we're fine.
 
-		// divide by w
-		// if ortho, we can do the divide as well, it will just be a / 1.0f.
-		v0 = v0 / v0[3];
-		v1 = v1 / v1[3];
-		v2 = v2 / v2[3];
-
 		// Todo: This is all very similar to processProspectiveTri(...), except the other function does texturing stuff as well. Remove code duplication!
-		Vec2f v0_clip = clip_to_screen_space(Vec2f(v0[0], v0[1]), viewport_width, viewport_height);
-		Vec2f v1_clip = clip_to_screen_space(Vec2f(v1[0], v1[1]), viewport_width, viewport_height);
-		Vec2f v2_clip = clip_to_screen_space(Vec2f(v2[0], v2[1]), viewport_width, viewport_height);
-		v0[0] = v0_clip[0]; v0[1] = v0_clip[1];
-		v1[0] = v1_clip[0]; v1[1] = v1_clip[1];
-		v2[0] = v2_clip[0]; v2[1] = v2_clip[1];
 
 		//if (doBackfaceCulling) {
 		if (!are_vertices_cc_in_screen_space(v0, v1, v2))
@@ -213,23 +203,18 @@ inline cv::Mat extract_texture(Mesh mesh, cv::Mat mvp_matrix, int viewport_width
 
 		cv::Point2f src_tri[3];
 		cv::Point2f dst_tri[3];
+
 		cv::Vec4f vec(mesh.vertices[triangle_indices[0]][0], mesh.vertices[triangle_indices[0]][1], mesh.vertices[triangle_indices[0]][2], 1.0f);
 		cv::Vec4f res = Mat(mvp_matrix * Mat(vec));
-		res /= res[3];
-		Vec2f screen_space = clip_to_screen_space(Vec2f(res[0], res[1]), viewport_width, viewport_height);
-		src_tri[0] = screen_space;
+		src_tri[0] = Vec2f(res[0], res[1]);
 
 		vec = cv::Vec4f(mesh.vertices[triangle_indices[1]][0], mesh.vertices[triangle_indices[1]][1], mesh.vertices[triangle_indices[1]][2], 1.0f);
 		res = Mat(mvp_matrix * Mat(vec));
-		res /= res[3];
-		screen_space = clip_to_screen_space(Vec2f(res[0], res[1]), viewport_width, viewport_height);
-		src_tri[1] = screen_space;
+		src_tri[1] = Vec2f(res[0], res[1]);
 
 		vec = cv::Vec4f(mesh.vertices[triangle_indices[2]][0], mesh.vertices[triangle_indices[2]][1], mesh.vertices[triangle_indices[2]][2], 1.0f);
 		res = Mat(mvp_matrix * Mat(vec));
-		res /= res[3];
-		screen_space = clip_to_screen_space(Vec2f(res[0], res[1]), viewport_width, viewport_height);
-		src_tri[2] = screen_space;
+		src_tri[2] = Vec2f(res[0], res[1]);
 
 		dst_tri[0] = cv::Point2f(texture_map.cols*mesh.texcoords[triangle_indices[0]][0], texture_map.rows*mesh.texcoords[triangle_indices[0]][1] - 1.0f);
 		dst_tri[1] = cv::Point2f(texture_map.cols*mesh.texcoords[triangle_indices[1]][0], texture_map.rows*mesh.texcoords[triangle_indices[1]][1] - 1.0f);
