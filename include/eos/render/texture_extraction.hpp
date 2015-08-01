@@ -77,6 +77,81 @@ enum class TextureInterpolation {
 };
 
 /**
+ * Checks whether all pixels in the given triangle are visible and
+ * returns true if and only if the whole triangle is visible.
+ * The vertices should be given in screen coordinates, but with their
+ * z-values preserved, so they can be compared against the depthbuffer.
+ *
+ * #Todo: Move to detail namespace
+ *
+ * @param[in] v0 First vertex, in screen coordinates (but still with their z-value).
+ * @param[in] v1 Second vertex.
+ * @param[in] v2 Third vertex.
+ * @param[in] depthbuffer Pre-calculated depthbuffer.
+ * @return True if the whole triangle is visible in the image.
+ */
+bool is_triangle_visible(const cv::Vec4f& v0, const cv::Vec4f& v1, const cv::Vec4f& v2, cv::Mat depthbuffer)
+{
+	// #Todo: Actually, only check the 3 vertex points, don't loop over the pixels - this should be enough.
+
+	auto viewport_width = depthbuffer.cols;
+	auto viewport_height = depthbuffer.rows;
+
+	// Well, in in principle, we'd have to do the whole stuff as in render(), like
+	// clipping against the frustums etc.
+	// But as long as our model is fully on the screen, we're fine. Todo: Doublecheck that.
+
+	if (!detail::are_vertices_ccw_in_screen_space(v0, v1, v2))
+		return false;
+
+	cv::Rect bbox = detail::calculate_clipped_bounding_box(v0, v1, v2, viewport_width, viewport_height);
+	int minX = bbox.x;
+	int maxX = bbox.x + bbox.width;
+	int minY = bbox.y;
+	int maxY = bbox.y + bbox.height;
+
+	//if (t.maxX <= t.minX || t.maxY <= t.minY) 	// Note: Can the width/height of the bbox be negative? Maybe we only need to check for equality here?
+	//	continue;									// Also, I'm not entirely sure why I commented this out
+
+	bool whole_triangle_is_visible = true;
+	for (int yi = minY; yi <= maxY; yi++)
+	{
+		for (int xi = minX; xi <= maxX; xi++)
+		{
+			// we want centers of pixels to be used in computations. Do we?
+			const float x = static_cast<float>(xi) + 0.5f;
+			const float y = static_cast<float>(yi) + 0.5f;
+			// these will be used for barycentric weights computation
+			const double one_over_v0ToLine12 = 1.0 / detail::implicit_line(v0[0], v0[1], v1, v2);
+			const double one_over_v1ToLine20 = 1.0 / detail::implicit_line(v1[0], v1[1], v2, v0);
+			const double one_over_v2ToLine01 = 1.0 / detail::implicit_line(v2[0], v2[1], v0, v1);
+			// affine barycentric weights
+			const double alpha = detail::implicit_line(x, y, v1, v2) * one_over_v0ToLine12;
+			const double beta = detail::implicit_line(x, y, v2, v0) * one_over_v1ToLine20;
+			const double gamma = detail::implicit_line(x, y, v0, v1) * one_over_v2ToLine01;
+
+			// if pixel (x, y) is inside the triangle or on one of its edges
+			if (alpha >= 0 && beta >= 0 && gamma >= 0)
+			{
+				const double z_affine = alpha*static_cast<double>(v0[2]) + beta*static_cast<double>(v1[2]) + gamma*static_cast<double>(v2[2]);
+				if (z_affine < depthbuffer.at<double>(yi, xi)) {
+					whole_triangle_is_visible = false;
+					break;
+				}
+			}
+		}
+		if (!whole_triangle_is_visible) {
+			break;
+		}
+	}
+
+	if (!whole_triangle_is_visible) {
+		return false;
+	}
+	return true;
+};
+
+/**
  * Extracts the texture of the face from the given image
  * and stores it as isomap (a rectangular texture map).
  *
@@ -127,59 +202,8 @@ inline cv::Mat extract_texture(Mesh mesh, cv::Mat affine_camera_matrix, int view
 		v1 = Mat(affine_camera_matrix * Mat(v1_3d));
 		v2 = Mat(affine_camera_matrix * Mat(v2_3d));
 
-		// Well, in in principle, we'd have to do the whole stuff as in render(), like
-		// clipping against the frustums etc.
-		// But as long as our model is fully on the screen, we're fine.
-
-		// Todo: This is all very similar to processProspectiveTri(...), except the other function does texturing stuff as well. Remove code duplication!
-
-		//if (doBackfaceCulling) {
-		if (!detail::are_vertices_ccw_in_screen_space(v0, v1, v2))
-			continue;
-		//}
-
-		cv::Rect bbox = detail::calculate_clipped_bounding_box(v0, v1, v2, viewport_width, viewport_height);
-		int minX = bbox.x;
-		int maxX = bbox.x + bbox.width;
-		int minY = bbox.y;
-		int maxY = bbox.y + bbox.height;
-
-		//if (t.maxX <= t.minX || t.maxY <= t.minY) 	// Note: Can the width/height of the bbox be negative? Maybe we only need to check for equality here?
-		//	continue;
-
-		bool whole_triangle_is_visible = true;
-		for (int yi = minY; yi <= maxY; yi++)
+		if (!is_triangle_visible(v0, v1, v2, depthbuffer))
 		{
-			for (int xi = minX; xi <= maxX; xi++)
-			{
-				// we want centers of pixels to be used in computations. Do we?
-				const float x = static_cast<float>(xi) + 0.5f;
-				const float y = static_cast<float>(yi) + 0.5f;
-				// these will be used for barycentric weights computation
-				const double one_over_v0ToLine12 = 1.0 / detail::implicit_line(v0[0], v0[1], v1, v2);
-				const double one_over_v1ToLine20 = 1.0 / detail::implicit_line(v1[0], v1[1], v2, v0);
-				const double one_over_v2ToLine01 = 1.0 / detail::implicit_line(v2[0], v2[1], v0, v1);
-				// affine barycentric weights
-				const double alpha = detail::implicit_line(x, y, v1, v2) * one_over_v0ToLine12;
-				const double beta = detail::implicit_line(x, y, v2, v0) * one_over_v1ToLine20;
-				const double gamma = detail::implicit_line(x, y, v0, v1) * one_over_v2ToLine01;
-
-				// if pixel (x, y) is inside the triangle or on one of its edges
-				if (alpha >= 0 && beta >= 0 && gamma >= 0)
-				{
-					const double z_affine = alpha*static_cast<double>(v0[2]) + beta*static_cast<double>(v1[2]) + gamma*static_cast<double>(v2[2]);
-					if (z_affine < depthbuffer.at<double>(yi, xi)) {
-						whole_triangle_is_visible = false;
-						break;
-					}
-				}
-			}
-			if (!whole_triangle_is_visible) {
-				break;
-			}
-		}
-
-		if (!whole_triangle_is_visible) {
 			continue;
 		}
 
