@@ -1,54 +1,48 @@
 /*
-* Eos - A 3D Morphable Model fitting library written in modern C++11/14.
-*
-* File: include/eos/render/texture_extraction.hpp
-*
-* Copyright 2014, 2015 Patrik Huber
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ * Eos - A 3D Morphable Model fitting library written in modern C++11/14.
+ *
+ * File: include/eos/render/texture_extraction.hpp
+ *
+ * Copyright 2014, 2015 Patrik Huber
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 #pragma once
 
 #ifndef TEXTURE_EXTRACTION_HPP_
 #define TEXTURE_EXTRACTION_HPP_
 
 #include "eos/render/Mesh.hpp"
+#include "eos/render/detail/render_detail.hpp"
 
 #include "opencv2/core/core.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 
 namespace eos {
 	namespace render {
-inline cv::Rect calculate_bounding_box(cv::Vec4f v0, cv::Vec4f v1, cv::Vec4f v2, int viewportWidth, int viewportHeight)
-{
-	using std::min;
-	using std::max;
-	/* Old, producing artifacts:
-	t.minX = max(min(t.v0.position[0], min(t.v1.position[0], t.v2.position[0])), 0.0f);
-	t.maxX = min(max(t.v0.position[0], max(t.v1.position[0], t.v2.position[0])), (float)(viewportWidth - 1));
-	t.minY = max(min(t.v0.position[1], min(t.v1.position[1], t.v2.position[1])), 0.0f);
-	t.maxY = min(max(t.v0.position[1], max(t.v1.position[1], t.v2.position[1])), (float)(viewportHeight - 1));*/
 
-	int minX = max(min(floor(v0[0]), min(floor(v1[0]), floor(v2[0]))), 0.0f);
-	int maxX = min(max(ceil(v0[0]), max(ceil(v1[0]), ceil(v2[0]))), static_cast<float>(viewportWidth - 1));
-	int minY = max(min(floor(v0[1]), min(floor(v1[1]), floor(v2[1]))), 0.0f);
-	int maxY = min(max(ceil(v0[1]), max(ceil(v1[1]), ceil(v2[1]))), static_cast<float>(viewportHeight - 1));
-	return cv::Rect(minX, minY, maxX - minX, maxY - minY);
-};
-
-// Returns true if inside the tri or on the border
+/**
+ * Computes whether the given point is inside (or on the border of) the triangle
+ * formed out of the given three vertices.
+ *
+ * @param[in] point Point to check.
+ * @param[in] triV0 First vertex.
+ * @param[in] triV1 Second vertex.
+ * @param[in] triV2 Third vertex.
+ * @return Whether the point is inside the triangle.
+ */
 inline bool is_point_in_triangle(cv::Point2f point, cv::Point2f triV0, cv::Point2f triV1, cv::Point2f triV2) {
-	/* See http://www.blackpawn.com/texts/pointinpoly/ */
+	// See http://www.blackpawn.com/texts/pointinpoly/
 	// Compute vectors
 	cv::Point2f v0 = triV2 - triV0;
 	cv::Point2f v1 = triV1 - triV0;
@@ -70,22 +64,10 @@ inline bool is_point_in_triangle(cv::Point2f point, cv::Point2f triV0, cv::Point
 	return (u >= 0) && (v >= 0) && (u + v < 1);
 };
 
-inline bool are_vertices_cc_in_screen_space(const cv::Vec4f& v0, const cv::Vec4f& v1, const cv::Vec4f& v2)
-{
-	float dx01 = v1[0] - v0[0];
-	float dy01 = v1[1] - v0[1];
-	float dx02 = v2[0] - v0[0];
-	float dy02 = v2[1] - v0[1];
-
-	return (dx01*dy02 - dy01*dx02 < 0.0f); // Original: (dx01*dy02 - dy01*dx02 > 0.0f). But: OpenCV has origin top-left, y goes down
-};
-
-inline double implicit_line(float x, float y, const cv::Vec4f& v1, const cv::Vec4f& v2)
-{
-	return ((double)v1[1] - (double)v2[1])*(double)x + ((double)v2[0] - (double)v1[0])*(double)y + (double)v1[0] * (double)v2[1] - (double)v2[0] * (double)v1[1];
-};
-
-// enum of transformation types used in mapping
+/**
+ * The interpolation types that can be used to map the
+ * texture from the original image to the isomap.
+ */
 enum class TextureInterpolation {
 	NearestNeighbour,
 	Bilinear,
@@ -93,21 +75,20 @@ enum class TextureInterpolation {
 };
 
 /**
- * extracts the texture of the face from the image
+ * Extracts the texture of the face from the given image
+ * and stores it as isomap (a rectangular texture map).
  *
- *
- * @param[in] mesh TODO
- * @param[in] mvp_matrix Atm working with a 4x4 (full) affine. But anything would work, just take care with the w-division.
- * @param[in] viewport_width TODO
- * @param[in] viewport_height TODO
- * @param[in] image Where to extract the texture from
- * @param[in] depth_buffer TODO note: We could also pass an instance of a Renderer here. Depending on how "stateful" the renderer is, this might make more sense.
- * @param[in] mapping_type Which Transformation type to use for mapping
- * @return A Mat with the texture as an isomap
- * // note: framebuffer should have size of the image (ok not necessarily. What about mobile?) (well it should, to get optimal quality (and everywhere the same quality)?)
+ * @param[in] mesh A mesh with texture coordinates.
+ * @param[in] mvp_matrix An estimated 3x4 affine camera matrix.
+ * @param[in] viewport_width Screen width.
+ * @param[in] viewport_height Screen height.
+ * @param[in] image The image to extract the texture from.
+ * @param[in] depth_buffer A precalculated depthbuffer image.
+ * @param[in] mapping_type The interpolation type to be used for the extraction.
+ * @return The extracted texture as isomap (texture map).
  */
-inline cv::Mat extract_texture(Mesh mesh, cv::Mat mvp_matrix, int viewport_width, int viewport_height, cv::Mat image, cv::Mat depth_buffer, TextureInterpolation mapping_type) {
-
+inline cv::Mat extract_texture(Mesh mesh, cv::Mat mvp_matrix, int viewport_width, int viewport_height, cv::Mat image, cv::Mat depth_buffer, TextureInterpolation mapping_type)
+{
 	using cv::Mat;
 	using cv::Vec4f;
 	using cv::Vec2f;
@@ -149,11 +130,11 @@ inline cv::Mat extract_texture(Mesh mesh, cv::Mat mvp_matrix, int viewport_width
 		// Todo: This is all very similar to processProspectiveTri(...), except the other function does texturing stuff as well. Remove code duplication!
 
 		//if (doBackfaceCulling) {
-		if (!are_vertices_cc_in_screen_space(v0, v1, v2))
+		if (!detail::are_vertices_ccw_in_screen_space(v0, v1, v2))
 			continue;
 		//}
 
-		cv::Rect bbox = calculate_bounding_box(v0, v1, v2, viewport_width, viewport_height);
+		cv::Rect bbox = detail::calculate_clipped_bounding_box(v0, v1, v2, viewport_width, viewport_height);
 		int minX = bbox.x;
 		int maxX = bbox.x + bbox.width;
 		int minY = bbox.y;
@@ -171,13 +152,13 @@ inline cv::Mat extract_texture(Mesh mesh, cv::Mat mvp_matrix, int viewport_width
 				float x = (float)xi + 0.5f;
 				float y = (float)yi + 0.5f;
 				// these will be used for barycentric weights computation
-				double one_over_v0ToLine12 = 1.0 / implicit_line(v0[0], v0[1], v1, v2);
-				double one_over_v1ToLine20 = 1.0 / implicit_line(v1[0], v1[1], v2, v0);
-				double one_over_v2ToLine01 = 1.0 / implicit_line(v2[0], v2[1], v0, v1);
+				double one_over_v0ToLine12 = 1.0 / detail::implicit_line(v0[0], v0[1], v1, v2);
+				double one_over_v1ToLine20 = 1.0 / detail::implicit_line(v1[0], v1[1], v2, v0);
+				double one_over_v2ToLine01 = 1.0 / detail::implicit_line(v2[0], v2[1], v0, v1);
 				// affine barycentric weights
-				double alpha = implicit_line(x, y, v1, v2) * one_over_v0ToLine12;
-				double beta = implicit_line(x, y, v2, v0) * one_over_v1ToLine20;
-				double gamma = implicit_line(x, y, v0, v1) * one_over_v2ToLine01;
+				double alpha = detail::implicit_line(x, y, v1, v2) * one_over_v0ToLine12;
+				double beta = detail::implicit_line(x, y, v2, v0) * one_over_v1ToLine20;
+				double gamma = detail::implicit_line(x, y, v0, v1) * one_over_v2ToLine01;
 				// if pixel (x, y) is inside the triangle or on one of its edges
 				if (alpha >= 0 && beta >= 0 && gamma >= 0)
 				{
