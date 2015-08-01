@@ -35,7 +35,7 @@ namespace eos {
  * Computes whether the given point is inside (or on the border of) the triangle
  * formed out of the given three vertices.
  *
- * @param[in] point Point to check.
+ * @param[in] point The point to check.
  * @param[in] triV0 First vertex.
  * @param[in] triV1 Second vertex.
  * @param[in] triV2 Third vertex.
@@ -79,15 +79,16 @@ enum class TextureInterpolation {
  * and stores it as isomap (a rectangular texture map).
  *
  * @param[in] mesh A mesh with texture coordinates.
- * @param[in] mvp_matrix An estimated 3x4 affine camera matrix.
+ * @param[in] affine_camera_matrix An estimated 3x4 affine camera matrix.
  * @param[in] viewport_width Screen width.
  * @param[in] viewport_height Screen height.
  * @param[in] image The image to extract the texture from.
- * @param[in] depth_buffer A precalculated depthbuffer image.
+ * @param[in] depthbuffer A precalculated depthbuffer image.
  * @param[in] mapping_type The interpolation type to be used for the extraction.
+ * @param[in] isomap_resolution The resolution of the generated isomap. Defaults to 512x512.
  * @return The extracted texture as isomap (texture map).
  */
-inline cv::Mat extract_texture(Mesh mesh, cv::Mat mvp_matrix, int viewport_width, int viewport_height, cv::Mat image, cv::Mat depth_buffer, TextureInterpolation mapping_type)
+inline cv::Mat extract_texture(Mesh mesh, cv::Mat affine_camera_matrix, int viewport_width, int viewport_height, cv::Mat image, cv::Mat depthbuffer, TextureInterpolation mapping_type, int isomap_resolution = 512)
 {
 	using cv::Mat;
 	using cv::Vec2f;
@@ -98,11 +99,10 @@ inline cv::Mat extract_texture(Mesh mesh, cv::Mat mvp_matrix, int viewport_width
 	using std::floor;
 	using std::ceil;
 
-	mvp_matrix = detail::calculate_affine_z_direction(mvp_matrix);
+	affine_camera_matrix = detail::calculate_affine_z_direction(affine_camera_matrix);
 
-	// optional param  cv::Mat texture_map = Mat(512, 512, CV_8UC3) ?
-	// cv::Mat texture_map(512, 512, inputImage.type());
-	Mat texture_map = Mat::zeros(512, 512, CV_8UC3); // We don't want an alpha channel. We might want to handle grayscale input images though.
+	Mat texture_map = Mat::zeros(isomap_resolution, isomap_resolution, CV_8UC3); // #Todo: We do want an alpha channel. Will be added soon-ish.
+	// #Todo: We should handle gray images, but output a 3-channel isomap nevertheless I think.
 
 	for (const auto& triangle_indices : mesh.tvi) {
 
@@ -120,9 +120,9 @@ inline cv::Mat extract_texture(Mesh mesh, cv::Mat mvp_matrix, int viewport_width
 		// This could be optimized in 2 ways though:
 		// - Use render(), or as in render(...), transfer the vertices once, not in a loop over all triangles (vertices are getting transformed multiple times)
 		// - We transform them later (below) a second time. Only do it once.
-		v0 = Mat(mvp_matrix * Mat(v0_3d));
-		v1 = Mat(mvp_matrix * Mat(v1_3d));
-		v2 = Mat(mvp_matrix * Mat(v2_3d));
+		v0 = Mat(affine_camera_matrix * Mat(v0_3d));
+		v1 = Mat(affine_camera_matrix * Mat(v1_3d));
+		v2 = Mat(affine_camera_matrix * Mat(v2_3d));
 
 		// Well, in in principle, we'd have to do the whole stuff as in render(), like
 		// clipping against the frustums etc.
@@ -165,12 +165,11 @@ inline cv::Mat extract_texture(Mesh mesh, cv::Mat mvp_matrix, int viewport_width
 				{
 					double z_affine = alpha*(double)v0[2] + beta*(double)v1[2] + gamma*(double)v2[2];
 					// The '<= 1.0' clips against the far-plane in NDC. We clip against the near-plane earlier.
-					if (z_affine < depth_buffer.at<double>(yi, xi)/* && z_affine <= 1.0*/) {
+					if (z_affine < depthbuffer.at<double>(yi, xi)/* && z_affine <= 1.0*/) {
 						whole_triangle_is_visible = false;
 						break;
 					}
 					else {
-
 					}
 				}
 			}
