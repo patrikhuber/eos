@@ -82,7 +82,7 @@ inline std::vector<float> fit_shape_to_landmarks_linear(morphablemodel::Morphabl
 	}
 	// The variances: Add the 2D and 3D standard deviations.
 	// If the user doesn't provide them, we choose the following:
-	// 2D (detector) variance: Assuming the detector has a standard deviation of 3 pixels, and the face size (IED) is around 80px. That's 3.75% of the IED.
+	// 2D (detector) variance: Assuming the detector has a standard deviation of 3 pixels, and the face size (IED) is around 80px. That's 3.75% of the IED. Note: Maybe this should even be in pixel, so 4 instead of 0.04.
 	// 3D (model) variance: 0.0f. It only makes sense to set it to something when we have a different variance for different vertices.
 	float sigma_2D_3D = detector_standard_deviation.get_value_or(0.04f) + model_standard_deviation.get_value_or(0.0f);
 	// Note: Isn't it a bit strange to add these as they have different units/normalisations? Check the paper.
