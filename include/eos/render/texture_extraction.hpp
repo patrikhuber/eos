@@ -189,24 +189,22 @@ inline cv::Mat extract_texture(Mesh mesh, cv::Mat affine_camera_matrix, int view
 		// check if each pixel in a triangle is visible. If the whole triangle is visible, we use it to extract
 		// the texture.
 		// Possible improvement: - If only part of the triangle is visible, split it
-		// - Share more code with the renderer?
-		Vec4f v0_3d = mesh.vertices[triangle_indices[0]];
-		Vec4f v1_3d = mesh.vertices[triangle_indices[1]];
-		Vec4f v2_3d = mesh.vertices[triangle_indices[2]];
 
-		Vec4f v0, v1, v2; // we don't copy the color and texcoords, we only do the visibility check here.
 		// This could be optimized in 2 ways though:
 		// - Use render(), or as in render(...), transfer the vertices once, not in a loop over all triangles (vertices are getting transformed multiple times)
 		// - We transform them later (below) a second time. Only do it once.
-		v0 = Mat(affine_camera_matrix * Mat(v0_3d));
-		v1 = Mat(affine_camera_matrix * Mat(v1_3d));
-		v2 = Mat(affine_camera_matrix * Mat(v2_3d));
+
+		// Project the triangle vertices to screen coordinates, and use the depthbuffer to check whether the triangle is visible:
+		Vec4f v0 = Mat(affine_camera_matrix * Mat(mesh.vertices[triangle_indices[0]]));
+		Vec4f v1 = Mat(affine_camera_matrix * Mat(mesh.vertices[triangle_indices[1]]));
+		Vec4f v2 = Mat(affine_camera_matrix * Mat(mesh.vertices[triangle_indices[2]]));
 
 		if (!is_triangle_visible(v0, v1, v2, depthbuffer))
 		{
 			continue;
 		}
 
+		// Todo: Documentation
 		cv::Point2f src_tri[3];
 		cv::Point2f dst_tri[3];
 
@@ -236,11 +234,11 @@ inline cv::Mat extract_texture(Mesh mesh, cv::Mat affine_camera_matrix, int view
 				if (is_point_in_triangle(cv::Point2f(x, y), dst_tri[0], dst_tri[1], dst_tri[2])) {
 					if (mapping_type == TextureInterpolation::Area){
 
-						//calculate positions of 4 corners of pixel in image (src)
-						Vec3f homogenous_dst_upper_left = Vec3f(x - 0.5, y - 0.5, 1.f);
-						Vec3f homogenous_dst_upper_right = Vec3f(x + 0.5, y - 0.5, 1.f);
-						Vec3f homogenous_dst_lower_left = Vec3f(x - 0.5, y + 0.5, 1.f);
-						Vec3f homogenous_dst_lower_right = Vec3f(x + 0.5, y + 0.5, 1.f);
+						// calculate positions of 4 corners of pixel in image (src)
+						Vec3f homogenous_dst_upper_left(x - 0.5, y - 0.5, 1.f);
+						Vec3f homogenous_dst_upper_right(x + 0.5, y - 0.5, 1.f);
+						Vec3f homogenous_dst_lower_left(x - 0.5, y + 0.5, 1.f);
+						Vec3f homogenous_dst_lower_right(x + 0.5, y + 0.5, 1.f);
 
 						Vec2f src_texel_upper_left = Mat(warp_mat_org_inv * Mat(homogenous_dst_upper_left));
 						Vec2f src_texel_upper_right = Mat(warp_mat_org_inv * Mat(homogenous_dst_upper_right));
@@ -260,7 +258,7 @@ inline cv::Mat extract_texture(Mesh mesh, cv::Mat affine_camera_matrix, int view
 							for (int b = ceil(min_b); b <= floor(max_b); ++b)
 							{
 								if (is_point_in_triangle(cv::Point2f(a, b), src_texel_upper_left, src_texel_lower_left, src_texel_upper_right) || is_point_in_triangle(cv::Point2f(a, b), src_texel_lower_left, src_texel_upper_right, src_texel_lower_right)) {
-									if (a < image.cols && b < image.rows){ //if src_texel in triangle and in image
+									if (a < image.cols && b < image.rows) { // if src_texel in triangle and in image
 										num_texels++;
 										color += image.at<cv::Vec3b>(b, a);
 									}
@@ -269,8 +267,8 @@ inline cv::Mat extract_texture(Mesh mesh, cv::Mat affine_camera_matrix, int view
 						}
 						if (num_texels > 0)
 							color = color / num_texels;
-						else{ //if no corresponding texel found, nearest neighbor interpolation
-							//calculate corrresponding position of dst_coord pixel center in image (src)
+						else { // if no corresponding texel found, nearest neighbor interpolation
+							// calculate corresponding position of dst_coord pixel center in image (src)
 							Vec3f homogenous_dst_coord = Vec3f(x, y, 1.f);
 							Vec2f src_texel = Mat(warp_mat_org_inv * Mat(homogenous_dst_coord));
 
@@ -280,19 +278,19 @@ inline cv::Mat extract_texture(Mesh mesh, cv::Mat affine_camera_matrix, int view
 						}
 						texture_map.at<cv::Vec3b>(y, x) = color;
 					}
-					else if (mapping_type == TextureInterpolation::Bilinear){
+					else if (mapping_type == TextureInterpolation::Bilinear) {
 
-						//calculate corrresponding position of dst_coord pixel center in image (src)
-						Vec3f homogenous_dst_coord = Vec3f(x, y, 1.f);
+						// calculate corresponding position of dst_coord pixel center in image (src)
+						Vec3f homogenous_dst_coord(x, y, 1.f);
 						Vec2f src_texel = Mat(warp_mat_org_inv * Mat(homogenous_dst_coord));
 
-						//calculate distances to next 4 pixels
+						// calculate distances to next 4 pixels
 						float distance_upper_left = sqrt(powf(src_texel[0] - floor(src_texel[0]), 2) + powf(src_texel[1] - floor(src_texel[1]), 2));
 						float distance_upper_right = sqrt(powf(src_texel[0] - floor(src_texel[0]), 2) + powf(src_texel[1] - ceil(src_texel[1]), 2));
 						float distance_lower_left = sqrt(powf(src_texel[0] - ceil(src_texel[0]), 2) + powf(src_texel[1] - floor(src_texel[1]), 2));
 						float distance_lower_right = sqrt(powf(src_texel[0] - ceil(src_texel[0]), 2) + powf(src_texel[1] - ceil(src_texel[1]), 2));
 
-						//normalize distances
+						// normalise distances
 						float sum_distances = distance_lower_left + distance_lower_right + distance_upper_left + distance_upper_right;
 						distance_lower_left /= sum_distances;
 						distance_lower_right /= sum_distances;
@@ -309,9 +307,9 @@ inline cv::Mat extract_texture(Mesh mesh, cv::Mat affine_camera_matrix, int view
 							texture_map.at<cv::Vec3b>(y, x)[color] = color_upper_left + color_upper_right + color_lower_left + color_lower_right;
 						}
 					}
-					else if (mapping_type == TextureInterpolation::NearestNeighbour){
+					else if (mapping_type == TextureInterpolation::NearestNeighbour) {
 
-						//calculate corrresponding position of dst_coord pixel center in image (src)
+						// calculate corresponding position of dst_coord pixel center in image (src)
 						Vec3f homogenous_dst_coord = Vec3f(x, y, 1.f);
 						Vec2f src_texel = Mat(warp_mat_org_inv * Mat(homogenous_dst_coord));
 
