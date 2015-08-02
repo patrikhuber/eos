@@ -4,6 +4,8 @@ STRIP_FROM_PATH        = @PROJECT_SOURCE_DIR@
 INPUT                  = @PROJECT_SOURCE_DIR@/README.md \
                          @PROJECT_SOURCE_DIR@/include
 RECURSIVE              = YES
+EXCLUDE_PATTERNS       = */detail/*
+
 USE_MDFILE_AS_MAINPAGE = README.md
 
 USE_MATHJAX            = YES
