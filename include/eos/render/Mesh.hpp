@@ -95,7 +95,7 @@ inline void write_obj(Mesh mesh, std::string filename)
  *
  * The obj will contain texture coordinates for the mesh, and the
  * mtl file will link to a file named <filename>.isomap.png.
- * Note that the texture (isomap) has to be stored separately.
+ * Note that the texture (isomap) has to be saved separately.
  *
  * @param[in] mesh The mesh to save as obj.
  * @param[in] filename Output filename.

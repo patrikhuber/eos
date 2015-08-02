@@ -43,11 +43,11 @@ namespace eos {
 	namespace morphablemodel {
 
 /**
- * A class representing a 3D Morphable Model.
- * It consists of a shape- and albedo (texture) PCA model.
+ * @brief A class representing a 3D Morphable Model, consisting
+ * of a shape- and colour (albedo) PCA model.
  *
  * For the general idea of 3DMMs see T. Vetter, V. Blanz,
- * 'A Morphable Model for the Synthesis of 3D Faces', SIGGRAPH 1999
+ * 'A Morphable Model for the Synthesis of 3D Faces', SIGGRAPH 1999.
  */
 class MorphableModel
 {
@@ -59,7 +59,7 @@ public:
 	 * texture coordinates.
 	 *
 	 * @param[in] shape_model A PCA model over the shape.
-	 * @param[in] color_model A PCA model over the color (albedo).
+	 * @param[in] color_model A PCA model over the colour (albedo).
 	 * @param[in] texture_coordinates Optional texture coordinates for every vertex.
 	 */
 	MorphableModel(PcaModel shape_model, PcaModel color_model, std::vector<cv::Vec2f> texture_coordinates = std::vector<cv::Vec2f>()) : shape_model(shape_model), color_model(color_model), texture_coordinates(texture_coordinates)
