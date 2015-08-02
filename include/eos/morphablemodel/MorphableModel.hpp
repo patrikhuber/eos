@@ -47,7 +47,7 @@ namespace eos {
 /**
  * A class representing a 3D Morphable Model.
  * It consists of a shape- and albedo (texture) PCA model.
- * 
+ *
  * For the general idea of 3DMMs see T. Vetter, V. Blanz,
  * 'A Morphable Model for the Synthesis of 3D Faces', SIGGRAPH 1999
  */
@@ -83,7 +83,7 @@ public:
 	 * Returns the PCA color (albedo) model of this Morphable Model.
 	 *
 	 * @return The color model.
-	 */	
+	 */
 	PcaModel get_color_model() const
 	{
 		return color_model;
@@ -139,7 +139,7 @@ public:
 
 	/**
 	 * Returns a sample from the model with the given shape- and
-	 * colour PCA coefficients. 
+	 * colour PCA coefficients.
 	 *
 	 * If one of the given vectors is empty, the mean is used.
 	 * The coefficient vectors should contain normalised, i.e. standard normal distributed coefficients.
@@ -191,8 +191,6 @@ public:
 		return !color_model.get_mean().empty();
 	};
 
-	std::vector<cv::Vec2f> gtc() const { return texture_coordinates; };
-
 private:
 	PcaModel shape_model; ///< A PCA model of the shape
 	PcaModel color_model; ///< A PCA model of vertex color information
@@ -232,7 +230,7 @@ private:
 MorphableModel load_model(std::string filename)
 {
 	MorphableModel model;
-	
+
 	std::ifstream file(filename, std::ios::binary);
 	if (file.fail()) {
 		throw std::runtime_error("Error opening given file: " + filename);
@@ -257,7 +255,8 @@ void save_model(MorphableModel model, std::string filename)
 	output_archive(model);
 };
 
-		namespace detail { /* eos::morphablemodel::detail */
+
+namespace detail { /* eos::morphablemodel::detail */
 /**
  * Internal helper function that creates a Mesh from given shape and colour
  * PCA instances. Needs the vertex index lists as well to assemble the mesh -
@@ -275,9 +274,9 @@ void save_model(MorphableModel model, std::string filename)
 eos::render::Mesh sample_to_mesh(cv::Mat shape, cv::Mat color, std::vector<std::array<int, 3>> tvi, std::vector<std::array<int, 3>> tci, std::vector<cv::Vec2f> texture_coordinates /* = std::vector<cv::Vec2f>() */)
 {
 	assert(shape.rows == color.rows || color.empty()); // The number of vertices (= model.getDataDimension() / 3) has to be equal for both models, or, alternatively, it has to be a shape-only model.
-	
+
 	auto num_vertices = shape.rows / 3;
-	
+
 	eos::render::Mesh mesh;
 
 	// Construct the mesh vertices:
@@ -308,7 +307,7 @@ eos::render::Mesh sample_to_mesh(cv::Mat shape, cv::Mat color, std::vector<std::
 
 	return mesh;
 };
-		} /* namespace detail */
+} /* namespace eos::morphablemodel::detail */
 
 	} /* namespace morphablemodel */
 } /* namespace eos */
