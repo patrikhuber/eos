@@ -50,7 +50,7 @@ endif()
 message(STATUS "Options:")
 option(BUILD_EXAMPLES "Build the example applications." ON)
 message(STATUS "BUILD_EXAMPLES: ${BUILD_EXAMPLES}")
-option(BUILD_DOCUMENTATION "Build the library documentation." ON)
+option(BUILD_DOCUMENTATION "Build the library documentation." OFF)
 message(STATUS "BUILD_DOCUMENTATION: ${BUILD_DOCUMENTATION}")
 
 # Build a CPack driven installer package:
