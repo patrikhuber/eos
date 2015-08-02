@@ -30,6 +30,7 @@
 #include "opencv2/core/core.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 
+#include <tuple>
 #include <cassert>
 
 namespace eos {
@@ -63,7 +64,7 @@ inline cv::Mat extract_texture(Mesh mesh, cv::Mat affine_camera_matrix, cv::Mat 
 {
 	// Render the model to get a depth buffer:
 	cv::Mat depthbuffer;
-	std::tie(cv::Mat(), depthbuffer) = render::render_affine(mesh, affine_camera_matrix, image.cols, image.rows);
+	std::tie(std::ignore, depthbuffer) = render::render_affine(mesh, affine_camera_matrix, image.cols, image.rows);
 	// Note: There's potential for optimisation here - we don't need to do everything that is done in render_affine to just get the depthbuffer.
 
 	// Now forward the call to the actual texture extraction function:
