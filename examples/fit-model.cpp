@@ -206,7 +206,7 @@ int main(int argc, char *argv[])
 	// Obtain the full mesh and draw it using the estimated camera:
 	render::Mesh mesh = morphable_model.draw_sample(fitted_coeffs, vector<float>());
 	outputfile += fs::path(".obj");
-	render::write_obj(mesh, outputfile.string()); // save the mesh as obj
+	render::write_textured_obj(mesh, outputfile.string()); // save the mesh as obj
 
 	// Draw the projected points again, this time using the fitted model shape:
 	for (auto&& idx : vertex_indices) {
@@ -215,7 +215,9 @@ int main(int argc, char *argv[])
 		cv::circle(outimg, cv::Point2f(screen_point), 3, { 0.0f, 0.0f, 255.0f });
 	}
 
-	// Save the output image:
+	// Save an output image with the landmarks from the different stages:
+	//outputfile.replace_extension(".png");
+	//cv::imwrite(outputfile.string(), outimg);
 	outputfile.replace_extension(".png");
 	cv::imwrite(outputfile.string(), outimg);
 

@@ -40,8 +40,10 @@ namespace eos {
 	namespace render {
 
 /**
- * This class represents a 3D mesh consisting of vertices and vertex color
- * information. Additionally it stores the indices that specify which vertices
+ * @brief This class represents a 3D mesh consisting of vertices, vertex colour
+ * information and texture coordinates.
+ *
+ * Additionally it stores the indices that specify which vertices
  * to use to generate the triangle mesh out of the vertices.
  */
 struct Mesh
@@ -55,7 +57,9 @@ struct Mesh
 };
 
 /**
- * Writes an obj file of the given Mesh that can be read by e.g. Meshlab.
+ * @brief Writes the given Mesh to an obj file that for example can be read by Meshlab.
+ *
+ * If the mesh contains vertex colour information, it will be written to the obj as well.
  *
  * @param[in] mesh The mesh to save as obj.
  * @param[in] filename Output filename.
@@ -86,8 +90,12 @@ inline void write_obj(Mesh mesh, std::string filename)
 }
 
 /**
- * Writes an obj file of the given Mesh that can be read by e.g. Meshlab.
- * Saves texture coordinates and texture information as well.
+ * @brief Writes an obj file of the given Mesh, including texture coordinates,
+ * and an mtl file containing a reference to the isomap.
+ *
+ * The obj will contain texture coordinates for the mesh, and the
+ * mtl file will link to a file named <filename>.isomap.png.
+ * Note that the texture (isomap) has to be stored separately.
  *
  * @param[in] mesh The mesh to save as obj.
  * @param[in] filename Output filename.
