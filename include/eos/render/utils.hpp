@@ -65,9 +65,9 @@ inline cv::Vec2f clip_to_screen_space(const cv::Vec2f& clip_coordinates, int scr
  * Note that the y-coordinate is flipped because the image origin
  * is top-left while in clip space top is +1 and bottom is -1.
  *
- * @param[in] screenCoordinates A point in screen coordinates.
- * @param[in] screenWidth Width of the screen or window.
- * @param[in] screenHeight Height of the screen or window.
+ * @param[in] screen_coordinates A point in screen coordinates.
+ * @param[in] screen_width Width of the screen or window.
+ * @param[in] screen_height Height of the screen or window.
  * @return A vector with x and y coordinates transformed to clip space.
  */
 inline cv::Vec2f screen_to_clip_space(const cv::Vec2f& screen_coordinates, int screen_width, int screen_height)
