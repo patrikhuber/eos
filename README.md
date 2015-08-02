@@ -33,7 +33,7 @@ After `make install` or running the `INSTALL` target, an example image with land
 
 You can run the example with:
 
-`fit-model -m ../share/sfm_shape_3448.bin -p ../share/ibug2did.txt -i data/image_0001.png -l data/image_0001.pts`
+`fit-model -m ../share/sfm_shape_3448.bin -p ../share/ibug2did.txt -i data/image_0010.png -l data/image_0010.pts`
 
 The output is an `obj` file with the shape and a `png` with the extracted isomap. The camera matrix and shape coefficients are available in the code via the API.
 
