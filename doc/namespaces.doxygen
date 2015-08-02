@@ -1,0 +1,24 @@
+/**
+ * @namespace eos
+ * @brief Namespace containing all of eos's 3D model fitting functionality.
+ */
+
+/**
+ * @namespace eos::core
+ * @brief Essential functions and classes to work with 3D face models and landmarks.
+ */
+
+/**
+ * @namespace eos::fitting
+ * @brief Pose and shape fitting of a 3D Morphable Model.
+ */
+
+/**
+ * @namespace eos::morphablemodel
+ * @brief Functionality to represent a Morphable Model, containing it's PCA models and loading functions.
+ */
+
+/**
+ * @namespace eos::render
+ * @brief 3D mesh and texture extraction functionality.
+ */
