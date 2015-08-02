@@ -38,27 +38,39 @@ namespace eos {
 	namespace core {
 
 /**
- * Represents a mapping from one kind of landmarks
- * to a different format. Mappings are stored in a
- * file (see share/ for an example for ibug landmarks).
+ * @brief Represents a mapping from one kind of landmarks
+ * to a different format (e.g. model vertices).
+ *
+ * When fitting the 3D model to an image, a correspondence must
+ * be known from the 2D image landmarks to 3D vertex points in
+ * the Morphable Model. The 3D model defines all its points in
+ * the form of vertex ids.
+ * These mappings are stored in a file, see the \c share/ folder for
+ * an example for mapping 2D ibug landmarks to 3D model vertex indices.
+ *
+ * The LandmarkMapper thus has two main use cases:
+ * - Mapping 2D landmark points to 3D vertices
+ * - Converting one set of 2D landmarks into another set of 2D
+ *   landmarks with different identifiers.
  */
 class LandmarkMapper {
 public:
 	/**
-	 * Constructs a new landmark mapper that performs an identity mapping,
-	 * that is, its output is the same as the input.
-	 *
+	 * @brief Constructs a new landmark mapper that performs an identity
+	 * mapping, that is, its output is the same as the input.
 	 */
 	LandmarkMapper() = default;
 
 	/**
-	 * Constructs a new landmark mapper from a mappings-file.
+	 * @brief Constructs a new landmark mapper from a file containing
+	 * mappings from one set of landmark identifiers to another.
+	 *
 	 * In case the file contains no mappings, a landmark mapper
 	 * that performs an identity mapping is constructed.
 	 *
 	 * @param[in] filename A file with landmark mappings.
-	 * @throws runtime_error exception if there is an error
-	 *         loading the mappings from the file.
+	 * @throws runtime_error if there is an error loading
+	 *         the mappings from the file.
 	 */
 	LandmarkMapper(boost::filesystem::path filename)
 	{
@@ -87,7 +99,7 @@ public:
 	};
 
 	/**
-	 * Converts the given landmark name to the mapped name.
+	 * @brief Converts the given landmark name to the mapped name.
 	 *
 	 * @param[in] landmark_name A landmark name to convert.
 	 * @return The mapped landmark name if a mapping exists, an empty optional otherwise.
@@ -113,7 +125,7 @@ public:
 	};
 
 	/**
-	 * Returns the number of loaded landmark mappings.
+	 * @brief Returns the number of loaded landmark mappings.
 	 *
 	 * @return The number of landmark mappings.
 	 */

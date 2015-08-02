@@ -38,9 +38,7 @@
 namespace eos {
 	namespace morphablemodel {
 
-/**
- * Forward declarations
- */
+// Forward declaration
 std::vector<cv::Vec2f> load_isomap(boost::filesystem::path isomap_file);
 
 /**

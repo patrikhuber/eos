@@ -34,9 +34,7 @@
 #include <vector>
 #include <array>
 
-/**
- * Forward declaration of an internal function
- */
+// Forward declaration of an internal function
 namespace eos { namespace morphablemodel { namespace detail {
 	eos::render::Mesh sample_to_mesh(cv::Mat shape, cv::Mat color, std::vector<std::array<int, 3>> tvi, std::vector<std::array<int, 3>> tci, std::vector<cv::Vec2f> texture_coordinates = std::vector<cv::Vec2f>());
 } } }

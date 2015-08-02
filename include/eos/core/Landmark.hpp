@@ -30,23 +30,23 @@ namespace eos {
 	namespace core {
 
 /**
- * Representation of a landmark, consisting of a landmark name and
- * coordinates of the given type. Usually, the type would be cv::Vec2f.
+ * @brief Representation of a landmark, consisting of a landmark name and
+ * coordinates of the given type. Usually, the type would be \c cv::Vec2f.
  */
 template<class LandmarkType>
 struct Landmark
 {
-	std::string name;
-	LandmarkType coordinates;
+	std::string name; ///< Name of the landmark, often used as identifier.
+	LandmarkType coordinates; ///< The position or coordinates of the landmark.
 };
 
 /**
- * A trivial collection of landmarks that somehow belong together.
+ * @brief A trivial collection of landmarks that belong together.
  */
 template<class LandmarkType> using LandmarkCollection = std::vector<Landmark<LandmarkType>>;
 
 /**
- * Filters the given LandmarkCollection and returns a new LandmarkCollection
+ * @brief Filters the given LandmarkCollection and returns a new LandmarkCollection
  * containing all landmarks whose name matches the one given by \p filter.
  *
  * @param[in] landmarks The input LandmarkCollection to be filtered.

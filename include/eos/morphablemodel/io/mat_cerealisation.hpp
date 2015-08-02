@@ -27,14 +27,13 @@
 #include "opencv2/core/core.hpp"
 
 /**
- * Serialisation for OpenCV cv::Mat matrices for the serialisation
+ * @brief Serialisation of OpenCV \c cv::Mat matrices for the serialisation
  * library cereal (http://uscilab.github.io/cereal/index.html).
  */
-
 namespace cv {
 
 /**
- * Serialise a cv::Mat using cereal.
+ * @brief Serialise a cv::Mat using cereal.
  *
  * Supports all types of matrices as well as non-contiguous ones.
  *
@@ -69,7 +68,7 @@ void save(Archive& ar, const cv::Mat& mat)
 };
 
 /**
- * De-serialise a cv::Mat using cereal.
+ * @brief De-serialise a cv::Mat using cereal.
  *
  * Supports all types of matrices as well as non-contiguous ones.
  *
@@ -101,7 +100,7 @@ void load(Archive& ar, cv::Mat& mat)
 };
 
 /**
- * Serialisation for a cv::Vec2f using cereal.
+ * @brief Serialisation of a cv::Vec2f using cereal.
  *
  * @param[in] ar The archive to (de)serialise.
  * @param[in] vec The vector to (de)serialise.

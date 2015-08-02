@@ -37,14 +37,12 @@
 namespace eos {
 	namespace morphablemodel {
 
-/**
- * Forward declarations of free functions
- */
+// Forward declarations of free functions
 cv::Mat normalise_pca_basis(cv::Mat unnormalisedBasis, cv::Mat eigenvalues);
 cv::Mat unnormalise_pca_basis(cv::Mat normalisedBasis, cv::Mat eigenvalues);
 
 /**
- * This class represents a PCA-model that consists of:
+ * @brief This class represents a PCA-model that consists of:
  *   - a mean vector (y x z)
  *   - a PCA basis matrix (unnormalised and normalised)
  *   - a PCA variance vector.
@@ -183,7 +181,7 @@ public:
 	 * Each column of the matrix is an eigenvector.
 	 * The returned basis is normalised, i.e. every eigenvector
 	 * is normalised by multiplying it with the square root of its eigenvalue.
-	 * 
+	 *
 	 * Returns a clone of the matrix so that the original cannot
 	 * be modified. TODO: No, don't return a clone.
 	 *
@@ -193,7 +191,7 @@ public:
 	{
 		return normalised_pca_basis.clone();
 	};
-	
+
 	/**
 	 * Returns the PCA basis for a particular vertex.
 	 * The returned basis is normalised, i.e. every eigenvector
@@ -249,7 +247,7 @@ public:
 
 private:
 	std::mt19937 engine; ///< Random number engine used to draw random coefficients.
-	
+
 	cv::Mat mean; ///< A 3m x 1 col-vector (xyzxyz...)', where m is the number of model-vertices.
 	cv::Mat normalised_pca_basis; ///< The normalised PCA basis matrix. m x n (rows x cols) = numShapeDims x numShapePcaCoeffs, (=eigenvector matrix V). Each column is an eigenvector.
 	cv::Mat unnormalised_pca_basis; ///< The unnormalised PCA basis matrix. m x n (rows x cols) = numShapeDims x numShapePcaCoeffs, (=eigenvector matrix V). Each column is an eigenvector.
