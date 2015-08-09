@@ -115,7 +115,7 @@ source_group(render\\detail include/eos/render/detail/*)
 # The install target:
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/ DESTINATION include) # our library headers
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/share/ DESTINATION share) # the model and metadata
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/3rdparty/cereal-1.1.1/include/ DESTINATION 3rdparty/cereal-1.1.1/include) # cereal headers
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/3rdparty/cereal-1.1.1/ DESTINATION 3rdparty/cereal-1.1.1) # cereal headers
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/3rdparty/glm-0.9.7.0/ DESTINATION 3rdparty/glm-0.9.7.0) # glm headers
 
 if(BUILD_EXAMPLES)
