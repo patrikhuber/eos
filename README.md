@@ -7,17 +7,25 @@ At the moment, it mainly provides the following functionality:
 
 * MorphableModel class to represent a 3DMM (using OpenCVs `cv::Mat`)
 * Camera estimation, implementation of the _Gold Standard Algorithm_ from Multiple View Geometry, Hartley & Zisserman
-* Shape fitting, implementation of the linear shape-to-landmarks fitting of O. Aldrian & W. Smith, Inverse Rendering of Faces with a 3D Morphable Model, PAMI 2013
+* Shape fitting, implementation of the linear shape-to-landmarks fitting of O. Aldrian & W. Smith, _Inverse Rendering of Faces with a 3D Morphable Model_, PAMI 2013
 * Isomap texture extraction to obtain a pose-invariant representation of the face texture.
 
 ## Usage
 
-* Tested with the following compilers: gcc-4.8.4, clang-3.5, Visual Studio 2015
-* Needed dependencies
-	* For the library: Boost system (>=1.50.0), OpenCV core (>=2.4.3)
-	* For the example app: CMake (>=2.8.10), Boost system, filesystem, program_options (>=1.50.0), OpenCV core, imgproc, highgui (>=2.4.3).
+* Tested with the following compilers: >=gcc-4.8.4, >=clang-3.5, Visual Studio 2015
+* Needed dependencies for the library: Boost system (>=1.50.0), OpenCV core (>=2.4.3)
+
+To use the library in your own project, just add the following directories to your include path:
+
+* `eos/include`
+* `eos/3rdparty/cereal-1.1.1/include`
+* `eos/3rdparty/glm-0.9.7.0`
 
 ### Build the examples and tests
+
+* Needed dependencies for the example app: CMake (>=2.8.10), Boost system, filesystem, program_options (>=1.50.0), OpenCV core, imgproc, highgui (>=2.4.3).
+
+To build:
 
 * copy `initial_cache.cmake.template` to `initial_cache.cmake`, edit the necessary paths
 * create a build directory next to the `eos` folder: `mkdir build; cd build`
