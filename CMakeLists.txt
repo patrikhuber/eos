@@ -73,6 +73,11 @@ else(Boost_FOUND)
   message(FATAL_ERROR "Boost not found")
 endif()
 
+set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
+find_package(Eigen3 REQUIRED)
+message(STATUS "Eigen3 found: ${EIGEN3_FOUND}")
+message(STATUS "Eigen3 include dir found at ${EIGEN3_INCLUDE_DIR}")
+message(STATUS "Eigen3 version: ${EIGEN3_VERSION}")
 
 set(CEREAL_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/3rdparty/cereal-1.1.1/include")
 set(glm_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/3rdparty/glm-0.9.7.0")
@@ -86,6 +91,8 @@ set(HEADERS
 	include/eos/morphablemodel/io/cvssp.hpp
 	include/eos/morphablemodel/io/mat_cerealisation.hpp
 	include/eos/fitting/affine_camera_estimation.hpp
+	include/eos/fitting/nonlinear_camera_estimation.hpp
+	include/eos/fitting/detail/nonlinear_camera_estimation_detail.hpp
 	include/eos/fitting/linear_shape_fitting.hpp
 	include/eos/render/Mesh.hpp
 	include/eos/render/utils.hpp
@@ -100,7 +107,7 @@ include_directories("include")
 include_directories(${CEREAL_INCLUDE_DIR})
 include_directories(${Boost_INCLUDE_DIRS})
 include_directories(${OpenCV_INCLUDE_DIRS})
-#include_directories(${EIGEN3_INCLUDE_DIR})
+include_directories(${EIGEN3_INCLUDE_DIR})
 include_directories(${glm_INCLUDE_DIR})
 
 # Custom target for the library, to make the headers show up in IDEs:
@@ -109,6 +116,7 @@ source_group(core include/eos/core/*)
 source_group(morphablemodel include/eos/morphablemodel/*)
 source_group(morphablemodel\\io include/eos/morphablemodel/io/*)
 source_group(fitting include/eos/fitting/*)
+source_group(fitting\\detail include/eos/fitting/detail/*)
 source_group(render include/eos/render/*)
 source_group(render\\detail include/eos/render/detail/*)
 
