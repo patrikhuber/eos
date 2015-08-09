@@ -41,6 +41,11 @@ namespace eos {
  *
  * Requires >= 4 corresponding points.
  *
+ * The estimated camera matrix works together with
+ * render::render_affine(Mesh, cv::Mat, int, int, bool) to
+ * for example render the model or extract texture from the
+ * image.
+ *
  * @param[in] image_points A list of 2D image points.
  * @param[in] model_points Corresponding points of a 3D model.
  * @return A 3x4 affine camera matrix (the third row is [0, 0, 0, 1]).
