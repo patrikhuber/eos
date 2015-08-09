@@ -75,6 +75,7 @@ endif()
 
 
 set(CEREAL_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/3rdparty/cereal-1.1.1/include")
+set(glm_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/3rdparty/glm-0.9.7.0")
 
 # Header files:
 set(HEADERS
@@ -100,6 +101,7 @@ include_directories(${CEREAL_INCLUDE_DIR})
 include_directories(${Boost_INCLUDE_DIRS})
 include_directories(${OpenCV_INCLUDE_DIRS})
 #include_directories(${EIGEN3_INCLUDE_DIR})
+include_directories(${glm_INCLUDE_DIR})
 
 # Custom target for the library, to make the headers show up in IDEs:
 add_custom_target(eos SOURCES ${HEADERS})
@@ -114,6 +116,7 @@ source_group(render\\detail include/eos/render/detail/*)
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/ DESTINATION include) # our library headers
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/share/ DESTINATION share) # the model and metadata
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/3rdparty/cereal-1.1.1/include/ DESTINATION 3rdparty/cereal-1.1.1/include) # cereal headers
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/3rdparty/glm-0.9.7.0/ DESTINATION 3rdparty/glm-0.9.7.0) # glm headers
 
 if(BUILD_EXAMPLES)
 	add_subdirectory(examples)
