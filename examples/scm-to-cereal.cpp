@@ -46,6 +46,7 @@ using std::endl;
 int main(int argc, char *argv[])
 {
 	fs::path scmmodelfile, isomapfile, outputfile;
+	bool save_shape_only;
 	try {
 		po::options_description desc("Allowed options");
 		desc.add_options()
@@ -55,6 +56,8 @@ int main(int argc, char *argv[])
 				"a CVSSP .scm Morphable Model file")
 			("isomap,t", po::value<fs::path>(&isomapfile),
 				"optional isomap containing the texture mapping coordinates")
+			("shape-only,s", po::value<bool>(&save_shape_only)->default_value(false)->implicit_value(true),
+				"save only the shape-model part of the full 3DMM")
 			("output,o", po::value<fs::path>(&outputfile)->required()->default_value("converted_model.bin"),
 				"output filename for the Morphable Model in cereal binary format")
 			;
@@ -76,11 +79,15 @@ int main(int argc, char *argv[])
 	// Load the .scm Morphable Model and save it as cereal model:
 	morphablemodel::MorphableModel morphable_model = morphablemodel::load_scm_model(scmmodelfile, isomapfile);
 
-	morphablemodel::save_model(morphable_model, outputfile.string());
-	
-	// Save only the shape model - to generate the public sfm_shape_3448.bin
-	//morphablemodel::MorphableModel shape_only_model(morphable_model.get_shape_model(), morphablemodel::PcaModel(), morphable_model.gtc());
-	//morphablemodel::save_model(shape_only_model, outputfile.string());
+	if (save_shape_only)
+	{
+		// Save only the shape model - to generate the public sfm_shape_3448.bin
+		morphablemodel::MorphableModel shape_only_model(morphable_model.get_shape_model(), morphablemodel::PcaModel(), morphable_model.get_texture_coordinates());
+		morphablemodel::save_model(shape_only_model, outputfile.string());
+	}
+	else {
+		morphablemodel::save_model(morphable_model, outputfile.string());
+	}
 
 	cout << "Saved converted model as " << outputfile.string() << "." << endl;
 	return EXIT_SUCCESS;

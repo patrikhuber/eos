@@ -189,6 +189,16 @@ public:
 		return !color_model.get_mean().empty();
 	};
 
+	/**
+	 * Returns the texture coordinates for all the vertices in the model.
+	 *
+	 * @return The texture coordinates for the model vertices.
+	 */
+	std::vector<cv::Vec2f> get_texture_coordinates() const
+	{
+		return texture_coordinates;
+	};
+
 private:
 	PcaModel shape_model; ///< A PCA model of the shape
 	PcaModel color_model; ///< A PCA model of vertex color information
