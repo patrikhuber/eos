@@ -27,12 +27,14 @@
 #include "eos/render/Mesh.hpp"
 
 #include "eos/morphablemodel/io/mat_cerealisation.hpp"
+#include "cereal/cereal.hpp"
 #include "cereal/access.hpp"
 #include "cereal/types/vector.hpp"
 #include "cereal/archives/binary.hpp"
 
 #include <vector>
 #include <array>
+#include <cstdint>
 
 // Forward declaration of an internal function
 namespace eos { namespace morphablemodel { namespace detail {
@@ -221,7 +223,7 @@ private:
 	 * @param[in] ar The archive to serialise to (or to serialise from).
 	 */
 	template<class Archive>
-	void serialize(Archive& archive)
+	void serialize(Archive& archive, const std::uint32_t version)
 	{
 		archive(shape_model, color_model, texture_coordinates);
 	};
@@ -319,5 +321,7 @@ eos::render::Mesh sample_to_mesh(cv::Mat shape, cv::Mat color, std::vector<std::
 
 	} /* namespace morphablemodel */
 } /* namespace eos */
+
+CEREAL_CLASS_VERSION(eos::morphablemodel::MorphableModel, 0);
 
 #endif /* MORPHABLEMODEL_HPP_ */
