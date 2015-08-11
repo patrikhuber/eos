@@ -51,10 +51,12 @@ struct Frustum
  * @brief Represents a set of estimated model parameters (rotation, translation) and
  * camera parameters (viewing frustum).
  *
- * Strictly speaking, the estimated rotation and translation are not camera parameters, they
- * are the values that transform the model from model-space to camera-space, so they are the
- * inverse of the camera position.
- * The camera frustum describes the size of the viewing plane of the camera.
+ * The estimated rotation and translation transform the model from model-space to camera-space,
+ * and, if one wishes to use OpenGL, can be used to build the model-view matrix.
+ * The parameters are the inverse of the camera position in 3D space.
+ *
+ * The camera frustum describes the size of the viewing plane of the camera, and
+ * can be used to build an OpenGL-conformant orthographic projection matrix.
  *
  * Together, these parameters fully describe the imaging process of a given model instance
  * (under an orthographic projection).
@@ -62,11 +64,11 @@ struct Frustum
  * The rotation values are given in radians and estimated using the RPY convention.
  * Yaw is applied first to the model, then pitch, then roll (R * P * Y * vertex).
  */
-struct CameraParameters
+struct RenderingParameters
 {
-	float r_x; // pitch
-	float r_y; // yaw. positive means subject is looking left (we see his/her right cheek).
-	float r_z; // roll
+	float r_x; // Pitch.
+	float r_y; // Yaw. Positive means subject is looking left (we see her right cheek).
+	float r_z; // Roll. Positive means the subject's right eye is further down than the other one (he tilts his head to the right).
 	float t_x;
 	float t_y;
 	Frustum frustum;
@@ -97,7 +99,7 @@ struct CameraParameters
  * @param[in] height Height of the image (or viewport).
  * @return The estimated model and camera parameters.
  */
-CameraParameters estimate_orthographic_camera(std::vector<cv::Vec2f> image_points, std::vector<cv::Vec4f> model_points, int width, int height)
+RenderingParameters estimate_orthographic_camera(std::vector<cv::Vec2f> image_points, std::vector<cv::Vec4f> model_points, int width, int height)
 {
 	using cv::Mat;
 	assert(image_points.size() == model_points.size());
@@ -121,7 +123,7 @@ CameraParameters estimate_orthographic_camera(std::vector<cv::Vec2f> image_point
 	// 'parameters' contains the solution now.
 
 	Frustum camera_frustum{ -1.0f * aspect * parameters[5], 1.0f * aspect * parameters[5], -1.0f * parameters[5], 1.0f * parameters[5] };
-	return CameraParameters{ static_cast<float>(parameters[0]), static_cast<float>(parameters[1]), static_cast<float>(parameters[2]), static_cast<float>(parameters[3]), static_cast<float>(parameters[4]), camera_frustum };
+	return RenderingParameters{ static_cast<float>(parameters[0]), static_cast<float>(parameters[1]), static_cast<float>(parameters[2]), static_cast<float>(parameters[3]), static_cast<float>(parameters[4]), camera_frustum };
 };
 
 	} /* namespace fitting */
