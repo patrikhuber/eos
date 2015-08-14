@@ -2,6 +2,9 @@ project(examples)
 cmake_minimum_required(VERSION 2.8.10)
 
 # The examples need a few additional dependencies (e.g. boost filesystem and OpenCV highgui):
+
+#check installed version in order to include the correct OpenCV libraries
+#version variable is defined from project root's CMakeLists
 if("${OpenCV_VERSION_MAJOR}$" EQUAL 2)
   message(STATUS "OpenCV 2.x detected")
   find_package(OpenCV 2.4.3 REQUIRED core imgproc highgui)
