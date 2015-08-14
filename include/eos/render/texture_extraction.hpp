@@ -60,7 +60,7 @@ inline cv::Mat extract_texture(Mesh mesh, cv::Mat affine_camera_matrix, cv::Mat 
  * @param[in] isomap_resolution The resolution of the generated isomap. Defaults to 512x512.
  * @return The extracted texture as isomap (texture map).
  */
-inline cv::Mat extract_texture(Mesh mesh, cv::Mat affine_camera_matrix, cv::Mat image, TextureInterpolation mapping_type, int isomap_resolution = 512)
+inline cv::Mat extract_texture(Mesh mesh, cv::Mat affine_camera_matrix, cv::Mat image, TextureInterpolation mapping_type = TextureInterpolation::NearestNeighbour, int isomap_resolution = 512)
 {
 	// Render the model to get a depth buffer:
 	cv::Mat depthbuffer;
@@ -86,7 +86,7 @@ inline cv::Mat extract_texture(Mesh mesh, cv::Mat affine_camera_matrix, cv::Mat 
  * @param[in] isomap_resolution The resolution of the generated isomap. Defaults to 512x512.
  * @return The extracted texture as isomap (texture map).
  */
-inline cv::Mat extract_texture(Mesh mesh, cv::Mat affine_camera_matrix, cv::Mat image, cv::Mat depthbuffer, TextureInterpolation mapping_type, int isomap_resolution = 512)
+inline cv::Mat extract_texture(Mesh mesh, cv::Mat affine_camera_matrix, cv::Mat image, cv::Mat depthbuffer, TextureInterpolation mapping_type = TextureInterpolation::NearestNeighbour, int isomap_resolution = 512)
 {
 	assert(mesh.vertices.size() == mesh.texcoords.size());
 
