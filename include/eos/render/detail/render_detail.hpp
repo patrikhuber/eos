@@ -36,16 +36,19 @@ namespace eos {
  * Just a representation for a vertex during rendering.
  *
  * Might consider getting rid of it.
+ * Used in render_affine and render.
  */
 class Vertex
 {
 public:
 	Vertex() {};
-	Vertex(const cv::Vec4f& position, const cv::Vec3f& color, const cv::Vec2f& texCoord) : position(position), color(color), texcrd(texCoord) {};
+	Vertex(const cv::Vec4f& position, const cv::Vec3f& color, const cv::Vec2f& texcoords) : position(position), color(color), texcoords(texcoords) {};
 
 	cv::Vec4f position;
-	cv::Vec3f color;
-	cv::Vec2f texcrd;
+	cv::Vec3f color; ///< in RGB order
+	cv::Vec2f texcoords;
+};
+
 class plane
 {
 public:
