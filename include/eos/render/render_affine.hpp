@@ -23,6 +23,7 @@
 #define RENDER_AFFINE_HPP_
 
 #include "eos/render/detail/render_detail.hpp"
+#include "eos/render/detail/render_affine_detail.hpp"
 #include "eos/render/Mesh.hpp"
 
 #include "opencv2/core/core.hpp"
@@ -50,7 +51,7 @@ namespace eos {
  */
 std::pair<cv::Mat, cv::Mat> render_affine(Mesh mesh, cv::Mat affine_camera_matrix, int viewport_width, int viewport_height, bool do_backface_culling = true)
 {
-	assert(mesh.vertices.size() == mesh.colors.size() || mesh.colors.empty());// The number of vertices has to be equal for both shape and colour, or, alternatively, it has to be a shape-only model.
+	assert(mesh.vertices.size() == mesh.colors.size() || mesh.colors.empty()); // The number of vertices has to be equal for both shape and colour, or, alternatively, it has to be a shape-only model.
 	//assert(mesh.vertices.size() == mesh.texcoords.size() || mesh.texcoords.empty()); // same for the texcoords
 
 	using cv::Mat;
@@ -108,7 +109,7 @@ std::pair<cv::Mat, cv::Mat> render_affine(Mesh mesh, cv::Mat affine_camera_matri
 
 	// Raster all triangles, i.e. colour the pixel values and write the z-buffer
 	for (auto&& triangle : triangles_to_raster) {
-		detail::raster_triangle(triangle, colourbuffer, depthbuffer);
+		detail::raster_triangle_affine(triangle, colourbuffer, depthbuffer);
 	}
 	return std::make_pair(colourbuffer, depthbuffer);
 };
