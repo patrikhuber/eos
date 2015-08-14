@@ -53,6 +53,8 @@ inline cv::Mat extract_texture(Mesh mesh, cv::Mat affine_camera_matrix, cv::Mat 
  * Extracts the texture of the face from the given image
  * and stores it as isomap (a rectangular texture map).
  *
+ * Todo: These should be renamed to extract_texture_affine? Can we combine both cases somehow?
+ *
  * @param[in] mesh A mesh with texture coordinates.
  * @param[in] affine_camera_matrix An estimated 3x4 affine camera matrix.
  * @param[in] image The image to extract the texture from.
@@ -77,6 +79,10 @@ inline cv::Mat extract_texture(Mesh mesh, cv::Mat affine_camera_matrix, cv::Mat 
  * This function can be used if a depth buffer has already been computed.
  * To just run the texture extraction, see the overload
  * extract_texture(Mesh, cv::Mat, cv::Mat, TextureInterpolation, int).
+ *
+ * It might be wise to remove this overload as it can get quite confusing
+ * with the zbuffer. Obviously the depthbuffer given should have been created
+ * with the same (affine or ortho) projection matrix than the texture extraction is called with.
  *
  * @param[in] mesh A mesh with texture coordinates.
  * @param[in] affine_camera_matrix An estimated 3x4 affine camera matrix.

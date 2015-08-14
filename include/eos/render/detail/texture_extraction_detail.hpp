@@ -73,6 +73,12 @@ inline bool is_point_in_triangle(cv::Point2f point, cv::Point2f triV0, cv::Point
  * The vertices should be given in screen coordinates, but with their
  * z-values preserved, so they can be compared against the depthbuffer.
  *
+ * Obviously the depthbuffer given should have been created with the same projection
+ * matrix than the texture extraction is called with.
+ *
+ * Also, we don't do perspective-correct interpolation here I think, so only
+ * use it with affine and orthographic projection matrices.
+ *
  * @param[in] v0 First vertex, in screen coordinates (but still with their z-value).
  * @param[in] v1 Second vertex.
  * @param[in] v2 Third vertex.

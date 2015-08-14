@@ -166,11 +166,17 @@ struct TriangleToRasterize
  */
 cv::Rect calculate_clipped_bounding_box(cv::Vec4f v0, cv::Vec4f v1, cv::Vec4f v2, int viewport_width, int viewport_height)
 {
+	/* Old, producing artifacts:
+	t.minX = max(min(t.v0.position[0], min(t.v1.position[0], t.v2.position[0])), 0.0f);
+	t.maxX = min(max(t.v0.position[0], max(t.v1.position[0], t.v2.position[0])), (float)(viewportWidth - 1));
+	t.minY = max(min(t.v0.position[1], min(t.v1.position[1], t.v2.position[1])), 0.0f);
+	t.maxY = min(max(t.v0.position[1], max(t.v1.position[1], t.v2.position[1])), (float)(viewportHeight - 1));*/
+
 	using std::min;
 	using std::max;
 	using std::floor;
 	using std::ceil;
-	int minX = max(min(floor(v0[0]), min(floor(v1[0]), floor(v2[0]))), 0.0f);
+	int minX = max(min(floor(v0[0]), min(floor(v1[0]), floor(v2[0]))), 0.0f); // Readded this comment after merge: What about rounding, or rather the conversion from double to int?
 	int maxX = min(max(ceil(v0[0]), max(ceil(v1[0]), ceil(v2[0]))), static_cast<float>(viewport_width - 1));
 	int minY = max(min(floor(v0[1]), min(floor(v1[1]), floor(v2[1]))), 0.0f);
 	int maxY = min(max(ceil(v0[1]), max(ceil(v1[1]), ceil(v2[1]))), static_cast<float>(viewport_height - 1));

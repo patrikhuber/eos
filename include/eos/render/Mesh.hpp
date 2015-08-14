@@ -49,7 +49,7 @@ namespace eos {
 struct Mesh
 {
 	std::vector<cv::Vec4f> vertices; ///< 3D vertex positions.
-	std::vector<cv::Vec3f> colors; ///< Color information for each vertex. Expected to be in RGB order.
+	std::vector<cv::Vec3f> colors; ///< Colour information for each vertex. Expected to be in RGB order.
 	std::vector<cv::Vec2f> texcoords; ///< Texture coordinates for each vertex.
 
 	std::vector<std::array<int, 3>> tvi; ///< Triangle vertex indices
@@ -145,7 +145,7 @@ inline void write_textured_obj(Mesh mesh, std::string filename)
 	mtl_file << "map_Kd " << texture_filename.string() << std::endl;
 
 	return;
-}
+};
 
 	} /* namespace render */
 } /* namespace eos */
