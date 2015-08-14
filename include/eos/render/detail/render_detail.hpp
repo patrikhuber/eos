@@ -113,6 +113,102 @@ double implicit_line(float x, float y, const cv::Vec4f& v1, const cv::Vec4f& v2)
 	return ((double)v1[1] - (double)v2[1])*(double)x + ((double)v2[0] - (double)v1[0])*(double)y + (double)v1[0] * (double)v2[1] - (double)v2[0] * (double)v1[1];
 };
 
+// used only in tex2D_linear_mipmap_linear
+// template?
+float clamp(float x, float a, float b)
+{
+	return std::max(std::min(x, b), a);
+};
+
+cv::Vec2f texcoord_wrap(const cv::Vec2f& texcoords)
+{
+	return cv::Vec2f(texcoords[0] - (int)texcoords[0], texcoords[1] - (int)texcoords[1]);
+};
+
+// forward decls
+cv::Vec3f tex2d_linear_mipmap_linear(const cv::Vec2f& texcoords, const Texture& texture, float dudx, float dudy, float dvdx, float dvdy);
+cv::Vec3f tex2d_linear(const cv::Vec2f& imageTexCoord, unsigned char mipmapIndex, const Texture& texture);
+
+cv::Vec3f tex2d(const cv::Vec2f& texcoords, const Texture& texture, float dudx, float dudy, float dvdx, float dvdy)
+{
+	return (1.0f / 255.0f) * tex2d_linear_mipmap_linear(texcoords, texture, dudx, dudy, dvdx, dvdy);
+};
+
+cv::Vec3f tex2d_linear_mipmap_linear(const cv::Vec2f& texcoords, const Texture& texture, float dudx, float dudy, float dvdx, float dvdy)
+{
+	using cv::Vec2f;
+	float px = std::sqrt(std::pow(dudx, 2) + std::pow(dvdx, 2));
+	float py = std::sqrt(std::pow(dudy, 2) + std::pow(dvdy, 2));
+	float lambda = std::log(std::max(px, py)) / CV_LOG2;
+	unsigned char mipmapIndex1 = detail::clamp((int)lambda, 0.0f, std::max(texture.widthLog, texture.heightLog) - 1);
+	unsigned char mipmapIndex2 = mipmapIndex1 + 1;
+
+	Vec2f imageTexCoord = detail::texcoord_wrap(texcoords);
+	Vec2f imageTexCoord1 = imageTexCoord;
+	imageTexCoord1[0] *= texture.mipmaps[mipmapIndex1].cols;
+	imageTexCoord1[1] *= texture.mipmaps[mipmapIndex1].rows;
+	Vec2f imageTexCoord2 = imageTexCoord;
+	imageTexCoord2[0] *= texture.mipmaps[mipmapIndex2].cols;
+	imageTexCoord2[1] *= texture.mipmaps[mipmapIndex2].rows;
+
+	cv::Vec3f color, color1, color2;
+	color1 = tex2d_linear(imageTexCoord1, mipmapIndex1, texture);
+	color2 = tex2d_linear(imageTexCoord2, mipmapIndex2, texture);
+	float lambdaFrac = std::max(lambda, 0.0f);
+	lambdaFrac = lambdaFrac - (int)lambdaFrac;
+	color = (1.0f - lambdaFrac)*color1 + lambdaFrac*color2;
+
+	return color;
+};
+
+cv::Vec3f tex2d_linear(const cv::Vec2f& imageTexCoord, unsigned char mipmap_index, const Texture& texture)
+{
+	int x = (int)imageTexCoord[0];
+	int y = (int)imageTexCoord[1];
+	float alpha = imageTexCoord[0] - x;
+	float beta = imageTexCoord[1] - y;
+	float oneMinusAlpha = 1.0f - alpha;
+	float oneMinusBeta = 1.0f - beta;
+	float a = oneMinusAlpha * oneMinusBeta;
+	float b = alpha * oneMinusBeta;
+	float c = oneMinusAlpha * beta;
+	float d = alpha * beta;
+	cv::Vec3f color;
+
+	using cv::Vec4b;
+	//int pixelIndex;
+	//pixelIndex = getPixelIndex_wrap(x, y, texture->mipmaps[mipmapIndex].cols, texture->mipmaps[mipmapIndex].rows);
+	int pixelIndexCol = x; if (pixelIndexCol == texture.mipmaps[mipmap_index].cols) { pixelIndexCol = 0; }
+	int pixelIndexRow = y; if (pixelIndexRow == texture.mipmaps[mipmap_index].rows) { pixelIndexRow = 0; }
+	//std::cout << texture.mipmaps[mipmapIndex].cols << " " << texture.mipmaps[mipmapIndex].rows << " " << texture.mipmaps[mipmapIndex].channels() << std::endl;
+	//cv::imwrite("mm.png", texture.mipmaps[mipmapIndex]);
+	color[0] = a * texture.mipmaps[mipmap_index].at<Vec4b>(pixelIndexRow, pixelIndexCol)[0];
+	color[1] = a * texture.mipmaps[mipmap_index].at<Vec4b>(pixelIndexRow, pixelIndexCol)[1];
+	color[2] = a * texture.mipmaps[mipmap_index].at<Vec4b>(pixelIndexRow, pixelIndexCol)[2];
+
+	//pixelIndex = getPixelIndex_wrap(x + 1, y, texture.mipmaps[mipmapIndex].cols, texture.mipmaps[mipmapIndex].rows);
+	pixelIndexCol = x + 1; if (pixelIndexCol == texture.mipmaps[mipmap_index].cols) { pixelIndexCol = 0; }
+	pixelIndexRow = y; if (pixelIndexRow == texture.mipmaps[mipmap_index].rows) { pixelIndexRow = 0; }
+	color[0] += b * texture.mipmaps[mipmap_index].at<Vec4b>(pixelIndexRow, pixelIndexCol)[0];
+	color[1] += b * texture.mipmaps[mipmap_index].at<Vec4b>(pixelIndexRow, pixelIndexCol)[1];
+	color[2] += b * texture.mipmaps[mipmap_index].at<Vec4b>(pixelIndexRow, pixelIndexCol)[2];
+
+	//pixelIndex = getPixelIndex_wrap(x, y + 1, texture.mipmaps[mipmapIndex].cols, texture.mipmaps[mipmapIndex].rows);
+	pixelIndexCol = x; if (pixelIndexCol == texture.mipmaps[mipmap_index].cols) { pixelIndexCol = 0; }
+	pixelIndexRow = y + 1; if (pixelIndexRow == texture.mipmaps[mipmap_index].rows) { pixelIndexRow = 0; }
+	color[0] += c * texture.mipmaps[mipmap_index].at<Vec4b>(pixelIndexRow, pixelIndexCol)[0];
+	color[1] += c * texture.mipmaps[mipmap_index].at<Vec4b>(pixelIndexRow, pixelIndexCol)[1];
+	color[2] += c * texture.mipmaps[mipmap_index].at<Vec4b>(pixelIndexRow, pixelIndexCol)[2];
+
+	//pixelIndex = getPixelIndex_wrap(x + 1, y + 1, texture.mipmaps[mipmapIndex].cols, texture.mipmaps[mipmapIndex].rows);
+	pixelIndexCol = x + 1; if (pixelIndexCol == texture.mipmaps[mipmap_index].cols) { pixelIndexCol = 0; }
+	pixelIndexRow = y + 1; if (pixelIndexRow == texture.mipmaps[mipmap_index].rows) { pixelIndexRow = 0; }
+	color[0] += d * texture.mipmaps[mipmap_index].at<Vec4b>(pixelIndexRow, pixelIndexCol)[0];
+	color[1] += d * texture.mipmaps[mipmap_index].at<Vec4b>(pixelIndexRow, pixelIndexCol)[1];
+	color[2] += d * texture.mipmaps[mipmap_index].at<Vec4b>(pixelIndexRow, pixelIndexCol)[2];
+
+	return color;
+};
 
 void raster_triangle(TriangleToRasterize triangle, cv::Mat colourbuffer, cv::Mat depthbuffer, boost::optional<Texture> texture, bool enable_far_clipping)
 {
