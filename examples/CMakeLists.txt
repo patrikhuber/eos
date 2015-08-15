@@ -2,7 +2,16 @@ project(examples)
 cmake_minimum_required(VERSION 2.8.10)
 
 # The examples need a few additional dependencies (e.g. boost filesystem and OpenCV highgui):
-find_package(OpenCV 2.4.3 REQUIRED core imgproc highgui)
+
+#check installed version in order to include the correct OpenCV libraries
+#version variable is defined from project root's CMakeLists
+if("${OpenCV_VERSION_MAJOR}$" EQUAL 2)
+  message(STATUS "OpenCV 2.x detected")
+  find_package(OpenCV 2.4.3 REQUIRED core imgproc highgui)
+elseif("${OpenCV_VERSION_MAJOR}$" EQUAL 3)
+  message(STATUS "OpenCV 3.x detected - including imgcodecs for compatibility")
+  find_package(OpenCV 3.0.0 REQUIRED core imgproc imgcodecs)
+endif()
 message(STATUS "OpenCV include dir found at ${OpenCV_INCLUDE_DIRS}")
 message(STATUS "OpenCV lib dir found at ${OpenCV_LIB_DIR}")
 # This allows us to compile in RelWithDebInfo. It'll use the Release-version of OpenCV:
