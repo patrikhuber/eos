@@ -79,6 +79,32 @@ inline cv::Vec2f screen_to_clip_space(const cv::Vec2f& screen_coordinates, int s
 	return cv::Vec2f(x_cs, y_cs);
 };
 
+/**
+ * Draws the texture coordinates (uv-coords) of the given mesh
+ * into an image by looping over the triangles and drawing each
+ * triangle's texcoords.
+ *
+ * @param[in] mesh A mesh with texture coordinates.
+ * @param[in] image An optional image to draw onto.
+ * @return An image with the texture coordinate triangles drawn in it, 512x512 if no image is given.
+ */
+cv::Mat draw_texcoords(Mesh mesh, cv::Mat image = cv::Mat())
+{
+	using cv::Point2f;
+	using cv::Scalar;
+	if (image.empty())
+	{
+		image = cv::Mat(512, 512, CV_8UC4, Scalar(0.0f, 0.0f, 0.0f, 255.0f));
+	}
+
+	for (const auto& triIdx : mesh.tvi) {
+		cv::line(image, Point2f(mesh.texcoords[triIdx[0]][0] * image.cols, mesh.texcoords[triIdx[0]][1] * image.rows), Point2f(mesh.texcoords[triIdx[1]][0] * image.cols, mesh.texcoords[triIdx[1]][1] * image.rows), Scalar(255.0f, 0.0f, 0.0f));
+		cv::line(image, Point2f(mesh.texcoords[triIdx[1]][0] * image.cols, mesh.texcoords[triIdx[1]][1] * image.rows), Point2f(mesh.texcoords[triIdx[2]][0] * image.cols, mesh.texcoords[triIdx[2]][1] * image.rows), Scalar(255.0f, 0.0f, 0.0f));
+		cv::line(image, Point2f(mesh.texcoords[triIdx[2]][0] * image.cols, mesh.texcoords[triIdx[2]][1] * image.rows), Point2f(mesh.texcoords[triIdx[0]][0] * image.cols, mesh.texcoords[triIdx[0]][1] * image.rows), Scalar(255.0f, 0.0f, 0.0f));
+	}
+	return image;
+};
+
 // TODO: Should go to detail:: namespace, or texturing/utils or whatever.
 unsigned int get_max_possible_mipmaps_num(unsigned int width, unsigned int height)
 {
