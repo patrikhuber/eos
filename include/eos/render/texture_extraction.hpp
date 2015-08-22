@@ -95,6 +95,7 @@ inline cv::Mat extract_texture(Mesh mesh, cv::Mat affine_camera_matrix, cv::Mat 
 inline cv::Mat extract_texture(Mesh mesh, cv::Mat affine_camera_matrix, cv::Mat image, cv::Mat depthbuffer, TextureInterpolation mapping_type = TextureInterpolation::NearestNeighbour, int isomap_resolution = 512)
 {
 	assert(mesh.vertices.size() == mesh.texcoords.size());
+	assert(image.type() == CV_8UC3); // the other cases are not yet supported
 
 	using cv::Mat;
 	using cv::Vec2f;
@@ -108,8 +109,8 @@ inline cv::Mat extract_texture(Mesh mesh, cv::Mat affine_camera_matrix, cv::Mat 
 
 	affine_camera_matrix = detail::calculate_affine_z_direction(affine_camera_matrix);
 
-	Mat isomap = Mat::zeros(isomap_resolution, isomap_resolution, CV_8UC3); // #Todo: We do want an alpha channel. Will be added soon-ish.
-	// #Todo: We should handle gray images, but output a 3-channel isomap nevertheless I think.
+	Mat isomap = Mat::zeros(isomap_resolution, isomap_resolution, CV_8UC4); // #Todo: We do want an alpha channel. Will be added soon-ish.
+	// #Todo: We should handle gray images, but output a 4-channel isomap nevertheless I think.
 
 	for (const auto& triangle_indices : mesh.tvi) {
 		// Find out if the current triangle is visible:
