@@ -100,6 +100,7 @@ inline cv::Mat extract_texture(Mesh mesh, cv::Mat affine_camera_matrix, cv::Mat 
 	using cv::Vec2f;
 	using cv::Vec3f;
 	using cv::Vec4f;
+	using cv::Vec3b;
 	using std::min;
 	using std::max;
 	using std::floor;
@@ -159,13 +160,13 @@ inline cv::Mat extract_texture(Mesh mesh, cv::Mat affine_camera_matrix, cv::Mat 
 		for (int x = min(dst_tri[0].x, min(dst_tri[1].x, dst_tri[2].x)); x < max(dst_tri[0].x, max(dst_tri[1].x, dst_tri[2].x)); ++x) {
 			for (int y = min(dst_tri[0].y, min(dst_tri[1].y, dst_tri[2].y)); y < max(dst_tri[0].y, max(dst_tri[1].y, dst_tri[2].y)); ++y) {
 				if (detail::is_point_in_triangle(cv::Point2f(x, y), dst_tri[0], dst_tri[1], dst_tri[2])) {
-					if (mapping_type == TextureInterpolation::Area){
+					if (mapping_type == TextureInterpolation::Area) {
 
 						// calculate positions of 4 corners of pixel in image (src)
-						Vec3f homogenous_dst_upper_left(x - 0.5, y - 0.5, 1.f);
-						Vec3f homogenous_dst_upper_right(x + 0.5, y - 0.5, 1.f);
-						Vec3f homogenous_dst_lower_left(x - 0.5, y + 0.5, 1.f);
-						Vec3f homogenous_dst_lower_right(x + 0.5, y + 0.5, 1.f);
+						Vec3f homogenous_dst_upper_left(x - 0.5f, y - 0.5f, 1.0f);
+						Vec3f homogenous_dst_upper_right(x + 0.5f, y - 0.5f, 1.0f);
+						Vec3f homogenous_dst_lower_left(x - 0.5f, y + 0.5f, 1.0f);
+						Vec3f homogenous_dst_lower_right(x + 0.5f, y + 0.5f, 1.0f);
 
 						Vec2f src_texel_upper_left = Mat(warp_mat_org_inv * Mat(homogenous_dst_upper_left));
 						Vec2f src_texel_upper_right = Mat(warp_mat_org_inv * Mat(homogenous_dst_upper_right));
@@ -187,35 +188,37 @@ inline cv::Mat extract_texture(Mesh mesh, cv::Mat affine_camera_matrix, cv::Mat 
 								if (detail::is_point_in_triangle(cv::Point2f(a, b), src_texel_upper_left, src_texel_lower_left, src_texel_upper_right) || detail::is_point_in_triangle(cv::Point2f(a, b), src_texel_lower_left, src_texel_upper_right, src_texel_lower_right)) {
 									if (a < image.cols && b < image.rows) { // if src_texel in triangle and in image
 										num_texels++;
-										color += image.at<cv::Vec3b>(b, a);
+										color += image.at<Vec3b>(b, a);
 									}
 								}
 							}
 						}
 						if (num_texels > 0)
 							color = color / num_texels;
-						else { // if no corresponding texel found, nearest neighbor interpolation
+						else { // if no corresponding texel found, nearest neighbour interpolation
 							// calculate corresponding position of dst_coord pixel center in image (src)
-							Vec3f homogenous_dst_coord = Vec3f(x, y, 1.f);
+							Vec3f homogenous_dst_coord = Vec3f(x, y, 1.0f);
 							Vec2f src_texel = Mat(warp_mat_org_inv * Mat(homogenous_dst_coord));
 
 							if ((cvRound(src_texel[1]) < image.rows) && cvRound(src_texel[0]) < image.cols) {
-								color = image.at<cv::Vec3b>(cvRound(src_texel[1]), cvRound(src_texel[0]));
+								color = image.at<Vec3b>(cvRound(src_texel[1]), cvRound(src_texel[0]));
 							}
 						}
-						isomap.at<cv::Vec3b>(y, x) = color;
+						isomap.at<Vec3b>(y, x) = color;
 					}
 					else if (mapping_type == TextureInterpolation::Bilinear) {
 
 						// calculate corresponding position of dst_coord pixel center in image (src)
-						Vec3f homogenous_dst_coord(x, y, 1.f);
+						Vec3f homogenous_dst_coord(x, y, 1.0f);
 						Vec2f src_texel = Mat(warp_mat_org_inv * Mat(homogenous_dst_coord));
 
 						// calculate distances to next 4 pixels
-						float distance_upper_left = sqrt(powf(src_texel[0] - floor(src_texel[0]), 2) + powf(src_texel[1] - floor(src_texel[1]), 2));
-						float distance_upper_right = sqrt(powf(src_texel[0] - floor(src_texel[0]), 2) + powf(src_texel[1] - ceil(src_texel[1]), 2));
-						float distance_lower_left = sqrt(powf(src_texel[0] - ceil(src_texel[0]), 2) + powf(src_texel[1] - floor(src_texel[1]), 2));
-						float distance_lower_right = sqrt(powf(src_texel[0] - ceil(src_texel[0]), 2) + powf(src_texel[1] - ceil(src_texel[1]), 2));
+						using std::sqrt;
+						using std::pow;
+						float distance_upper_left = sqrt(pow(src_texel[0] - floor(src_texel[0]), 2) + pow(src_texel[1] - floor(src_texel[1]), 2));
+						float distance_upper_right = sqrt(pow(src_texel[0] - floor(src_texel[0]), 2) + pow(src_texel[1] - ceil(src_texel[1]), 2));
+						float distance_lower_left = sqrt(pow(src_texel[0] - ceil(src_texel[0]), 2) + pow(src_texel[1] - floor(src_texel[1]), 2));
+						float distance_lower_right = sqrt(pow(src_texel[0] - ceil(src_texel[0]), 2) + pow(src_texel[1] - ceil(src_texel[1]), 2));
 
 						// normalise distances
 						float sum_distances = distance_lower_left + distance_lower_right + distance_upper_left + distance_upper_right;
@@ -225,19 +228,19 @@ inline cv::Mat extract_texture(Mesh mesh, cv::Mat affine_camera_matrix, cv::Mat 
 						distance_upper_right /= sum_distances;
 
 						// set color depending on distance from next 4 pixels
-						for (int color = 0; color < 3; color++){
-							float color_upper_left = image.at<cv::Vec3b>(floor(src_texel[1]), floor(src_texel[0]))[color] * distance_upper_left;
-							float color_upper_right = image.at<cv::Vec3b>(floor(src_texel[1]), ceil(src_texel[0]))[color] * distance_upper_right;
-							float color_lower_left = image.at<cv::Vec3b>(ceil(src_texel[1]), floor(src_texel[0]))[color] * distance_lower_left;
-							float color_lower_right = image.at<cv::Vec3b>(ceil(src_texel[1]), ceil(src_texel[0]))[color] * distance_lower_right;
+						for (int color = 0; color < 3; ++color) {
+							float color_upper_left = image.at<Vec3b>(floor(src_texel[1]), floor(src_texel[0]))[color] * distance_upper_left;
+							float color_upper_right = image.at<Vec3b>(floor(src_texel[1]), ceil(src_texel[0]))[color] * distance_upper_right;
+							float color_lower_left = image.at<Vec3b>(ceil(src_texel[1]), floor(src_texel[0]))[color] * distance_lower_left;
+							float color_lower_right = image.at<Vec3b>(ceil(src_texel[1]), ceil(src_texel[0]))[color] * distance_lower_right;
 
-							isomap.at<cv::Vec3b>(y, x)[color] = color_upper_left + color_upper_right + color_lower_left + color_lower_right;
+							isomap.at<Vec3b>(y, x)[color] = color_upper_left + color_upper_right + color_lower_left + color_lower_right;
 						}
 					}
 					else if (mapping_type == TextureInterpolation::NearestNeighbour) {
 
 						// calculate corresponding position of dst_coord pixel center in image (src)
-						Vec3f homogenous_dst_coord = Vec3f(x, y, 1.f);
+						Vec3f homogenous_dst_coord = Vec3f(x, y, 1.0f);
 						Vec2f src_texel = Mat(warp_mat_org_inv * Mat(homogenous_dst_coord));
 
 						if ((cvRound(src_texel[1]) < image.rows) && (cvRound(src_texel[0]) < image.cols))
