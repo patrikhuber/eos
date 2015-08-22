@@ -152,57 +152,68 @@ class Texture
 public:
 	// Todo: This whole class needs a major overhaul and documentation.
 
-	// throws: ocv exc,  runtime_ex
-	void create_mipmapped_texture(cv::Mat image, unsigned int mipmapsNum = 0) {
-
-		this->mipmaps_num = (mipmapsNum == 0 ? get_max_possible_mipmaps_num(image.cols, image.rows) : mipmapsNum);
-		/*if (mipmapsNum == 0)
-		{
-		uchar mmn = render::utils::MatrixUtils::getMaxPossibleMipmapsNum(image.cols, image.rows);
-		this->mipmapsNum = mmn;
-		} else
-		{
-		this->mipmapsNum = mipmapsNum;
-		}*/
-
-		if (this->mipmaps_num > 1)
-		{
-			if (!is_power_of_two(image.cols) || !is_power_of_two(image.rows))
-			{
-				throw std::runtime_error("Error: Couldn't generate mipmaps, width or height not power of two.");
-			}
-		}
-		image.convertTo(image, CV_8UC4);	// Most often, the input img is CV_8UC3. Img is BGR. Add an alpha channel
-		cv::cvtColor(image, image, CV_BGR2BGRA);
-
-		int currWidth = image.cols;
-		int currHeight = image.rows;
-		for (int i = 0; i < this->mipmaps_num; i++)
-		{
-			if (i == 0) {
-				mipmaps.push_back(image);
-			}
-			else {
-				cv::Mat currMipMap(currHeight, currWidth, CV_8UC4);
-				cv::resize(mipmaps[i - 1], currMipMap, currMipMap.size());
-				mipmaps.push_back(currMipMap);
-			}
-
-			if (currWidth > 1)
-				currWidth >>= 1;
-			if (currHeight > 1)
-				currHeight >>= 1;
-		}
-		this->widthLog = (uchar)(std::log(mipmaps[0].cols) / CV_LOG2 + 0.0001f); // std::epsilon or something? or why 0.0001f here?
-		this->heightLog = (uchar)(std::log(mipmaps[0].rows) / CV_LOG2 + 0.0001f); // Changed std::logf to std::log because it doesnt compile in linux (gcc 4.8). CHECK THAT
-	};
-
 	std::vector<cv::Mat> mipmaps;	// make Texture a friend class of renderer, then move this to private?
 	unsigned char widthLog, heightLog; // log2 of width and height of the base mip-level
 
-private:
+//private:
 	//std::string filename;
 	unsigned int mipmaps_num;
+};
+
+// throws: ocv exc,  runtime_ex
+Texture create_mipmapped_texture(cv::Mat image, unsigned int mipmapsNum = 0) {
+	assert(image.type() == CV_8UC3 || image.type() == CV_8UC4);
+
+	Texture texture;
+
+	texture.mipmaps_num = (mipmapsNum == 0 ? get_max_possible_mipmaps_num(image.cols, image.rows) : mipmapsNum);
+	/*if (mipmapsNum == 0)
+	{
+	uchar mmn = render::utils::MatrixUtils::getMaxPossibleMipmapsNum(image.cols, image.rows);
+	this->mipmapsNum = mmn;
+	} else
+	{
+	this->mipmapsNum = mipmapsNum;
+	}*/
+
+	if (texture.mipmaps_num > 1)
+	{
+		if (!is_power_of_two(image.cols) || !is_power_of_two(image.rows))
+		{
+			throw std::runtime_error("Error: Couldn't generate mipmaps, width or height not power of two.");
+		}
+	}
+	if (image.type() == CV_8UC3)
+	{
+		image.convertTo(image, CV_8UC4); // Most often, the input img is CV_8UC3. Img is BGR. Add an alpha channel
+		cv::cvtColor(image, image, CV_BGR2BGRA);
+	}
+
+	int currWidth = image.cols;
+	int currHeight = image.rows;
+	std::vector<cv::Mat> mipmaps;
+	for (int i = 0; i < texture.mipmaps_num; i++)
+	{
+		if (i == 0) {
+			mipmaps.push_back(image);
+		}
+		else {
+			cv::Mat currMipMap(currHeight, currWidth, CV_8UC4);
+			cv::resize(mipmaps[i - 1], currMipMap, currMipMap.size());
+			mipmaps.push_back(currMipMap);
+		}
+
+		if (currWidth > 1)
+			currWidth >>= 1;
+		if (currHeight > 1)
+			currHeight >>= 1;
+	}
+	texture.mipmaps = mipmaps;
+	texture.widthLog = (uchar)(std::log(mipmaps[0].cols) / CV_LOG2 + 0.0001f); // std::epsilon or something? or why 0.0001f here?
+	texture.heightLog = (uchar)(std::log(mipmaps[0].rows) / CV_LOG2 + 0.0001f); // Changed std::logf to std::log because it doesnt compile in linux (gcc 4.8). CHECK THAT
+	return texture;
+};
+
 };
 	} /* namespace render */
 } /* namespace eos */
