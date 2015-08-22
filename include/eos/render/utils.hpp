@@ -80,6 +80,24 @@ inline cv::Vec2f screen_to_clip_space(const cv::Vec2f& screen_coordinates, int s
 };
 
 /**
+ * Calculates the normal of a face (or triangle), i.e. the
+ * per-face normal. Return normal will be normalised.
+ * Assumes the triangle is given in CCW order, i.e. vertices
+ * in counterclockwise order on the screen are front-facing.
+ *
+ * @param[in] v0 First vertex.
+ * @param[in] v1 Second vertex.
+ * @param[in] v2 Third vertex.
+ * @return The unit-length normal of the given triangle.
+ */
+cv::Vec3f calculate_face_normal(const cv::Vec3f& v0, const cv::Vec3f& v1, const cv::Vec3f& v2)
+{
+	cv::Vec3f n = (v1 - v0).cross(v2 - v0); // v0-to-v1 x v0-to-v2
+	n /= cv::norm(n);
+	return n;
+};
+
+/**
  * Draws the texture coordinates (uv-coords) of the given mesh
  * into an image by looping over the triangles and drawing each
  * triangle's texcoords.
