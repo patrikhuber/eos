@@ -96,8 +96,10 @@ set(HEADERS
 	include/eos/fitting/linear_shape_fitting.hpp
 	include/eos/render/Mesh.hpp
 	include/eos/render/utils.hpp
+	include/eos/render/render.hpp
 	include/eos/render/render_affine.hpp
 	include/eos/render/detail/render_detail.hpp
+	include/eos/render/detail/render_affine_detail.hpp
 	include/eos/render/texture_extraction.hpp
 	include/eos/render/detail/texture_extraction_detail.hpp
 )
