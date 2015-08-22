@@ -22,6 +22,8 @@
 #ifndef RENDER_UTILS_HPP_
 #define RENDER_UTILS_HPP_
 
+#include "eos/render/Mesh.hpp"
+
 #include "opencv2/core/core.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 
