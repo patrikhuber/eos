@@ -243,7 +243,7 @@ inline cv::Mat extract_texture(Mesh mesh, cv::Mat affine_camera_matrix, cv::Mat 
 						Vec3f homogenous_dst_coord = Vec3f(x, y, 1.0f);
 						Vec2f src_texel = Mat(warp_mat_org_inv * Mat(homogenous_dst_coord));
 
-						if ((cvRound(src_texel[1]) < image.rows) && (cvRound(src_texel[0]) < image.cols))
+						if ((cvRound(src_texel[1]) < image.rows) && (cvRound(src_texel[0]) < image.cols) && cvRound(src_texel[0]) > 0 && cvRound(src_texel[1]) > 0)
 							isomap.at<cv::Vec3b>(y, x) = image.at<cv::Vec3b>(cvRound(src_texel[1]), cvRound(src_texel[0]));
 					}
 				}
