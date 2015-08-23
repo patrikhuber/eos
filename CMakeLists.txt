@@ -38,7 +38,7 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 	if(HAS_CXX14_FLAG)
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 	endif()
-else()
+else() # no GNU, no MSVC, no Clang
 	message(WARNING "You are using an unsupported compiler. Compilation has only been tested with MSVC, GCC and Clang.")
 	check_cxx_compiler_flag(-std=c++14 HAS_CXX14_FLAG)
 	if(HAS_CXX14_FLAG)
