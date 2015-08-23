@@ -178,7 +178,6 @@ int main(int argc, char *argv[])
 	vector<Vec2f> image_points; // the corresponding 2D landmark points
 
 	// Sub-select all the landmarks which we have a mapping for (i.e. that are defined in the 3DMM):
-	//std::transform(begin(landmarks), end(landmarks), begin(landmarks), [&landmark_mapper](const Landmark<Vec2f>& lm) {  });
 	for (int i = 0; i < landmarks.size(); ++i) {
 		auto converted_name = landmark_mapper.convert(landmarks[i].name);
 		if (!converted_name) { // no mapping defined for the current landmark
@@ -191,42 +190,27 @@ int main(int argc, char *argv[])
 		image_points.emplace_back(landmarks[i].coordinates);
 	}
 
-	// Estimate the camera from the 2D - 3D point correspondences
+	// Estimate the camera (pose) from the 2D - 3D point correspondences
 	Mat affine_cam = fitting::estimate_affine_camera(image_points, model_points);
-
-	// Draw the mean-face landmarks projected using the estimated camera:
-	for (auto&& vertex : model_points) {
-		Vec2f screen_point(Mat(affine_cam * Mat(vertex)).at<float>(0), Mat(affine_cam * Mat(vertex)).at<float>(1));
-		cv::circle(outimg, cv::Point2f(screen_point), 5, { 0.0f, 255.0f, 0.0f });
-	}
 
 	// Estimate the shape coefficients by fitting the shape to the landmarks:
 	vector<float> fitted_coeffs = fitting::fit_shape_to_landmarks_linear(morphable_model, affine_cam, image_points, vertex_indices);
 
-	// Obtain the full mesh and draw it using the estimated camera:
+	// Obtain the full mesh with the estimated coefficients:
 	render::Mesh mesh = morphable_model.draw_sample(fitted_coeffs, vector<float>());
+
+	// Extract the texture from the image using given mesh and camera parameters:
+	Mat isomap = render::extract_texture(mesh, affine_cam, image);
+
+	// Save the mesh as textured obj:
 	outputfile += fs::path(".obj");
-	render::write_textured_obj(mesh, outputfile.string()); // save the mesh as obj
+	render::write_textured_obj(mesh, outputfile.string());
 
-	// Draw the projected points again, this time using the fitted model shape:
-	for (auto&& idx : vertex_indices) {
-		Vec4f model_point(mesh.vertices[idx][0], mesh.vertices[idx][1], mesh.vertices[idx][2], mesh.vertices[idx][3]);
-		Vec2f screen_point(Mat(affine_cam * Mat(model_point)).at<float>(0), Mat(affine_cam * Mat(model_point)).at<float>(1));
-		cv::circle(outimg, cv::Point2f(screen_point), 3, { 0.0f, 0.0f, 255.0f });
-	}
-
-	// Save an output image with the landmarks from the different stages:
-	//outputfile.replace_extension(".png");
-	//cv::imwrite(outputfile.string(), outimg);
-	outputfile.replace_extension(".png");
-	cv::imwrite(outputfile.string(), outimg);
-
-	// Extract the texture and save the extracted texture map (isomap):
-	Mat isomap = render::extract_texture(mesh, affine_cam, image, render::TextureInterpolation::NearestNeighbour);
+	// And save the isomap:
 	outputfile.replace_extension(".isomap.png");
 	cv::imwrite(outputfile.string(), isomap);
 
-	cout << "Finished fitting and wrote result image and isomap " << outputfile.string() << "." << endl;
+	cout << "Finished fitting and wrote result mesh and isomap to files with basename " << outputfile.stem().stem() << "." << endl;
 
 	return EXIT_SUCCESS;
 }
