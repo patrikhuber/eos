@@ -54,7 +54,15 @@ inline cv::Mat extract_texture(Mesh mesh, cv::Mat affine_camera_matrix, cv::Mat 
  * Extracts the texture of the face from the given image
  * and stores it as isomap (a rectangular texture map).
  *
+ * Note/#Todo: Only use TextureInterpolation::NearestNeighbour
+ * for the moment, the other methods don't have correct handling of
+ * the alpha channel (and will most likely throw an exception).
+ *
  * Todo: These should be renamed to extract_texture_affine? Can we combine both cases somehow?
+ * Or an overload with RenderingParameters?
+ *
+ * For TextureInterpolation::NearestNeighbour, returns a 4-channel isomap
+ * with the visibility in the 4th channel (0=invis, 255=visible).
  *
  * @param[in] mesh A mesh with texture coordinates.
  * @param[in] affine_camera_matrix An estimated 3x4 affine camera matrix.
@@ -112,7 +120,7 @@ inline cv::Mat extract_texture(Mesh mesh, cv::Mat affine_camera_matrix, cv::Mat 
 
 	affine_camera_matrix = detail::calculate_affine_z_direction(affine_camera_matrix);
 
-	Mat isomap = Mat::zeros(isomap_resolution, isomap_resolution, CV_8UC4); // #Todo: We do want an alpha channel. Will be added soon-ish.
+	Mat isomap = Mat::zeros(isomap_resolution, isomap_resolution, CV_8UC4);
 	// #Todo: We should handle gray images, but output a 4-channel isomap nevertheless I think.
 
 	std::vector<std::future<void>> results;
@@ -132,9 +140,9 @@ inline cv::Mat extract_texture(Mesh mesh, cv::Mat affine_camera_matrix, cv::Mat 
 			// - We transform them later (below) a second time. Only do it once.
 
 			// Project the triangle vertices to screen coordinates, and use the depthbuffer to check whether the triangle is visible:
-			Vec4f v0 = Mat(affine_camera_matrix * Mat(mesh.vertices[triangle_indices[0]]));
-			Vec4f v1 = Mat(affine_camera_matrix * Mat(mesh.vertices[triangle_indices[1]]));
-			Vec4f v2 = Mat(affine_camera_matrix * Mat(mesh.vertices[triangle_indices[2]]));
+			const Vec4f v0 = Mat(affine_camera_matrix * Mat(mesh.vertices[triangle_indices[0]]));
+			const Vec4f v1 = Mat(affine_camera_matrix * Mat(mesh.vertices[triangle_indices[1]]));
+			const Vec4f v2 = Mat(affine_camera_matrix * Mat(mesh.vertices[triangle_indices[2]]));
 
 			if (!detail::is_triangle_visible(v0, v1, v2, depthbuffer))
 			{
@@ -147,7 +155,7 @@ inline cv::Mat extract_texture(Mesh mesh, cv::Mat affine_camera_matrix, cv::Mat 
 			{
 				// Calculate how well visible the current triangle is:
 				// (in essence, the dot product of the viewing direction (0, 0, 1) and the face normal)
-				Vec3f face_normal = calculate_face_normal(Vec3f(Mat(mesh.vertices[triangle_indices[0]]).rowRange(0, 3)), Vec3f(Mat(mesh.vertices[triangle_indices[1]]).rowRange(0, 3)), Vec3f(Mat(mesh.vertices[triangle_indices[2]]).rowRange(0, 3)));
+				const Vec3f face_normal = calculate_face_normal(Vec3f(Mat(mesh.vertices[triangle_indices[0]]).rowRange(0, 3)), Vec3f(Mat(mesh.vertices[triangle_indices[1]]).rowRange(0, 3)), Vec3f(Mat(mesh.vertices[triangle_indices[2]]).rowRange(0, 3)));
 				// Transform the normal to "screen" (kind of "eye") space using the upper 3x3 part of the affine camera matrix (=the translation can be ignored):
 				Vec3f face_normal_transformed = Mat(affine_camera_matrix.rowRange(0, 3).colRange(0, 3) * Mat(face_normal));
 				face_normal_transformed /= cv::norm(face_normal_transformed, cv::NORM_L2); // normalise to unit length
@@ -158,7 +166,7 @@ inline cv::Mat extract_texture(Mesh mesh, cv::Mat affine_camera_matrix, cv::Mat 
 				// * viewing_direction(0.0f, 0.0f, 1.0f) is correct if affine_camera_matrix were only a model_view matrix
 				// * affine_camera_matrix includes glm::ortho, which flips z, so we flip the sign of viewing_direction.
 				// We don't need the dot product since viewing_direction.xy are 0 and .z is 1:
-				float angle = -face_normal_transformed[2]; // flip sign, see above
+				const float angle = -face_normal_transformed[2]; // flip sign, see above
 				assert(angle >= -1.f && angle <= 1.f);
 				// angle is [-1, 1].
 				//  * +1 means   0° (same direction)
@@ -285,8 +293,8 @@ inline cv::Mat extract_texture(Mesh mesh, cv::Mat affine_camera_matrix, cv::Mat 
 						else if (mapping_type == TextureInterpolation::NearestNeighbour) {
 
 							// calculate corresponding position of dst_coord pixel center in image (src)
-							Vec3f homogenous_dst_coord = Vec3f(x, y, 1.0f);
-							Vec2f src_texel = Mat(warp_mat_org_inv * Mat(homogenous_dst_coord));
+							const Mat homogenous_dst_coord(Vec3f(x, y, 1.0f));
+							const Vec2f src_texel = Mat(warp_mat_org_inv * homogenous_dst_coord);
 
 							if ((cvRound(src_texel[1]) < image.rows) && (cvRound(src_texel[0]) < image.cols) && cvRound(src_texel[0]) > 0 && cvRound(src_texel[1]) > 0)
 							{
