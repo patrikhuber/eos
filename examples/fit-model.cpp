@@ -19,7 +19,7 @@
  */
 #include "eos/core/Landmark.hpp"
 #include "eos/core/LandmarkMapper.hpp"
-#include "eos/fitting/affine_camera_estimation.hpp"
+#include "eos/fitting/nonlinear_camera_estimation.hpp"
 #include "eos/fitting/linear_shape_fitting.hpp"
 #include "eos/render/utils.hpp"
 #include "eos/render/texture_extraction.hpp"
@@ -191,16 +191,21 @@ int main(int argc, char *argv[])
 	}
 
 	// Estimate the camera (pose) from the 2D - 3D point correspondences
-	Mat affine_cam = fitting::estimate_affine_camera(image_points, model_points);
+	fitting::OrthographicRenderingParameters rendering_params = fitting::estimate_orthographic_camera(image_points, model_points, image.cols, image.rows);
+	Mat affine_from_ortho = get_3x4_affine_camera_matrix(rendering_params, image.cols, image.rows);
+
+	// The 3D head pose can be recovered as follows:
+	float yaw_angle = glm::degrees(rendering_params.r_y);
+	// and similarly for pitch (r_x) and roll (r_z).
 
 	// Estimate the shape coefficients by fitting the shape to the landmarks:
-	vector<float> fitted_coeffs = fitting::fit_shape_to_landmarks_linear(morphable_model, affine_cam, image_points, vertex_indices);
+	vector<float> fitted_coeffs = fitting::fit_shape_to_landmarks_linear(morphable_model, affine_from_ortho, image_points, vertex_indices);
 
 	// Obtain the full mesh with the estimated coefficients:
 	render::Mesh mesh = morphable_model.draw_sample(fitted_coeffs, vector<float>());
 
 	// Extract the texture from the image using given mesh and camera parameters:
-	Mat isomap = render::extract_texture(mesh, affine_cam, image);
+	Mat isomap = render::extract_texture(mesh, affine_from_ortho, image);
 
 	// Save the mesh as textured obj:
 	outputfile += fs::path(".obj");
