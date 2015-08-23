@@ -64,7 +64,7 @@ struct Frustum
  * The rotation values are given in radians and estimated using the RPY convention.
  * Yaw is applied first to the model, then pitch, then roll (R * P * Y * vertex).
  */
-struct RenderingParameters
+struct OrthographicRenderingParameters
 {
 	float r_x; // Pitch.
 	float r_y; // Yaw. Positive means subject is looking left (we see her right cheek).
