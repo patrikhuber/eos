@@ -19,7 +19,7 @@
  */
 #include "eos/core/Landmark.hpp"
 #include "eos/core/LandmarkMapper.hpp"
-#include "eos/fitting/affine_camera_estimation.hpp"
+#include "eos/fitting/nonlinear_camera_estimation.hpp"
 #include "eos/fitting/linear_shape_fitting.hpp"
 #include "eos/render/utils.hpp"
 #include "eos/render/texture_extraction.hpp"
@@ -120,11 +120,11 @@ int main(int argc, char *argv[])
 		desc.add_options()
 			("help,h",
 				"display the help message")
-			("model,m", po::value<fs::path>(&modelfile)->required(),
+			("model,m", po::value<fs::path>(&modelfile)->required()->default_value("../share/sfm_shape_3448.bin"),
 				"a Morphable Model stored as cereal BinaryArchive")
-			("image,i", po::value<fs::path>(&imagefile)->required()->default_value("data/image_0001.png"),
+			("image,i", po::value<fs::path>(&imagefile)->required()->default_value("data/image_0010.png"),
 				"an input image")
-			("landmarks,l", po::value<fs::path>(&landmarksfile)->required()->default_value("data/image_0001.pts"),
+			("landmarks,l", po::value<fs::path>(&landmarksfile)->required()->default_value("data/image_0010.pts"),
 				"2D landmarks for the image, in ibug .pts format")
 			("mapping,p", po::value<fs::path>(&mappingsfile)->required()->default_value("../share/ibug2did.txt"),
 				"landmark identifier to model vertex number mapping")
@@ -178,7 +178,6 @@ int main(int argc, char *argv[])
 	vector<Vec2f> image_points; // the corresponding 2D landmark points
 
 	// Sub-select all the landmarks which we have a mapping for (i.e. that are defined in the 3DMM):
-	//std::transform(begin(landmarks), end(landmarks), begin(landmarks), [&landmark_mapper](const Landmark<Vec2f>& lm) {  });
 	for (int i = 0; i < landmarks.size(); ++i) {
 		auto converted_name = landmark_mapper.convert(landmarks[i].name);
 		if (!converted_name) { // no mapping defined for the current landmark
@@ -191,42 +190,32 @@ int main(int argc, char *argv[])
 		image_points.emplace_back(landmarks[i].coordinates);
 	}
 
-	// Estimate the camera from the 2D - 3D point correspondences
-	Mat affine_cam = fitting::estimate_affine_camera(image_points, model_points);
+	// Estimate the camera (pose) from the 2D - 3D point correspondences
+	fitting::OrthographicRenderingParameters rendering_params = fitting::estimate_orthographic_camera(image_points, model_points, image.cols, image.rows);
+	Mat affine_from_ortho = get_3x4_affine_camera_matrix(rendering_params, image.cols, image.rows);
 
-	// Draw the mean-face landmarks projected using the estimated camera:
-	for (auto&& vertex : model_points) {
-		Vec2f screen_point(Mat(affine_cam * Mat(vertex)).at<float>(0), Mat(affine_cam * Mat(vertex)).at<float>(1));
-		cv::circle(outimg, cv::Point2f(screen_point), 5, { 0.0f, 255.0f, 0.0f });
-	}
+	// The 3D head pose can be recovered as follows:
+	float yaw_angle = glm::degrees(rendering_params.r_y);
+	// and similarly for pitch (r_x) and roll (r_z).
 
 	// Estimate the shape coefficients by fitting the shape to the landmarks:
-	vector<float> fitted_coeffs = fitting::fit_shape_to_landmarks_linear(morphable_model, affine_cam, image_points, vertex_indices);
+	vector<float> fitted_coeffs = fitting::fit_shape_to_landmarks_linear(morphable_model, affine_from_ortho, image_points, vertex_indices);
 
-	// Obtain the full mesh and draw it using the estimated camera:
+	// Obtain the full mesh with the estimated coefficients:
 	render::Mesh mesh = morphable_model.draw_sample(fitted_coeffs, vector<float>());
+
+	// Extract the texture from the image using given mesh and camera parameters:
+	Mat isomap = render::extract_texture(mesh, affine_from_ortho, image);
+
+	// Save the mesh as textured obj:
 	outputfile += fs::path(".obj");
-	render::write_textured_obj(mesh, outputfile.string()); // save the mesh as obj
+	render::write_textured_obj(mesh, outputfile.string());
 
-	// Draw the projected points again, this time using the fitted model shape:
-	for (auto&& idx : vertex_indices) {
-		Vec4f model_point(mesh.vertices[idx][0], mesh.vertices[idx][1], mesh.vertices[idx][2], mesh.vertices[idx][3]);
-		Vec2f screen_point(Mat(affine_cam * Mat(model_point)).at<float>(0), Mat(affine_cam * Mat(model_point)).at<float>(1));
-		cv::circle(outimg, cv::Point2f(screen_point), 3, { 0.0f, 0.0f, 255.0f });
-	}
-
-	// Save an output image with the landmarks from the different stages:
-	//outputfile.replace_extension(".png");
-	//cv::imwrite(outputfile.string(), outimg);
-	outputfile.replace_extension(".png");
-	cv::imwrite(outputfile.string(), outimg);
-
-	// Extract the texture and save the extracted texture map (isomap):
-	Mat isomap = render::extract_texture(mesh, affine_cam, image, render::TextureInterpolation::NearestNeighbour);
+	// And save the isomap:
 	outputfile.replace_extension(".isomap.png");
 	cv::imwrite(outputfile.string(), isomap);
 
-	cout << "Finished fitting and wrote result image and isomap " << outputfile.string() << "." << endl;
+	cout << "Finished fitting and wrote result mesh and isomap to files with basename " << outputfile.stem().stem() << "." << endl;
 
 	return EXIT_SUCCESS;
 }

@@ -25,6 +25,7 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 		endif()
 	endif()
+	# Note: gcc is fine without -pthreads.
 elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC") # the quotes are needed here, maybe because "MSVC" seems to be a keyword
 	if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19)
 		message(FATAL_ERROR "Visual Studio 2015 or newer is required.")
@@ -38,7 +39,10 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 	if(HAS_CXX14_FLAG)
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 	endif()
-else()
+	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pthreads")
+	# Eigen::LevenbergMarquardt probably needs -pthreads.
+	# Cleaner way would be to add it to fit-model's target_link_libraries, but that requires a CMake >2.8.10.
+else() # no GNU, no MSVC, no Clang
 	message(WARNING "You are using an unsupported compiler. Compilation has only been tested with MSVC, GCC and Clang.")
 	check_cxx_compiler_flag(-std=c++14 HAS_CXX14_FLAG)
 	if(HAS_CXX14_FLAG)
@@ -96,8 +100,10 @@ set(HEADERS
 	include/eos/fitting/linear_shape_fitting.hpp
 	include/eos/render/Mesh.hpp
 	include/eos/render/utils.hpp
+	include/eos/render/render.hpp
 	include/eos/render/render_affine.hpp
 	include/eos/render/detail/render_detail.hpp
+	include/eos/render/detail/render_affine_detail.hpp
 	include/eos/render/texture_extraction.hpp
 	include/eos/render/detail/texture_extraction_detail.hpp
 )
