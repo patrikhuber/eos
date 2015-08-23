@@ -214,7 +214,6 @@ Texture create_mipmapped_texture(cv::Mat image, unsigned int mipmapsNum = 0) {
 	return texture;
 };
 
-};
 	} /* namespace render */
 } /* namespace eos */
 

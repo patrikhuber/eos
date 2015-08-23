@@ -208,8 +208,8 @@ OrthographicRenderingParameters estimate_orthographic_camera(std::vector<cv::Vec
 	auto info = lm.minimize(parameters); // we could or should use the return value
 	// 'parameters' contains the solution now.
 
-	Frustum camera_frustum{ -1.0f * aspect * parameters[5], 1.0f * aspect * parameters[5], -1.0f * parameters[5], 1.0f * parameters[5] };
-	return RenderingParameters{ static_cast<float>(parameters[0]), static_cast<float>(parameters[1]), static_cast<float>(parameters[2]), static_cast<float>(parameters[3]), static_cast<float>(parameters[4]), camera_frustum };
+	Frustum camera_frustum{ -1.0f * aspect * static_cast<float>(parameters[5]), 1.0f * aspect * static_cast<float>(parameters[5]), -1.0f * static_cast<float>(parameters[5]), 1.0f * static_cast<float>(parameters[5]) };
+	return OrthographicRenderingParameters{ static_cast<float>(parameters[0]), static_cast<float>(parameters[1]), static_cast<float>(parameters[2]), static_cast<float>(parameters[3]), static_cast<float>(parameters[4]), camera_frustum };
 };
 
 	} /* namespace fitting */
