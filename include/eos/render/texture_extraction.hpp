@@ -48,7 +48,7 @@ enum class TextureInterpolation {
 };
 
 // Just a forward declaration
-inline cv::Mat extract_texture(Mesh mesh, cv::Mat affine_camera_matrix, cv::Mat image, cv::Mat depthbuffer, TextureInterpolation mapping_type, int isomap_resolution);
+inline cv::Mat extract_texture(Mesh mesh, cv::Mat affine_camera_matrix, cv::Mat image, cv::Mat depthbuffer, bool compute_view_angle, TextureInterpolation mapping_type, int isomap_resolution);
 
 /**
  * Extracts the texture of the face from the given image
@@ -58,12 +58,13 @@ inline cv::Mat extract_texture(Mesh mesh, cv::Mat affine_camera_matrix, cv::Mat 
  *
  * @param[in] mesh A mesh with texture coordinates.
  * @param[in] affine_camera_matrix An estimated 3x4 affine camera matrix.
- * @param[in] image The image to extract the texture from.
+ * @param[in] image The image to extract the texture from. Should be 8UC3, other types not supported yet.
+ * @param[in] compute_view_angle A flag whether the view angle of each vertex should be computed and returned. If set to true, the angle will be encoded into the alpha channel (0 meaning occluded or facing away 90°, 127 meaning facing a 45° angle and 255 meaning front-facing, and all values in between). If set to false, the alpha channel will only contain 0 for occluded vertices and 255 for visible vertices.
  * @param[in] mapping_type The interpolation type to be used for the extraction.
  * @param[in] isomap_resolution The resolution of the generated isomap. Defaults to 512x512.
  * @return The extracted texture as isomap (texture map).
  */
-inline cv::Mat extract_texture(Mesh mesh, cv::Mat affine_camera_matrix, cv::Mat image, TextureInterpolation mapping_type = TextureInterpolation::NearestNeighbour, int isomap_resolution = 512)
+inline cv::Mat extract_texture(Mesh mesh, cv::Mat affine_camera_matrix, cv::Mat image, bool compute_view_angle = false, TextureInterpolation mapping_type = TextureInterpolation::NearestNeighbour, int isomap_resolution = 512)
 {
 	// Render the model to get a depth buffer:
 	cv::Mat depthbuffer;
@@ -71,7 +72,7 @@ inline cv::Mat extract_texture(Mesh mesh, cv::Mat affine_camera_matrix, cv::Mat 
 	// Note: There's potential for optimisation here - we don't need to do everything that is done in render_affine to just get the depthbuffer.
 
 	// Now forward the call to the actual texture extraction function:
-	return extract_texture(mesh, affine_camera_matrix, image, depthbuffer, mapping_type, isomap_resolution);
+	return extract_texture(mesh, affine_camera_matrix, image, depthbuffer, compute_view_angle, mapping_type, isomap_resolution);
 };
 
 /**
@@ -89,11 +90,12 @@ inline cv::Mat extract_texture(Mesh mesh, cv::Mat affine_camera_matrix, cv::Mat 
  * @param[in] affine_camera_matrix An estimated 3x4 affine camera matrix.
  * @param[in] image The image to extract the texture from.
  * @param[in] depthbuffer A pre-calculated depthbuffer image.
+ * @param[in] compute_view_angle A flag whether the view angle of each vertex should be computed and returned. If set to true, the angle will be encoded into the alpha channel (0 meaning occluded or facing away 90°, 127 meaning facing a 45° angle and 255 meaning front-facing, and all values in between). If set to false, the alpha channel will only contain 0 for occluded vertices and 255 for visible vertices.
  * @param[in] mapping_type The interpolation type to be used for the extraction.
  * @param[in] isomap_resolution The resolution of the generated isomap. Defaults to 512x512.
  * @return The extracted texture as isomap (texture map).
  */
-inline cv::Mat extract_texture(Mesh mesh, cv::Mat affine_camera_matrix, cv::Mat image, cv::Mat depthbuffer, TextureInterpolation mapping_type = TextureInterpolation::NearestNeighbour, int isomap_resolution = 512)
+inline cv::Mat extract_texture(Mesh mesh, cv::Mat affine_camera_matrix, cv::Mat image, cv::Mat depthbuffer, bool compute_view_angle = false, TextureInterpolation mapping_type = TextureInterpolation::NearestNeighbour, int isomap_resolution = 512)
 {
 	assert(mesh.vertices.size() == mesh.texcoords.size());
 	assert(image.type() == CV_8UC3); // the other cases are not yet supported
@@ -116,7 +118,8 @@ inline cv::Mat extract_texture(Mesh mesh, cv::Mat affine_camera_matrix, cv::Mat 
 	std::vector<std::future<void>> results;
 	for (const auto& triangle_indices : mesh.tvi) {
 
-		auto extract_triangle = [&mesh, &affine_camera_matrix, triangle_indices = triangle_indices, &depthbuffer, &isomap, &mapping_type, &image]() {
+		// Note: If there's a performance problem, there's no need to capture the whole mesh - we could capture only the three required vertices with their texcoords.
+		auto extract_triangle = [&mesh, &affine_camera_matrix, &triangle_indices, &depthbuffer, &isomap, &mapping_type, &image, &compute_view_angle]() {
 
 			// Find out if the current triangle is visible:
 			// We do a second rendering-pass here. We use the depth-buffer of the final image, and then, here,
@@ -137,6 +140,41 @@ inline cv::Mat extract_texture(Mesh mesh, cv::Mat affine_camera_matrix, cv::Mat 
 			{
 				//continue;
 				return;
+			}
+
+			float alpha_value;
+			if (compute_view_angle)
+			{
+				// Calculate how well visible the current triangle is:
+				// (in essence, the dot product of the viewing direction (0, 0, 1) and the face normal)
+				Vec3f face_normal = calculate_face_normal(Vec3f(Mat(mesh.vertices[triangle_indices[0]]).rowRange(0, 3)), Vec3f(Mat(mesh.vertices[triangle_indices[1]]).rowRange(0, 3)), Vec3f(Mat(mesh.vertices[triangle_indices[2]]).rowRange(0, 3)));
+				// Transform the normal to "screen" (kind of "eye") space using the upper 3x3 part of the affine camera matrix (=the translation can be ignored):
+				Vec3f face_normal_transformed = Mat(affine_camera_matrix.rowRange(0, 3).colRange(0, 3) * Mat(face_normal));
+				face_normal_transformed /= cv::norm(face_normal_transformed, cv::NORM_L2); // normalise to unit length
+				// Implementation notes regarding the affine camera matrix and the sign:
+				// If the matrix given were the model_view matrix, the sign would be correct.
+				// However, affine_camera_matrix includes glm::ortho, which includes a z-flip.
+				// So we need to flip one of the two signs.
+				// * viewing_direction(0.0f, 0.0f, 1.0f) is correct if affine_camera_matrix were only a model_view matrix
+				// * affine_camera_matrix includes glm::ortho, which flips z, so we flip the sign of viewing_direction.
+				// We don't need the dot product since viewing_direction.xy are 0 and .z is 1:
+				float angle = -face_normal_transformed[2]; // flip sign, see above
+				assert(angle >= -1.f && angle <= 1.f);
+				// angle is [-1, 1].
+				//  * +1 means   0° (same direction)
+				//  *  0 means  90°
+				//  * -1 means 180° (facing opposite directions)
+				// It's a linear relation, so +0.5 is 45° etc.
+				// An angle larger than 90° means the vertex won't be rendered anyway (because it's back-facing) so we encode 0° to 90°.
+				if (angle < 0.0f) {
+					alpha_value = 0.0f;
+				} else {
+					alpha_value = angle * 255.0f;
+				}
+			}
+			else {
+				// no visibility angle computation - if the triangle/pixel is visible, set the alpha chan to 255 (fully visible pixel).
+				alpha_value = 255.0f;
 			}
 
 			// Todo: Documentation
@@ -250,13 +288,14 @@ inline cv::Mat extract_texture(Mesh mesh, cv::Mat affine_camera_matrix, cv::Mat 
 							Vec3f homogenous_dst_coord = Vec3f(x, y, 1.0f);
 							Vec2f src_texel = Mat(warp_mat_org_inv * Mat(homogenous_dst_coord));
 
-						if ((cvRound(src_texel[1]) < image.rows) && (cvRound(src_texel[0]) < image.cols) && cvRound(src_texel[0]) > 0 && cvRound(src_texel[1]) > 0)
-						{
-							cv::Vec4b isomap_pixel;
-							isomap.at<cv::Vec4b>(y, x)[0] = image.at<Vec3b>(cvRound(src_texel[1]), cvRound(src_texel[0]))[0];
-							isomap.at<cv::Vec4b>(y, x)[1] = image.at<Vec3b>(cvRound(src_texel[1]), cvRound(src_texel[0]))[1];
-							isomap.at<cv::Vec4b>(y, x)[2] = image.at<Vec3b>(cvRound(src_texel[1]), cvRound(src_texel[0]))[2];
-							isomap.at<cv::Vec4b>(y, x)[3] = static_cast<uchar>(255); // pixel is visible
+							if ((cvRound(src_texel[1]) < image.rows) && (cvRound(src_texel[0]) < image.cols) && cvRound(src_texel[0]) > 0 && cvRound(src_texel[1]) > 0)
+							{
+								cv::Vec4b isomap_pixel;
+								isomap.at<cv::Vec4b>(y, x)[0] = image.at<Vec3b>(cvRound(src_texel[1]), cvRound(src_texel[0]))[0];
+								isomap.at<cv::Vec4b>(y, x)[1] = image.at<Vec3b>(cvRound(src_texel[1]), cvRound(src_texel[0]))[1];
+								isomap.at<cv::Vec4b>(y, x)[2] = image.at<Vec3b>(cvRound(src_texel[1]), cvRound(src_texel[0]))[2];
+								isomap.at<cv::Vec4b>(y, x)[3] = static_cast<uchar>(alpha_value); // pixel is visible
+							}
 						}
 					}
 				}
