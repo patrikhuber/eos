@@ -1,5 +1,9 @@
 # eos: A lightweight header-only 3D Morphable Model fitting library in modern C++11/14.
+[![GitHub release](http://img.shields.io/github/release/patrikhuber/eos.svg?style=flat-square)][release]
+[![Apache License 2.0](https://img.shields.io/github/license/patrikhuber/eos.svg?style=flat-square)][license]
 
+[release]: https://github.com/patrikhuber/eos/releases
+[license]: https://github.com/patrikhuber/eos/blob/master/LICENSE
 
 Eos is a tiny 3D Morphable Model fitting library that provides just the bare minimum to load a model and perform camera and shape fitting. It's written in modern C++11/14.
 
