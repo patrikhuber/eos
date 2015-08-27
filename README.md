@@ -47,7 +47,9 @@ The output is an `obj` file with the shape and a `png` with the extracted isomap
 
 ## Documentation
 
-The code is fully documented with Doxygen, and an online version of the documentation can be accessed here (todo - add link). Alternatively, an up-to-date version can be built by setting `-DBUILD_DOCUMENTATION=on` and then building the `doc` target.
+Doxygen: http://patrikhuber.github.io/eos/doc/
+
+The [fit-model example](https://github.com/patrikhuber/eos/blob/master/examples/fit-model.cpp) and the [Namespace List](http://patrikhuber.github.io/eos/doc/namespaces.html) in doxygen are a good place to start.
 
 
 ## License & contributions
