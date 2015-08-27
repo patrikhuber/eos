@@ -1,12 +1,18 @@
 # eos: A lightweight header-only 3D Morphable Face Model fitting library in modern C++11/14.
+[![GitHub release](http://img.shields.io/github/release/patrikhuber/eos.svg?style=flat-square)][release]
+[![Apache License 2.0](https://img.shields.io/github/license/patrikhuber/eos.svg?style=flat-square)][license]
 
+[release]: https://github.com/patrikhuber/eos/releases
+[license]: https://github.com/patrikhuber/eos/blob/master/LICENSE
 
 eos is a tiny 3D Morphable Face Model fitting library that provides just the bare minimum to load a model and perform camera and shape fitting. It's written in modern C++11/14.
 
 At the moment, it mainly provides the following functionality:
 
 * MorphableModel class to represent a 3DMM (using OpenCVs `cv::Mat`)
-* Camera estimation, implementation of the _Gold Standard Algorithm_ from Multiple View Geometry, Hartley & Zisserman
+* Camera pose estimation, implementation of:
+  * the _Gold Standard Algorithm_ for estimating an affine camera matrix, from Multiple View Geometry, Hartley & Zisserman
+  * a non-linear algorithm that directly estimates the pose angles and camera translation
 * Shape fitting, implementation of the linear shape-to-landmarks fitting of O. Aldrian & W. Smith, _Inverse Rendering of Faces with a 3D Morphable Model_, PAMI 2013
 * Isomap texture extraction to obtain a pose-invariant representation of the face texture.
 
@@ -39,11 +45,15 @@ See [examples/fit-model.cpp](https://github.com/patrikhuber/eos/blob/master/exam
 
 After `make install` or running the `INSTALL` target, an example image with landmarks can be found in `install/bin/data/`. The model and the necessary landmarks mapping file are installed to `install/share/`.
 
-You can run the example with:
+You can run the example just by running:
+
+`fit-model`
+
+Or, by manually specifying the face model, landmark vertex mappings, an image and its 2D landmarks:
 
 `fit-model -m ../share/sfm_shape_3448.bin -p ../share/ibug2did.txt -i data/image_0010.png -l data/image_0010.pts`
 
-The output is an `obj` file with the shape and a `png` with the extracted isomap. The camera matrix and shape coefficients are available in the code via the API.
+The output is an `obj` file with the shape and a `png` with the extracted isomap. The estimated pose angles and shape coefficients are available in the code via the API.
 
 ## Documentation
 
