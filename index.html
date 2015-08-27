@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="description" content="eos : A lightweight header-only 3D Morphable Face Model fitting library in modern C++11/14">
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>eos</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/patrikhuber/eos">View on GitHub</a>
+
+          <h1 id="project_title">eos</h1>
+          <h2 id="project_tagline">A lightweight header-only 3D Morphable Face Model fitting library in modern C++11/14</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/patrikhuber/eos/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/patrikhuber/eos/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h1>
+<a id="eos-a-lightweight-header-only-3d-morphable-model-fitting-library-in-modern-c1114" class="anchor" href="#eos-a-lightweight-header-only-3d-morphable-model-fitting-library-in-modern-c1114" aria-hidden="true"><span class="octicon octicon-link"></span></a>eos: A lightweight header-only 3D Morphable Model fitting library in modern C++11/14.</h1>
+
+<p><a href="https://github.com/patrikhuber/eos/releases"><img src="http://img.shields.io/github/release/patrikhuber/eos.svg?style=flat-square" alt="GitHub release"></a>
+<a href="https://github.com/patrikhuber/eos/blob/master/LICENSE"><img src="https://img.shields.io/github/license/patrikhuber/eos.svg?style=flat-square" alt="Apache License 2.0"></a></p>
+
+<p>eos is a tiny 3D Morphable Face Model fitting library that provides just the bare minimum to load a model and perform camera and shape fitting. It's written in modern C++11/14.</p>
+
+<p>At the moment, it mainly provides the following functionality:</p>
+
+<ul>
+<li>MorphableModel class to represent a 3DMM (using OpenCVs <code>cv::Mat</code>)</li>
+<li>Camera pose estimation, implementation of:
+
+<ul>
+<li>the <em>Gold Standard Algorithm</em> for estimating an affine camera matrix, from Multiple View Geometry, Hartley &amp; Zisserman</li>
+<li>a non-linear algorithm that directly estimates the pose angles and camera translation</li>
+</ul>
+</li>
+<li>Shape fitting, implementation of the linear shape-to-landmarks fitting of O. Aldrian &amp; W. Smith, <em>Inverse Rendering of Faces with a 3D Morphable Model</em>, PAMI 2013</li>
+<li>Isomap texture extraction to obtain a pose-invariant representation of the face texture.</li>
+</ul>
+
+<h3>
+<a id="more-information-features-and-sample-code-on-github" class="anchor" href="#more-information-features-and-sample-code-on-github" aria-hidden="true"><span class="octicon octicon-link"></span></a><a href="https://github.com/patrikhuber/superviseddescent">More information, features and sample code on Github</a>
+</h3>
+
+<h3>
+<a id="documentation-doxygen" class="anchor" href="#documentation-doxygen" aria-hidden="true"><span class="octicon octicon-link"></span></a><a href="doc/index.html">Documentation (doxygen)</a>
+</h3>
+
+<h3>
+<a id="license--contributions" class="anchor" href="#license--contributions" aria-hidden="true"><span class="octicon octicon-link"></span></a>License &amp; contributions:</h3>
+
+<p>This code is licensed under the Apache License, Version 2.0</p>
+
+<p>Contributions are very welcome! (best in the form of pull requests.) Please use Github issues for any bug reports, ideas, and discussions.</p>
+
+<p>If you use this code in your own work, please cite the following paper: <em>Fitting 3D Morphable Models using Local Features</em>, P. Huber, Z. Feng, W. Christmas, J. Kittler, M. Rätsch, IEEE International Conference on Image Processing (ICIP) 2015, Québec City, Canada (<a href="http://arxiv.org/abs/1503.02330">http://arxiv.org/abs/1503.02330</a>).</p>
+
+<h3>
+<a id="more-about-my-research-on-patrikhuberch" class="anchor" href="#more-about-my-research-on-patrikhuberch" aria-hidden="true"><span class="octicon octicon-link"></span></a><a href="http://www.patrikhuber.ch">More about my research on patrikhuber.ch</a>
+</h3>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">eos maintained by <a href="https://github.com/patrikhuber">patrikhuber</a></p>
+        <p>Published with <a href="https://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+              <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-58083469-1");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
+
+  </body>
+</html>
