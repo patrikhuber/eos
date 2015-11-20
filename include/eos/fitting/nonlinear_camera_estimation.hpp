@@ -74,6 +74,17 @@ struct OrthographicRenderingParameters
 	Frustum frustum;
 };
 
+struct PerspectiveRenderingParameters
+{
+	float r_x; // Pitch.
+	float r_y; // Yaw. Positive means subject is looking left (we see her right cheek).
+	float r_z; // Roll. Positive means the subject's right eye is further down than the other one (he tilts his head to the right).
+	float t_x;
+	float t_y;
+	float t_z;
+	float fovy;
+};
+
 /**
  * @brief Converts a glm::mat4x4 to a cv::Mat.
  *
@@ -210,6 +221,34 @@ OrthographicRenderingParameters estimate_orthographic_camera(std::vector<cv::Vec
 
 	Frustum camera_frustum{ -1.0f * aspect * static_cast<float>(parameters[5]), 1.0f * aspect * static_cast<float>(parameters[5]), -1.0f * static_cast<float>(parameters[5]), 1.0f * static_cast<float>(parameters[5]) };
 	return OrthographicRenderingParameters{ static_cast<float>(parameters[0]), static_cast<float>(parameters[1]), static_cast<float>(parameters[2]), static_cast<float>(parameters[3]), static_cast<float>(parameters[4]), camera_frustum };
+};
+
+PerspectiveRenderingParameters estimate_perspective_camera(std::vector<cv::Vec2f> image_points, std::vector<cv::Vec4f> model_points, int width, int height)
+{
+	using cv::Mat;
+	assert(image_points.size() == model_points.size());
+	assert(image_points.size() >= 7); // Number of correspondence points given needs to be equal to or larger than 7 (7 now, correct?)
+
+	const float aspect = static_cast<float>(width) / height;
+
+	// Set up the initial parameter vector and the cost function:
+	int num_params = 7;
+	Eigen::VectorXd parameters; // [rot_x_pitch, rot_y_yaw, rot_z_roll, t_x, t_y, t_z, fovy]
+	parameters.setConstant(num_params, 0.0); // Set all 6 values to zero (except frustum_scale, see next line)
+	parameters[5] = -1000.0; // tz. This is just a rough hand-chosen tz estimate - we could do a lot better. //But it works.
+	parameters[6] = 0.55; // 45°. This is just a rough hand-chosen fovy estimate - we could do a lot better. //But it works.
+	detail::PerspectiveParameterProjection cost_function(image_points, model_points, width, height);
+
+	// Note: we have analytical derivatives, so we should use them!
+	Eigen::NumericalDiff<detail::PerspectiveParameterProjection> cost_function_with_derivative(cost_function, 0.0001);
+	// I had to change the default value of epsfcn, it works well around 0.0001. It couldn't produce the derivative with the default, I guess the changes in the gradient were too small.
+
+	Eigen::LevenbergMarquardt<Eigen::NumericalDiff<detail::PerspectiveParameterProjection>> lm(cost_function_with_derivative);
+	auto info = lm.minimize(parameters); // we could or should use the return value
+										 // 'parameters' contains the solution now.
+
+	//Frustum camera_frustum{ -1.0f * aspect * static_cast<float>(parameters[5]), 1.0f * aspect * static_cast<float>(parameters[5]), -1.0f * static_cast<float>(parameters[5]), 1.0f * static_cast<float>(parameters[5]) };
+	return PerspectiveRenderingParameters{ static_cast<float>(parameters[0]), static_cast<float>(parameters[1]), static_cast<float>(parameters[2]), static_cast<float>(parameters[3]), static_cast<float>(parameters[4]), static_cast<float>(parameters[5]), static_cast<float>(parameters[6]) };
 };
 
 	} /* namespace fitting */

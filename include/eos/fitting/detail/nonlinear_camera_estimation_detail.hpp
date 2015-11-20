@@ -119,6 +119,72 @@ private:
 	int height;
 };
 
+
+// Next: PerspectiveCamEsti test
+// ret: 3rd entry is the z
+// radians
+// expects the landmark points to be in opencv convention, i.e. origin TL
+glm::vec3 project_perspective(glm::vec3 point, float rot_x_pitch, float rot_y_yaw, float rot_z_roll, float tx, float ty, float tz, float fovy, /* fixed params now: */ int width, int height)
+{
+	// We could use quaternions in here, to be independent of the RPY... etc convention.
+	// Then, the user can decompose the quaternion as he wishes to. But then we'd have to estimate 4 parameters?
+	// This can of course be optimised, but we keep it this way while we're debugging and as long as it's not a performance issue.
+	auto rot_mtx_x = glm::rotate(glm::mat4(1.0f), rot_x_pitch, glm::vec3{ 1.0f, 0.0f, 0.0f });
+	auto rot_mtx_y = glm::rotate(glm::mat4(1.0f), rot_y_yaw, glm::vec3{ 0.0f, 1.0f, 0.0f });
+	auto rot_mtx_z = glm::rotate(glm::mat4(1.0f), rot_z_roll, glm::vec3{ 0.0f, 0.0f, 1.0f });
+	auto t_mtx = glm::translate(glm::mat4(1.0f), glm::vec3{ tx, ty, tz }); // glm: Col-major memory layout. [] gives the column
+
+	// Note/Todo: Is this the full ortho? n/f missing? or do we need to multiply it with Proj...? See Shirley CG!
+	// glm::frustum()?
+	const float aspect = static_cast<float>(width) / height;
+
+	//auto ortho_mtx = glm::ortho(-1.0f * aspect * frustum_scale, 1.0f * aspect * frustum_scale, -1.0f * frustum_scale, 1.0f * frustum_scale);
+	auto persp_mtx = glm::perspective(fovy, aspect, 1.0f, 2000.0f);
+
+	glm::vec4 viewport(0, height, width, -height); // flips y, origin top-left, like in OpenCV
+	// P = RPY * P
+	glm::vec3 res = glm::project(point, t_mtx * rot_mtx_z * rot_mtx_x * rot_mtx_y, persp_mtx, viewport);
+	return res;
+};
+
+
+/**
+ * @brief LevenbergMarquardt cost function for the orthographic camera estimation.
+ */
+struct PerspectiveParameterProjection : Functor<double>
+{
+public:
+	// Creates a new PerspectiveParameterProjection object with given data.
+	PerspectiveParameterProjection(std::vector<cv::Vec2f> image_points, std::vector<cv::Vec4f> model_points, int width, int height) : Functor<double>(7, image_points.size()), image_points(image_points), model_points(model_points), width(width), height(height) {};
+
+	// x = current params, fvec = the errors/differences of the proj with current params and the GT (image_points)
+	int operator()(const Eigen::VectorXd& x, Eigen::VectorXd& fvec) const
+	{
+		const float aspect = static_cast<float>(width) / height;
+		for (int i = 0; i < values(); i++)
+		{
+			// opencv to glm:
+			glm::vec3 point_3d(model_points[i][0], model_points[i][1], model_points[i][2]);
+			// projection given current params x:
+			glm::vec3 proj_with_current_param_esti = project_perspective(point_3d, x[0], x[1], x[2], x[3], x[4], x[5], x[6], width, height);
+			cv::Vec2f proj_point_2d(proj_with_current_param_esti.x, proj_with_current_param_esti.y);
+			// diff of current proj to ground truth, our error
+			auto diff = cv::norm(proj_point_2d, image_points[i]);
+			// fvec should contain the differences
+			// don't square it.
+			fvec[i] = diff;
+		}
+		return 0;
+	};
+
+private:
+	std::vector<cv::Vec2f> image_points;
+	std::vector<cv::Vec4f> model_points;
+	int width;
+	int height;
+};
+
+
 		} /* namespace detail */
 	} /* namespace fitting */
 } /* namespace eos */
