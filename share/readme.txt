@@ -18,3 +18,7 @@ Files in this directory:
 	The reference 3D shape used to built the model. We make it available so 
 	that new user-defined landmark points can be marked in this lowest-resolution
 	model, if the points exist here.
+
+- reference_symmetry.txt:
+	Contains a list of vertex symmetries of the reference shape, i.e. each
+	vertex's symmetric counterpart. See the top of the file for more information.
