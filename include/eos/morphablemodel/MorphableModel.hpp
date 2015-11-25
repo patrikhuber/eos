@@ -150,7 +150,7 @@ public:
 	 * @param[in] color_coefficients The PCA coefficients used to generate the vertex colouring.
 	 * @return A model instance with given coefficients.
 	 */
-	render::Mesh draw_sample(std::vector<float> shape_coefficients, std::vector<float> color_coefficients)
+	render::Mesh draw_sample(std::vector<float> shape_coefficients, std::vector<float> color_coefficients) const
 	{
 		assert(shape_model.get_data_dimension() == color_model.get_data_dimension() || !has_color_model()); // The number of vertices (= model.getDataDimension() / 3) has to be equal for both models, or, alternatively, it has to be a shape-only model.
 

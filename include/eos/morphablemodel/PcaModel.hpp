@@ -163,7 +163,7 @@ public:
 	 * @param[in] coefficients The PCA coefficients used to generate the sample.
 	 * @return A model instance with given coefficients.
 	 */
-	cv::Mat draw_sample(std::vector<float> coefficients)
+	cv::Mat draw_sample(std::vector<float> coefficients) const
 	{
 		// Fill the rest with zeros if not all coefficients are given:
 		if (coefficients.size() < get_num_principal_components()) {
