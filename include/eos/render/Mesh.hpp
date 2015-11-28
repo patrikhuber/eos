@@ -57,12 +57,12 @@ struct Mesh
 };
 
 /**
- * @brief Writes the given Mesh to an obj file that for example can be read by Meshlab.
+ * @brief Writes the given Mesh to an obj file that for example can be read by MeshLab.
  *
  * If the mesh contains vertex colour information, it will be written to the obj as well.
  *
  * @param[in] mesh The mesh to save as obj.
- * @param[in] filename Output filename.
+ * @param[in] filename Output filename (including ".obj").
  */
 inline void write_obj(Mesh mesh, std::string filename)
 {
