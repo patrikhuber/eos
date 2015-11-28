@@ -33,6 +33,7 @@
 #include <vector>
 #include <array>
 #include <random>
+#include <cassert>
 
 namespace eos {
 	namespace morphablemodel {
@@ -129,9 +130,6 @@ public:
 	cv::Vec4f get_mean_at_point(int vertex_index) const
 	{
 		vertex_index *= 3;
-		if (vertex_index >= mean.rows) {
-			throw std::out_of_range("The given vertex id is larger than the dimension of the mean.");
-		}
 		return cv::Vec4f(mean.at<float>(vertex_index), mean.at<float>(vertex_index + 1), mean.at<float>(vertex_index + 2), 1.0f);
 	};
 
@@ -203,6 +201,7 @@ public:
 	cv::Mat get_normalised_pca_basis(int vertex_id) const
 	{
 		vertex_id *= 3; // the basis is stored in the format [x y z x y z ...]
+		assert(vertex_id < get_data_dimension()); // Make sure the given vertex index isn't larger than the number of model vertices.
 		return normalised_pca_basis.rowRange(vertex_id, vertex_id + 3);
 	};
 
@@ -231,6 +230,7 @@ public:
 	cv::Mat get_unnormalised_pca_basis(int vertex_id) const
 	{
 		vertex_id *= 3; // the basis is stored in the format [x y z x y z ...]
+		assert(vertex_id < get_data_dimension()); // Make sure the given vertex index isn't larger than the number of model vertices.
 		return unnormalised_pca_basis.rowRange(vertex_id, vertex_id + 3);
 	};
 
@@ -242,6 +242,7 @@ public:
 	 */
 	float get_eigenvalue(int index) const
 	{
+		// no assert - OpenCV checks ::at in debug builds
 		return eigenvalues.at<float>(index);
 	};
 
