@@ -120,13 +120,13 @@ namespace eos {
  * @param[in] projection_matrix A 4x4 orthographic or perspective OpenGL projection matrix.
  * @param[in] viewport_width Screen width.
  * @param[in] viewport_height Screen height.
- * @param[in] texture An optional texture map (TODO: Not optional yet!).
+ * @param[in] texture An optional texture map. If not given, vertex-colouring is used.
  * @param[in] enable_backface_culling Whether the renderer should perform backface culling. If true, only draw triangles with vertices ordered CCW in screen-space.
- * @param[in] enable_near_clipping Screen height.
- * @param[in] enable_far_clipping Screen height.
+ * @param[in] enable_near_clipping Whether vertices should be clipped against the near plane.
+ * @param[in] enable_far_clipping Whether vertices should be clipped against the far plane.
  * @return A pair with the colourbuffer as its first element and the depthbuffer as the second element.
  */
-std::pair<cv::Mat, cv::Mat> render(Mesh mesh, cv::Mat model_view_matrix, cv::Mat projection_matrix, int viewport_width, int viewport_height, const Texture& texture, bool enable_backface_culling = false, bool enable_near_clipping = true, bool enable_far_clipping = true)
+std::pair<cv::Mat, cv::Mat> render(Mesh mesh, cv::Mat model_view_matrix, cv::Mat projection_matrix, int viewport_width, int viewport_height, const boost::optional<Texture>& texture = boost::none, bool enable_backface_culling = false, bool enable_near_clipping = true, bool enable_far_clipping = true)
 {
 	// Some internal documentation / old todos or notes:
 	// maybe change and pass depthBuffer as an optional arg (&?), because usually we never need it outside the renderer. Or maybe even a getDepthBuffer().
@@ -233,7 +233,6 @@ std::pair<cv::Mat, cv::Mat> render(Mesh mesh, cv::Mat model_view_matrix, cv::Mat
 	}
 
 	// Fragment/pixel shader: Colour the pixel values
-	// for every tri:
 	for (const auto& tri : triangles_to_raster) {
 		detail::raster_triangle(tri, colourbuffer, depthbuffer, texture, enable_far_clipping);
 	}

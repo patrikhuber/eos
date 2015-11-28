@@ -24,6 +24,12 @@
 
 #include "opencv2/core/core.hpp"
 
+#ifdef WIN32
+	#define BOOST_ALL_DYN_LINK	// Link against the dynamic boost lib. Seems to be necessary because we use /MD, i.e. link to the dynamic CRT.
+	#define BOOST_ALL_NO_LIB	// Don't use the automatic library linking by boost with VS2010 (#pragma ...). Instead, we specify everything in cmake.
+#endif
+#include "boost/optional.hpp"
+
 /**
  * Implementations of internal functions, not part of the
  * API we expose and not meant to be used by a user.
@@ -461,8 +467,7 @@ void raster_triangle(TriangleToRasterize triangle, cv::Mat colourbuffer, cv::Mat
 				const int pixel_index_col = xi;
 
 				const double z_affine = alpha*static_cast<double>(triangle.v0.position[2]) + beta*static_cast<double>(triangle.v1.position[2]) + gamma*static_cast<double>(triangle.v2.position[2]);
-				// The '<= 1.0' clips against the far-plane in NDC. We clip against the near-plane earlier.
-				// TODO: Use enable_far_clipping here.
+				
 				bool draw = true;
 				if (enable_far_clipping)
 				{
@@ -471,6 +476,7 @@ void raster_triangle(TriangleToRasterize triangle, cv::Mat colourbuffer, cv::Mat
 						draw = false;
 					}
 				}
+				// The '<= 1.0' clips against the far-plane in NDC. We clip against the near-plane earlier.
 				//if (z_affine < depthbuffer.at<double>(pixelIndexRow, pixelIndexCol)/* && z_affine <= 1.0*/) // what to do in ortho case without n/f "squashing"? should we always squash? or a flag?
 				if (z_affine < depthbuffer.at<double>(pixel_index_row, pixel_index_col) && draw)
 				{
@@ -482,12 +488,12 @@ void raster_triangle(TriangleToRasterize triangle, cv::Mat colourbuffer, cv::Mat
 					gamma *= d*triangle.one_over_z2;
 
 					// attributes interpolation
-					Vec3f color_persp = alpha*triangle.v0.color + beta*triangle.v1.color + gamma*triangle.v2.color;
+					Vec3f color_persp = alpha*triangle.v0.color + beta*triangle.v1.color + gamma*triangle.v2.color; // Note: color might be empty if we use texturing and the shape-only model - but it works nonetheless? I think I set the vertex-colour to 127 in the shape-only model.
 					Vec2f texcoords_persp = alpha*triangle.v0.texcoords + beta*triangle.v1.texcoords + gamma*triangle.v2.texcoords;
 
 					Vec3f pixel_color;
 					// Pixel Shader:
-					if (texture) {	// We use texturing
+					if (texture) { // We use texturing
 						// check if texture != NULL?
 						// partial derivatives (for mip-mapping)
 						const float u_over_z = -(triangle.alphaPlane.a*x + triangle.alphaPlane.b*y + triangle.alphaPlane.d) * triangle.one_over_alpha_c;
@@ -512,7 +518,7 @@ void raster_triangle(TriangleToRasterize triangle, cv::Mat colourbuffer, cv::Mat
 						// other: color.mul(tex2D(texture, texCoord));
 						// Old note: for texturing, we load the texture as BGRA, so the colors get the wrong way in the next few lines...
 					}
-					else {	// We use vertex-coloring
+					else { // We use vertex-coloring
 						// color_persp is in RGB
 						pixel_color = color_persp;
 					}
