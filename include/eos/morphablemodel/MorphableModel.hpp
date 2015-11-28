@@ -145,6 +145,7 @@ public:
 	 * The coefficient vectors should contain normalised, i.e. standard normal distributed coefficients.
 	 * If the Morphable Model is a shape-only model (without colour model), make sure to
 	 * leave \c color_coefficients empty.
+	 * If a partial coefficient vector is given, it is filled with zeros up to the end.
 	 *
 	 * @param[in] shape_coefficients The PCA coefficients used to generate the shape sample.
 	 * @param[in] color_coefficients The PCA coefficients used to generate the vertex colouring.
@@ -203,7 +204,7 @@ public:
 
 private:
 	PcaModel shape_model; ///< A PCA model of the shape
-	PcaModel color_model; ///< A PCA model of vertex color information
+	PcaModel color_model; ///< A PCA model of vertex colour information
 	std::vector<cv::Vec2f> texture_coordinates; ///< uv-coordinates for every vertex
 
 	/**
