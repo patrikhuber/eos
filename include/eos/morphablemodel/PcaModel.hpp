@@ -38,8 +38,8 @@ namespace eos {
 	namespace morphablemodel {
 
 // Forward declarations of free functions
-cv::Mat normalise_pca_basis(cv::Mat unnormalisedBasis, cv::Mat eigenvalues);
-cv::Mat unnormalise_pca_basis(cv::Mat normalisedBasis, cv::Mat eigenvalues);
+cv::Mat normalise_pca_basis(cv::Mat unnormalised_basis, cv::Mat eigenvalues);
+cv::Mat unnormalise_pca_basis(cv::Mat normalised_basis, cv::Mat eigenvalues);
 
 /**
  * @brief This class represents a PCA-model that consists of:
@@ -82,7 +82,7 @@ public:
 	 */
 	int get_num_principal_components() const
 	{
-		// Note: we could assert(normalisedPcaBasis.cols==unnormalisedPcaBasis.cols)
+		// Note: we could assert(normalised_pca_basis.cols==unnormalised_pca_basis.cols)
 		return normalised_pca_basis.cols;
 	};
 
@@ -96,7 +96,7 @@ public:
 	 */
 	int get_data_dimension() const
 	{
-		// Note: we could assert(normalisedPcaBasis.rows==unnormalisedPcaBasis.rows)
+		// Note: we could assert(normalised_pca_basis.rows==unnormalised_pca_basis.rows)
 		return normalised_pca_basis.rows;
 	};
 
@@ -121,10 +121,10 @@ public:
 	};
 
 	/**
-	 * Return the value of the mean at a given vertex id.
+	 * Return the value of the mean at a given vertex index.
 	 *
-	 * @param[in] vertex_index A vertex id.
-	 * @return A homogeneous vector containing the values at the given vertex id.
+	 * @param[in] vertex_index A vertex index.
+	 * @return A homogeneous vector containing the values at the given vertex index.
 	 */
 	cv::Vec4f get_mean_at_point(int vertex_index) const
 	{
