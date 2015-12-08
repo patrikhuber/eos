@@ -192,7 +192,13 @@ std::pair<std::vector<std::string>, std::vector<int>> select_contour(float yaw_a
  * @param[in] viewport X.
  * @return A tuple with the 2D contour landmark points, the corresponding points in the 3D shape model and their vertex indices.
  */
-std::tuple<std::vector<cv::Vec2f>, std::vector<cv::Vec4f>, std::vector<int>> get_nearest_contour_points(const eos::core::LandmarkCollection<cv::Vec2f>& landmarks, const std::vector<std::string>& landmark_contour_identifiers, const std::vector<int>& model_contour_indices, const morphablemodel::MorphableModel& morphable_model, const glm::mat4x4& view_model, const glm::mat4x4& ortho_projection, const glm::vec4& viewport)
+// actually, only return the vertex id, not the point? Same with get_corresponding_pointset? Because
+// then it's much easier to use the current shape estimate instead of the mean! But this function needs to project.
+// So... it should take a Mesh actually? But creating a Mesh is a lot of computation?
+// When we want to use the non-mean, then we need to use draw_sample() anyway? So overhead of Mesh is only if we use the mean?
+// Maybe two overloads?
+// Note: Uses the mean to calculate.
+std::tuple<std::vector<cv::Vec2f>, std::vector<cv::Vec4f>, std::vector<int>> get_nearest_contour_correspondences(const eos::core::LandmarkCollection<cv::Vec2f>& landmarks, const std::vector<std::string>& landmark_contour_identifiers, const std::vector<int>& model_contour_indices, const morphablemodel::MorphableModel& morphable_model, const glm::mat4x4& view_model, const glm::mat4x4& ortho_projection, const glm::vec4& viewport)
 {
 	// These are the additional contour-correspondences we're going to find and then use!
 	std::vector<cv::Vec4f> model_points_cnt; // the points in the 3D shape model
