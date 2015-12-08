@@ -22,3 +22,26 @@ landmarkMappings ; A mapping from input landmarks (iBug, lhs) to output landmark
 	55   812 ; left mouth corner (13)
 	58   411 ; lower lip middle bottom (17)
 }
+contour_landmarks
+{
+	right {
+		1
+		2
+		3
+		4
+		5
+		6
+		7
+		8
+	}
+	left {
+		10
+		11
+		12
+		13
+		14
+		15
+		16
+		17
+	}
+}
