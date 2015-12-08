@@ -64,7 +64,7 @@ The [fit-model example](https://github.com/patrikhuber/eos/blob/master/examples/
 
 ## License & contributions
 
-This code is licensed under the Apache License, Version 2.0
+This code is licensed under the Apache License, Version 2.0. The 3D morphable face model under [share/sfm_shape_3448.bin](https://github.com/patrikhuber/eos/blob/master/share/sfm_shape_3448.bin) is free for use for non-commercial purposes. For commercial purposes, contact the [Centre for Vision, Speech and Signal Processing](http://www.surrey.ac.uk/cvssp/).
 
 Contributions are very welcome! (best in the form of pull requests.) Please use Github issues for any bug reports, ideas, and discussions.
 
