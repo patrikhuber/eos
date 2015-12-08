@@ -163,7 +163,7 @@ struct ContourLandmarks
  * @param[in] model_contour X.
  * @return A tuple/two vectors... with X. returns ... model_cnt_idx different size than 2d_cnt. Not in correspondence.
  */
-std::pair<std::vector<std::string>, std::vector<int>> select_contour(float yaw_angle, ContourLandmarks contour_landmarks, ModelContour model_contour)
+std::pair<std::vector<std::string>, std::vector<int>> select_contour(float yaw_angle, const ContourLandmarks& contour_landmarks, const ModelContour& model_contour)
 {
 	std::vector<int> model_contour_indices;
 	std::vector<std::string> contour_landmark_identifiers;
@@ -192,7 +192,7 @@ std::pair<std::vector<std::string>, std::vector<int>> select_contour(float yaw_a
  * @param[in] viewport X.
  * @return A tuple with the 2D contour landmark points, the corresponding points in the 3D shape model and their vertex indices.
  */
-std::tuple<std::vector<cv::Vec2f>, std::vector<cv::Vec4f>, std::vector<int>> get_nearest_contour_points(eos::core::LandmarkCollection<cv::Vec2f> landmarks, std::vector<std::string> landmark_contour_identifiers, std::vector<int> model_contour_indices, morphablemodel::MorphableModel morphable_model, glm::mat4x4 view_model, glm::mat4x4 ortho_projection, glm::vec4 viewport)
+std::tuple<std::vector<cv::Vec2f>, std::vector<cv::Vec4f>, std::vector<int>> get_nearest_contour_points(const eos::core::LandmarkCollection<cv::Vec2f>& landmarks, const std::vector<std::string>& landmark_contour_identifiers, const std::vector<int>& model_contour_indices, const morphablemodel::MorphableModel& morphable_model, const glm::mat4x4& view_model, const glm::mat4x4& ortho_projection, const glm::vec4& viewport)
 {
 	// These are the additional contour-correspondences we're going to find and then use!
 	std::vector<cv::Vec4f> model_points_cnt; // the points in the 3D shape model
@@ -230,7 +230,6 @@ std::tuple<std::vector<cv::Vec2f>, std::vector<cv::Vec4f>, std::vector<int>> get
 		image_points_cnt.emplace_back(screen_point_2d_contour_landmark);
 	}
 
-	// Todo: Check/make order consistent with get_correspondences(...) function.
 	return std::make_tuple(image_points_cnt, model_points_cnt, vertex_indices_cnt);
 };
 
