@@ -46,6 +46,12 @@
 namespace eos {
 	namespace fitting {
 
+// Forward declarations of later used functions and types:
+struct ModelContour;
+struct ContourLandmarks;
+std::pair<std::vector<std::string>, std::vector<int>> select_contour(float yaw_angle, const ContourLandmarks& contour_landmarks, const ModelContour& model_contour);
+std::tuple<std::vector<cv::Vec2f>, std::vector<cv::Vec4f>, std::vector<int>> get_nearest_contour_correspondences(const eos::core::LandmarkCollection<cv::Vec2f>& landmarks, const std::vector<std::string>& landmark_contour_identifiers, const std::vector<int>& model_contour_indices, const morphablemodel::MorphableModel& morphable_model, const glm::mat4x4& view_model, const glm::mat4x4& ortho_projection, const glm::vec4& viewport);
+
 // The contour (outline) on the right and left side of the reference face model.
 // We should extend that to the 1724 model to get a few more points, it should
 // improve the contour fitting.
@@ -151,6 +157,39 @@ struct ContourLandmarks
 
 		return contour;
 	};
+};
+
+/**
+ * Given a set of 2D image landmarks, finds the closest (in a L2 sense) 3D vertex from a list of vertices.... and... todo
+ *
+ * It's the main contour fitting function that calls all other functions.
+ *
+ * Note: Maybe rename to find_contour_correspondences, to highlight that there is (potentially a lot) computational cost involved?
+ *
+ * @param[in] landmarks All image landmarks.
+ * @param[in] contour_landmarks ibug contour ids of left or right side.
+ * @param[in] model_contour The model contour indices that should be used/considered to find the closest corresponding 3D vertex.
+ * @param[in] yaw_angle X.
+ * @param[in] morphable_model A Morphable Model whose mean is used.
+ * @param[in] view_model x.
+ * @param[in] ortho_projection Note: Does this depend on ortho? Maybe not? If it works with persp too, then rename param & doc.
+ * @param[in] viewport X.
+ * @return A tuple with the 2D contour landmark points, the corresponding points in the 3D shape model and their vertex indices.
+ */
+std::tuple<std::vector<cv::Vec2f>, std::vector<cv::Vec4f>, std::vector<int>> get_contour_correspondences(const eos::core::LandmarkCollection<cv::Vec2f>& landmarks, const ContourLandmarks& contour_landmarks, const ModelContour& model_contour, float yaw_angle, const morphablemodel::MorphableModel& morphable_model, const glm::mat4x4& view_model, const glm::mat4x4& ortho_projection, const glm::vec4& viewport)
+{
+	// Select which side of the contour we'll use:
+	std::vector<int> model_contour_indices;
+	std::vector<std::string> landmark_contour_identifiers;
+	std::tie(landmark_contour_identifiers, model_contour_indices) = select_contour(glm::degrees(yaw_angle), contour_landmarks, model_contour);
+
+	// These are the additional contour-correspondences we're going to find and then use:
+	std::vector<cv::Vec4f> model_points_contour; // the points in the 3D shape model
+	std::vector<int> vertex_indices_contour; // their vertex indices
+	std::vector<cv::Vec2f> image_points_contour; // the corresponding 2D landmark points
+	
+	// For each 2D contour landmark, get the corresponding 3D vertex point and vertex id:
+	return get_nearest_contour_correspondences(landmarks, landmark_contour_identifiers, model_contour_indices, morphable_model, view_model, ortho_projection, viewport);
 };
 
 /**
