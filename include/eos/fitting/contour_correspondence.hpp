@@ -81,7 +81,7 @@ struct ModelContour
 	{
 		ModelContour contour;
 
-		std::ifstream file(filename, std::ios::binary);
+		std::ifstream file(filename);
 		if (file.fail()) {
 			throw std::runtime_error("Error opening given file: " + filename);
 		}
