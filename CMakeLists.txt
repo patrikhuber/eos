@@ -100,6 +100,7 @@ set(HEADERS
 	include/eos/fitting/detail/nonlinear_camera_estimation_detail.hpp
 	include/eos/fitting/linear_shape_fitting.hpp
 	include/eos/fitting/contour_correspondence.hpp
+	include/eos/fitting/blendshape_fitting.hpp
 	include/eos/render/Mesh.hpp
 	include/eos/render/utils.hpp
 	include/eos/render/render.hpp
