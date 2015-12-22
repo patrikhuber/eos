@@ -103,13 +103,12 @@ inline std::vector<float> fit_blendshapes_to_landmarks_linear(std::vector<eos::m
 	Mat A = P * V_hat_h; // camera matrix times the basis
 	Mat b = P * v_bar - y; // camera matrix times the mean, minus the landmarks.
 	
-	Mat AtA = A.t() * A;
-	Mat AtAReg = AtA + lambda * Mat::eye(num_coeffs_to_fit, num_coeffs_to_fit, CV_32FC1);
-	// Invert using OpenCV:
-	Mat AtARegInv = AtAReg.inv(cv::DECOMP_SVD); // DECOMP_SVD calculates the pseudo-inverse if the matrix is not invertible.
-
-	Mat c_s = -AtARegInv * A.t() * b;
-
+	Mat AtAReg = A.t() * A + lambda * Mat::eye(num_coeffs_to_fit, num_coeffs_to_fit, CV_32FC1);
+	// Solve using OpenCV:
+	Mat c_s;
+	bool non_singular = cv::solve(AtAReg, -A.t() * b, c_s, cv::DECOMP_SVD); // DECOMP_SVD calculates the pseudo-inverse if the matrix is not invertible.
+	// Because we're using SVD, non_singular will always be true. If we were to use e.g. Cholesky, we could return an expected<T>.
+	
 	return std::vector<float>(c_s);
 };
 

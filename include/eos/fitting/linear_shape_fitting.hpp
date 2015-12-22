@@ -118,8 +118,6 @@ inline std::vector<float> fit_shape_to_landmarks_linear(morphablemodel::Morphabl
 	int num_shape_pc = num_coeffs_to_fit;
 	Mat AtOmegaA = A.t() * Omega * A;
 	Mat AtOmegaAReg = AtOmegaA + lambda * Mat::eye(num_shape_pc, num_shape_pc, CV_32FC1);
-	// Invert using OpenCV:
-	Mat AtOmegaARegInv = AtOmegaAReg.inv(cv::DECOMP_SVD); // DECOMP_SVD calculates the pseudo-inverse if the matrix is not invertible.
 
 	// Invert (and perform some sanity checks) using Eigen:
 /*	using RowMajorMatrixXf = Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
@@ -131,9 +129,10 @@ inline std::vector<float> fit_shape_to_landmarks_linear(morphablemodel::Morphabl
 	RowMajorMatrixXf AtARegInv_EigenFullLU = luOfAtOmegaAReg.inverse(); // Note: We should use ::solve() instead
 	Mat AtOmegaARegInvFullLU(AtARegInv_EigenFullLU.rows(), AtARegInv_EigenFullLU.cols(), CV_32FC1, AtARegInv_EigenFullLU.data()); // create an OpenCV Mat header for the Eigen data
 */
-
-	Mat AtOmegatb = A.t() * Omega.t() * b;
-	Mat c_s = -AtOmegaARegInv * AtOmegatb; // Note/Todo: We get coefficients ~ N(0, sigma) I think. They are not multiplied with the eigenvalues.
+	// Solve using OpenCV:
+	Mat c_s; // Note/Todo: We get coefficients ~ N(0, sigma) I think. They are not multiplied with the eigenvalues.
+	bool non_singular = cv::solve(AtOmegaAReg, -A.t() * Omega.t() * b, c_s, cv::DECOMP_SVD); // DECOMP_SVD calculates the pseudo-inverse if the matrix is not invertible.
+	// Because we're using SVD, non_singular will always be true. If we were to use e.g. Cholesky, we could return an expected<T>.
 
 	return std::vector<float>(c_s);
 };
