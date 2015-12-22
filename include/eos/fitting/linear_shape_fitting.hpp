@@ -31,7 +31,6 @@
 #include "boost/optional.hpp"
 
 #include <vector>
-#include <cmath>
 #include <cassert>
 
 namespace eos {
@@ -49,7 +48,7 @@ namespace eos {
  *
  * @param[in] morphable_model The Morphable Model whose shape (coefficients) are estimated.
  * @param[in] affine_camera_matrix A 3x4 affine camera matrix from model to screen-space (should probably be of type CV_32FC1 as all our calculations are done with float).
- * @param[in] landmarks 2D landmarks from an image, given in clip-coordinates.
+ * @param[in] landmarks 2D landmarks from an image to fit the model to.
  * @param[in] vertex_ids The vertex ids in the model that correspond to the 2D points.
  * @param[in] lambda The regularisation parameter (weight of the prior towards the mean).
  * @param[in] num_coefficients_to_fit How many shape-coefficients to fit (all others will stay 0). Not tested thoroughly.
@@ -75,7 +74,7 @@ inline std::vector<float> fit_shape_to_landmarks_linear(morphablemodel::Morphabl
 		basis_rows.colRange(0, num_coeffs_to_fit).copyTo(V_hat_h.rowRange(row_index, row_index + 3));
 		row_index += 4; // replace 3 rows and skip the 4th one, it has all zeros
 	}
-	// Form a block diagonal matrix $P \in R^{3N\times 4N}$ in which the camera matrix C (P_Affine, affineCam) is placed on the diagonal:
+	// Form a block diagonal matrix $P \in R^{3N\times 4N}$ in which the camera matrix C (P_Affine, affine_camera_matrix) is placed on the diagonal:
 	Mat P = Mat::zeros(3 * num_landmarks, 4 * num_landmarks, CV_32FC1);
 	for (int i = 0; i < num_landmarks; ++i) {
 		Mat submatrix_to_replace = P.colRange(4 * i, (4 * i) + 4).rowRange(3 * i, (3 * i) + 3);
@@ -115,7 +114,7 @@ inline std::vector<float> fit_shape_to_landmarks_linear(morphablemodel::Morphabl
 	Mat b = P * v_bar - y; // camera matrix times the mean, minus the landmarks.
 	//Mat c_s; // The x, we solve for this! (the variance-normalised shape parameter vector, $c_s = [a_1/sigma_{s,1} , ..., a_m-1/sigma_{s,m-1}]^t$
 	//int numShapePc = morphableModel.getShapeModel().getNumberOfPrincipalComponents();
-	int num_shape_pc = num_coeffs_to_fit;
+	const int num_shape_pc = num_coeffs_to_fit;
 	Mat AtOmegaA = A.t() * Omega * A;
 	Mat AtOmegaAReg = AtOmegaA + lambda * Mat::eye(num_shape_pc, num_shape_pc, CV_32FC1);
 
