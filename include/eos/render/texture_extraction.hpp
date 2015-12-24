@@ -47,8 +47,9 @@ enum class TextureInterpolation {
 	Area
 };
 
-// Just a forward declaration
+// Forward declarations:
 inline cv::Mat extract_texture(Mesh mesh, cv::Mat affine_camera_matrix, cv::Mat image, cv::Mat depthbuffer, bool compute_view_angle, TextureInterpolation mapping_type, int isomap_resolution);
+namespace detail { cv::Mat interpolate_black_line(cv::Mat isomap); }
 
 /**
  * Extracts the texture of the face from the given image
@@ -315,8 +316,74 @@ inline cv::Mat extract_texture(Mesh mesh, cv::Mat affine_camera_matrix, cv::Mat 
 	for (auto&& r : results) {
 		r.get();
 	}
+
+	// Workaround for the black line in the isomap (see GitHub issue #4):
+	if (mesh.texcoords.size() <= 3448)
+	{
+		isomap = detail::interpolate_black_line(isomap);
+	}
+
 	return isomap;
 };
+
+namespace detail {
+
+// Workaround for the pixels that don't get filled in extract_texture().
+// There's a vertical line of missing values in the middle of the isomap,
+// as well as a few pixels on a horizontal line around the mouth. They
+// manifest themselves as black lines in the final isomap. This function
+// just fills these missing values by interpolating between two neighbouring
+// pixels. See GitHub issue #4.
+cv::Mat interpolate_black_line(cv::Mat isomap)
+{
+	assert(isomap.type() == CV_8UC4);
+	// Replace the vertical black line ("missing data"):
+	int col = isomap.cols / 2;
+	for (int row = 0; row < isomap.rows; ++row)
+	{
+		if (isomap.at<cv::Vec4b>(row, col) == cv::Vec4b(0, 0, 0, 0))
+		{
+			isomap.at<cv::Vec4b>(row, col) = isomap.at<cv::Vec4b>(row, col - 1) * 0.5f + isomap.at<cv::Vec4b>(row, col + 1) * 0.5f;
+		}
+	}
+
+	// Replace the horizontal line around the mouth that occurs in the
+	// isomaps of resolution 512x512 and higher:
+	if (isomap.rows == 512) // num cols is 512 as well
+	{
+		int r = 362;
+		for (int c = 206; c <= 306; ++c)
+		{
+			if (isomap.at<cv::Vec4b>(r, c) == cv::Vec4b(0, 0, 0, 0))
+			{
+				isomap.at<cv::Vec4b>(r, c) = isomap.at<cv::Vec4b>(r - 1, c) * 0.5f + isomap.at<cv::Vec4b>(r + 1, c) * 0.5f;
+			}
+		}
+	}
+	if (isomap.rows == 1024) // num cols is 1024 as well
+	{
+		int r = 724;
+		for (int c = 437; c <= 587; ++c)
+		{
+			if (isomap.at<cv::Vec4b>(r, c) == cv::Vec4b(0, 0, 0, 0))
+			{
+				isomap.at<cv::Vec4b>(r, c) = isomap.at<cv::Vec4b>(r - 1, c) * 0.5f + isomap.at<cv::Vec4b>(r + 1, c) * 0.5f;
+			}
+		}
+		r = 725;
+		for (int c = 411; c <= 613; ++c)
+		{
+			if (isomap.at<cv::Vec4b>(r, c) == cv::Vec4b(0, 0, 0, 0))
+			{
+				isomap.at<cv::Vec4b>(r, c) = isomap.at<cv::Vec4b>(r - 1, c) * 0.5f + isomap.at<cv::Vec4b>(r + 1, c) * 0.5f;
+			}
+		}
+	}
+	// Higher resolutions are probably affected as well but not used so far in practice.
+
+	return isomap;
+};
+} /* namespace detail */
 
 	} /* namespace render */
 } /* namespace eos */
