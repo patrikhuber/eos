@@ -50,20 +50,25 @@ namespace eos {
  * @param[in] affine_camera_matrix A 3x4 affine camera matrix from model to screen-space (should probably be of type CV_32FC1 as all our calculations are done with float).
  * @param[in] landmarks 2D landmarks from an image to fit the model to.
  * @param[in] vertex_ids The vertex ids in the model that correspond to the 2D points.
- * @param[in] base_face The base or reference face from where the fitting is started. Usually this would be the models mean face.
+ * @param[in] base_face The base or reference face from where the fitting is started. Usually this would be the models mean face, which is what will be used if the parameter is not explicitly specified.
  * @param[in] lambda The regularisation parameter (weight of the prior towards the mean).
  * @param[in] num_coefficients_to_fit How many shape-coefficients to fit (all others will stay 0). Not tested thoroughly.
  * @param[in] detector_standard_deviation The standard deviation of the 2D landmarks given (e.g. of the detector used), in pixels.
  * @param[in] model_standard_deviation The standard deviation of the 3D vertex points in the 3D model, projected to 2D (so the value is in pixels).
  * @return The estimated shape-coefficients (alphas).
  */
-inline std::vector<float> fit_shape_to_landmarks_linear(morphablemodel::MorphableModel morphable_model, cv::Mat affine_camera_matrix, std::vector<cv::Vec2f> landmarks, std::vector<int> vertex_ids, cv::Mat base_face, float lambda=3.0f, boost::optional<int> num_coefficients_to_fit=boost::optional<int>(), boost::optional<float> detector_standard_deviation=boost::optional<float>(), boost::optional<float> model_standard_deviation=boost::optional<float>())
+inline std::vector<float> fit_shape_to_landmarks_linear(morphablemodel::MorphableModel morphable_model, cv::Mat affine_camera_matrix, std::vector<cv::Vec2f> landmarks, std::vector<int> vertex_ids, cv::Mat base_face=cv::Mat(), float lambda=3.0f, boost::optional<int> num_coefficients_to_fit=boost::optional<int>(), boost::optional<float> detector_standard_deviation=boost::optional<float>(), boost::optional<float> model_standard_deviation=boost::optional<float>())
 {
 	using cv::Mat;
 	assert(landmarks.size() == vertex_ids.size());
 
 	int num_coeffs_to_fit = num_coefficients_to_fit.get_value_or(morphable_model.get_shape_model().get_num_principal_components());
 	int num_landmarks = static_cast<int>(landmarks.size());
+
+	if (base_face.empty())
+	{
+		base_face = morphable_model.get_shape_model().get_mean();
+	}
 
 	// $\hat{V} \in R^{3N\times m-1}$, subselect the rows of the eigenvector matrix $V$ associated with the $N$ feature points
 	// And we insert a row of zeros after every third row, resulting in matrix $\hat{V}_h \in R^{4N\times m-1}$:
