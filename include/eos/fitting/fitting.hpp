@@ -48,9 +48,11 @@ namespace eos {
  * @param[in] image_points 2D landmarks from an image to fit the model to.
  * @param[in] vertex_indices The vertex indices in the model that correspond to the 2D points.
  * @param[in] lambda Regularisation parameter of the PCA shape fitting.
+ * @param[out] pca_shape_coefficients Optional parameter that, if given, will contain the resulting pca shape coefficients.
+ * @param[out] blendshape_coefficients Optional parameter that, if given, will contain the resulting blendshape coefficients.
  * @return The fitted model shape instance.
  */
-cv::Mat fit_shape_model(cv::Mat affine_camera_matrix, eos::morphablemodel::MorphableModel morphable_model, std::vector<eos::morphablemodel::Blendshape> blendshapes, std::vector<cv::Vec2f> image_points, std::vector<int> vertex_indices, float lambda = 3.0f)
+cv::Mat fit_shape_model(cv::Mat affine_camera_matrix, eos::morphablemodel::MorphableModel morphable_model, std::vector<eos::morphablemodel::Blendshape> blendshapes, std::vector<cv::Vec2f> image_points, std::vector<int> vertex_indices, float lambda = 3.0f, std::vector<float>& pca_shape_coefficients = std::vector<float>(), std::vector<float>& blendshape_coefficients = std::vector<float>())
 {
 	using cv::Mat;
 	
@@ -81,6 +83,8 @@ cv::Mat fit_shape_model(cv::Mat affine_camera_matrix, eos::morphablemodel::Morph
 		combined_shape = pca_model_shape + blendshapes_as_basis * Mat(current_blendshape_coeffs);
 	} while (std::abs(cv::norm(current_pca_coeffs) - cv::norm(last_pca_coeffs)) >= 0.01 || std::abs(cv::norm(current_blendshape_coeffs) - cv::norm(last_blendshape_coeffs)) >= 0.01);
 	
+	pca_shape_coefficients = current_pca_coeffs;
+	blendshape_coefficients = current_blendshape_coeffs;
 	return combined_shape;
 };
 
