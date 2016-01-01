@@ -3,27 +3,27 @@
 
 landmarkMappings ; A mapping from input landmarks (ibug, lhs) to output landmarks (DID, rhs)
 {
-			 ; 1 to 8 are the right contour landmarks
-	 9	  33 ; chin bottom
-			 ; 10 to 17 are the left contour landmarks
-	18	 225 ; right eyebrow outer-corner (18)
+	         ; 1 to 8 are the right contour landmarks
+	 9    33 ; chin bottom
+	         ; 10 to 17 are the left contour landmarks
+	18   225 ; right eyebrow outer-corner (18)
 	19   229 ; right eyebrow between middle and outer corner
 	20   233 ; right eyebrow middle, vertical middle (20)
-	21   2086 ; right eyebrow between middle and inner corner
-	22	 157 ; right eyebrow inner-corner (19)
-	23	 590 ; left eyebrow inner-corner (23)
-	24   2091 ; left eyebrow between inner corner and middle
+	21  2086 ; right eyebrow between middle and inner corner
+	22   157 ; right eyebrow inner-corner (19)
+	23   590 ; left eyebrow inner-corner (23)
+	24  2091 ; left eyebrow between inner corner and middle
 	25   666 ; left eyebrow middle (24)
 	26   662 ; left eyebrow between middle and outer corner
-	27	 658 ; left eyebrow outer-corner (22)
-	28   2842 ; bridge of the nose (parallel to upper eye lids)
+	27   658 ; left eyebrow outer-corner (22)
+	28  2842 ; bridge of the nose (parallel to upper eye lids)
 	29   379 ; middle of the nose, a bit below the lower eye lids
 	30   272 ; above nose-tip (1cm or so)
 	31   114 ; nose-tip (3)
 	32   100 ; right nostril, below nose, nose-lip junction
-	33   2794 ; nose-lip junction
+	33  2794 ; nose-lip junction
 	34   270 ; nose-lip junction (28)
-	35   2797 ; nose-lip junction
+	35  2797 ; nose-lip junction
 	36   537 ; left nostril, below nose, nose-lip junction
 	37   177 ; right eye outer-corner (1)
 	38   172 ; right eye pupil top right (from subject's perspective)
@@ -49,11 +49,11 @@ landmarkMappings ; A mapping from input landmarks (ibug, lhs) to output landmark
 	58   411 ; lower lip middle bottom (17)
 	59   264 ; lower lip middle bottom right
 	60   431 ; lower lip right bottom outer
-			 ; 61 not defined - would be right inner corner of the mouth
+	         ; 61 not defined - would be right inner corner of the mouth
 	62   416 ; upper lip right bottom outer
 	63   423 ; upper lip middle bottom
 	64   828 ; upper lip left bottom outer
-			 ; 65 not defined - would be left inner corner of the mouth
+	         ; 65 not defined - would be left inner corner of the mouth
 	66   817 ; lower lip left top outer
 	67   442 ; lower lip middle top
 	68   404 ; lower lip right top outer
