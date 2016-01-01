@@ -1,26 +1,62 @@
-; Mapping from the 68-point iBug annotations to the Surrey DID format (3DMM vertex indices).
-; Partial mapping
-; Created by: Patrik Huber, 19.04.2014
+; Mapping from the 68-point ibug annotations to the Surrey DID format (3DMM vertex indices).
+; Note: Points above vertex id 845 are not defined on the reference and thus not available in all model resolutions.
 
-landmarkMappings ; A mapping from input landmarks (iBug, lhs) to output landmarks (DID, rhs)
+landmarkMappings ; A mapping from input landmarks (ibug, lhs) to output landmarks (DID, rhs)
 {
-;	 9    35 ; 9 is not the chin tip (4) - the DID point is much higher up
+			 ; 1 to 8 are the right contour landmarks
+	 9	  33 ; chin bottom
+			 ; 10 to 17 are the left contour landmarks
 	18	 225 ; right eyebrow outer-corner (18)
-	20   233 ; right eyebrow middle (top-of-eyebrow?) (20)
-	22	 157 ; right eyebrow inner-corner (top-of-eyebrow?) (19)
-	23	 590 ; left eyebrow inner-corner (top-of-eyebrow?) (23)
-	25   666 ; left eyebrow middle (top-of-eyebrow?) (24)
+	19   229 ; right eyebrow between middle and outer corner
+	20   233 ; right eyebrow middle, vertical middle (20)
+	21   2086 ; right eyebrow between middle and inner corner
+	22	 157 ; right eyebrow inner-corner (19)
+	23	 590 ; left eyebrow inner-corner (23)
+	24   2091 ; left eyebrow between inner corner and middle
+	25   666 ; left eyebrow middle (24)
+	26   662 ; left eyebrow between middle and outer corner
 	27	 658 ; left eyebrow outer-corner (22)
+	28   2842 ; bridge of the nose (parallel to upper eye lids)
+	29   379 ; middle of the nose, a bit below the lower eye lids
+	30   272 ; above nose-tip (1cm or so)
 	31   114 ; nose-tip (3)
+	32   100 ; right nostril, below nose, nose-lip junction
+	33   2794 ; nose-lip junction
 	34   270 ; nose-lip junction (28)
+	35   2797 ; nose-lip junction
+	36   537 ; left nostril, below nose, nose-lip junction
 	37   177 ; right eye outer-corner (1)
+	38   172 ; right eye pupil top right (from subject's perspective)
+	39   191 ; right eye pupil top left
 	40   181 ; right eye inner-corner (5)
+	41   173 ; right eye pupil bottom left
+	42   174 ; right eye pupil bottom right
 	43   614 ; left eye inner-corner (8)
+	44   624 ; left eye pupil top right
+	45   605 ; left eye pupil top left
 	46   610 ; left eye outer-corner (2)
+	47   607 ; left eye pupil bottom left
+	48   606 ; left eye pupil bottom right
 	49   398 ; right mouth corner (12)
+	50   315 ; upper lip right top outer
+	51   413 ; upper lip middle top right
 	52   329 ; upper lip middle top (14)
+	53   825 ; upper lip middle top left
+	54   736 ; upper lip left top outer
 	55   812 ; left mouth corner (13)
+	56   841 ; lower lip left bottom outer
+	57   693 ; lower lip middle bottom left
 	58   411 ; lower lip middle bottom (17)
+	59   264 ; lower lip middle bottom right
+	60   431 ; lower lip right bottom outer
+			 ; 61 not defined - would be right inner corner of the mouth
+	62   416 ; upper lip right bottom outer
+	63   423 ; upper lip middle bottom
+	64   828 ; upper lip left bottom outer
+			 ; 65 not defined - would be left inner corner of the mouth
+	66   817 ; lower lip left top outer
+	67   442 ; lower lip middle top
+	68   404 ; lower lip right top outer
 }
 contour_landmarks
 {
