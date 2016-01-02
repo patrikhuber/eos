@@ -36,11 +36,13 @@ namespace eos {
 
 /**
  * Convenience function that fits the shape model and expression blendshapes to
- * landmarks. It iterates PCA-shape and blendshape fitting until convergence
+ * landmarks. Makes the fitted PCA shape and blendshape coefficients accessible
+ * via the out parameters \p pca_shape_coefficients and \p blendshape_coefficients.
+ * It iterates PCA-shape and blendshape fitting until convergence
  * (usually it converges within 5 to 10 iterations).
  *
- * Note/Todo: It would be great if the function gave access to the shape and
- * blendshape coefficients. Maybe add them as optional out parameters?
+ * See fit_shape_model(cv::Mat, eos::morphablemodel::MorphableModel, std::vector<eos::morphablemodel::Blendshape>, std::vector<cv::Vec2f>, std::vector<int>, float lambda)
+ * for a simpler overload that just returns the shape instance.
  *
  * @param[in] affine_camera_matrix The estimated pose as a 3x4 affine camera matrix that is used to fit the shape.
  * @param[in] morphable_model The 3D Morphable Model used for the shape fitting.
@@ -48,11 +50,11 @@ namespace eos {
  * @param[in] image_points 2D landmarks from an image to fit the model to.
  * @param[in] vertex_indices The vertex indices in the model that correspond to the 2D points.
  * @param[in] lambda Regularisation parameter of the PCA shape fitting.
- * @param[out] pca_shape_coefficients Optional parameter that, if given, will contain the resulting pca shape coefficients.
- * @param[out] blendshape_coefficients Optional parameter that, if given, will contain the resulting blendshape coefficients.
+ * @param[out] pca_shape_coefficients Output parameter that will contain the resulting pca shape coefficients.
+ * @param[out] blendshape_coefficients Output parameter that will contain the resulting blendshape coefficients.
  * @return The fitted model shape instance.
  */
-cv::Mat fit_shape_model(cv::Mat affine_camera_matrix, eos::morphablemodel::MorphableModel morphable_model, std::vector<eos::morphablemodel::Blendshape> blendshapes, std::vector<cv::Vec2f> image_points, std::vector<int> vertex_indices, float lambda = 3.0f, std::vector<float>& pca_shape_coefficients = std::vector<float>(), std::vector<float>& blendshape_coefficients = std::vector<float>())
+cv::Mat fit_shape_model(cv::Mat affine_camera_matrix, eos::morphablemodel::MorphableModel morphable_model, std::vector<eos::morphablemodel::Blendshape> blendshapes, std::vector<cv::Vec2f> image_points, std::vector<int> vertex_indices, float lambda, std::vector<float>& pca_shape_coefficients, std::vector<float>& blendshape_coefficients)
 {
 	using cv::Mat;
 	
@@ -86,6 +88,25 @@ cv::Mat fit_shape_model(cv::Mat affine_camera_matrix, eos::morphablemodel::Morph
 	pca_shape_coefficients = current_pca_coeffs;
 	blendshape_coefficients = current_blendshape_coeffs;
 	return combined_shape;
+};
+
+/**
+ * Convenience function that fits the shape model and expression blendshapes to
+ * landmarks. It iterates PCA-shape and blendshape fitting until convergence
+ * (usually it converges within 5 to 10 iterations).
+ *
+ * @param[in] affine_camera_matrix The estimated pose as a 3x4 affine camera matrix that is used to fit the shape.
+ * @param[in] morphable_model The 3D Morphable Model used for the shape fitting.
+ * @param[in] blendshapes A vector of blendshapes that are being fit to the landmarks in addition to the PCA model.
+ * @param[in] image_points 2D landmarks from an image to fit the model to.
+ * @param[in] vertex_indices The vertex indices in the model that correspond to the 2D points.
+ * @param[in] lambda Regularisation parameter of the PCA shape fitting.
+ * @return The fitted model shape instance.
+ */
+cv::Mat fit_shape_model(cv::Mat affine_camera_matrix, eos::morphablemodel::MorphableModel morphable_model, std::vector<eos::morphablemodel::Blendshape> blendshapes, std::vector<cv::Vec2f> image_points, std::vector<int> vertex_indices, float lambda = 3.0f)
+{
+	std::vector<float> unused;
+	return fit_shape_model(affine_camera_matrix, morphable_model, blendshapes, image_points, vertex_indices, lambda, unused, unused);
 };
 
 	} /* namespace fitting */
