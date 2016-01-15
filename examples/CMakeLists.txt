@@ -29,6 +29,10 @@ else(Boost_FOUND)
   message(FATAL_ERROR "Boost not found")
 endif()
 
+if(MSVC)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj")
+endif()
+
 # Model fitting (affine cam & shape to landmarks) example:
 add_executable(fit-model fit-model.cpp)
 target_link_libraries(fit-model ${OpenCV_LIBS} ${Boost_LIBRARIES})
