@@ -26,10 +26,16 @@
 
 #include "glm/gtc/matrix_transform.hpp"
 
+#include "eos/fitting/detail/optional_cerealisation.hpp"
+#include "cereal/cereal.hpp"
+#include "cereal/archives/json.hpp"
+
 #include "Eigen/Geometry"
 #include "unsupported/Eigen/NonLinearOptimization"
 
 #include "opencv2/core/core.hpp"
+
+#include "boost/optional.hpp"
 
 #include <vector>
 #include <cassert>
@@ -45,6 +51,26 @@ struct Frustum
 {
 	float l, r, b, t;
 	// optional<float> n, f;
+	boost::optional<float> n;
+	boost::optional<float> f;
+
+	friend class cereal::access;
+	/**
+	 * Serialises this class using cereal.
+	 *
+	 * @param[in] ar The archive to serialise to (or to serialise from).
+	 */
+	template<class Archive>
+	void serialize(Archive& archive)
+	{
+		archive(CEREAL_NVP(l), CEREAL_NVP(r), CEREAL_NVP(b), CEREAL_NVP(t), CEREAL_NVP(n), CEREAL_NVP(f));
+	};
+};
+
+enum class CameraType
+{
+	Orthographic,
+	Perspective
 };
 
 /**
@@ -64,14 +90,50 @@ struct Frustum
  * The rotation values are given in radians and estimated using the RPY convention.
  * Yaw is applied first to the model, then pitch, then roll (R * P * Y * vertex).
  */
-struct OrthographicRenderingParameters
+struct RenderingParameters
 {
+	CameraType camera_type; // what's the default?
+	Frustum frustum;
+	
 	float r_x; // Pitch.
 	float r_y; // Yaw. Positive means subject is looking left (we see her right cheek).
 	float r_z; // Roll. Positive means the subject's right eye is further down than the other one (he tilts his head to the right).
-	float t_x;
+	float t_x; // Todo: define whether it's the camera translation/rotation or the model's.
 	float t_y;
-	Frustum frustum;
+	
+	int screen_width;
+	int screen_height;
+
+	boost::optional<float> focal_length; // only for certain camera types
+
+	friend class cereal::access;
+	/**
+	 * Serialises this class using cereal.
+	 *
+	 * @param[in] ar The archive to serialise to (or to serialise from).
+	 */
+	template<class Archive>
+	void serialize(Archive& archive)
+	{
+		archive(CEREAL_NVP(camera_type), CEREAL_NVP(frustum), CEREAL_NVP(r_x), CEREAL_NVP(r_y), CEREAL_NVP(r_z), CEREAL_NVP(t_x), CEREAL_NVP(t_y), CEREAL_NVP(screen_width), CEREAL_NVP(screen_height), CEREAL_NVP(focal_length));
+	};
+};
+
+/**
+ * Saves the rendering parameters for an image to a json file.
+ *
+ * @param[in] rendering_parameters An instance of class RenderingParameters.
+ * @param[in] filename The file to write.
+ * @throws std::runtime_error if unable to open the given file for writing.
+ */
+void save_rendering_parameters(RenderingParameters rendering_parameters, std::string filename)
+{
+	std::ofstream file(filename);
+	if (file.fail()) {
+		throw std::runtime_error("Error opening file for writing: " + filename);
+	}
+	cereal::JSONOutputArchive output_archive(file);
+	output_archive(cereal::make_nvp("rendering_parameters", rendering_parameters));
 };
 
 /**
@@ -108,7 +170,7 @@ cv::Mat to_mat(const glm::mat4x4& glm_matrix)
  * glm::vec3 point_2d = glm::project(point_3d, view_model, ortho_projection, viewport);
  * @endcode
  */
-glm::mat4x4 get_4x4_modelview_matrix(fitting::OrthographicRenderingParameters params)
+glm::mat4x4 get_4x4_modelview_matrix(fitting::RenderingParameters params)
 {
 	// rotation order: RPY * P
 	auto rot_mtx_x = glm::rotate(glm::mat4(1.0f), params.r_x, glm::vec3{ 1.0f, 0.0f, 0.0f });
@@ -126,7 +188,7 @@ glm::mat4x4 get_4x4_modelview_matrix(fitting::OrthographicRenderingParameters pa
  * This function is mainly used since the linear shape fitting fitting::fit_shape_to_landmarks_linear
  * expects one of these 3x4 affine camera matrices, as well as render::extract_texture.
  */
-cv::Mat get_3x4_affine_camera_matrix(fitting::OrthographicRenderingParameters params, int width, int height)
+cv::Mat get_3x4_affine_camera_matrix(fitting::RenderingParameters params, int width, int height)
 {
 	auto view_model = to_mat(get_4x4_modelview_matrix(params));
 	auto ortho_projection = to_mat(glm::ortho(params.frustum.l, params.frustum.r, params.frustum.b, params.frustum.t));
@@ -185,7 +247,7 @@ glm::vec4 get_opencv_viewport(int width, int height)
  * @param[in] height Height of the image (or viewport).
  * @return The estimated model and camera parameters.
  */
-OrthographicRenderingParameters estimate_orthographic_camera(std::vector<cv::Vec2f> image_points, std::vector<cv::Vec4f> model_points, int width, int height)
+RenderingParameters estimate_orthographic_camera(std::vector<cv::Vec2f> image_points, std::vector<cv::Vec4f> model_points, int width, int height)
 {
 	using cv::Mat;
 	assert(image_points.size() == model_points.size());
@@ -209,7 +271,7 @@ OrthographicRenderingParameters estimate_orthographic_camera(std::vector<cv::Vec
 	// 'parameters' contains the solution now.
 
 	Frustum camera_frustum{ -1.0f * aspect * static_cast<float>(parameters[5]), 1.0f * aspect * static_cast<float>(parameters[5]), -1.0f * static_cast<float>(parameters[5]), 1.0f * static_cast<float>(parameters[5]) };
-	return OrthographicRenderingParameters{ static_cast<float>(parameters[0]), static_cast<float>(parameters[1]), static_cast<float>(parameters[2]), static_cast<float>(parameters[3]), static_cast<float>(parameters[4]), camera_frustum };
+	return RenderingParameters{ CameraType::Orthographic, camera_frustum, static_cast<float>(parameters[0]), static_cast<float>(parameters[1]), static_cast<float>(parameters[2]), static_cast<float>(parameters[3]), static_cast<float>(parameters[4]), width, height };
 };
 
 	} /* namespace fitting */

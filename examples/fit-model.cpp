@@ -187,7 +187,7 @@ int main(int argc, char *argv[])
 	}
 
 	// Estimate the camera (pose) from the 2D - 3D point correspondences
-	fitting::OrthographicRenderingParameters rendering_params = fitting::estimate_orthographic_camera(image_points, model_points, image.cols, image.rows);
+	fitting::RenderingParameters rendering_params = fitting::estimate_orthographic_camera(image_points, model_points, image.cols, image.rows);
 	Mat affine_from_ortho = get_3x4_affine_camera_matrix(rendering_params, image.cols, image.rows);
 
 	// The 3D head pose can be recovered as follows:
