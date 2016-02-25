@@ -36,7 +36,7 @@ To use the library in your own project, just add the following directories to yo
 To build:
 
 ```
-git clone git@github.com:patrikhuber/eos.git
+git clone https://github.com/patrikhuber/eos.git
 mkdir build && cd build # creates a build directory next to the _eos_ folder
 cmake -G "<your favourite generator>" ../eos -DCMAKE_INSTALL_PREFIX=../install/`
 make && make install # or open the project file and build in an IDE like Visual Studio
