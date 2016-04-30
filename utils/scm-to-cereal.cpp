@@ -1,7 +1,7 @@
 /*
  * Eos - A 3D Morphable Model fitting library written in modern C++11/14.
  *
- * File: examples/scm-to-cereal.cpp
+ * File: utils/scm-to-cereal.cpp
  *
  * Copyright 2015 Patrik Huber
  *

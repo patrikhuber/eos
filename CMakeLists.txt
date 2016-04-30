@@ -54,6 +54,8 @@ endif()
 message(STATUS "Options:")
 option(BUILD_EXAMPLES "Build the example applications." ON)
 message(STATUS "BUILD_EXAMPLES: ${BUILD_EXAMPLES}")
+option(BUILD_UTILS "Build utility applications." OFF)
+message(STATUS "BUILD_UTILS: ${BUILD_UTILS}")
 option(BUILD_DOCUMENTATION "Build the library documentation." OFF)
 message(STATUS "BUILD_DOCUMENTATION: ${BUILD_DOCUMENTATION}")
 
@@ -145,6 +147,10 @@ install(DIRECTORY ${CMAKE_SOURCE_DIR}/3rdparty/glm-0.9.7.0/ DESTINATION 3rdparty
 
 if(BUILD_EXAMPLES)
 	add_subdirectory(examples)
+endif()
+
+if(BUILD_UTILS)
+	add_subdirectory(utils)
 endif()
 
 if(BUILD_DOCUMENTATION)
