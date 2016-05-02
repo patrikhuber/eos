@@ -50,11 +50,12 @@ namespace eos {
  * @param[in] image_points 2D landmarks from an image to fit the model to.
  * @param[in] vertex_indices The vertex indices in the model that correspond to the 2D points.
  * @param[in] lambda Regularisation parameter of the PCA shape fitting.
+ * @param[in] num_coefficients_to_fit How many shape-coefficients to fit (all others will stay 0). Should be bigger than zero, or boost::none to fit all coefficients.
  * @param[out] pca_shape_coefficients Output parameter that will contain the resulting pca shape coefficients.
  * @param[out] blendshape_coefficients Output parameter that will contain the resulting blendshape coefficients.
  * @return The fitted model shape instance.
  */
-cv::Mat fit_shape_model(cv::Mat affine_camera_matrix, eos::morphablemodel::MorphableModel morphable_model, std::vector<eos::morphablemodel::Blendshape> blendshapes, std::vector<cv::Vec2f> image_points, std::vector<int> vertex_indices, float lambda, std::vector<float>& pca_shape_coefficients, std::vector<float>& blendshape_coefficients)
+cv::Mat fit_shape(cv::Mat affine_camera_matrix, eos::morphablemodel::MorphableModel morphable_model, std::vector<eos::morphablemodel::Blendshape> blendshapes, std::vector<cv::Vec2f> image_points, std::vector<int> vertex_indices, float lambda, boost::optional<int> num_coefficients_to_fit, std::vector<float>& pca_shape_coefficients, std::vector<float>& blendshape_coefficients)
 {
 	using cv::Mat;
 	
@@ -67,7 +68,7 @@ cv::Mat fit_shape_model(cv::Mat affine_camera_matrix, eos::morphablemodel::Morph
 	std::vector<float> last_blendshape_coeffs, current_blendshape_coeffs; 
 	std::vector<float> last_pca_coeffs, current_pca_coeffs;
 	current_blendshape_coeffs.resize(blendshapes.size()); // starting values t_0, all zeros
-	current_pca_coeffs.resize(morphable_model.get_shape_model().get_num_principal_components()); // starting values, all zeros
+	// no starting values for current_pca_coeffs required, since we start with the shape fitting, and cv::norm of an empty vector is 0.
 	Mat combined_shape;
 
 	do // run at least once:
@@ -76,7 +77,7 @@ cv::Mat fit_shape_model(cv::Mat affine_camera_matrix, eos::morphablemodel::Morph
 		last_pca_coeffs = current_pca_coeffs;
 		// Estimate the PCA shape coefficients with the current blendshape coefficients (0 in the first iteration):
 		Mat mean_plus_blendshapes = morphable_model.get_shape_model().get_mean() + blendshapes_as_basis * Mat(last_blendshape_coeffs);
-		current_pca_coeffs = fitting::fit_shape_to_landmarks_linear(morphable_model, affine_camera_matrix, image_points, vertex_indices, mean_plus_blendshapes, lambda);
+		current_pca_coeffs = fitting::fit_shape_to_landmarks_linear(morphable_model, affine_camera_matrix, image_points, vertex_indices, mean_plus_blendshapes, lambda, num_coefficients_to_fit);
 
 		// Estimate the blendshape coefficients with the current PCA model estimate:
 		Mat pca_model_shape = morphable_model.get_shape_model().draw_sample(current_pca_coeffs);
@@ -101,12 +102,13 @@ cv::Mat fit_shape_model(cv::Mat affine_camera_matrix, eos::morphablemodel::Morph
  * @param[in] image_points 2D landmarks from an image to fit the model to.
  * @param[in] vertex_indices The vertex indices in the model that correspond to the 2D points.
  * @param[in] lambda Regularisation parameter of the PCA shape fitting.
+ * @param[in] num_coefficients_to_fit How many shape-coefficients to fit (all others will stay 0). Should be bigger than zero, or boost::none to fit all coefficients.
  * @return The fitted model shape instance.
  */
-cv::Mat fit_shape_model(cv::Mat affine_camera_matrix, eos::morphablemodel::MorphableModel morphable_model, std::vector<eos::morphablemodel::Blendshape> blendshapes, std::vector<cv::Vec2f> image_points, std::vector<int> vertex_indices, float lambda = 3.0f)
+cv::Mat fit_shape(cv::Mat affine_camera_matrix, eos::morphablemodel::MorphableModel morphable_model, std::vector<eos::morphablemodel::Blendshape> blendshapes, std::vector<cv::Vec2f> image_points, std::vector<int> vertex_indices, float lambda = 3.0f, boost::optional<int> num_coefficients_to_fit = boost::optional<int>())
 {
 	std::vector<float> unused;
-	return fit_shape_model(affine_camera_matrix, morphable_model, blendshapes, image_points, vertex_indices, lambda, unused, unused);
+	return fit_shape(affine_camera_matrix, morphable_model, blendshapes, image_points, vertex_indices, lambda, num_coefficients_to_fit, unused, unused);
 };
 
 	} /* namespace fitting */
