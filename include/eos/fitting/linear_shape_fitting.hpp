@@ -52,7 +52,7 @@ namespace eos {
  * @param[in] vertex_ids The vertex ids in the model that correspond to the 2D points.
  * @param[in] base_face The base or reference face from where the fitting is started. Usually this would be the models mean face, which is what will be used if the parameter is not explicitly specified.
  * @param[in] lambda The regularisation parameter (weight of the prior towards the mean).
- * @param[in] num_coefficients_to_fit How many shape-coefficients to fit (all others will stay 0). Not tested thoroughly.
+ * @param[in] num_coefficients_to_fit How many shape-coefficients to fit (all others will stay 0). Should be bigger than zero, or boost::none to fit all coefficients.
  * @param[in] detector_standard_deviation The standard deviation of the 2D landmarks given (e.g. of the detector used), in pixels.
  * @param[in] model_standard_deviation The standard deviation of the 3D vertex points in the 3D model, projected to 2D (so the value is in pixels).
  * @return The estimated shape-coefficients (alphas).
