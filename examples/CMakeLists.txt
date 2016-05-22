@@ -37,7 +37,12 @@ endif()
 add_executable(fit-model fit-model.cpp)
 target_link_libraries(fit-model ${OpenCV_LIBS} ${Boost_LIBRARIES})
 
+# Generate random samples from the model:
+add_executable(generate-obj generate-obj.cpp)
+target_link_libraries(generate-obj ${OpenCV_LIBS} ${Boost_LIBRARIES})
+
 
 # install target:
 install(TARGETS fit-model DESTINATION bin)
+install(TARGETS generate-obj DESTINATION bin)
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/examples/data DESTINATION bin)
