@@ -37,7 +37,7 @@ bfm = load(bfm_file);
 % Leave 'nt' on the default. This is only to produce a small output model
 % for testing purposes. It'll result in only part of the mesh.
 nt = size(bfm.shapeMU, 1); % num triangles times 3
-nb = size(bfm.shapePC, 2);
+nb = 99; %size(bfm.shapePC, 2);
 
 model.cereal_class_version = 0;
 model.shape_model.mean.data = bfm.shapeMU(1:nt);
