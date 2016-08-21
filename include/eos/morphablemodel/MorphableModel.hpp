@@ -36,7 +36,7 @@
 #include <array>
 #include <cstdint>
 
-// Forward declaration of an internal function
+// Forward declaration of an internal function:
 namespace eos { namespace morphablemodel { namespace detail {
 	eos::render::Mesh sample_to_mesh(cv::Mat shape, cv::Mat color, std::vector<std::array<int, 3>> tvi, std::vector<std::array<int, 3>> tci, std::vector<cv::Vec2f> texture_coordinates = std::vector<cv::Vec2f>());
 } } }
@@ -70,27 +70,54 @@ public:
 
 	/**
 	 * Returns the PCA shape model of this Morphable Model.
-	 * as a Mesh.
 	 *
 	 * @return The shape model.
 	 */
-	PcaModel get_shape_model() const
+	const PcaModel& get_shape_model() const
 	{
 		return shape_model;
 	};
-	
+
 	/**
-	 * Returns the PCA color (albedo) model of this Morphable Model.
+	 * Returns the PCA shape model of this Morphable Model.
 	 *
-	 * @return The color model.
+	 * We need to have a non-const version because PcaModel::draw_sample(float)
+	 * is non-const and modifies the object (the RNG). Maybe the RNG-stuff should
+	 * be moved out of PcaModel into a free function that generates random coefficients.
+	 *
+	 * @return The shape model.
 	 */
-	PcaModel get_color_model() const
+	PcaModel& get_shape_model()
+	{
+		return shape_model;
+	};
+
+	/**
+	 * Returns the PCA colour (albedo) model of this Morphable Model.
+	 *
+	 * @return The colour model.
+	 */
+	const PcaModel& get_color_model() const
 	{
 		return color_model;
 	};
 
 	/**
-	 * Returns the mean of the shape- and color model as a Mesh.
+	 * Returns the PCA colour (albedo) model of this Morphable Model.
+	 *
+	 * We need to have a non-const version because PcaModel::draw_sample(float)
+	 * is non-const and modifies the object (the RNG). Maybe the RNG-stuff should
+	 * be moved out of PcaModel into a free function that generates random coefficients.
+	 *
+	 * @return The colour model.
+	 */
+	PcaModel& get_color_model()
+	{
+		return color_model;
+	};
+
+	/**
+	 * Returns the mean of the shape- and colour model as a Mesh.
 	 *
 	 * @return An mesh instance of the mean of the Morphable Model.
 	 */
@@ -113,26 +140,26 @@ public:
 
 	/**
 	 * Draws a random sample from the model, where the coefficients
-	 * for the shape- and color models are both drawn from a standard
+	 * for the shape- and colour models are both drawn from a standard
 	 * normal (or with the given standard deviation).
 	 *
 	 * @param[in] shape_sigma The shape model standard deviation.
-	 * @param[in] color_sigma The color model standard deviation.
+	 * @param[in] color_sigma The colour model standard deviation.
 	 * @return A random sample from the model.
 	 */
 	render::Mesh draw_sample(float shape_sigma = 1.0f, float color_sigma = 1.0f)
 	{
 		assert(shape_model.get_data_dimension() == color_model.get_data_dimension()); // The number of vertices (= model.getDataDimension() / 3) has to be equal for both models.
 
-		cv::Mat shapeSample = shape_model.draw_sample(shape_sigma);
-		cv::Mat colorSample = color_model.draw_sample(color_sigma);
+		cv::Mat shape_sample = shape_model.draw_sample(shape_sigma);
+		cv::Mat color_sample = color_model.draw_sample(color_sigma);
 
 		render::Mesh mesh;
 		if (has_texture_coordinates()) {
-			mesh = detail::sample_to_mesh(shapeSample, colorSample, shape_model.get_triangle_list(), color_model.get_triangle_list(), texture_coordinates);
+			mesh = detail::sample_to_mesh(shape_sample, color_sample, shape_model.get_triangle_list(), color_model.get_triangle_list(), texture_coordinates);
 		}
 		else {
-			mesh = detail::sample_to_mesh(shapeSample, colorSample, shape_model.get_triangle_list(), color_model.get_triangle_list());
+			mesh = detail::sample_to_mesh(shape_sample, color_sample, shape_model.get_triangle_list(), color_model.get_triangle_list());
 		}
 		return mesh;
 	};
@@ -276,9 +303,9 @@ namespace detail { /* eos::morphablemodel::detail */
  * If \c color is empty, it will create a mesh without vertex colouring.
  *
  * @param[in] shape PCA shape model instance.
- * @param[in] color PCA color model instance.
+ * @param[in] color PCA colour model instance.
  * @param[in] tvi Triangle vertex indices.
- * @param[in] tci Triangle color indices (usually identical to the vertex indices).
+ * @param[in] tci Triangle colour indices (usually identical to the vertex indices).
  * @param[in] texture_coordinates Optional texture coordinates for each vertex.
  * @return A mesh created from given parameters.
  */
@@ -296,7 +323,7 @@ eos::render::Mesh sample_to_mesh(cv::Mat shape, cv::Mat color, std::vector<std::
 		mesh.vertices[i] = cv::Vec4f(shape.at<float>(i * 3 + 0), shape.at<float>(i * 3 + 1), shape.at<float>(i * 3 + 2), 1.0f);
 	}
 
-	// Assign the vertex color information if it's not a shape-only model:
+	// Assign the vertex colour information if it's not a shape-only model:
 	if (!color.empty()) {
 		mesh.colors.resize(num_vertices);
 		for (auto i = 0; i < num_vertices; ++i) {
