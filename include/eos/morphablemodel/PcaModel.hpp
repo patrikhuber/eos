@@ -38,7 +38,7 @@
 namespace eos {
 	namespace morphablemodel {
 
-// Forward declarations of free functions
+// Forward declarations of free functions:
 cv::Mat normalise_pca_basis(cv::Mat unnormalised_basis, cv::Mat eigenvalues);
 cv::Mat unnormalise_pca_basis(cv::Mat normalised_basis, cv::Mat eigenvalues);
 
@@ -265,7 +265,7 @@ private:
 	template<class Archive>
 	void serialize(Archive& archive)
 	{
-		archive(mean, normalised_pca_basis, unnormalised_pca_basis, eigenvalues, triangle_list);
+		archive(CEREAL_NVP(mean), CEREAL_NVP(normalised_pca_basis), CEREAL_NVP(unnormalised_pca_basis), CEREAL_NVP(eigenvalues), CEREAL_NVP(triangle_list));
 		// Note: If the files are too big, We could split this in save/load, only
 		// store one of the bases, and calculate the other one when loading.
 	};

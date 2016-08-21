@@ -55,7 +55,7 @@ struct Blendshape
 	template<class Archive>
 	void serialize(Archive& archive)
 	{
-		archive(name, deformation);
+		archive(CEREAL_NVP(name), CEREAL_NVP(deformation));
 	};
 };
 

@@ -253,7 +253,7 @@ private:
 	template<class Archive>
 	void serialize(Archive& archive, const std::uint32_t version)
 	{
-		archive(shape_model, color_model, texture_coordinates);
+		archive(CEREAL_NVP(shape_model), CEREAL_NVP(color_model), CEREAL_NVP(texture_coordinates));
 	};
 };
 
