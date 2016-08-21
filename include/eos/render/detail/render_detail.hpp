@@ -22,6 +22,8 @@
 #ifndef RENDER_DETAIL_HPP_
 #define RENDER_DETAIL_HPP_
 
+#include "eos/render/utils.hpp"
+
 #include "opencv2/core/core.hpp"
 
 #include "boost/optional.hpp"
