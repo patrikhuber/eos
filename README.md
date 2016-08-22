@@ -28,7 +28,7 @@ To use the library in your own project, just add the following directories to yo
 
 * `eos/include`
 * `eos/3rdparty/cereal-1.1.1/include`
-* `eos/3rdparty/glm-0.9.7.0`
+* `eos/3rdparty/glm-git-modified`
 
 ### Build the examples and tests
 
