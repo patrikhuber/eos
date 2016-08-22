@@ -111,6 +111,75 @@ cv::Mat fit_shape(cv::Mat affine_camera_matrix, eos::morphablemodel::MorphableMo
 	return fit_shape(affine_camera_matrix, morphable_model, blendshapes, image_points, vertex_indices, lambda, num_coefficients_to_fit, unused, unused);
 };
 
+
+/**
+* @brief Takes a LandmarkCollection of 2D landmarks and, using the landmark_mapper, finds the
+* corresponding 3D vertex indices and returns them, along with the coordinates of the 3D points.
+*
+* The function only returns points which the landmark mapper was able to convert, and skips all
+* points for which there is no mapping. Thus, the number of returned points might be smaller than
+* the number of input points.
+* All three output vectors have the same size and contain the points in the same order.
+* \c landmarks can be an eos::core::LandmarkCollection<cv::Vec2f> or an rcr::LandmarkCollection<cv::Vec2f>.
+*
+* Notes:
+* - Split into two functions, one which maps from 2D LMs to vtx_idx and returns a reduced vec of 2D LMs. And then the other one to go from vtx_idx to a vector<Vec4f>.
+* - Place in a potentially more appropriate header (shape-fitting?).
+* - Could move to detail namespace or forward-declare.
+* - \c landmarks has to be a collection of LMs, with size(), [] and Vec2f ::coordinates.
+*
+* @param[in] landmarks A LandmarkCollection of 2D landmarks.
+* @param[in] landmark_mapper A mapper which maps the 2D landmark identifiers to 3D model vertex indices.
+* @param[in] morphable_model Model to get the 3D point coordinates from.
+* @return A tuple of [image_points, model_points, vertex_indices].
+*/
+template<class T>
+auto get_corresponding_pointset(const T& landmarks, const core::LandmarkMapper& landmark_mapper, const morphablemodel::MorphableModel& morphable_model)
+{
+	using cv::Mat;
+	using std::vector;
+	using cv::Vec2f;
+	using cv::Vec4f;
+
+	// These will be the final 2D and 3D points used for the fitting:
+	vector<Vec4f> model_points; // the points in the 3D shape model
+	vector<int> vertex_indices; // their vertex indices
+	vector<Vec2f> image_points; // the corresponding 2D landmark points
+
+	// Sub-select all the landmarks which we have a mapping for (i.e. that are defined in the 3DMM):
+	for (int i = 0; i < landmarks.size(); ++i) {
+		auto converted_name = landmark_mapper.convert(landmarks[i].name);
+		if (!converted_name) { // no mapping defined for the current landmark
+			continue;
+		}
+		int vertex_idx = std::stoi(converted_name.get());
+		Vec4f vertex = morphable_model.get_shape_model().get_mean_at_point(vertex_idx);
+		model_points.emplace_back(vertex);
+		vertex_indices.emplace_back(vertex_idx);
+		image_points.emplace_back(landmarks[i].coordinates);
+	}
+	return std::make_tuple(image_points, model_points, vertex_indices);
+};
+
+/**
+ * @brief Concatenates two std::vector's of the same type and returns the concatenated
+ * vector. The elements of the second vector are appended after the first one.
+ *
+ * Note: Move to detail namespace? It's used for the contour fitting, but doesn't really belong here.
+ *
+ * @param[in] vec_a First vector.
+ * @param[in] vec_b Second vector.
+ * @return The concatenated vector.
+ */
+template <class T>
+auto concat(const std::vector<T>& vec_a, const std::vector<T>& vec_b)
+{
+	std::vector<T> concatenated_vec;
+	concatenated_vec.reserve(vec_a.size() + vec_b.size());
+	concatenated_vec.insert(std::end(concatenated_vec), std::begin(vec_a), std::end(vec_a));
+	concatenated_vec.insert(std::end(concatenated_vec), std::begin(vec_b), std::end(vec_b));
+	return concatenated_vec;
+};
 	} /* namespace fitting */
 } /* namespace eos */
 
