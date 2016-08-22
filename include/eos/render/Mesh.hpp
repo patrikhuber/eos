@@ -94,7 +94,7 @@ inline void write_obj(Mesh mesh, std::string filename)
  * Note that the texture (isomap) has to be saved separately.
  *
  * @param[in] mesh The mesh to save as obj.
- * @param[in] filename Output filename.
+ * @param[in] filename Output filename, including .obj.
  */
 inline void write_textured_obj(Mesh mesh, std::string filename)
 {
