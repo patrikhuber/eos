@@ -206,7 +206,10 @@ inline cv::Mat extract_texture(Mesh mesh, cv::Mat affine_camera_matrix, cv::Mat 
 			dst_tri[1] = cv::Point2f(isomap.cols*mesh.texcoords[triangle_indices[1]][0], isomap.rows*mesh.texcoords[triangle_indices[1]][1] - 1.0f);
 			dst_tri[2] = cv::Point2f(isomap.cols*mesh.texcoords[triangle_indices[2]][0], isomap.rows*mesh.texcoords[triangle_indices[2]][1] - 1.0f);
 
-			// Get the inverse Affine Transform from original image: from dst to src
+			// We now have the source triangles in the image and the source triangle in the isomap
+			// We use the inverse/ backward mapping approach, so we want to find the corresponding texel (texture-pixel) for each pixel in the isomap
+
+			// Get the inverse Affine Transform from original image: from dst (pixel in isomap) to src (in image)
 			Mat warp_mat_org_inv = cv::getAffineTransform(dst_tri, src_tri);
 			warp_mat_org_inv.convertTo(warp_mat_org_inv, CV_32FC1);
 
@@ -214,6 +217,12 @@ inline cv::Mat extract_texture(Mesh mesh, cv::Mat affine_camera_matrix, cv::Mat 
 			for (int x = min(dst_tri[0].x, min(dst_tri[1].x, dst_tri[2].x)); x < max(dst_tri[0].x, max(dst_tri[1].x, dst_tri[2].x)); ++x) {
 				for (int y = min(dst_tri[0].y, min(dst_tri[1].y, dst_tri[2].y)); y < max(dst_tri[0].y, max(dst_tri[1].y, dst_tri[2].y)); ++y) {
 					if (detail::is_point_in_triangle(cv::Point2f(x, y), dst_tri[0], dst_tri[1], dst_tri[2])) {
+
+						// As the coordinates of the transformed pixel in the image will most likely not lie on a texel, we have to choose how to 
+						// calculate the pixel colors depending on the next texels
+						// there are three different texture interpolation methods: area, bilinear and nearest neighbour
+
+						// Area mapping: calculate mean color of texels in transformed pixel area
 						if (mapping_type == TextureInterpolation::Area) {
 
 							// calculate positions of 4 corners of pixel in image (src)
@@ -235,12 +244,14 @@ inline cv::Mat extract_texture(Mesh mesh, cv::Mat affine_camera_matrix, cv::Mat 
 							cv::Vec3i color;
 							int num_texels = 0;
 
+							// loop over square in which quadrangle out of the four corners of pixel is
 							for (int a = ceil(min_a); a <= floor(max_a); ++a)
 							{
 								for (int b = ceil(min_b); b <= floor(max_b); ++b)
 								{
+									// check if texel is in quadrangle
 									if (detail::is_point_in_triangle(cv::Point2f(a, b), src_texel_upper_left, src_texel_lower_left, src_texel_upper_right) || detail::is_point_in_triangle(cv::Point2f(a, b), src_texel_lower_left, src_texel_upper_right, src_texel_lower_right)) {
-										if (a < image.cols && b < image.rows) { // if src_texel in triangle and in image
+										if (a < image.cols && b < image.rows) { // check if texel is in image
 											num_texels++;
 											color += image.at<Vec3b>(b, a);
 										}
@@ -260,13 +271,14 @@ inline cv::Mat extract_texture(Mesh mesh, cv::Mat affine_camera_matrix, cv::Mat 
 							}
 							isomap.at<Vec3b>(y, x) = color;
 						}
+						// Bilinear mapping: calculate pixel color depending on the four neighbouring texels
 						else if (mapping_type == TextureInterpolation::Bilinear) {
 
 							// calculate corresponding position of dst_coord pixel center in image (src)
 							Vec3f homogenous_dst_coord(x, y, 1.0f);
 							Vec2f src_texel = Mat(warp_mat_org_inv * Mat(homogenous_dst_coord));
 
-							// calculate distances to next 4 pixels
+							// calculate euclidean distances to next 4 texels
 							using std::sqrt;
 							using std::pow;
 							float distance_upper_left = sqrt(pow(src_texel[0] - floor(src_texel[0]), 2) + pow(src_texel[1] - floor(src_texel[1]), 2));
@@ -274,14 +286,14 @@ inline cv::Mat extract_texture(Mesh mesh, cv::Mat affine_camera_matrix, cv::Mat 
 							float distance_lower_left = sqrt(pow(src_texel[0] - ceil(src_texel[0]), 2) + pow(src_texel[1] - floor(src_texel[1]), 2));
 							float distance_lower_right = sqrt(pow(src_texel[0] - ceil(src_texel[0]), 2) + pow(src_texel[1] - ceil(src_texel[1]), 2));
 
-							// normalise distances
+							// normalise distances that the sum of all distances is 1
 							float sum_distances = distance_lower_left + distance_lower_right + distance_upper_left + distance_upper_right;
 							distance_lower_left /= sum_distances;
 							distance_lower_right /= sum_distances;
 							distance_upper_left /= sum_distances;
 							distance_upper_right /= sum_distances;
 
-							// set color depending on distance from next 4 pixels
+							// set color depending on distance from next 4 texels
 							for (int color = 0; color < 3; ++color) {
 								float color_upper_left = image.at<Vec3b>(floor(src_texel[1]), floor(src_texel[0]))[color] * distance_upper_left;
 								float color_upper_right = image.at<Vec3b>(floor(src_texel[1]), ceil(src_texel[0]))[color] * distance_upper_right;
@@ -291,6 +303,7 @@ inline cv::Mat extract_texture(Mesh mesh, cv::Mat affine_camera_matrix, cv::Mat 
 								isomap.at<Vec3b>(y, x)[color] = color_upper_left + color_upper_right + color_lower_left + color_lower_right;
 							}
 						}
+						// NearestNeighbour mapping: set color of pixel to color of nearest texel
 						else if (mapping_type == TextureInterpolation::NearestNeighbour) {
 
 							// calculate corresponding position of dst_coord pixel center in image (src)
