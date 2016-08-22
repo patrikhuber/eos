@@ -15,6 +15,10 @@
 #set(OpenCV_DIR "C:\\opencv\\install" CACHE PATH "Location of OpenCVConfig.cmake" FORCE)
 # Linux: Usually can be left blank but it can be used if OpenCV is not found.
 #set(OpenCV_DIR "/home/user/opencv/install/share/OpenCV" CACHE PATH "Location of OpenCVConfig.cmake" FORCE)
+#
+# Ceres:
+# -------
+#set(Ceres_DIR "C:\\ceres\\install-vs2015\\CMake" CACHE PATH "Location of CeresConfig.cmake" FORCE)
 
 # Configuration options
 # ==============================
