@@ -68,7 +68,7 @@ The library includes a low-resolution shape-only version of the Surrey Morphable
 
 <img src="https://raw.githubusercontent.com/patrikhuber/eos/gh-pages/images/sfm_shape_3448_mesh.png" width=20% alt="Face Model Picture"></img>
 
-The full model will be available soon too via academic licencing.
+The full model is available at [http://www.cvssp.org/facemodel](http://www.cvssp.org/facemodel).
 
 ## Documentation
 
@@ -79,8 +79,8 @@ The [fit-model example](https://github.com/patrikhuber/eos/blob/master/examples/
 
 ## License & contributions
 
-This code is licensed under the Apache License, Version 2.0. The 3D morphable face model under [share/sfm_shape_3448.bin](https://github.com/patrikhuber/eos/blob/master/share/sfm_shape_3448.bin) is free for use for non-commercial purposes. For commercial purposes, contact the [Centre for Vision, Speech and Signal Processing](http://www.surrey.ac.uk/cvssp/).
+This code is licensed under the Apache License, Version 2.0. The 3D morphable face model under [share/sfm_shape_3448.bin](https://github.com/patrikhuber/eos/blob/master/share/sfm_shape_3448.bin) is free for use for non-commercial purposes. For commercial purposes and to obtain other model resolutions, see [http://www.cvssp.org/facemodel](http://www.cvssp.org/facemodel).
 
-Contributions are very welcome! (best in the form of pull requests.) Please use Github issues for any bug reports, ideas, and discussions.
+Contributions are very welcome! (best in the form of pull requests.) Please use GitHub issues for any bug reports, ideas, and discussions.
 
 If you use this code in your own work, please cite the following paper: _A Multiresolution 3D Morphable Face Model and Fitting Framework_, P. Huber, G. Hu, R. Tena, P. Mortazavian, W. Koppen, W. Christmas, M. Rätsch, J. Kittler, International Conference on Computer Vision Theory and Applications (VISAPP) 2016, Rome, Italy [[PDF]](http://www.patrikhuber.ch/files/3DMM_Framework_VISAPP_2016.pdf).
