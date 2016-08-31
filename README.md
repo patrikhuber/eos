@@ -15,7 +15,7 @@ At the moment, it mainly provides the following functionality:
   * the _Gold Standard Algorithm_ for estimating an affine camera matrix, from Multiple View Geometry, Hartley & Zisserman
   * a non-linear algorithm that directly estimates the pose angles and camera translation
 * Shape fitting, implementation of the linear shape-to-landmarks fitting of O. Aldrian & W. Smith, _Inverse Rendering of Faces with a 3D Morphable Model_, PAMI 2013
-* Expression fitting, and 6 linear expression blendshapes: angry, disgust, fear, happy, sad, surprised.
+* Expression fitting, and 6 linear expression blendshapes: anger, disgust, fear, happiness, sadness, surprise.
 * Isomap texture extraction to obtain a pose-invariant representation of the face texture.
 
 ## Usage
