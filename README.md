@@ -38,7 +38,7 @@ To build:
 ```
 git clone https://github.com/patrikhuber/eos.git
 mkdir build && cd build # creates a build directory next to the _eos_ folder
-cmake -G "<your favourite generator>" ../eos -DCMAKE_INSTALL_PREFIX=../install/`
+cmake -G "<your favourite generator>" ../eos -DCMAKE_INSTALL_PREFIX=../install/
 make && make install # or open the project file and build in an IDE like Visual Studio
 ```
 If some dependencies can't be found, copy `initial_cache.cmake.template` to `initial_cache.cmake`, edit the necessary paths and run `cmake` with `-C ../eos/initial_cache.cmake`.
