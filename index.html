@@ -53,6 +53,7 @@
 
 <ul>
 <li>MorphableModel class to represent a 3DMM (using OpenCVs <code>cv::Mat</code>)</li>
+<li>Our low-resolution, shape-only 3D Morphable Face Model (<a href="https://github.com/patrikhuber/eos/blob/master/share/sfm_shape_3448.bin">share/sfm_shape_3448.bin</a>)
 <li>Camera pose estimation, implementation of:
 <ul>
 <li>the <em>Gold Standard Algorithm</em> for estimating an affine camera matrix, from Multiple View Geometry, Hartley &amp; Zisserman</li>
@@ -60,6 +61,7 @@
 </ul>
 </li>
 <li>Shape fitting, implementation of the linear shape-to-landmarks fitting of O. Aldrian &amp; W. Smith, <em>Inverse Rendering of Faces with a 3D Morphable Model</em>, PAMI 2013</li>
+<li>Expression fitting, and 6 linear expression blendshapes: anger, disgust, fear, happiness, sadness, surprise.</li>
 <li>Isomap texture extraction to obtain a pose-invariant representation of the face texture.</li>
 </ul>
 
@@ -78,7 +80,7 @@
 
 <p>Contributions are very welcome! (best in the form of pull requests.) Please use Github issues for any bug reports, ideas, and discussions.</p>
 
-<p>If you use this code in your own work, please cite the following paper: <em>Fitting 3D Morphable Models using Local Features</em>, P. Huber, Z. Feng, W. Christmas, J. Kittler, M. Rätsch, IEEE International Conference on Image Processing (ICIP) 2015, Québec City, Canada (<a href="http://arxiv.org/abs/1503.02330">http://arxiv.org/abs/1503.02330</a>).</p>
+<p>If you use this code in your own work, please cite the following paper: <em>A Multiresolution 3D Morphable Face Model and Fitting Framework</em>, P. Huber, G. Hu, R. Tena, P. Mortazavian, W. Koppen, W. Christmas, M. Rätsch, J. Kittler, International Conference on Computer Vision Theory and Applications (VISAPP) 2016, Rome, Italy [<a href="http://www.patrikhuber.ch/files/3DMM_Framework_VISAPP_2016.pdf">PDF</a>].</p>
 
 <h3>
 <a id="more-about-my-research-on-patrikhuberch" class="anchor" href="#more-about-my-research-on-patrikhuberch" aria-hidden="true"><span class="octicon octicon-link"></span></a><a href="http://www.patrikhuber.ch">More about my research on patrikhuber.ch</a>
