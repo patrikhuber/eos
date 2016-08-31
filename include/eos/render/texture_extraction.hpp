@@ -55,7 +55,7 @@ namespace detail { cv::Mat interpolate_black_line(cv::Mat isomap); }
  * Extracts the texture of the face from the given image
  * and stores it as isomap (a rectangular texture map).
  *
- * Note/#Todo: Only use TextureInterpolation::NearestNeighbour
+ * Note/Todo: Only use TextureInterpolation::NearestNeighbour
  * for the moment, the other methods don't have correct handling of
  * the alpha channel (and will most likely throw an exception).
  *

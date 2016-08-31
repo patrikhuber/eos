@@ -50,6 +50,8 @@ std::tuple<std::vector<cv::Vec2f>, std::vector<cv::Vec4f>, std::vector<int>> get
 
 
 /**
+ * @brief Definition of the vertex indices that define the right and left model contour.
+ *
  * This class holds definitions for the contour (outline) on the right and left
  * side of the reference 3D face model. These can be found in the file
  * share/model_contours.json. The Surrey model's boundaries are conveniently
@@ -99,7 +101,7 @@ struct ModelContour
 	/**
 	 * Serialises this class using cereal.
 	 *
-	 * @param[in] ar The archive to serialise to (or to serialise from).
+	 * @param[in] archive The archive to serialise to (or to serialise from).
 	 */
 	template<class Archive>
 	void serialize(Archive& archive)
@@ -109,6 +111,8 @@ struct ModelContour
 };
 
 /**
+ * @brief Defines which 2D landmarks comprise the right and left face contour.
+ *
  * This class holds 2D image contour landmark information. More specifically,
  * it defines which 2D landmark IDs correspond to the right contour and which
  * to the left. These definitions are loaded from a file, for example from

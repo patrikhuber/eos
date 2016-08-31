@@ -58,7 +58,7 @@ struct Frustum
 	/**
 	 * Serialises this class using cereal.
 	 *
-	 * @param[in] ar The archive to serialise to (or to serialise from).
+	 * @param[in] archive The archive to serialise to (or to serialise from).
 	 */
 	template<class Archive>
 	void serialize(Archive& archive)
@@ -67,6 +67,11 @@ struct Frustum
 	};
 };
 
+/**
+ * @brief Type of a camera (projection).
+ * 
+ * Currently either orthographic or perspective. Used in RenderingParameters.
+ */
 enum class CameraType
 {
 	Orthographic,
@@ -89,6 +94,10 @@ enum class CameraType
  *
  * The rotation values are given in radians and estimated using the RPY convention.
  * Yaw is applied first to the model, then pitch, then roll (R * P * Y * vertex).
+ *
+ * Todo: This class may need a major overhaul so it supports all our fitting algorithms,
+ * some of them which use quaternions, others estimate the angles, as well as work with
+ * both orthographic and perspective projection.
  */
 struct RenderingParameters
 {
@@ -110,7 +119,7 @@ struct RenderingParameters
 	/**
 	 * Serialises this class using cereal.
 	 *
-	 * @param[in] ar The archive to serialise to (or to serialise from).
+	 * @param[in] archive The archive to serialise to (or to serialise from).
 	 */
 	template<class Archive>
 	void serialize(Archive& archive)

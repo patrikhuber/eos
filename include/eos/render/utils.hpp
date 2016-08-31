@@ -147,11 +147,15 @@ inline bool is_power_of_two(int x)
 	return !(x & (x - 1));
 };
 
+/**
+ * @brief Represents a texture for rendering.
+ * 
+ * Represents a texture and mipmap levels for use in the renderer.
+ * Todo: This whole class needs a major overhaul and documentation.
+ */
 class Texture
 {
 public:
-	// Todo: This whole class needs a major overhaul and documentation.
-
 	std::vector<cv::Mat> mipmaps;	// make Texture a friend class of renderer, then move this to private?
 	unsigned char widthLog, heightLog; // log2 of width and height of the base mip-level
 

@@ -165,7 +165,7 @@ cv::Mat estimate_affine_camera(std::vector<cv::Vec2f> image_points, std::vector<
  *
  * Note: Assumes the affine camera matrix only projects from world
  * to clip space, because a subsequent window transform is applied.
- * #Todo: This is outdated, now that we estimate the matrix from world
+ * Todo: This is outdated, now that we estimate the matrix from world
  * to screen space directly.
  *
  * @param[in] vertex A vertex in 3D space. vertex[3] = 1.0f.

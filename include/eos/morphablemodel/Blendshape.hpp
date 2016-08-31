@@ -50,7 +50,7 @@ struct Blendshape
 	/**
 	 * Serialises this class using cereal.
 	 *
-	 * @param[in] ar The archive to serialise to (or to serialise from).
+	 * @param[in] archive The archive to serialise to (or to serialise from).
 	 */
 	template<class Archive>
 	void serialize(Archive& archive)
