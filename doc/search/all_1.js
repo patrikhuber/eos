@@ -1,5 +1,11 @@
 var searchData=
 [
-  ['draw_5fsample',['draw_sample',['../classeos_1_1morphablemodel_1_1_morphable_model.html#a5fd1b15edc89e89808339859570a4c09',1,'eos::morphablemodel::MorphableModel::draw_sample(float shape_sigma=1.0f, float color_sigma=1.0f)'],['../classeos_1_1morphablemodel_1_1_morphable_model.html#a14787e8e29f390277b10f2d0e19aa587',1,'eos::morphablemodel::MorphableModel::draw_sample(std::vector&lt; float &gt; shape_coefficients, std::vector&lt; float &gt; color_coefficients)'],['../classeos_1_1morphablemodel_1_1_pca_model.html#a8dfc5fa04f9853f2e06b971b90415538',1,'eos::morphablemodel::PcaModel::draw_sample(float sigma=1.0f)'],['../classeos_1_1morphablemodel_1_1_pca_model.html#abb5f0c6f86ab0cf9b35016441d877745',1,'eos::morphablemodel::PcaModel::draw_sample(std::vector&lt; float &gt; coefficients)']]],
-  ['draw_5ftexcoords',['draw_texcoords',['../namespaceeos_1_1render.html#a4edecd42a4a04ba6eb95089dd3ff256a',1,'eos::render']]]
+  ['calculate_5fface_5fnormal',['calculate_face_normal',['../namespaceeos_1_1render.html#ac72cdee6eed13468a424824ddd0b3074',1,'eos::render']]],
+  ['cameratype',['CameraType',['../namespaceeos_1_1fitting.html#a63fce336daef96cde45f61701c4a3cf4',1,'eos::fitting']]],
+  ['clip_5fto_5fscreen_5fspace',['clip_to_screen_space',['../namespaceeos_1_1render.html#a04bb2f816e97ecb7f33cf8a50328e0db',1,'eos::render']]],
+  ['colors',['colors',['../structeos_1_1render_1_1_mesh.html#ae3b0e946a77b4f434b382b315ea7c24b',1,'eos::render::Mesh']]],
+  ['contourlandmarks',['ContourLandmarks',['../structeos_1_1fitting_1_1_contour_landmarks.html',1,'eos::fitting']]],
+  ['convert',['convert',['../classeos_1_1core_1_1_landmark_mapper.html#aa0d5463e00e3b8f074b1f81dbd9390a7',1,'eos::core::LandmarkMapper']]],
+  ['coordinates',['coordinates',['../structeos_1_1core_1_1_landmark.html#aa3ffa0bd40290634e485e3c5ca99229c',1,'eos::core::Landmark']]],
+  ['cv',['cv',['../namespacecv.html',1,'']]]
 ];

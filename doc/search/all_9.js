@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['orthographicrenderingparameters',['OrthographicRenderingParameters',['../structeos_1_1fitting_1_1_orthographic_rendering_parameters.html',1,'eos::fitting']]]
+  ['name',['name',['../structeos_1_1core_1_1_landmark.html#a85c0f001e311e994314e900dcb284ad3',1,'eos::core::Landmark::name()'],['../structeos_1_1morphablemodel_1_1_blendshape.html#ab87c9b282061a3dd72a8176fffa99594',1,'eos::morphablemodel::Blendshape::name()']]],
+  ['normalise_5fpca_5fbasis',['normalise_pca_basis',['../namespaceeos_1_1morphablemodel.html#a31a2b98e73170ae558f6c50e76524817',1,'eos::morphablemodel']]]
 ];

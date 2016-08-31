@@ -1,11 +1,6 @@
 var searchData=
 [
-  ['core',['core',['../namespaceeos_1_1core.html',1,'eos']]],
-  ['eos',['eos',['../namespaceeos.html',1,'']]],
-  ['estimate_5faffine_5fcamera',['estimate_affine_camera',['../namespaceeos_1_1fitting.html#afce5f7297094056a04ad26785c94bbd8',1,'eos::fitting']]],
-  ['estimate_5forthographic_5fcamera',['estimate_orthographic_camera',['../namespaceeos_1_1fitting.html#aebab65b3f9f46758b1363a347e6de852',1,'eos::fitting']]],
-  ['extract_5ftexture',['extract_texture',['../namespaceeos_1_1render.html#aafa8c960c3b6eb080da1536cc3634577',1,'eos::render::extract_texture(Mesh mesh, cv::Mat affine_camera_matrix, cv::Mat image, cv::Mat depthbuffer, bool compute_view_angle, TextureInterpolation mapping_type, int isomap_resolution)'],['../namespaceeos_1_1render.html#ad663c29566fafc33606349a35d0bdbf1',1,'eos::render::extract_texture(Mesh mesh, cv::Mat affine_camera_matrix, cv::Mat image, bool compute_view_angle=false, TextureInterpolation mapping_type=TextureInterpolation::NearestNeighbour, int isomap_resolution=512)']]],
-  ['fitting',['fitting',['../namespaceeos_1_1fitting.html',1,'eos']]],
-  ['morphablemodel',['morphablemodel',['../namespaceeos_1_1morphablemodel.html',1,'eos']]],
-  ['render',['render',['../namespaceeos_1_1render.html',1,'eos']]]
+  ['deformation',['deformation',['../structeos_1_1morphablemodel_1_1_blendshape.html#ae5d056f2f0473ddf1c0f000714c0b709',1,'eos::morphablemodel::Blendshape']]],
+  ['draw_5fsample',['draw_sample',['../classeos_1_1morphablemodel_1_1_morphable_model.html#a5fd1b15edc89e89808339859570a4c09',1,'eos::morphablemodel::MorphableModel::draw_sample(float shape_sigma=1.0f, float color_sigma=1.0f)'],['../classeos_1_1morphablemodel_1_1_morphable_model.html#a92ab3e9941de492954a1c603cf3e11c9',1,'eos::morphablemodel::MorphableModel::draw_sample(std::vector&lt; float &gt; shape_coefficients, std::vector&lt; float &gt; color_coefficients) const '],['../classeos_1_1morphablemodel_1_1_pca_model.html#a8dfc5fa04f9853f2e06b971b90415538',1,'eos::morphablemodel::PcaModel::draw_sample(float sigma=1.0f)'],['../classeos_1_1morphablemodel_1_1_pca_model.html#a1ec80573ada0d7ff6ce4e937944edeb2',1,'eos::morphablemodel::PcaModel::draw_sample(std::vector&lt; float &gt; coefficients) const ']]],
+  ['draw_5ftexcoords',['draw_texcoords',['../namespaceeos_1_1render.html#a4edecd42a4a04ba6eb95089dd3ff256a',1,'eos::render']]]
 ];
