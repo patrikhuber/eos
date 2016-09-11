@@ -32,6 +32,9 @@
 #include "cereal/types/vector.hpp"
 #include "cereal/archives/binary.hpp"
 
+#include "glm/vec2.hpp"
+#include "glm/vec3.hpp"
+#include "glm/vec4.hpp"
 #include <vector>
 #include <array>
 #include <cstdint>
@@ -320,14 +323,14 @@ eos::render::Mesh sample_to_mesh(cv::Mat shape, cv::Mat color, std::vector<std::
 	// Construct the mesh vertices:
 	mesh.vertices.resize(num_vertices);
 	for (auto i = 0; i < num_vertices; ++i) {
-		mesh.vertices[i] = cv::Vec4f(shape.at<float>(i * 3 + 0), shape.at<float>(i * 3 + 1), shape.at<float>(i * 3 + 2), 1.0f);
+		mesh.vertices[i] = glm::tvec4<float>(shape.at<float>(i * 3 + 0), shape.at<float>(i * 3 + 1), shape.at<float>(i * 3 + 2), 1.0f);
 	}
 
 	// Assign the vertex colour information if it's not a shape-only model:
 	if (!color.empty()) {
 		mesh.colors.resize(num_vertices);
 		for (auto i = 0; i < num_vertices; ++i) {
-			mesh.colors[i] = cv::Vec3f(color.at<float>(i * 3 + 0), color.at<float>(i * 3 + 1), color.at<float>(i * 3 + 2));        // order in hdf5: RGB. Order in OCV: BGR. But order in vertex.color: RGB
+			mesh.colors[i] = glm::tvec3<float>(color.at<float>(i * 3 + 0), color.at<float>(i * 3 + 1), color.at<float>(i * 3 + 2));        // order in hdf5: RGB. Order in OCV: BGR. But order in vertex.color: RGB
 		}
 	}
 
@@ -339,7 +342,7 @@ eos::render::Mesh sample_to_mesh(cv::Mat shape, cv::Mat color, std::vector<std::
 	if (!texture_coordinates.empty()) {
 		mesh.texcoords.resize(num_vertices);
 		for (auto i = 0; i < num_vertices; ++i) {
-			mesh.texcoords[i] = texture_coordinates[i];
+			mesh.texcoords[i] = glm::tvec2<float>(texture_coordinates[i][0], texture_coordinates[i][1]);
 		}
 	}
 

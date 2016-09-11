@@ -27,6 +27,8 @@
 #include "eos/render/render_affine.hpp"
 #include "eos/render/detail/render_detail.hpp"
 
+#include "glm/vec4.hpp"
+
 #include "opencv2/core/core.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 
@@ -140,12 +142,16 @@ inline cv::Mat extract_texture(Mesh mesh, cv::Mat affine_camera_matrix, cv::Mat 
 			// - Use render(), or as in render(...), transfer the vertices once, not in a loop over all triangles (vertices are getting transformed multiple times)
 			// - We transform them later (below) a second time. Only do it once.
 
-			// Project the triangle vertices to screen coordinates, and use the depthbuffer to check whether the triangle is visible:
-			const Vec4f v0 = Mat(affine_camera_matrix * Mat(mesh.vertices[triangle_indices[0]]));
-			const Vec4f v1 = Mat(affine_camera_matrix * Mat(mesh.vertices[triangle_indices[1]]));
-			const Vec4f v2 = Mat(affine_camera_matrix * Mat(mesh.vertices[triangle_indices[2]]));
+			cv::Vec4f v0_as_Vec4f(mesh.vertices[triangle_indices[0]].x, mesh.vertices[triangle_indices[0]].y, mesh.vertices[triangle_indices[0]].z, mesh.vertices[triangle_indices[0]].w);
+			cv::Vec4f v1_as_Vec4f(mesh.vertices[triangle_indices[1]].x, mesh.vertices[triangle_indices[1]].y, mesh.vertices[triangle_indices[1]].z, mesh.vertices[triangle_indices[1]].w);
+			cv::Vec4f v2_as_Vec4f(mesh.vertices[triangle_indices[2]].x, mesh.vertices[triangle_indices[2]].y, mesh.vertices[triangle_indices[2]].z, mesh.vertices[triangle_indices[2]].w);
 
-			if (!detail::is_triangle_visible(v0, v1, v2, depthbuffer))
+			// Project the triangle vertices to screen coordinates, and use the depthbuffer to check whether the triangle is visible:
+			const Vec4f v0 = Mat(affine_camera_matrix * Mat(v0_as_Vec4f));
+			const Vec4f v1 = Mat(affine_camera_matrix * Mat(v1_as_Vec4f));
+			const Vec4f v2 = Mat(affine_camera_matrix * Mat(v2_as_Vec4f));
+
+			if (!detail::is_triangle_visible(glm::tvec4<float>(v0[0], v0[1], v0[2], v0[3]), glm::tvec4<float>(v1[0], v1[1], v1[2], v1[3]), glm::tvec4<float>(v2[0], v2[1], v2[2], v2[3]), depthbuffer))
 			{
 				//continue;
 				return;
@@ -156,7 +162,7 @@ inline cv::Mat extract_texture(Mesh mesh, cv::Mat affine_camera_matrix, cv::Mat 
 			{
 				// Calculate how well visible the current triangle is:
 				// (in essence, the dot product of the viewing direction (0, 0, 1) and the face normal)
-				const Vec3f face_normal = calculate_face_normal(Vec3f(Mat(mesh.vertices[triangle_indices[0]]).rowRange(0, 3)), Vec3f(Mat(mesh.vertices[triangle_indices[1]]).rowRange(0, 3)), Vec3f(Mat(mesh.vertices[triangle_indices[2]]).rowRange(0, 3)));
+				const Vec3f face_normal = calculate_face_normal(Vec3f(Mat(v0_as_Vec4f).rowRange(0, 3)), Vec3f(Mat(v1_as_Vec4f).rowRange(0, 3)), Vec3f(Mat(v2_as_Vec4f).rowRange(0, 3)));
 				// Transform the normal to "screen" (kind of "eye") space using the upper 3x3 part of the affine camera matrix (=the translation can be ignored):
 				Vec3f face_normal_transformed = Mat(affine_camera_matrix.rowRange(0, 3).colRange(0, 3) * Mat(face_normal));
 				face_normal_transformed /= cv::norm(face_normal_transformed, cv::NORM_L2); // normalise to unit length

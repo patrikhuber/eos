@@ -24,6 +24,9 @@
 
 #include "eos/render/detail/render_detail.hpp"
 
+#include "glm/vec2.hpp"
+#include "glm/vec4.hpp"
+
 #include "opencv2/core/core.hpp"
 
 /**
@@ -85,7 +88,7 @@ inline bool is_point_in_triangle(cv::Point2f point, cv::Point2f triV0, cv::Point
  * @param[in] depthbuffer Pre-calculated depthbuffer.
  * @return True if the whole triangle is visible in the image.
  */
-bool is_triangle_visible(const cv::Vec4f& v0, const cv::Vec4f& v1, const cv::Vec4f& v2, cv::Mat depthbuffer)
+bool is_triangle_visible(const glm::tvec4<float>& v0, const glm::tvec4<float>& v1, const glm::tvec4<float>& v2, cv::Mat depthbuffer)
 {
 	// #Todo: Actually, only check the 3 vertex points, don't loop over the pixels - this should be enough.
 
@@ -96,10 +99,10 @@ bool is_triangle_visible(const cv::Vec4f& v0, const cv::Vec4f& v1, const cv::Vec
 	// clipping against the frustums etc.
 	// But as long as our model is fully on the screen, we're fine. Todo: Doublecheck that.
 
-	if (!detail::are_vertices_ccw_in_screen_space(v0, v1, v2))
+	if (!detail::are_vertices_ccw_in_screen_space(glm::tvec2<float>(v0), glm::tvec2<float>(v1), glm::tvec2<float>(v2)))
 		return false;
 
-	cv::Rect bbox = detail::calculate_clipped_bounding_box(v0, v1, v2, viewport_width, viewport_height);
+	cv::Rect bbox = detail::calculate_clipped_bounding_box(glm::tvec2<float>(v0), glm::tvec2<float>(v1), glm::tvec2<float>(v2), viewport_width, viewport_height);
 	int minX = bbox.x;
 	int maxX = bbox.x + bbox.width;
 	int minY = bbox.y;

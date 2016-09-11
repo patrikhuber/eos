@@ -22,7 +22,9 @@
 #ifndef MESH_HPP_
 #define MESH_HPP_
 
-#include "opencv2/core/core.hpp"
+#include "glm/vec2.hpp"
+#include "glm/vec3.hpp"
+#include "glm/vec4.hpp"
 
 #include "boost/filesystem/path.hpp"
 
@@ -44,9 +46,9 @@ namespace eos {
  */
 struct Mesh
 {
-	std::vector<cv::Vec4f> vertices; ///< 3D vertex positions.
-	std::vector<cv::Vec3f> colors; ///< Colour information for each vertex. Expected to be in RGB order.
-	std::vector<cv::Vec2f> texcoords; ///< Texture coordinates for each vertex.
+	std::vector<glm::tvec4<float>> vertices; ///< 3D vertex positions.
+	std::vector<glm::tvec3<float>> colors; ///< Colour information for each vertex. Expected to be in RGB order.
+	std::vector<glm::tvec2<float>> texcoords; ///< Texture coordinates for each vertex.
 
 	std::vector<std::array<int, 3>> tvi; ///< Triangle vertex indices
 	std::vector<std::array<int, 3>> tci; ///< Triangle color indices
