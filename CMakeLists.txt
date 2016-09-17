@@ -1,5 +1,5 @@
 project(eos)
-cmake_minimum_required(VERSION 2.8.10)
+cmake_minimum_required(VERSION 2.8.12)
 set(eos_VERSION_MAJOR 0)
 set(eos_VERSION_MINOR 7)
 set(eos_VERSION_PATCH 1)
@@ -58,6 +58,8 @@ option(BUILD_UTILS "Build utility applications." OFF)
 message(STATUS "BUILD_UTILS: ${BUILD_UTILS}")
 option(BUILD_DOCUMENTATION "Build the library documentation." OFF)
 message(STATUS "BUILD_DOCUMENTATION: ${BUILD_DOCUMENTATION}")
+option(GENERATE_PYTHON_BINDINGS "Build python bindings. Needs BUILD_UTILS enabled too." OFF)
+message(STATUS "GENERATE_PYTHON_BINDINGS: ${GENERATE_PYTHON_BINDINGS}")
 
 # Build a CPack driven installer package:
 include(InstallRequiredSystemLibraries) # This module will include any runtime libraries that are needed by the project for the current platform
@@ -139,6 +141,13 @@ source_group(fitting include/eos/fitting/*)
 source_group(fitting\\detail include/eos/fitting/detail/*)
 source_group(render include/eos/render/*)
 source_group(render\\detail include/eos/render/detail/*)
+
+# Generate python bindings using pybind11:
+if(GENERATE_PYTHON_BINDINGS)
+	set(PYBIND11_PATH "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/pybind11")
+	add_subdirectory(${PYBIND11_PATH})
+	# If this fails, the repo has probably not been cloned with submodules. Run: git submodule update --init
+endif()
 
 # The install target:
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/ DESTINATION include) # our library headers

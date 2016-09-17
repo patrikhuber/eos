@@ -1,5 +1,5 @@
 project(utils)
-cmake_minimum_required(VERSION 2.8.10)
+cmake_minimum_required(VERSION 2.8.12)
 
 # The utils need a few additional dependencies (e.g. boost filesystem and OpenCV highgui):
 
@@ -41,6 +41,13 @@ target_link_libraries(scm-to-cereal ${OpenCV_LIBS} ${Boost_LIBRARIES})
 # Store a json file as cereal .bin:
 add_executable(json-to-cereal-binary json-to-cereal-binary.cpp)
 target_link_libraries(json-to-cereal-binary ${OpenCV_LIBS} ${Boost_LIBRARIES})
+# Generate python bindings using pybind11:
+if(GENERATE_PYTHON_BINDINGS)
+	pybind11_add_module(eos_py create-python-bindings.cpp)
+	target_link_libraries(eos_py PRIVATE ${OpenCV_LIBS} ${Boost_LIBRARIES})
+	install(TARGETS eos_py DESTINATION bin)
+endif()
+
 # install target:
 install(TARGETS scm-to-cereal DESTINATION bin)
 install(TARGETS json-to-cereal-binary DESTINATION bin)
