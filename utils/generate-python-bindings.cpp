@@ -26,8 +26,8 @@ namespace py = pybind11;
 /**
  * Create python bindings for the eos library using pybind11.
  */
-PYBIND11_PLUGIN(eos_py) {
-    py::module m("eos_py", "Python bindings to the 3D Morphable Face Model fitting library");
+PYBIND11_PLUGIN(eos) {
+    py::module m("eos", "Python bindings to the 3D Morphable Face Model fitting library");
 
 	py::class_<eos::morphablemodel::PcaModel>(m, "PcaModel")
 		.def(py::init<>())
