@@ -1,7 +1,7 @@
 /*
  * eos - A 3D Morphable Model fitting library written in modern C++11/14.
  *
- * File: utils/create-python-bindings.cpp
+ * File: utils/generate-python-bindings.cpp
  *
  * Copyright 2016 Patrik Huber
  *
@@ -24,7 +24,7 @@
 namespace py = pybind11;
 
 /**
- * Create python bindings for the eos library using pybind11.
+ * Generate python bindings for the eos library using pybind11.
  */
 PYBIND11_PLUGIN(eos) {
     py::module m("eos", "Python bindings to the 3D Morphable Face Model fitting library");
