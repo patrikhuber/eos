@@ -19,6 +19,8 @@
  */
 #include "eos/morphablemodel/PcaModel.hpp"
 
+#include "opencv2/core/core.hpp"
+
 #include "pybind11/pybind11.h"
 
 namespace py = pybind11;
@@ -28,10 +30,24 @@ namespace py = pybind11;
  */
 PYBIND11_PLUGIN(eos) {
     py::module m("eos", "Python bindings to the 3D Morphable Face Model fitting library");
+	
+	py::class_<cv::Vec4f>(m, "Vec4f", "Wrapper for OpenCV's cv::Vec4f type")
+		.def_buffer([](cv::Vec4f &vec) -> py::buffer_info {
+		return py::buffer_info(
+			&vec.val,                               /* Pointer to buffer */
+			sizeof(float),                          /* Size of one scalar */
+			py::format_descriptor<float>::format(), /* Python struct-style format descriptor */
+			2,                                      /* Number of dimensions */
+			{ vec.rows, vec.cols },                 /* Buffer dimensions */
+			{ sizeof(float),             /* Strides (in bytes) for each index */
+			sizeof(float) }					/* => both sizeof(float), since the data is hold in an array, i.e. contiguous memory */
+		);
+	});
 
-	py::class_<eos::morphablemodel::PcaModel>(m, "PcaModel")
+	py::class_<eos::morphablemodel::PcaModel>(m, "PcaModel", "Class representing a PcaModel with a mean, eigenvectors and eigenvalues.")
 		.def(py::init<>())
-		.def("get_mean_at_point", &eos::morphablemodel::PcaModel::get_mean_at_point);
+		.def("get_mean_at_point", &eos::morphablemodel::PcaModel::get_mean_at_point, "Returns the mean at the given vertex id.")
+		;
 
     return m.ptr();
 };
