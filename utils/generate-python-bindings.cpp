@@ -40,9 +40,35 @@ PYBIND11_PLUGIN(eos) {
 	
 	/**
 	 * General bindings, for OpenCV vector types and cv::Mat:
+	 *  - cv::Vec2f
+	 *  - cv::Vec4f
+	 *  - cv::Mat (only 1-channel matrices and only conversion of CV_32F C++ matrices to Python, and conversion of CV_32FC1 and CV_64FC1 matrices from Python to C++)
 	 */
-	py::class_<cv::Vec4f>(eos_module, "Vec4f", "Wrapper for OpenCV's cv::Vec4f type")
-		.def_buffer([](cv::Vec4f &vec) -> py::buffer_info {
+	py::class_<cv::Vec2f>(eos_module, "Vec2f", "Wrapper for OpenCV's cv::Vec2f type.")
+		.def("__init__", [](cv::Vec2f& vec, py::buffer b) {
+			py::buffer_info info = b.request();
+
+			if (info.ndim != 1)
+				throw std::runtime_error("Buffer ndim is " + std::to_string(info.ndim) + ", please hand a buffer with dimension == 1 to create a Vec2f.");
+			if (info.strides.size() != 1)
+				throw std::runtime_error("strides.size() is " + std::to_string(info.strides.size()) + ", please hand a buffer with strides.size() == 1 to create a Vec2f.");
+			// Todo: Should add a check that checks for default stride sizes, everything else would not work yet I think.
+			if (info.shape.size() != 1)
+				throw std::runtime_error("shape.size() is " + std::to_string(info.shape.size()) + ", please hand a buffer with shape dimension == 1 to create a Vec2f.");
+			if (info.shape[0] != 2)
+				throw std::runtime_error("shape[0] is " + std::to_string(info.shape[0]) + ", please hand a buffer with 2 entries to create a Vec2f.");
+
+			if (info.format == py::format_descriptor<float>::format())
+			{
+				cv::Mat temp(1, 2, CV_32FC1, info.ptr);
+				std::cout << temp << std::endl;
+				new (&vec) cv::Vec2f(temp);
+			}
+			else {
+				throw std::runtime_error("Not given a buffer of type float - please hand a buffer of type float to create a Vec2f.");
+			}
+		})
+		.def_buffer([](cv::Vec2f& vec) -> py::buffer_info {
 		return py::buffer_info(
 			&vec.val,                               /* Pointer to buffer */
 			sizeof(float),                          /* Size of one scalar */
@@ -54,52 +80,113 @@ PYBIND11_PLUGIN(eos) {
 		);
 	});
 
-	py::class_<cv::Mat>(eos_module, "Mat")
-		.def_buffer([](cv::Mat &mat) -> py::buffer_info {
+	py::class_<cv::Vec4f>(eos_module, "Vec4f", "Wrapper for OpenCV's cv::Vec4f type.")
+		.def("__init__", [](cv::Vec4f& vec, py::buffer b) {
+			py::buffer_info info = b.request();
 
-		if (!mat.isContinuous())
-		{
-			// I think these throw messages are not shown in Python, it just crashes. Thus, use cout for now.
-			std::string error_msg("Only continuous (contiguous) cv::Mat objects are currently supported.");
-			std::cout << error_msg << std::endl;
-			throw std::runtime_error(error_msg);
-		}
-		// Note: Also stride/step should be 1 too, but I think this is covered by isContinuous().
-		auto dimensions = mat.dims;
-		if (dimensions != 2)
-		{
-			std::string error_msg("Only cv::Mat objects with dims == 2 are currently supported.");
-			std::cout << error_msg << std::endl;
-			throw std::runtime_error(error_msg);
-		}
-		if (mat.channels() != 1)
-		{
-			std::string error_msg("Only cv::Mat objects with channels() == 1 are currently supported.");
-			std::cout << error_msg << std::endl;
-			throw std::runtime_error(error_msg);
-		}
+			if (info.ndim != 1)
+				throw std::runtime_error("Buffer ndim is " + std::to_string(info.ndim) + ", please hand a buffer with dimension == 1 to create a Vec4f.");
+			if (info.strides.size() != 1)
+				throw std::runtime_error("strides.size() is " + std::to_string(info.strides.size()) + ", please hand a buffer with strides.size() == 1 to create a Vec4f.");
+			// Todo: Should add a check that checks for default stride sizes, everything else would not work yet I think.
+			if (info.shape.size() != 1)
+				throw std::runtime_error("shape.size() is " + std::to_string(info.shape.size()) + ", please hand a buffer with shape dimension == 1 to create a Vec4f.");
+			if (info.shape[0] != 4)
+				throw std::runtime_error("shape[0] is " + std::to_string(info.shape[0]) + ", please hand a buffer with 4 entries to create a Vec4f.");
 
-		std::size_t rows = mat.rows;
-		std::size_t cols = mat.cols;
-
-		if (mat.type() == CV_32F) {
-			return py::buffer_info(
-				mat.data,                               /* Pointer to buffer */
-				sizeof(float),                          /* Size of one scalar */
-				py::format_descriptor<float>::format(), /* Python struct-style format descriptor */
-				dimensions,                                      /* Number of dimensions */
-				{ rows, cols },                 /* Buffer dimensions */
-				{ sizeof(float) * cols,             /* Strides (in bytes) for each index */
-				sizeof(float) }	// this way is correct for row-major memory layout (OpenCV)
-			);
-		}
-		else {
-			std::string error_msg("Only the cv::Mat type CV_32F is currently supported. If needed, it would be easy to add CV_8U and CV_64F.");
-			std::cout << error_msg << std::endl;
-			throw std::runtime_error(error_msg);
-		}
-		// Will never reach here.
+			if (info.format == py::format_descriptor<float>::format())
+			{
+				cv::Mat temp(1, 4, CV_32FC1, info.ptr);
+				std::cout << temp << std::endl;
+				new (&vec) cv::Vec4f(temp);
+			}
+			else {
+				throw std::runtime_error("Not given a buffer of type float - please hand a buffer of type float to create a Vec4f.");
+			}
+		})
+		.def_buffer([](cv::Vec4f& vec) -> py::buffer_info {
+		return py::buffer_info(
+			&vec.val,                               /* Pointer to buffer */
+			sizeof(float),                          /* Size of one scalar */
+			py::format_descriptor<float>::format(), /* Python struct-style format descriptor */
+			2,                                      /* Number of dimensions */
+			{ vec.rows, vec.cols },                 /* Buffer dimensions */
+			{ sizeof(float),             /* Strides (in bytes) for each index */
+			sizeof(float) }					/* => both sizeof(float), since the data is hold in an array, i.e. contiguous memory */
+		);
 	});
+
+	py::class_<cv::Mat>(eos_module, "Mat", "Wrapper for OpenCV's cv::Mat type (currently only 1-channel matrices are supported and only conversion of CV_32F C++ matrices to Python, and conversion of CV_32FC1 and CV_64FC1 matrices from Python to C++).")
+		// This adds support for creating eos.Mat objects in Python from buffers like NumPy arrays:
+		.def("__init__", [](cv::Mat& mat, py::buffer b) {
+			py::buffer_info info = b.request();
+			
+			if (info.ndim != 2)
+				throw std::runtime_error("Buffer ndim is " + std::to_string(info.ndim) + ", only buffer dimension == 2 is currently supported.");
+			if (info.strides.size() != 2)
+				throw std::runtime_error("strides.size() is " + std::to_string(info.strides.size()) + ", only strides.size() == 2 is currently supported.");
+			// Todo: Should add a check that checks for default stride sizes, everything else would not work yet I think.
+			if (info.shape.size() != 2)
+				throw std::runtime_error("shape.size() is " + std::to_string(info.shape.size()) + ", only shape dimensions of == 2 are currently supported - i.e. only 2-dimensional matrices with rows and colums.");
+
+			if (info.format == py::format_descriptor<float>::format())
+			{
+				new (&mat) cv::Mat(info.shape[0], info.shape[1], CV_32FC1, info.ptr); // uses AUTO_STEP
+			}
+			else if (info.format == py::format_descriptor<double>::format())
+			{
+				new (&mat) cv::Mat(info.shape[0], info.shape[1], CV_64FC1, info.ptr); // uses AUTO_STEP
+			}
+			else {
+				throw std::runtime_error("Only the cv::Mat types CV_32FC1 and CV_64FC1 are currently supported. If needed, it should not be too hard to add other types.");
+			}
+		})
+		// This gives cv::Mat a Python buffer interface, so the data can be used as NumPy array in Python:
+		.def_buffer([](cv::Mat& mat) -> py::buffer_info {
+			// Note: Exceptions within def_buffer don't seem to be shown in Python, use cout for now.
+			if (!mat.isContinuous())
+			{
+				std::string error_msg("Only continuous (contiguous) cv::Mat objects are currently supported.");
+				std::cout << error_msg << std::endl;
+				throw std::runtime_error(error_msg);
+			}
+			// Note: Also stride/step should be 1 too, but I think this is covered by isContinuous().
+			auto dimensions = mat.dims;
+			if (dimensions != 2)
+			{
+				std::string error_msg("Only cv::Mat objects with dims == 2 are currently supported.");
+				std::cout << error_msg << std::endl;
+				throw std::runtime_error(error_msg);
+			}
+			if (mat.channels() != 1)
+			{
+				std::string error_msg("Only cv::Mat objects with channels() == 1 are currently supported.");
+				std::cout << error_msg << std::endl;
+				throw std::runtime_error(error_msg);
+			}
+
+			std::size_t rows = mat.rows;
+			std::size_t cols = mat.cols;
+
+			if (mat.type() == CV_32F) {
+				return py::buffer_info(
+					mat.data,                               /* Pointer to buffer */
+					sizeof(float),                          /* Size of one scalar */
+					py::format_descriptor<float>::format(), /* Python struct-style format descriptor */
+					dimensions,                                      /* Number of dimensions */
+					{ rows, cols },                 /* Buffer dimensions */
+					{ sizeof(float) * cols,             /* Strides (in bytes) for each index */
+					sizeof(float) }	// this way is correct for row-major memory layout (OpenCV)
+				);
+			}
+			else {
+				std::string error_msg("Only the cv::Mat type CV_32F is currently supported. If needed, it would be easy to add CV_8U and CV_64F.");
+				std::cout << error_msg << std::endl;
+				throw std::runtime_error(error_msg);
+			}
+			// Will never reach here.
+		})
+	;
 
 
 	/**
