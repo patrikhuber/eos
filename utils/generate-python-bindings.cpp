@@ -25,6 +25,10 @@
 #include "pybind11/pybind11.h"
 #include "pybind11/stl.h"
 
+#include <iostream>
+#include <stdexcept>
+#include <string>
+
 namespace py = pybind11;
 using namespace eos;
 
@@ -35,7 +39,7 @@ PYBIND11_PLUGIN(eos) {
     py::module eos_module("eos", "Python bindings to the 3D Morphable Face Model fitting library");
 	
 	/**
-	 * General bindings, for OpenCV vector types and stuff:
+	 * General bindings, for OpenCV vector types and cv::Mat:
 	 */
 	py::class_<cv::Vec4f>(eos_module, "Vec4f", "Wrapper for OpenCV's cv::Vec4f type")
 		.def_buffer([](cv::Vec4f &vec) -> py::buffer_info {
@@ -50,6 +54,54 @@ PYBIND11_PLUGIN(eos) {
 		);
 	});
 
+	py::class_<cv::Mat>(eos_module, "Mat")
+		.def_buffer([](cv::Mat &mat) -> py::buffer_info {
+
+		if (!mat.isContinuous())
+		{
+			// I think these throw messages are not shown in Python, it just crashes. Thus, use cout for now.
+			std::string error_msg("Only continuous (contiguous) cv::Mat objects are currently supported.");
+			std::cout << error_msg << std::endl;
+			throw std::runtime_error(error_msg);
+		}
+		// Note: Also stride/step should be 1 too, but I think this is covered by isContinuous().
+		auto dimensions = mat.dims;
+		if (dimensions != 2)
+		{
+			std::string error_msg("Only cv::Mat objects with dims == 2 are currently supported.");
+			std::cout << error_msg << std::endl;
+			throw std::runtime_error(error_msg);
+		}
+		if (mat.channels() != 1)
+		{
+			std::string error_msg("Only cv::Mat objects with channels() == 1 are currently supported.");
+			std::cout << error_msg << std::endl;
+			throw std::runtime_error(error_msg);
+		}
+
+		std::size_t rows = mat.rows;
+		std::size_t cols = mat.cols;
+
+		if (mat.type() == CV_32F) {
+			return py::buffer_info(
+				mat.data,                               /* Pointer to buffer */
+				sizeof(float),                          /* Size of one scalar */
+				py::format_descriptor<float>::format(), /* Python struct-style format descriptor */
+				dimensions,                                      /* Number of dimensions */
+				{ rows, cols },                 /* Buffer dimensions */
+				{ sizeof(float) * cols,             /* Strides (in bytes) for each index */
+				sizeof(float) }	// this way is correct for row-major memory layout (OpenCV)
+			);
+		}
+		else {
+			std::string error_msg("Only the cv::Mat type CV_32F is currently supported. If needed, it would be easy to add CV_8U and CV_64F.");
+			std::cout << error_msg << std::endl;
+			throw std::runtime_error(error_msg);
+		}
+		// Will never reach here.
+	});
+
+
 	/**
 	 * Bindings for the eos::morphablemodel namespace:
 	 */
@@ -59,7 +111,9 @@ PYBIND11_PLUGIN(eos) {
 		.def("get_num_principal_components", &morphablemodel::PcaModel::get_num_principal_components, "Returns the number of principal components in the model.")
 		.def("get_data_dimension", &morphablemodel::PcaModel::get_data_dimension, "Returns the dimension of the data, i.e. the number of shape dimensions.")
 		.def("get_triangle_list", &morphablemodel::PcaModel::get_triangle_list, "Returns a list of triangles on how to assemble the vertices into a mesh.")
+		.def("get_mean", &morphablemodel::PcaModel::get_mean, "Returns the mean of the model.")
 		.def("get_mean_at_point", &morphablemodel::PcaModel::get_mean_at_point, "Return the value of the mean at a given vertex index.")
+		.def("draw_sample", (cv::Mat (morphablemodel::PcaModel::*)(std::vector<float>) const)&morphablemodel::PcaModel::draw_sample, "Returns a sample from the model with the given PCA coefficients. The given coefficients should follow a standard normal distribution, i.e. not be \"normalised\" with their eigenvalues/variances.")
 		;
 
 	py::class_<morphablemodel::MorphableModel>(morphablemodel_module, "MorphableModel", "A class representing a 3D Morphable Model, consisting of a shape- and colour (albedo) PCA model, as well as texture (uv) coordinates.")
