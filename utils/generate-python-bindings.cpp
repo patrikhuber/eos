@@ -19,6 +19,8 @@
  */
 #include "eos/morphablemodel/PcaModel.hpp"
 #include "eos/morphablemodel/MorphableModel.hpp"
+#include "eos/morphablemodel/Blendshape.hpp"
+#include "eos/fitting/nonlinear_camera_estimation.hpp"
 
 #include "opencv2/core/core.hpp"
 
@@ -36,7 +38,7 @@ using namespace eos;
  * Generate python bindings for the eos library using pybind11.
  */
 PYBIND11_PLUGIN(eos) {
-    py::module eos_module("eos", "Python bindings to the 3D Morphable Face Model fitting library");
+    py::module eos_module("eos", "Python bindings to the eos 3D Morphable Face Model fitting library");
 	
 	/**
 	 * General bindings, for OpenCV vector types and cv::Mat:
@@ -191,8 +193,11 @@ PYBIND11_PLUGIN(eos) {
 
 	/**
 	 * Bindings for the eos::morphablemodel namespace:
+	 *  - PcaModel
+	 *  - MorphableModel
+	 *  - load_model()
 	 */
-	py::module morphablemodel_module = eos_module.def_submodule("morphablemodel", "Doc for submodule.");
+	py::module morphablemodel_module = eos_module.def_submodule("morphablemodel", "Functionality to represent a Morphable Model, its PCA models, and functions to load models and blendshapes.");
 
 	py::class_<morphablemodel::PcaModel>(morphablemodel_module, "PcaModel", "Class representing a PcaModel with a mean, eigenvectors and eigenvalues, as well as a list of triangles to build a mesh.")
 		.def("get_num_principal_components", &morphablemodel::PcaModel::get_num_principal_components, "Returns the number of principal components in the model.")
@@ -209,6 +214,34 @@ PYBIND11_PLUGIN(eos) {
 		;
 
 	morphablemodel_module.def("load_model", &morphablemodel::load_model, "Load a Morphable Model from a cereal::BinaryInputArchive (.bin) from the harddisk.");
+
+	/**
+	 *  - Blendshape
+	 *  - load_blendshapes()
+	 */
+	py::class_<morphablemodel::Blendshape>(morphablemodel_module, "Blendshape", "A class representing a 3D blendshape.")
+		.def_readwrite("name", &morphablemodel::Blendshape::name, "Name of the blendshape.")
+		.def_readwrite("deformation", &morphablemodel::Blendshape::deformation, "A 3m x 1 col-vector (xyzxyz...)', where m is the number of model-vertices. Has the same format as PcaModel::mean.")
+		;
+
+	morphablemodel_module.def("load_blendshapes", &morphablemodel::load_blendshapes, "Load a file with blendshapes from a cereal::BinaryInputArchive (.bin) from the harddisk.");
+
+	/**
+	 * Bindings for the eos::fitting namespace:
+	 *  - RenderingParameters
+	 *  - estimate_orthographic_camera()
+	 */
+	py::module fitting_module = eos_module.def_submodule("fitting", "Pose and shape fitting of a 3D Morphable Model.");
+
+	py::class_<fitting::RenderingParameters>(fitting_module, "RenderingParameters", "Represents a set of estimated model parameters (rotation, translation) and camera parameters (viewing frustum). Angles are applied using the RPY convention.")
+		.def_readwrite("r_x", &fitting::RenderingParameters::r_x, "Pitch angle, in radians.")
+		.def_readwrite("r_y", &fitting::RenderingParameters::r_y, "Yaw angle, in radians.")
+		.def_readwrite("r_z", &fitting::RenderingParameters::r_z, "Roll angle, in radians.")
+		.def_readwrite("t_x", &fitting::RenderingParameters::t_x, "Model x translation.")
+		.def_readwrite("t_y", &fitting::RenderingParameters::t_y, "Model y translation.")
+		;
+
+	fitting_module.def("estimate_orthographic_camera", &fitting::estimate_orthographic_camera, "This algorithm estimates the rotation angles and translation of the model, as well as the viewing frustum of the camera, given a set of corresponding 2D-3D points.");
 
     return eos_module.ptr();
 };
