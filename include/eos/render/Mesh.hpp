@@ -68,12 +68,20 @@ inline void write_obj(Mesh mesh, std::string filename)
 
 	if (mesh.colors.empty()) {
 		for (std::size_t i = 0; i < mesh.vertices.size(); ++i) {
-			obj_file << "v " << mesh.vertices[i][0] << " " << mesh.vertices[i][1] << " " << mesh.vertices[i][2] << " " << std::endl;
+			obj_file << "v " << mesh.vertices[i][0] << " " << mesh.vertices[i][1] << " " << mesh.vertices[i][2] << std::endl;
 		}
 	}
 	else {
 		for (std::size_t i = 0; i < mesh.vertices.size(); ++i) {
-			obj_file << "v " << mesh.vertices[i][0] << " " << mesh.vertices[i][1] << " " << mesh.vertices[i][2] << " " << mesh.colors[i][0] << " " << mesh.colors[i][1] << " " << mesh.colors[i][2] << " " << std::endl;
+			obj_file << "v " << mesh.vertices[i][0] << " " << mesh.vertices[i][1] << " " << mesh.vertices[i][2] << " " << mesh.colors[i][0] << " " << mesh.colors[i][1] << " " << mesh.colors[i][2] << std::endl;
+		}
+	}
+
+	if (!mesh.texcoords.empty())
+	{
+		for (auto&& tc : mesh.texcoords)
+		{
+			obj_file << "vt " << tc[0] << " " << tc[1] << std::endl;
 		}
 	}
 
