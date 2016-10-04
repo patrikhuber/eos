@@ -7,27 +7,13 @@
     All rights reserved. Use of this source code is governed by a
     BSD-style license that can be found in pybind11's LICENSE file.
 */
-
 #pragma once
 
 #include <cstddef>
 
 #include "pybind11/numpy.h"
 
-#if defined(__INTEL_COMPILER)
-#  pragma warning(disable: 1682) // implicit conversion of a 64-bit integral type to a smaller integral type (potential portability problem)
-#elif defined(__GNUG__) || defined(__clang__)
-#  pragma GCC diagnostic push
-#  pragma GCC diagnostic ignored "-Wconversion"
-#  pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif
-
-#include "glm/mat2x2.hpp"
-#include "glm/gtc/type_ptr.hpp"
-
-#if defined(__GNUG__) || defined(__clang__)
-#  pragma GCC diagnostic pop
-#endif
+#include "glm/gtc/type_ptr.hpp" // includes all vector and matrix types too
 
 #if defined(_MSC_VER)
 #pragma warning(push)
@@ -49,14 +35,14 @@ template<typename T, glm::precision P>
 struct type_caster<glm::tvec2<T, P>>
 {
 	using vector_type = glm::tvec2<T, P>;
-    typedef typename T Scalar;
+	typedef typename T Scalar;
 	static constexpr std::size_t num_elements = 2;
 
-    bool load(handle src, bool)
+	bool load(handle src, bool)
 	{
-        array_t<Scalar> buf(src, true);
-        if (!buf.check())
-            return false;
+		array_t<Scalar> buf(src, true);
+		if (!buf.check())
+			return false;
 
 		if (buf.ndim() == 1) // a 1-dimensional vector
 		{
@@ -69,42 +55,42 @@ struct type_caster<glm::tvec2<T, P>>
 				return false;
 			}
 			value = glm::make_vec2(buf.mutable_data()); // make_vec* copies the data (unnecessarily)
-        }
+		}
 		else { // buf.ndim() != 1
-            return false;
-        }
+			return false;
+		}
 		return true;
-    }
+	}
 
-    static handle cast(const vector_type& src, return_value_policy /* policy */, handle /* parent */)
+	static handle cast(const vector_type& src, return_value_policy /* policy */, handle /* parent */)
 	{
 		return array(
 			num_elements,			// shape
 			glm::value_ptr(src)		// data
 		).release();
-    }
+	}
 
 	// Specifies the doc-string for the type in Python:
-    PYBIND11_TYPE_CASTER(vector_type, _("numpy.ndarray[") + npy_format_descriptor<Scalar>::name() +
-            _("[") + elements() + _("]]"));
+	PYBIND11_TYPE_CASTER(vector_type, _("numpy.ndarray[") + npy_format_descriptor<Scalar>::name() +
+		_("[") + elements() + _("]]"));
 
 protected:
-    template <typename T = vector_type>
-    static PYBIND11_DESCR elements() { return _(std::to_string(num_elements).c_str()); }
+	template <typename T = vector_type>
+	static PYBIND11_DESCR elements() { return _(std::to_string(num_elements).c_str()); }
 };
 
 template<typename T, glm::precision P>
 struct type_caster<glm::tvec3<T, P>>
 {
 	using vector_type = glm::tvec3<T, P>;
-    typedef typename T Scalar;
+	typedef typename T Scalar;
 	static constexpr std::size_t num_elements = 3;
 
-    bool load(handle src, bool)
+	bool load(handle src, bool)
 	{
-        array_t<Scalar> buf(src, true);
-        if (!buf.check())
-            return false;
+		array_t<Scalar> buf(src, true);
+		if (!buf.check())
+			return false;
 
 		if (buf.ndim() == 1) // a 1-dimensional vector
 		{
@@ -117,42 +103,42 @@ struct type_caster<glm::tvec3<T, P>>
 				return false;
 			}
 			value = glm::make_vec3(buf.mutable_data()); // make_vec* copies the data (unnecessarily)
-        }
+		}
 		else { // buf.ndim() != 1
-            return false;
-        }
+			return false;
+		}
 		return true;
-    }
+	}
 
-    static handle cast(const vector_type& src, return_value_policy /* policy */, handle /* parent */)
+	static handle cast(const vector_type& src, return_value_policy /* policy */, handle /* parent */)
 	{
 		return array(
 			num_elements,			// shape
 			glm::value_ptr(src)		// data
 		).release();
-    }
+	}
 
 	// Specifies the doc-string for the type in Python:
-    PYBIND11_TYPE_CASTER(vector_type, _("numpy.ndarray[") + npy_format_descriptor<Scalar>::name() +
-            _("[") + elements() + _("]]"));
+	PYBIND11_TYPE_CASTER(vector_type, _("numpy.ndarray[") + npy_format_descriptor<Scalar>::name() +
+		_("[") + elements() + _("]]"));
 
 protected:
-    template <typename T = vector_type>
-    static PYBIND11_DESCR elements() { return _(std::to_string(num_elements).c_str()); }
+	template <typename T = vector_type>
+	static PYBIND11_DESCR elements() { return _(std::to_string(num_elements).c_str()); }
 };
 
 template<typename T, glm::precision P>
 struct type_caster<glm::tvec4<T, P>>
 {
 	using vector_type = glm::tvec4<T, P>;
-    typedef typename T Scalar;
+	typedef typename T Scalar;
 	static constexpr std::size_t num_elements = 4;
 
-    bool load(handle src, bool)
+	bool load(handle src, bool)
 	{
-        array_t<Scalar> buf(src, true);
-        if (!buf.check())
-            return false;
+		array_t<Scalar> buf(src, true);
+		if (!buf.check())
+			return false;
 
 		if (buf.ndim() == 1) // a 1-dimensional vector
 		{
@@ -165,43 +151,43 @@ struct type_caster<glm::tvec4<T, P>>
 				return false;
 			}
 			value = glm::make_vec4(buf.mutable_data()); // make_vec* copies the data (unnecessarily)
-        }
+		}
 		else { // buf.ndim() != 1
-            return false;
-        }
+			return false;
+		}
 		return true;
-    }
+	}
 
-    static handle cast(const vector_type& src, return_value_policy /* policy */, handle /* parent */)
+	static handle cast(const vector_type& src, return_value_policy /* policy */, handle /* parent */)
 	{
 		return array(
 			num_elements,			// shape
 			glm::value_ptr(src)		// data
 		).release();
-    }
+	}
 
 	// Specifies the doc-string for the type in Python:
-    PYBIND11_TYPE_CASTER(vector_type, _("numpy.ndarray[") + npy_format_descriptor<Scalar>::name() +
-            _("[") + elements() + _("]]"));
+	PYBIND11_TYPE_CASTER(vector_type, _("numpy.ndarray[") + npy_format_descriptor<Scalar>::name() +
+		_("[") + elements() + _("]]"));
 
 protected:
-    template <typename T = vector_type>
-    static PYBIND11_DESCR elements() { return _(std::to_string(num_elements).c_str()); }
+	template <typename T = vector_type>
+	static PYBIND11_DESCR elements() { return _(std::to_string(num_elements).c_str()); }
 };
 
 template<typename T, glm::precision P>
 struct type_caster<glm::tmat4x4<T, P>>
 {
 	using matrix_type = glm::tmat4x4<T, P>;
-    typedef typename T Scalar;
+	typedef typename T Scalar;
 	static constexpr std::size_t num_rows = 4;
 	static constexpr std::size_t num_cols = 4;
 
-    bool load(handle src, bool)
+	bool load(handle src, bool)
 	{
-        array_t<Scalar> buf(src, true);
-        if (!buf.check())
-            return false;
+		array_t<Scalar> buf(src, true);
+		if (!buf.check())
+			return false;
 
 		if (buf.ndim() == 2) // a 2-dimensional matrix
 		{
@@ -216,31 +202,31 @@ struct type_caster<glm::tmat4x4<T, P>>
 			// What we get from Python is laid out in row-major memory order, while GLM's
 			// storage is col-major, thus, we transpose.
 			value = glm::transpose(glm::make_mat4x4(buf.mutable_data())); // make_mat*() copies the data (unnecessarily)
-        }
+		}
 		else { // buf.ndim() != 2
-            return false;
-        }
+			return false;
+		}
 		return true;
-    }
+	}
 
-    static handle cast(const matrix_type& src, return_value_policy /* policy */, handle /* parent */)
+	static handle cast(const matrix_type& src, return_value_policy /* policy */, handle /* parent */)
 	{
 		return array(
 			{ num_rows, num_cols }, // shape
 			{ sizeof(Scalar), sizeof(Scalar) * num_rows }, // strides - flip the row/col layout!
 			glm::value_ptr(src)                            // data
 		).release();
-    }
+	}
 
 	// Specifies the doc-string for the type in Python:
-    PYBIND11_TYPE_CASTER(matrix_type, _("numpy.ndarray[") + npy_format_descriptor<Scalar>::name() +
-            _("[") + rows() + _(", ") + cols() + _("]]"));
+	PYBIND11_TYPE_CASTER(matrix_type, _("numpy.ndarray[") + npy_format_descriptor<Scalar>::name() +
+		_("[") + rows() + _(", ") + cols() + _("]]"));
 
 protected:
-    template <typename T = matrix_type>
-    static PYBIND11_DESCR rows() { return _(std::to_string(num_rows).c_str()); }
-    template <typename T = matrix_type>
-    static PYBIND11_DESCR cols() { return _(std::to_string(num_cols).c_str()); }
+	template <typename T = matrix_type>
+	static PYBIND11_DESCR rows() { return _(std::to_string(num_rows).c_str()); }
+	template <typename T = matrix_type>
+	static PYBIND11_DESCR cols() { return _(std::to_string(num_cols).c_str()); }
 };
 
 NAMESPACE_END(detail)
