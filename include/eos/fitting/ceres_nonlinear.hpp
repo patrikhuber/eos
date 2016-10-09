@@ -27,6 +27,8 @@
 
 #include "glm/gtc/quaternion.hpp"
 
+#include "ceres/cubic_interpolation.h"
+
 #include "opencv2/core/core.hpp" // for Vec2f
 
 #include <array>
