@@ -26,6 +26,7 @@
 #include "eos/morphablemodel/Blendshape.hpp"
 
 #include "glm/gtc/quaternion.hpp"
+#include "glm/gtx/transform.hpp"
 
 #include "ceres/cubic_interpolation.h"
 
