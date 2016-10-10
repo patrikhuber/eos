@@ -158,14 +158,9 @@ public:
 	 * The given coefficients should follow a standard normal distribution, i.e.
 	 * not be "normalised" with their eigenvalues/variances.
 	 *
-	 * @tparam T Precision of the given coefficients - can be double or float.
 	 * @param[in] coefficients The PCA coefficients used to generate the sample.
 	 * @return A model instance with given coefficients.
 	 */
-	template<typename T>
-	cv::Mat draw_sample(std::vector<T> coefficients) const;
-	
-	template<>
 	cv::Mat draw_sample(std::vector<float> coefficients) const
 	{
 		// Fill the rest with zeros if not all coefficients are given:
@@ -179,7 +174,9 @@ public:
 		return model_sample;
 	};
 
-	template<>
+	/**
+	 * @copydoc PcaModel::draw_sample(std::vector<double>)
+	 */
 	cv::Mat draw_sample(std::vector<double> coefficients) const
 	{
 		// We have to convert the vector of doubles to float:
