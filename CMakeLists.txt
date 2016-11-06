@@ -104,6 +104,7 @@ set(HEADERS
 	include/eos/morphablemodel/io/cvssp.hpp
 	include/eos/morphablemodel/io/mat_cerealisation.hpp
 	include/eos/fitting/affine_camera_estimation.hpp
+	include/eos/fitting/orthographic_camera_estimation_linear.hpp
 	include/eos/fitting/nonlinear_camera_estimation.hpp
 	include/eos/fitting/detail/nonlinear_camera_estimation_detail.hpp
 	include/eos/fitting/detail/optional_cerealisation.hpp
