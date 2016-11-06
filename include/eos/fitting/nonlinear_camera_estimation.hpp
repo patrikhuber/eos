@@ -25,6 +25,9 @@
 #include "eos/fitting/detail/nonlinear_camera_estimation_detail.hpp"
 
 #include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtc/quaternion.hpp"
+
+#include "eos/fitting/orthographic_camera_estimation_linear.hpp"
 
 #include "eos/fitting/detail/optional_cerealisation.hpp"
 #include "cereal/cereal.hpp"
@@ -92,15 +95,46 @@ enum class CameraType
  */
 struct RenderingParameters
 {
+	RenderingParameters() {};
+
+	// This assumes estimate_sop was run on points with OpenCV viewport! I.e. y flipped.
+	RenderingParameters(ScaledOrthoProjectionParameters ortho_params, int image_width, int image_height) {
+		camera_type = CameraType::Orthographic;
+		rotation = ortho_params.R;
+		t_x = ortho_params.tx;
+		t_y = ortho_params.ty;
+		const auto l = 0.0;
+		const auto r = image_width / ortho_params.s;
+		const auto b = image_height / ortho_params.s;
+		const auto t = 0.0;
+		projection = glm::ortho<float>(l, r, b, t);
+	};
+
+	glm::mat4x4 get_modelview() const {
+		// rot from quat, add transl., return 4x4.
+		glm::mat4x4 modelview = glm::mat4_cast(rotation);
+		modelview[3][0] = t_x;
+		modelview[3][1] = t_y;
+		return modelview;
+	};
+	
+	glm::mat4x4 get_projection() const {
+		return projection;
+	};
+
 	CameraType camera_type; // what's the default?
-	Frustum frustum;
+	Frustum frustum; // This is actually the same as glm::ortho or glm::perspective.
 	
 	float r_x; // Pitch.
 	float r_y; // Yaw. Positive means subject is looking left (we see her right cheek).
 	float r_z; // Roll. Positive means the subject's right eye is further down than the other one (he tilts his head to the right).
+	glm::quat rotation;
+	
 	float t_x; // Todo: define whether it's the camera translation/rotation or the model's.
 	float t_y;
 	
+	glm::mat4x4 projection;
+
 	int screen_width;
 	int screen_height;
 
@@ -271,7 +305,17 @@ RenderingParameters estimate_orthographic_camera(std::vector<cv::Vec2f> image_po
 	// 'parameters' contains the solution now.
 
 	Frustum camera_frustum{ -1.0f * aspect * static_cast<float>(parameters[5]), 1.0f * aspect * static_cast<float>(parameters[5]), -1.0f * static_cast<float>(parameters[5]), 1.0f * static_cast<float>(parameters[5]) };
-	return RenderingParameters{ CameraType::Orthographic, camera_frustum, static_cast<float>(parameters[0]), static_cast<float>(parameters[1]), static_cast<float>(parameters[2]), static_cast<float>(parameters[3]), static_cast<float>(parameters[4]), width, height };
+	RenderingParameters rp;
+	rp.camera_type = CameraType::Orthographic;
+	rp.frustum = camera_frustum;
+	rp.r_x = static_cast<float>(parameters[0]); // Todo: This needs to be changed, once the RenderingParameters is completely rewritten.
+	rp.r_y = static_cast<float>(parameters[1]);
+	rp.r_z = static_cast<float>(parameters[2]);
+	rp.t_x = static_cast<float>(parameters[3]);
+	rp.t_y = static_cast<float>(parameters[4]);
+	rp.screen_width = width;
+	rp.screen_height = height;
+	return rp;
 };
 
 	} /* namespace fitting */
