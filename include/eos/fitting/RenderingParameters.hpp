@@ -23,9 +23,8 @@
 #define RENDERINGPARAMETERS_HPP_
 
 #include "eos/fitting/orthographic_camera_estimation_linear.hpp"
-#include "eos/render/utils.hpp" // for to_mat()
 
-//#include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/quaternion.hpp"
 
 #include "eos/fitting/detail/optional_cerealisation.hpp"
