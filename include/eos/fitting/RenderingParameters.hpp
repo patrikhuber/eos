@@ -29,6 +29,7 @@
 #include "glm/gtc/quaternion.hpp"
 
 #include "eos/fitting/detail/optional_cerealisation.hpp"
+#include "eos/fitting/detail/glm_cerealisation.hpp"
 #include "cereal/cereal.hpp"
 #include "cereal/archives/json.hpp"
 
@@ -181,8 +182,7 @@ private:
 	template<class Archive>
 	void serialize(Archive& archive)
 	{
-		// TODO add the quaternion!
-		archive(CEREAL_NVP(camera_type), CEREAL_NVP(frustum), CEREAL_NVP(t_x), CEREAL_NVP(t_y), CEREAL_NVP(screen_width), CEREAL_NVP(screen_height));
+		archive(CEREAL_NVP(camera_type), CEREAL_NVP(frustum), CEREAL_NVP(rotation), CEREAL_NVP(t_x), CEREAL_NVP(t_y), CEREAL_NVP(screen_width), CEREAL_NVP(screen_height));
 	};
 };
 
