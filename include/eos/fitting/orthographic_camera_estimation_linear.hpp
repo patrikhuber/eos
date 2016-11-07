@@ -26,6 +26,8 @@
 
 #include "opencv2/core/core.hpp"
 
+#include "boost/optional.hpp"
+
 #include <vector>
 #include <cassert>
 
@@ -61,16 +63,29 @@ struct ScaledOrthoProjectionParameters {
  *
  * @param[in] image_points A list of 2D image points.
  * @param[in] model_points Corresponding points of a 3D model.
+ * @param[in] is_viewport_upsidedown Flag to set whether the viewport of the image points is upside-down (e.g. as in OpenCV).
+ * @param[in] viewport_height Height of the viewport of the image points (needs to be given if is_viewport_upsidedown == true).
  * @return Rotation, translation and scaling of the estimated scaled orthographic projection.
  */
-ScaledOrthoProjectionParameters estimate_orthographic_projection_linear(std::vector<cv::Vec2f> image_points, std::vector<cv::Vec4f> model_points)
+ScaledOrthoProjectionParameters estimate_orthographic_projection_linear(std::vector<cv::Vec2f> image_points, std::vector<cv::Vec4f> model_points, bool is_viewport_upsidedown, boost::optional<int> viewport_height = boost::none)
 {
 	using cv::Mat;
 	assert(image_points.size() == model_points.size());
 	assert(image_points.size() >= 4); // Number of correspondence points given needs to be equal to or larger than 4
 
 	const int num_correspondences = static_cast<int>(image_points.size());
-	auto npts = num_correspondences;
+
+	if (is_viewport_upsidedown)
+	{
+		if (viewport_height == boost::none)
+		{
+			throw std::runtime_error("Error: If is_viewport_upsidedown is set to true, viewport_height needs to be given.");
+		}
+		for (auto&& ip : image_points)
+		{
+			ip[1] = viewport_height.get() - ip[1];
+		}
+	}
 
 	Mat A = Mat::zeros(2 * num_correspondences, 8, CV_32FC1);
 	int row_index = 0;

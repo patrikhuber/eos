@@ -106,14 +106,18 @@ struct RenderingParameters
 	// This assumes estimate_sop was run on points with OpenCV viewport! I.e. y flipped.
 	RenderingParameters(ScaledOrthoProjectionParameters ortho_params, int image_width, int image_height) {
 		camera_type = CameraType::Orthographic;
-		rotation = ortho_params.R;
+		rotation = ortho_params.R; // convert the rotation matrix to a quaternion
 		t_x = ortho_params.tx;
 		t_y = ortho_params.ty;
 		const auto l = 0.0;
 		const auto r = image_width / ortho_params.s;
-		const auto b = image_height / ortho_params.s;
-		const auto t = 0.0;
+		const auto b = 0.0; // The b and t values are not tested for what happens if the SOP parameters
+		const auto t = image_height / ortho_params.s; // were estimated on a non-flipped viewport.
 		frustum = Frustum(l, r, b, t);
+	};
+
+	glm::quat get_rotation() const {
+		return rotation;
 	};
 
 	glm::mat4x4 get_modelview() const {
