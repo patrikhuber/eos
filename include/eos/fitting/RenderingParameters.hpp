@@ -95,11 +95,19 @@ enum class CameraType
  *
  * The rotation values are given in radians and estimated using the RPY convention.
  * Yaw is applied first to the model, then pitch, then roll (R * P * Y * vertex).
+ * In general, the convention is as follows:
+ * 	 r_x = Pitch
+ *	 r_y = Yaw. Positive means subject is looking left (we see her right cheek).
+ *	 r_z = Roll. Positive means the subject's right eye is further down than the other one (he tilts his head to the right).
+ * However, we're using a quaternion now to represent the rotation, and glm::eulerAngles() will give
+ * slightly different angles (according to a different (undocumented)) convention. However, the
+ * rotation is exactly the same! (i.e. they are represented by the same quaternion / rotation matrix).
  *
  * This should always represent all parameters necessary to render the model to an image, and be completely OpenGL compliant.
  */
-struct RenderingParameters
+class RenderingParameters
 {
+public:
 	// Creates with default frustum...
 	RenderingParameters() {};
 
@@ -134,7 +142,6 @@ struct RenderingParameters
 	};
 
 	glm::mat4x4 get_modelview() const {
-		// rot from quat, add transl., return 4x4.
 		glm::mat4x4 modelview = glm::mat4_cast(rotation);
 		modelview[3][0] = t_x;
 		modelview[3][1] = t_y;
@@ -151,13 +158,10 @@ struct RenderingParameters
 		}
 	};
 
+private:
 	CameraType camera_type = CameraType::Orthographic;
 	Frustum frustum; // Can construct a glm::ortho or glm::perspective matrix from this.
-	
-	// Todo: Get rid of the Euler angles and just use the quaternion.
-	//float r_x; // Pitch.
-	//float r_y; // Yaw. Positive means subject is looking left (we see her right cheek).
-	//float r_z; // Roll. Positive means the subject's right eye is further down than the other one (he tilts his head to the right).
+
 	glm::quat rotation;
 	
 	float t_x;
@@ -218,7 +222,7 @@ glm::vec4 get_opencv_viewport(int width, int height)
 cv::Mat get_3x4_affine_camera_matrix(fitting::RenderingParameters params, int width, int height)
 {
 	auto view_model = render::to_mat(params.get_modelview());
-	auto ortho_projection = render::to_mat(glm::ortho(params.frustum.l, params.frustum.r, params.frustum.b, params.frustum.t));
+	auto ortho_projection = render::to_mat(params.get_projection());
 	cv::Mat mvp = ortho_projection * view_model;
 
 	glm::vec4 viewport(0, height, width, -height); // flips y, origin top-left, like in OpenCV
