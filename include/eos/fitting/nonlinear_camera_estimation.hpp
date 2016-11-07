@@ -87,17 +87,7 @@ RenderingParameters estimate_orthographic_camera(std::vector<cv::Vec2f> image_po
 	// 'parameters' contains the solution now.
 
 	Frustum camera_frustum{ -1.0f * aspect * static_cast<float>(parameters[5]), 1.0f * aspect * static_cast<float>(parameters[5]), -1.0f * static_cast<float>(parameters[5]), 1.0f * static_cast<float>(parameters[5]) };
-	RenderingParameters rp;
-	rp.camera_type = CameraType::Orthographic;
-	rp.frustum = camera_frustum;
-	rp.r_x = static_cast<float>(parameters[0]); // Todo: This needs to be changed, once the RenderingParameters is completely rewritten.
-	rp.r_y = static_cast<float>(parameters[1]);
-	rp.r_z = static_cast<float>(parameters[2]);
-	rp.t_x = static_cast<float>(parameters[3]);
-	rp.t_y = static_cast<float>(parameters[4]);
-	rp.screen_width = width;
-	rp.screen_height = height;
-	return rp;
+	return RenderingParameters(CameraType::Orthographic, camera_frustum, static_cast<float>(parameters[0]), static_cast<float>(parameters[1]), static_cast<float>(parameters[2]), static_cast<float>(parameters[3]), static_cast<float>(parameters[4]), width, height);
 };
 
 	} /* namespace fitting */

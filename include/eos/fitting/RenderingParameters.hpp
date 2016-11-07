@@ -103,6 +103,19 @@ struct RenderingParameters
 	// Creates with default frustum...
 	RenderingParameters() {};
 
+	// Initialisation for Eigen::LevMarq
+	// This creates the correct rotation quaternion in the case the angles were estimated/given by R*P*Y*v.
+	// Angles given in radian.
+	// Note: If you subsequently use RP::get_rotation() and glm::eulerAngles() on it, the angles you get out will be slightly different from the ones you put in here.
+	// But they will describe the same rotation! Just in a different order. (i.e. the rotation matrix or quaternion for both of these two sets of angles is identical.)
+	RenderingParameters(CameraType camera_type, Frustum camera_frustum, float r_x, float r_y, float r_z, float tx, float ty, int screen_width, int screen_height) : camera_type(camera_type), frustum(camera_frustum), t_x(tx), t_y(ty), screen_width(screen_width), screen_height(screen_height) {
+		auto rot_mtx_x = glm::rotate(glm::mat4(1.0f), r_x, glm::vec3{ 1.0f, 0.0f, 0.0f });
+		auto rot_mtx_y = glm::rotate(glm::mat4(1.0f), r_y, glm::vec3{ 0.0f, 1.0f, 0.0f });
+		auto rot_mtx_z = glm::rotate(glm::mat4(1.0f), r_z, glm::vec3{ 0.0f, 0.0f, 1.0f });
+		auto zxy_rotation_matrix = rot_mtx_z * rot_mtx_x * rot_mtx_y;
+		rotation = zxy_rotation_matrix;
+	};
+
 	// This assumes estimate_sop was run on points with OpenCV viewport! I.e. y flipped.
 	RenderingParameters(ScaledOrthoProjectionParameters ortho_params, int image_width, int image_height) {
 		camera_type = CameraType::Orthographic;
@@ -142,9 +155,9 @@ struct RenderingParameters
 	Frustum frustum; // Can construct a glm::ortho or glm::perspective matrix from this.
 	
 	// Todo: Get rid of the Euler angles and just use the quaternion.
-	float r_x; // Pitch.
-	float r_y; // Yaw. Positive means subject is looking left (we see her right cheek).
-	float r_z; // Roll. Positive means the subject's right eye is further down than the other one (he tilts his head to the right).
+	//float r_x; // Pitch.
+	//float r_y; // Yaw. Positive means subject is looking left (we see her right cheek).
+	//float r_z; // Roll. Positive means the subject's right eye is further down than the other one (he tilts his head to the right).
 	glm::quat rotation;
 	
 	float t_x;
@@ -164,7 +177,8 @@ struct RenderingParameters
 	template<class Archive>
 	void serialize(Archive& archive)
 	{
-		archive(CEREAL_NVP(camera_type), CEREAL_NVP(frustum), CEREAL_NVP(r_x), CEREAL_NVP(r_y), CEREAL_NVP(r_z), CEREAL_NVP(t_x), CEREAL_NVP(t_y), CEREAL_NVP(screen_width), CEREAL_NVP(screen_height));
+		// TODO add the quaternion!
+		archive(CEREAL_NVP(camera_type), CEREAL_NVP(frustum), CEREAL_NVP(t_x), CEREAL_NVP(t_y), CEREAL_NVP(screen_width), CEREAL_NVP(screen_height));
 	};
 };
 
@@ -195,35 +209,6 @@ glm::vec4 get_opencv_viewport(int width, int height)
 };
 
 /**
- * @brief Creates a 4x4 model-view matrix from given fitting parameters.
- *
- * Together with the Frustum information, this describes the full
- * orthographic rendering parameters of the OpenGL pipeline.
- * Example:
- *
- * @code
- * fitting::OrthographicRenderingParameters rendering_params = ...;
- * glm::mat4x4 view_model = get_4x4_modelview_matrix(rendering_params);
- * glm::mat4x4 ortho_projection = glm::ortho(rendering_params.frustum.l, rendering_params.frustum.r, rendering_params.frustum.b, rendering_params.frustum.t);
- * glm::vec4 viewport(0, image.rows, image.cols, -image.rows); // flips y, origin top-left, like in OpenCV
- *
- * // project a point from 3D to 2D:
- * glm::vec3 point_3d = ...; // from a mesh for example
- * glm::vec3 point_2d = glm::project(point_3d, view_model, ortho_projection, viewport);
- * @endcode
- */
-glm::mat4x4 get_4x4_modelview_matrix(fitting::RenderingParameters params)
-{
-	// rotation order: RPY * P
-	auto rot_mtx_x = glm::rotate(glm::mat4(1.0f), params.r_x, glm::vec3{ 1.0f, 0.0f, 0.0f });
-	auto rot_mtx_y = glm::rotate(glm::mat4(1.0f), params.r_y, glm::vec3{ 0.0f, 1.0f, 0.0f });
-	auto rot_mtx_z = glm::rotate(glm::mat4(1.0f), params.r_z, glm::vec3{ 0.0f, 0.0f, 1.0f });
-	auto t_mtx = glm::translate(glm::mat4(1.0f), glm::vec3{ params.t_x, params.t_y, 0.0f });
-	auto modelview = t_mtx * rot_mtx_z * rot_mtx_x * rot_mtx_y;
-	return modelview;
-};
-
-/**
  * @brief Creates a 3x4 affine camera matrix from given fitting parameters. The
  * matrix transforms points directly from model-space to screen-space.
  *
@@ -232,7 +217,7 @@ glm::mat4x4 get_4x4_modelview_matrix(fitting::RenderingParameters params)
  */
 cv::Mat get_3x4_affine_camera_matrix(fitting::RenderingParameters params, int width, int height)
 {
-	auto view_model = render::to_mat(get_4x4_modelview_matrix(params));
+	auto view_model = render::to_mat(params.get_modelview());
 	auto ortho_projection = render::to_mat(glm::ortho(params.frustum.l, params.frustum.r, params.frustum.b, params.frustum.t));
 	cv::Mat mvp = ortho_projection * view_model;
 
