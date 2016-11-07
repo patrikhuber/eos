@@ -19,7 +19,8 @@
  */
 #include "eos/core/Landmark.hpp"
 #include "eos/core/LandmarkMapper.hpp"
-#include "eos/fitting/nonlinear_camera_estimation.hpp"
+#include "eos/fitting/orthographic_camera_estimation_linear.hpp"
+#include "eos/fitting/RenderingParameters.hpp"
 #include "eos/fitting/linear_shape_fitting.hpp"
 #include "eos/render/utils.hpp"
 #include "eos/render/texture_extraction.hpp"
@@ -187,14 +188,15 @@ int main(int argc, char *argv[])
 	}
 
 	// Estimate the camera (pose) from the 2D - 3D point correspondences
-	fitting::RenderingParameters rendering_params = fitting::estimate_orthographic_camera(image_points, model_points, image.cols, image.rows);
-	Mat affine_from_ortho = get_3x4_affine_camera_matrix(rendering_params, image.cols, image.rows);
+	fitting::ScaledOrthoProjectionParameters pose = fitting::estimate_orthographic_projection_linear(image_points, model_points, true, image.rows);
+	fitting::RenderingParameters rendering_params(pose, image.cols, image.rows);
 
 	// The 3D head pose can be recovered as follows:
-	float yaw_angle = glm::degrees(rendering_params.r_y);
-	// and similarly for pitch (r_x) and roll (r_z).
+	float yaw_angle = glm::degrees(glm::yaw(rendering_params.get_rotation()));
+	// and similarly for pitch and roll.
 
 	// Estimate the shape coefficients by fitting the shape to the landmarks:
+	Mat affine_from_ortho = fitting::get_3x4_affine_camera_matrix(rendering_params, image.cols, image.rows);
 	vector<float> fitted_coeffs = fitting::fit_shape_to_landmarks_linear(morphable_model, affine_from_ortho, image_points, vertex_indices);
 
 	// Obtain the full mesh with the estimated coefficients:
