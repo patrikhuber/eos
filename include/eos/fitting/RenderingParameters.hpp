@@ -213,6 +213,23 @@ glm::vec4 get_opencv_viewport(int width, int height)
 };
 
 /**
+ * @brief Converts a glm::mat4x4 to a cv::Mat.
+ *
+ * Note: I think the last use of this function is below in
+ * get_3x4_affine_camera_matrix().
+ */
+cv::Mat to_mat(const glm::mat4x4& glm_matrix)
+{
+	// glm stores its matrices in col-major order in memory, OpenCV in row-major order.
+	// Hence we transpose the glm matrix to flip the memory layout, and then point OpenCV
+	// to that location.
+	auto glm_matrix_t = glm::transpose(glm_matrix);
+	cv::Mat opencv_mat(4, 4, CV_32FC1, &glm_matrix_t[0]);
+	// we need to clone because the underlying data of the original goes out of scope
+	return opencv_mat.clone();
+};
+
+/**
  * @brief Creates a 3x4 affine camera matrix from given fitting parameters. The
  * matrix transforms points directly from model-space to screen-space.
  *
@@ -221,8 +238,8 @@ glm::vec4 get_opencv_viewport(int width, int height)
  */
 cv::Mat get_3x4_affine_camera_matrix(fitting::RenderingParameters params, int width, int height)
 {
-	auto view_model = render::to_mat(params.get_modelview());
-	auto ortho_projection = render::to_mat(params.get_projection());
+	auto view_model = to_mat(params.get_modelview());
+	auto ortho_projection = to_mat(params.get_projection());
 	cv::Mat mvp = ortho_projection * view_model;
 
 	glm::vec4 viewport(0, height, width, -height); // flips y, origin top-left, like in OpenCV
