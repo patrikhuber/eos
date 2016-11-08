@@ -43,7 +43,7 @@ add_executable(json-to-cereal-binary json-to-cereal-binary.cpp)
 target_link_libraries(json-to-cereal-binary ${OpenCV_LIBS} ${Boost_LIBRARIES})
 # Generate python bindings using pybind11:
 if(GENERATE_PYTHON_BINDINGS)
-	pybind11_add_module(python-bindings generate-python-bindings.cpp)
+	pybind11_add_module(python-bindings generate-python-bindings.cpp pybind11_glm.hpp)
 	target_link_libraries(python-bindings PRIVATE ${OpenCV_LIBS} ${Boost_LIBRARIES})
 	set_target_properties(python-bindings PROPERTIES OUTPUT_NAME eos)
 	install(TARGETS python-bindings DESTINATION bin)
