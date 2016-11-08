@@ -20,16 +20,19 @@
 #include "eos/morphablemodel/PcaModel.hpp"
 #include "eos/morphablemodel/MorphableModel.hpp"
 #include "eos/morphablemodel/Blendshape.hpp"
-#include "eos/fitting/nonlinear_camera_estimation.hpp"
+#include "eos/fitting/orthographic_camera_estimation_linear.hpp"
+#include "eos/fitting/RenderingParameters.hpp"
 
 #include "opencv2/core/core.hpp"
 
 #include "pybind11/pybind11.h"
 #include "pybind11/stl.h"
+#include "pybind11_glm.hpp"
 
 #include <iostream>
 #include <stdexcept>
 #include <string>
+#include <algorithm>
 
 namespace py = pybind11;
 using namespace eos;
@@ -38,8 +41,8 @@ using namespace eos;
  * Generate python bindings for the eos library using pybind11.
  */
 PYBIND11_PLUGIN(eos) {
-    py::module eos_module("eos", "Python bindings to the eos 3D Morphable Face Model fitting library");
-	
+    py::module eos_module("eos", "Python bindings for the eos 3D Morphable Face Model fitting library.\n\nFor an overview of the functionality, see the documentation of the submodules. For the full documentation, see the C++ doxygen documentation.");
+
 	/**
 	 * General bindings, for OpenCV vector types and cv::Mat:
 	 *  - cv::Vec2f
@@ -63,7 +66,7 @@ PYBIND11_PLUGIN(eos) {
 			if (info.format == py::format_descriptor<float>::format())
 			{
 				cv::Mat temp(1, 2, CV_32FC1, info.ptr);
-				std::cout << temp << std::endl;
+				//std::cout << temp << std::endl;
 				new (&vec) cv::Vec2f(temp);
 			}
 			else {
@@ -99,7 +102,7 @@ PYBIND11_PLUGIN(eos) {
 			if (info.format == py::format_descriptor<float>::format())
 			{
 				cv::Mat temp(1, 4, CV_32FC1, info.ptr);
-				std::cout << temp << std::endl;
+				//std::cout << temp << std::endl;
 				new (&vec) cv::Vec4f(temp);
 			}
 			else {
@@ -190,7 +193,6 @@ PYBIND11_PLUGIN(eos) {
 		})
 	;
 
-
 	/**
 	 * Bindings for the eos::morphablemodel namespace:
 	 *  - PcaModel
@@ -228,20 +230,37 @@ PYBIND11_PLUGIN(eos) {
 
 	/**
 	 * Bindings for the eos::fitting namespace:
+	 *  - ScaledOrthoProjectionParameters
 	 *  - RenderingParameters
-	 *  - estimate_orthographic_camera()
+	 *  - estimate_orthographic_projection_linear()
 	 */
 	py::module fitting_module = eos_module.def_submodule("fitting", "Pose and shape fitting of a 3D Morphable Model.");
 
-	py::class_<fitting::RenderingParameters>(fitting_module, "RenderingParameters", "Represents a set of estimated model parameters (rotation, translation) and camera parameters (viewing frustum). Angles are applied using the RPY convention.")
-		.def_readwrite("r_x", &fitting::RenderingParameters::r_x, "Pitch angle, in radians.")
-		.def_readwrite("r_y", &fitting::RenderingParameters::r_y, "Yaw angle, in radians.")
-		.def_readwrite("r_z", &fitting::RenderingParameters::r_z, "Roll angle, in radians.")
-		.def_readwrite("t_x", &fitting::RenderingParameters::t_x, "Model x translation.")
-		.def_readwrite("t_y", &fitting::RenderingParameters::t_y, "Model y translation.")
+	py::class_<fitting::ScaledOrthoProjectionParameters>(fitting_module, "ScaledOrthoProjectionParameters", "Parameters of an estimated scaled orthographic projection.")
+		.def_readwrite("R", &fitting::ScaledOrthoProjectionParameters::R, "Rotation matrix")
+		.def_readwrite("s", &fitting::ScaledOrthoProjectionParameters::s, "Scale")
+		.def_readwrite("tx", &fitting::ScaledOrthoProjectionParameters::tx, "x translation")
+		.def_readwrite("ty", &fitting::ScaledOrthoProjectionParameters::ty, "y translation")
 		;
 
-	fitting_module.def("estimate_orthographic_camera", &fitting::estimate_orthographic_camera, "This algorithm estimates the rotation angles and translation of the model, as well as the viewing frustum of the camera, given a set of corresponding 2D-3D points.");
+	py::class_<fitting::RenderingParameters>(fitting_module, "RenderingParameters", "Represents a set of estimated model parameters (rotation, translation) and camera parameters (viewing frustum).")
+		.def(py::init<fitting::ScaledOrthoProjectionParameters, int, int>(), "Create a RenderingParameters object from an instance of estimated ScaledOrthoProjectionParameters.")
+		.def("get_rotation", [](const fitting::RenderingParameters& p) { return glm::vec4(p.get_rotation().w, p.get_rotation().x, p.get_rotation().y, p.get_rotation().z); }, "Returns the rotation quaternion [w x y z].")
+		.def("get_rotation_euler_angles", [](const fitting::RenderingParameters& p) { return glm::eulerAngles(p.get_rotation()); }, "Returns the rotation's Euler angles (in radians) as [pitch, yaw, roll].")
+		.def("get_modelview", &fitting::RenderingParameters::get_modelview, "Returns the 4x4 model-view matrix.")
+		.def("get_projection", &fitting::RenderingParameters::get_projection, "Returns the 4x4 projection matrix.")
+		;
+
+	fitting_module.def("estimate_orthographic_projection_linear", [](std::vector<glm::vec2> image_points, std::vector<glm::vec4> model_points, bool is_viewport_upsidedown, int viewport_height) {
+			// We take glm vec's (transparent conversion in python) and convert them to OpenCV vec's for now:
+			std::vector<cv::Vec2f> image_points_cv;
+			std::for_each(std::begin(image_points), std::end(image_points), [&image_points_cv](auto&& p) { image_points_cv.push_back({p.x, p.y}); });
+			std::vector<cv::Vec4f> model_points_cv;
+			std::for_each(std::begin(model_points), std::end(model_points), [&model_points_cv](auto&& p) { model_points_cv.push_back({ p.x, p.y, p.z, p.w }); });
+			const boost::optional<int> viewport_height_opt = viewport_height == 0 ? boost::none : boost::optional<int>(viewport_height);
+			return fitting::estimate_orthographic_projection_linear(image_points_cv, model_points_cv, is_viewport_upsidedown, viewport_height_opt);
+		}, "This algorithm estimates the parameters of a scaled orthographic projection, given a set of corresponding 2D-3D points.", py::arg("image_points"), py::arg("model_points"), py::arg("is_viewport_upsidedown"), py::arg("viewport_height") = 0)
+		;
 
     return eos_module.ptr();
 };
