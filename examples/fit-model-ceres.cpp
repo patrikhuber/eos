@@ -17,6 +17,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#define GLM_FORCE_UNRESTRICTED_GENTYPE
 #include "eos/core/Landmark.hpp"
 #include "eos/core/LandmarkMapper.hpp"
 #include "eos/morphablemodel/Blendshape.hpp"
