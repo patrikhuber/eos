@@ -175,6 +175,16 @@ public:
 	};
 
 	/**
+	 * @copydoc PcaModel::draw_sample(std::vector<double>)
+	 */
+	cv::Mat draw_sample(std::vector<double> coefficients) const
+	{
+		// We have to convert the vector of doubles to float:
+		std::vector<float> coeffs_float(std::begin(coefficients), std::end(coefficients));
+		return draw_sample(coeffs_float);
+	};
+
+	/**
 	 * Returns the PCA basis matrix, i.e. the eigenvectors.
 	 * Each column of the matrix is an eigenvector.
 	 * The returned basis is normalised, i.e. every eigenvector

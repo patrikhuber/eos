@@ -300,6 +300,14 @@ cv::Vec3f tex2d(const cv::Vec2f& texcoords, const Texture& texture, float dudx, 
 	return (1.0f / 255.0f) * tex2d_linear_mipmap_linear(texcoords, texture, dudx, dudy, dvdx, dvdy);
 };
 
+template<typename T, glm::precision P = glm::defaultp>
+glm::tvec3<T, P> tex2d(const glm::tvec2<T, P>& texcoords, const Texture& texture, float dudx, float dudy, float dvdx, float dvdy)
+{
+	// Todo: Change everything to GLM.
+	cv::Vec3f ret = (1.0f / 255.0f) * tex2d_linear_mipmap_linear(cv::Vec2f(texcoords[0], texcoords[1]), texture, dudx, dudy, dvdx, dvdy);
+	return glm::tvec3<T, P>(ret[0], ret[1], ret[2]);
+};
+
 cv::Vec3f tex2d_linear_mipmap_linear(const cv::Vec2f& texcoords, const Texture& texture, float dudx, float dudy, float dvdx, float dvdy)
 {
 	using cv::Vec2f;

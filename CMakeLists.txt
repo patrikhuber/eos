@@ -25,7 +25,7 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 		endif()
 	endif()
-	# Note: gcc is fine without -pthreads.
+	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pthread")
 elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC") # the quotes are needed here, maybe because "MSVC" seems to be a keyword
 	if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19)
 		message(FATAL_ERROR "Visual Studio 2015 or newer is required.")
@@ -54,6 +54,8 @@ endif()
 message(STATUS "Options:")
 option(BUILD_EXAMPLES "Build the example applications." ON)
 message(STATUS "BUILD_EXAMPLES: ${BUILD_EXAMPLES}")
+option(BUILD_CERES_EXAMPLE "Build the fit-model-ceres example (requires Ceres)." OFF)
+message(STATUS "BUILD_CERES_EXAMPLE: ${BUILD_CERES_EXAMPLE}")
 option(BUILD_UTILS "Build utility applications." OFF)
 message(STATUS "BUILD_UTILS: ${BUILD_UTILS}")
 option(BUILD_DOCUMENTATION "Build the library documentation." OFF)
@@ -106,14 +108,17 @@ set(HEADERS
 	include/eos/morphablemodel/io/cvssp.hpp
 	include/eos/morphablemodel/io/mat_cerealisation.hpp
 	include/eos/fitting/affine_camera_estimation.hpp
+	include/eos/fitting/orthographic_camera_estimation_linear.hpp
 	include/eos/fitting/nonlinear_camera_estimation.hpp
 	include/eos/fitting/detail/nonlinear_camera_estimation_detail.hpp
 	include/eos/fitting/detail/optional_cerealisation.hpp
+	include/eos/fitting/detail/glm_cerealisation.hpp
 	include/eos/fitting/linear_shape_fitting.hpp
 	include/eos/fitting/contour_correspondence.hpp
 	include/eos/fitting/blendshape_fitting.hpp
 	include/eos/fitting/fitting.hpp
 	include/eos/fitting/ceres_nonlinear.hpp
+	include/eos/fitting/RenderingParameters.hpp
 	include/eos/render/Mesh.hpp
 	include/eos/render/utils.hpp
 	include/eos/render/render.hpp
