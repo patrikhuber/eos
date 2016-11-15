@@ -1,7 +1,7 @@
 /*
-* Eos - A 3D Morphable Model fitting library written in modern C++11/14.
-*
-* File: include/eos/morphablemodel/io/mat_cerealisation.hpp
+ * eos - A 3D Morphable Model fitting library written in modern C++11/14.
+ *
+ * File: include/eos/morphablemodel/io/mat_cerealisation.hpp
  *
  * Copyright 2015, 2016 Patrik Huber
  *

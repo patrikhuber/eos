@@ -1,5 +1,5 @@
 /*
- * Eos - A 3D Morphable Model fitting library written in modern C++11/14.
+ * eos - A 3D Morphable Model fitting library written in modern C++11/14.
  *
  * File: include/eos/morphablemodel/Blendshape.hpp
  *
@@ -29,6 +29,8 @@
 #include "opencv2/core/core.hpp"
 
 #include <string>
+#include <vector>
+#include <cassert>
 #include <fstream>
 
 namespace eos {
@@ -55,7 +57,7 @@ struct Blendshape
 	template<class Archive>
 	void serialize(Archive& archive)
 	{
-		archive(name, deformation);
+		archive(CEREAL_NVP(name), CEREAL_NVP(deformation));
 	};
 };
 
@@ -79,6 +81,24 @@ std::vector<Blendshape> load_blendshapes(std::string filename)
 	input_archive(blendshapes);
 
 	return blendshapes;
+};
+
+/**
+ * @brief Copies the blendshapes into a matrix, with each column being a blendshape.
+ *
+ * @param[in] blendshapes Vector of blendshapes.
+ * @return The resulting matrix.
+ */
+cv::Mat to_matrix(const std::vector<Blendshape>& blendshapes)
+{
+	// assert: all blendshapes have to have the same number of rows, and one col
+	assert(blendshapes.size() > 0);
+	cv::Mat blendshapes_as_basis(blendshapes[0].deformation.rows, blendshapes.size(), CV_32FC1);
+	for (int i = 0; i < blendshapes.size(); ++i)
+	{
+		blendshapes[i].deformation.copyTo(blendshapes_as_basis.col(i));
+	}
+	return blendshapes_as_basis;
 };
 
 	} /* namespace morphablemodel */

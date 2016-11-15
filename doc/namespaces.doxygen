@@ -15,7 +15,7 @@
 
 /**
  * @namespace eos::morphablemodel
- * @brief Functionality to represent a Morphable Model, containing it's PCA models and loading functions.
+ * @brief Functionality to represent a Morphable Model, its PCA models, and functions to load models and blendshapes.
  */
 
 /**

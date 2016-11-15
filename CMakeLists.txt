@@ -1,5 +1,5 @@
 project(eos)
-cmake_minimum_required(VERSION 2.8.10)
+cmake_minimum_required(VERSION 2.8.12)
 set(eos_VERSION_MAJOR 0)
 set(eos_VERSION_MINOR 7)
 set(eos_VERSION_PATCH 1)
@@ -54,10 +54,14 @@ endif()
 message(STATUS "Options:")
 option(BUILD_EXAMPLES "Build the example applications." ON)
 message(STATUS "BUILD_EXAMPLES: ${BUILD_EXAMPLES}")
+option(BUILD_CERES_EXAMPLE "Build the fit-model-ceres example (requires Ceres)." OFF)
+message(STATUS "BUILD_CERES_EXAMPLE: ${BUILD_CERES_EXAMPLE}")
 option(BUILD_UTILS "Build utility applications." OFF)
 message(STATUS "BUILD_UTILS: ${BUILD_UTILS}")
 option(BUILD_DOCUMENTATION "Build the library documentation." OFF)
 message(STATUS "BUILD_DOCUMENTATION: ${BUILD_DOCUMENTATION}")
+option(GENERATE_PYTHON_BINDINGS "Build python bindings. Needs BUILD_UTILS enabled too." OFF)
+message(STATUS "GENERATE_PYTHON_BINDINGS: ${GENERATE_PYTHON_BINDINGS}")
 
 # Build a CPack driven installer package:
 include(InstallRequiredSystemLibraries) # This module will include any runtime libraries that are needed by the project for the current platform
@@ -91,7 +95,7 @@ message(STATUS "Eigen3 include dir found at ${EIGEN3_INCLUDE_DIR}")
 message(STATUS "Eigen3 version: ${EIGEN3_VERSION}")
 
 set(CEREAL_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/3rdparty/cereal-1.1.1/include")
-set(glm_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/3rdparty/glm-0.9.7.0")
+set(glm_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/3rdparty/glm")
 
 # Header files:
 set(HEADERS
@@ -104,13 +108,17 @@ set(HEADERS
 	include/eos/morphablemodel/io/cvssp.hpp
 	include/eos/morphablemodel/io/mat_cerealisation.hpp
 	include/eos/fitting/affine_camera_estimation.hpp
+	include/eos/fitting/orthographic_camera_estimation_linear.hpp
 	include/eos/fitting/nonlinear_camera_estimation.hpp
 	include/eos/fitting/detail/nonlinear_camera_estimation_detail.hpp
 	include/eos/fitting/detail/optional_cerealisation.hpp
+	include/eos/fitting/detail/glm_cerealisation.hpp
 	include/eos/fitting/linear_shape_fitting.hpp
 	include/eos/fitting/contour_correspondence.hpp
 	include/eos/fitting/blendshape_fitting.hpp
 	include/eos/fitting/fitting.hpp
+	include/eos/fitting/ceres_nonlinear.hpp
+	include/eos/fitting/RenderingParameters.hpp
 	include/eos/render/Mesh.hpp
 	include/eos/render/utils.hpp
 	include/eos/render/render.hpp
@@ -138,6 +146,13 @@ source_group(fitting include/eos/fitting/*)
 source_group(fitting\\detail include/eos/fitting/detail/*)
 source_group(render include/eos/render/*)
 source_group(render\\detail include/eos/render/detail/*)
+
+# Generate python bindings using pybind11:
+if(GENERATE_PYTHON_BINDINGS)
+	set(PYBIND11_PATH "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/pybind11")
+	add_subdirectory(${PYBIND11_PATH})
+	# If this fails, the repo has probably not been cloned with submodules. Run: git submodule update --init
+endif()
 
 # The install target:
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/ DESTINATION include) # our library headers

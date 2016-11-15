@@ -37,6 +37,18 @@ endif()
 add_executable(fit-model fit-model.cpp)
 target_link_libraries(fit-model ${OpenCV_LIBS} ${Boost_LIBRARIES})
 
+if(BUILD_CERES_EXAMPLE)
+	# Find Ceres, for the fit-model-ceres app:
+	find_package(Ceres REQUIRED)
+	message(STATUS "Ceres locations: Headers: ${CERES_INCLUDE_DIRS} Library: ${CERES_LIBRARIES}")
+	include_directories(${CERES_INCLUDE_DIRS})
+
+	# Single and multi-image non-linear model fitting with Ceres example:
+	add_executable(fit-model-ceres fit-model-ceres.cpp)
+	target_link_libraries(fit-model-ceres ${CERES_LIBRARIES} ${OpenCV_LIBS} ${Boost_LIBRARIES})
+	install(TARGETS fit-model-ceres DESTINATION bin)
+endif()
+
 # Generate random samples from the model:
 add_executable(generate-obj generate-obj.cpp)
 target_link_libraries(generate-obj ${OpenCV_LIBS} ${Boost_LIBRARIES})

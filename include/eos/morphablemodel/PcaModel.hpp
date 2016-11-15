@@ -1,5 +1,5 @@
 /*
- * Eos - A 3D Morphable Model fitting library written in modern C++11/14.
+ * eos - A 3D Morphable Model fitting library written in modern C++11/14.
  *
  * File: include/eos/morphablemodel/PcaModel.hpp
  *
@@ -38,7 +38,7 @@
 namespace eos {
 	namespace morphablemodel {
 
-// Forward declarations of free functions
+// Forward declarations of free functions:
 cv::Mat normalise_pca_basis(cv::Mat unnormalised_basis, cv::Mat eigenvalues);
 cv::Mat unnormalise_pca_basis(cv::Mat normalised_basis, cv::Mat eigenvalues);
 
@@ -175,6 +175,16 @@ public:
 	};
 
 	/**
+	 * @copydoc PcaModel::draw_sample(std::vector<double>)
+	 */
+	cv::Mat draw_sample(std::vector<double> coefficients) const
+	{
+		// We have to convert the vector of doubles to float:
+		std::vector<float> coeffs_float(std::begin(coefficients), std::end(coefficients));
+		return draw_sample(coeffs_float);
+	};
+
+	/**
 	 * Returns the PCA basis matrix, i.e. the eigenvectors.
 	 * Each column of the matrix is an eigenvector.
 	 * The returned basis is normalised, i.e. every eigenvector
@@ -265,7 +275,7 @@ private:
 	template<class Archive>
 	void serialize(Archive& archive)
 	{
-		archive(mean, normalised_pca_basis, unnormalised_pca_basis, eigenvalues, triangle_list);
+		archive(CEREAL_NVP(mean), CEREAL_NVP(normalised_pca_basis), CEREAL_NVP(unnormalised_pca_basis), CEREAL_NVP(eigenvalues), CEREAL_NVP(triangle_list));
 		// Note: If the files are too big, We could split this in save/load, only
 		// store one of the bases, and calculate the other one when loading.
 	};

@@ -17,6 +17,7 @@ At the moment, it mainly provides the following functionality:
 * Shape fitting, implementation of the linear shape-to-landmarks fitting of O. Aldrian & W. Smith, _Inverse Rendering of Faces with a 3D Morphable Model_, PAMI 2013
 * Expression fitting, and 6 linear expression blendshapes: anger, disgust, fear, happiness, sadness, surprise.
 * Isomap texture extraction to obtain a pose-invariant representation of the face texture.
+* _New (experimental):_ Non-linear fitting cost functions using Ceres for shape, camera, blendshapes and the colour model (needs Ceres to be installed separately)
 
 ## Usage
 
@@ -27,7 +28,7 @@ To use the library in your own project, just add the following directories to yo
 
 * `eos/include`
 * `eos/3rdparty/cereal-1.1.1/include`
-* `eos/3rdparty/glm-0.9.7.0`
+* `eos/3rdparty/glm-git-modified`
 
 ### Build the examples and tests
 

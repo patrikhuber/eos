@@ -1,5 +1,5 @@
 /*
- * Eos - A 3D Morphable Model fitting library written in modern C++11/14.
+ * eos - A 3D Morphable Model fitting library written in modern C++11/14.
  *
  * File: include/eos/render/render.hpp
  *
@@ -122,7 +122,7 @@ namespace eos {
  * @param[in] enable_far_clipping Whether vertices should be clipped against the far plane.
  * @return A pair with the colourbuffer as its first element and the depthbuffer as the second element.
  */
-std::pair<cv::Mat, cv::Mat> render(Mesh mesh, cv::Mat model_view_matrix, cv::Mat projection_matrix, int viewport_width, int viewport_height, const boost::optional<Texture>& texture = boost::none, bool enable_backface_culling = false, bool enable_near_clipping = true, bool enable_far_clipping = true)
+std::pair<cv::Mat, cv::Mat> render(Mesh mesh, glm::tmat4x4<float> model_view_matrix, glm::tmat4x4<float> projection_matrix, int viewport_width, int viewport_height, const boost::optional<Texture>& texture = boost::none, bool enable_backface_culling = false, bool enable_near_clipping = true, bool enable_far_clipping = true)
 {
 	// Some internal documentation / old todos or notes:
 	// maybe change and pass depthBuffer as an optional arg (&?), because usually we never need it outside the renderer. Or maybe even a getDepthBuffer().
@@ -146,10 +146,10 @@ std::pair<cv::Mat, cv::Mat> render(Mesh mesh, cv::Mat model_view_matrix, cv::Mat
 	vector<detail::Vertex> clipspace_vertices;
 	clipspace_vertices.reserve(mesh.vertices.size());
 	for (int i = 0; i < mesh.vertices.size(); ++i) { // "previously": mesh.vertex
-		Mat clipspace_coords = projection_matrix * model_view_matrix * Mat(mesh.vertices[i]);
-		cv::Vec3f vertex_colour;
+		glm::tvec4<float> clipspace_coords = projection_matrix * model_view_matrix * mesh.vertices[i];
+		glm::tvec3<float> vertex_colour;
 		if (mesh.colors.empty()) {
-			vertex_colour = cv::Vec3f(0.5f, 0.5f, 0.5f);
+			vertex_colour = glm::tvec3<float>(0.5f, 0.5f, 0.5f);
 		}
 		else {
 			vertex_colour = mesh.colors[i];
@@ -212,7 +212,7 @@ std::pair<cv::Mat, cv::Mat> render(Mesh mesh, cv::Mat model_view_matrix, cv::Mat
 		// split the triangle if it intersects the near plane:
 		if (enable_near_clipping)
 		{
-			vertices = detail::clip_polygon_to_plane_in_4d(vertices, cv::Vec4f(0.0f, 0.0f, -1.0f, -1.0f)); // "Normal" (or "4D hyperplane") of the near-plane. I tested it and it works like this but I'm a little bit unsure because Songho says the normal of the near-plane is (0,0,-1,1) (maybe I have to switch around the < 0 checks in the function?)
+			vertices = detail::clip_polygon_to_plane_in_4d(vertices, glm::tvec4<float>(0.0f, 0.0f, -1.0f, -1.0f)); // "Normal" (or "4D hyperplane") of the near-plane. I tested it and it works like this but I'm a little bit unsure because Songho says the normal of the near-plane is (0,0,-1,1) (maybe I have to switch around the < 0 checks in the function?)
 		}
 
 		// triangulation of the polygon formed of vertices array

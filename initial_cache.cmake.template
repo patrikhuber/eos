@@ -15,9 +15,15 @@
 #set(OpenCV_DIR "C:\\opencv\\install" CACHE PATH "Location of OpenCVConfig.cmake" FORCE)
 # Linux: Usually can be left blank but it can be used if OpenCV is not found.
 #set(OpenCV_DIR "/home/user/opencv/install/share/OpenCV" CACHE PATH "Location of OpenCVConfig.cmake" FORCE)
+#
+# Ceres:
+# -------
+#set(Ceres_DIR "C:\\ceres\\install-vs2015\\CMake" CACHE PATH "Location of CeresConfig.cmake" FORCE)
 
 # Configuration options
 # ==============================
 set(BUILD_EXAMPLES ON CACHE BOOL "Build the example applications." FORCE)
+set(BUILD_CERES_EXAMPLE OFF CACHE BOOL "Build the fit-model-ceres example (requires Ceres)." FORCE)
 set(BUILD_UTILS OFF CACHE BOOL "Build utility applications." FORCE)
 set(BUILD_DOCUMENTATION OFF CACHE BOOL "Build the library documentation." FORCE)
+set(GENERATE_PYTHON_BINDINGS OFF CACHE BOOL "Build python bindings. Needs BUILD_UTILS enabled too." FORCE)
