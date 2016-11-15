@@ -22,7 +22,7 @@
 
 # Set the path to the python interpreter if you want to build the python bindings and it doesn't find it automatically:
 # ==============================
-#set(PYTHON_EXECUTABLE "C:\\Users\\Patrik\\AppData\\Local\\Programs\\Python\\Python35\\python.exe" CACHE PATH "Path to the python interpreter." FORCE)
+#set(PYTHON_EXECUTABLE "C:\\Users\\user\\AppData\\Local\\Programs\\Python\\Python35\\python.exe" CACHE PATH "Path to the python interpreter." FORCE)
 
 # Configuration options
 # ==============================
