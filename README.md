@@ -11,13 +11,12 @@ At the moment, it mainly provides the following functionality:
 
 * MorphableModel class to represent a 3DMM (using OpenCVs `cv::Mat`)
 * Our low-resolution, shape-only 3D Morphable Face Model ([share/sfm_shape_3448.bin](https://github.com/patrikhuber/eos/blob/master/share/sfm_shape_3448.bin))
-* Camera pose estimation, implementation of:
-  * the _Gold Standard Algorithm_ for estimating an affine camera matrix, from Multiple View Geometry, Hartley & Zisserman
-  * a non-linear algorithm that directly estimates the pose angles and camera translation
+* A linear scaled orthographic projection camera pose estimation algorithm
 * Shape fitting, implementation of the linear shape-to-landmarks fitting of O. Aldrian & W. Smith, _Inverse Rendering of Faces with a 3D Morphable Model_, PAMI 2013
 * Expression fitting, and 6 linear expression blendshapes: anger, disgust, fear, happiness, sadness, surprise.
 * Isomap texture extraction to obtain a pose-invariant representation of the face texture.
-* _New (experimental):_ Non-linear fitting cost functions using Ceres for shape, camera, blendshapes and the colour model (needs Ceres to be installed separately)
+* (_Experimental_): Non-linear fitting cost functions using Ceres for shape, camera, blendshapes and the colour model (needs Ceres to be installed separately)
+* (_**New**, experimental_): Python bindings for parts of the library
 
 ## Usage
 
@@ -28,7 +27,9 @@ To use the library in your own project, just add the following directories to yo
 
 * `eos/include`
 * `eos/3rdparty/cereal-1.1.1/include`
-* `eos/3rdparty/glm-git-modified`
+* `eos/3rdparty/glm`
+
+**Make sure to clone with `--recursive` to download the required submodules!**
 
 ### Build the examples and tests
 
@@ -37,7 +38,7 @@ To use the library in your own project, just add the following directories to yo
 To build:
 
 ```
-git clone https://github.com/patrikhuber/eos.git
+git clone --recursive https://github.com/patrikhuber/eos.git
 mkdir build && cd build # creates a build directory next to the _eos_ folder
 cmake -G "<your favourite generator>" ../eos -DCMAKE_INSTALL_PREFIX=../install/
 make && make install # or open the project file and build in an IDE like Visual Studio
@@ -70,6 +71,23 @@ The library includes a low-resolution shape-only version of the Surrey Morphable
 <img src="https://raw.githubusercontent.com/patrikhuber/eos/gh-pages/images/sfm_shape_3448_mesh.png" width=20% alt="Face Model Picture"></img>
 
 The full model is available at [http://www.cvssp.org/facemodel](http://www.cvssp.org/facemodel).
+
+## Python bindings
+
+_Experimental_: eos includes python bindings for some of its functionality (and more can be added!). Set `-DBUILD_UTILS=on` and `-DGENERATE_PYTHON_BINDINGS=on` when running `cmake` to build them (and optionally set `PYTHON_EXECUTABLE` to point to your python interpreter if it's not found automatically).
+
+After building the bindings, they can be used like any python module:
+
+```
+import eos
+import numpy as np
+
+model = eos.morphablemodel.load_model("eos/share/sfm_shape_3440.bin")
+s = model.get_shape_model().draw_sample([1.0, -0.5, 0.7])
+sample = np.array(s) # the conversion from 'Mat' to a numpy array is necessary at the moment
+
+help(eos) # check the documentation
+```
 
 ## Documentation
 
