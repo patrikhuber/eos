@@ -123,6 +123,11 @@ LandmarkCollection<cv::Vec2f> read_pts_landmarks(std::string filename)
 
 /**
  * Single and multi-image non-linear model fitting with Ceres example.
+ *
+ * NOTE: The ImageCost cost function requires the "full" 3DMM with the
+ * albedo model. It can be acquired from CVSSP - see the GitHub main page.
+ * If you don't currently have it, and still want to try the Ceres fitting,
+ * the ImageCost can just be removed.
  */
 int main(int argc, char *argv[])
 {
