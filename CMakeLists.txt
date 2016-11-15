@@ -158,7 +158,8 @@ endif()
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/ DESTINATION include) # our library headers
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/share/ DESTINATION share) # the model and metadata
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/3rdparty/cereal-1.1.1/ DESTINATION 3rdparty/cereal-1.1.1) # cereal headers
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/3rdparty/glm-0.9.7.0/ DESTINATION 3rdparty/glm-0.9.7.0) # glm headers
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/3rdparty/glm/ DESTINATION 3rdparty/glm) # glm headers
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/3rdparty/pybind11/ DESTINATION 3rdparty/pybind11) # pybind11 headers
 
 if(BUILD_EXAMPLES)
 	add_subdirectory(examples)
