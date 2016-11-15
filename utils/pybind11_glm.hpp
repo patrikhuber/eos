@@ -38,7 +38,7 @@ template<typename T, glm::precision P>
 struct type_caster<glm::tvec2<T, P>>
 {
 	using vector_type = glm::tvec2<T, P>;
-	typedef typename T Scalar;
+	using Scalar = T;
 	static constexpr std::size_t num_elements = 2;
 
 	bool load(handle src, bool)
@@ -75,18 +75,14 @@ struct type_caster<glm::tvec2<T, P>>
 
 	// Specifies the doc-string for the type in Python:
 	PYBIND11_TYPE_CASTER(vector_type, _("numpy.ndarray[") + npy_format_descriptor<Scalar>::name() +
-		_("[") + elements() + _("]]"));
-
-protected:
-	template <typename T = vector_type>
-	static PYBIND11_DESCR elements() { return _(std::to_string(num_elements).c_str()); }
+		_("[") + _<num_elements>() + _("]]"));
 };
 
 template<typename T, glm::precision P>
 struct type_caster<glm::tvec3<T, P>>
 {
 	using vector_type = glm::tvec3<T, P>;
-	typedef typename T Scalar;
+	using Scalar = T;
 	static constexpr std::size_t num_elements = 3;
 
 	bool load(handle src, bool)
@@ -123,18 +119,14 @@ struct type_caster<glm::tvec3<T, P>>
 
 	// Specifies the doc-string for the type in Python:
 	PYBIND11_TYPE_CASTER(vector_type, _("numpy.ndarray[") + npy_format_descriptor<Scalar>::name() +
-		_("[") + elements() + _("]]"));
-
-protected:
-	template <typename T = vector_type>
-	static PYBIND11_DESCR elements() { return _(std::to_string(num_elements).c_str()); }
+		_("[") + _<num_elements>() + _("]]"));
 };
 
 template<typename T, glm::precision P>
 struct type_caster<glm::tvec4<T, P>>
 {
 	using vector_type = glm::tvec4<T, P>;
-	typedef typename T Scalar;
+	using Scalar = T;
 	static constexpr std::size_t num_elements = 4;
 
 	bool load(handle src, bool)
@@ -171,18 +163,14 @@ struct type_caster<glm::tvec4<T, P>>
 
 	// Specifies the doc-string for the type in Python:
 	PYBIND11_TYPE_CASTER(vector_type, _("numpy.ndarray[") + npy_format_descriptor<Scalar>::name() +
-		_("[") + elements() + _("]]"));
-
-protected:
-	template <typename T = vector_type>
-	static PYBIND11_DESCR elements() { return _(std::to_string(num_elements).c_str()); }
+		_("[") + _<num_elements>() + _("]]"));
 };
 
 template<typename T, glm::precision P>
 struct type_caster<glm::tmat3x3<T, P>>
 {
 	using matrix_type = glm::tmat3x3<T, P>;
-	typedef typename T Scalar;
+	using Scalar = T;
 	static constexpr std::size_t num_rows = 3;
 	static constexpr std::size_t num_cols = 3;
 
@@ -223,20 +211,14 @@ struct type_caster<glm::tmat3x3<T, P>>
 
 	// Specifies the doc-string for the type in Python:
 	PYBIND11_TYPE_CASTER(matrix_type, _("numpy.ndarray[") + npy_format_descriptor<Scalar>::name() +
-		_("[") + rows() + _(", ") + cols() + _("]]"));
-
-protected:
-	template <typename T = matrix_type>
-	static PYBIND11_DESCR rows() { return _(std::to_string(num_rows).c_str()); }
-	template <typename T = matrix_type>
-	static PYBIND11_DESCR cols() { return _(std::to_string(num_cols).c_str()); }
+		_("[") + _<num_rows>() + _(", ") + _<num_cols>() + _("]]"));
 };
 
 template<typename T, glm::precision P>
 struct type_caster<glm::tmat4x3<T, P>>
 {
 	using matrix_type = glm::tmat4x3<T, P>;
-	typedef typename T Scalar;
+	using Scalar = T;
 	static constexpr std::size_t num_rows = 3;
 	static constexpr std::size_t num_cols = 4;
 
@@ -277,20 +259,14 @@ struct type_caster<glm::tmat4x3<T, P>>
 
 	// Specifies the doc-string for the type in Python:
 	PYBIND11_TYPE_CASTER(matrix_type, _("numpy.ndarray[") + npy_format_descriptor<Scalar>::name() +
-		_("[") + rows() + _(", ") + cols() + _("]]"));
-
-protected:
-	template <typename T = matrix_type>
-	static PYBIND11_DESCR rows() { return _(std::to_string(num_rows).c_str()); }
-	template <typename T = matrix_type>
-	static PYBIND11_DESCR cols() { return _(std::to_string(num_cols).c_str()); }
+		_("[") + _<num_rows>() + _(", ") + _<num_cols>() + _("]]"));
 };
 
 template<typename T, glm::precision P>
 struct type_caster<glm::tmat4x4<T, P>>
 {
 	using matrix_type = glm::tmat4x4<T, P>;
-	typedef typename T Scalar;
+	using Scalar = T;
 	static constexpr std::size_t num_rows = 4;
 	static constexpr std::size_t num_cols = 4;
 
@@ -331,13 +307,7 @@ struct type_caster<glm::tmat4x4<T, P>>
 
 	// Specifies the doc-string for the type in Python:
 	PYBIND11_TYPE_CASTER(matrix_type, _("numpy.ndarray[") + npy_format_descriptor<Scalar>::name() +
-		_("[") + rows() + _(", ") + cols() + _("]]"));
-
-protected:
-	template <typename T = matrix_type>
-	static PYBIND11_DESCR rows() { return _(std::to_string(num_rows).c_str()); }
-	template <typename T = matrix_type>
-	static PYBIND11_DESCR cols() { return _(std::to_string(num_cols).c_str()); }
+		_("[") + _<num_rows>() + _(", ") + _<num_cols>() + _("]]"));
 };
 
 NAMESPACE_END(detail)
