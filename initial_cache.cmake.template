@@ -20,6 +20,10 @@
 # -------
 #set(Ceres_DIR "C:\\ceres\\install-vs2015\\CMake" CACHE PATH "Location of CeresConfig.cmake" FORCE)
 
+# Set the path to the python interpreter if you want to build the python bindings and it doesn't find it automatically:
+# ==============================
+#set(PYTHON_EXECUTABLE "C:\\Users\\Patrik\\AppData\\Local\\Programs\\Python\\Python35\\python.exe" CACHE PATH "Path to the python interpreter." FORCE)
+
 # Configuration options
 # ==============================
 set(BUILD_EXAMPLES ON CACHE BOOL "Build the example applications." FORCE)
