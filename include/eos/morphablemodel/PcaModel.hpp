@@ -175,7 +175,7 @@ public:
 	};
 
 	/**
-	 * @copydoc PcaModel::draw_sample(std::vector<double>)
+	 * @copydoc PcaModel::draw_sample(std::vector<float>) const
 	 */
 	cv::Mat draw_sample(std::vector<double> coefficients) const
 	{

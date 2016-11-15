@@ -113,26 +113,26 @@ cv::Mat fit_shape(cv::Mat affine_camera_matrix, eos::morphablemodel::MorphableMo
 
 
 /**
-* @brief Takes a LandmarkCollection of 2D landmarks and, using the landmark_mapper, finds the
-* corresponding 3D vertex indices and returns them, along with the coordinates of the 3D points.
-*
-* The function only returns points which the landmark mapper was able to convert, and skips all
-* points for which there is no mapping. Thus, the number of returned points might be smaller than
-* the number of input points.
-* All three output vectors have the same size and contain the points in the same order.
-* \c landmarks can be an eos::core::LandmarkCollection<cv::Vec2f> or an rcr::LandmarkCollection<cv::Vec2f>.
-*
-* Notes:
-* - Split into two functions, one which maps from 2D LMs to vtx_idx and returns a reduced vec of 2D LMs. And then the other one to go from vtx_idx to a vector<Vec4f>.
-* - Place in a potentially more appropriate header (shape-fitting?).
-* - Could move to detail namespace or forward-declare.
-* - \c landmarks has to be a collection of LMs, with size(), [] and Vec2f ::coordinates.
-*
-* @param[in] landmarks A LandmarkCollection of 2D landmarks.
-* @param[in] landmark_mapper A mapper which maps the 2D landmark identifiers to 3D model vertex indices.
-* @param[in] morphable_model Model to get the 3D point coordinates from.
-* @return A tuple of [image_points, model_points, vertex_indices].
-*/
+ * @brief Takes a LandmarkCollection of 2D landmarks and, using the landmark_mapper, finds the
+ * corresponding 3D vertex indices and returns them, along with the coordinates of the 3D points.
+ *
+ * The function only returns points which the landmark mapper was able to convert, and skips all
+ * points for which there is no mapping. Thus, the number of returned points might be smaller than
+ * the number of input points.
+ * All three output vectors have the same size and contain the points in the same order.
+ * \c landmarks can be an eos::core::LandmarkCollection<cv::Vec2f> or an rcr::LandmarkCollection<cv::Vec2f>.
+ *
+ * Notes:
+ * - Split into two functions, one which maps from 2D LMs to vtx_idx and returns a reduced vec of 2D LMs. And then the other one to go from vtx_idx to a vector<Vec4f>.
+ * - Place in a potentially more appropriate header (shape-fitting?).
+ * - Could move to detail namespace or forward-declare.
+ * - \c landmarks has to be a collection of LMs, with size(), [] and Vec2f ::coordinates.
+ *
+ * @param[in] landmarks A LandmarkCollection of 2D landmarks.
+ * @param[in] landmark_mapper A mapper which maps the 2D landmark identifiers to 3D model vertex indices.
+ * @param[in] morphable_model Model to get the 3D point coordinates from.
+ * @return A tuple of [image_points, model_points, vertex_indices].
+ */
 template<class T>
 auto get_corresponding_pointset(const T& landmarks, const core::LandmarkMapper& landmark_mapper, const morphablemodel::MorphableModel& morphable_model)
 {
