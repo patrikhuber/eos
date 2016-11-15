@@ -95,7 +95,7 @@ message(STATUS "Eigen3 include dir found at ${EIGEN3_INCLUDE_DIR}")
 message(STATUS "Eigen3 version: ${EIGEN3_VERSION}")
 
 set(CEREAL_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/3rdparty/cereal-1.1.1/include")
-set(glm_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/3rdparty/glm-git-modified")
+set(glm_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/3rdparty/glm")
 
 # Header files:
 set(HEADERS
