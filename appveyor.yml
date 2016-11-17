@@ -1,0 +1,37 @@
+environment:
+  home: C:\projects
+  cmake: C:\projects\cmake-3.4.1-win32-x86\bin\cmake.exe
+
+version: '{branch}-{build}'
+
+os: Visual Studio 2015
+
+install:
+  # Get all submodules, since AppVeyor doesn't clone with '--recursive':
+  - cmd: git submodule update --init --recursive # inside the repository directory
+  # Get a recent CMake and our dependencies (Eigen, OpenCV, Boost):
+  - cmd: cd %home%
+  - ps: wget https://cmake.org/files/v3.4/cmake-3.4.1-win32-x86.zip -OutFile cmake.zip
+  - cmd: 7z x cmake.zip -o"C:\projects" -y > nul # will extract to cmake-3.4.1-win32-x86\
+  - cmd: '%cmake% --version'
+  # Get Eigen:
+  - ps: wget http://bitbucket.org/eigen/eigen/get/3.3-beta1.zip -OutFile eigen.zip
+  - cmd: 7z x eigen.zip -o"C:\projects" -y > nul
+  # Get OpenCV (my pre-built binaries for 2.4.12):
+  - ps: wget "https://drive.google.com/uc?export=download&id=0B2FFdHlMfJl_cW9PeUplRVFtUWs" -OutFile opencv-2.4.12-github-vc14-release-travis.rar
+  - cmd: 7z x opencv-2.4.12-github-vc14-release-travis.rar -o"C:\projects" -y > nul
+  # Using Boost 1.59.0 from AppVeyor (C:\Libraries\boost_1_59_0)
+
+before_build: # We're still in %home%
+  - cmd: mkdir build
+  - cmd: cd build
+  - cmd: '%cmake% -G "Visual Studio 14 Win64" -DOpenCV_DIR=C:\projects\opencv -DBOOST_ROOT=C:\Libraries\boost_1_59_0 -DBOOST_LIBRARYDIR=C:\Libraries\boost_1_59_0\lib64-msvc-14.0 -DEIGEN3_INCLUDE_DIR=C:\projects\eigen-eigen-ce5a455b34c0 -DCMAKE_INSTALL_PREFIX=..\install -DBUILD_EXAMPLES=on -DBUILD_UTILS=on ..\eos'
+
+build:
+  project: C:\projects\build\eos.sln
+
+after_build: # We're still in %home%\build
+  - cmd: '%cmake% --build . --target INSTALL --config Release'
+
+configuration:
+  - Release
