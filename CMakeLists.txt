@@ -96,6 +96,7 @@ message(STATUS "Eigen3 version: ${EIGEN3_VERSION}")
 
 set(CEREAL_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/3rdparty/cereal-1.1.1/include")
 set(glm_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/3rdparty/glm")
+set(nanoflann_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/3rdparty/nanoflann/include")
 
 # Header files:
 set(HEADERS
@@ -136,6 +137,7 @@ include_directories(${Boost_INCLUDE_DIRS})
 include_directories(${OpenCV_INCLUDE_DIRS})
 include_directories(${EIGEN3_INCLUDE_DIR})
 include_directories(${glm_INCLUDE_DIR})
+include_directories(${nanoflann_INCLUDE_DIR})
 
 # Custom target for the library, to make the headers show up in IDEs:
 add_custom_target(eos SOURCES ${HEADERS})
