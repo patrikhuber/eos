@@ -106,6 +106,7 @@ set(HEADERS
 	include/eos/morphablemodel/MorphableModel.hpp
 	include/eos/morphablemodel/Blendshape.hpp
 	include/eos/morphablemodel/coefficients.hpp
+	include/eos/morphablemodel/EdgeTopology.hpp
 	include/eos/morphablemodel/io/cvssp.hpp
 	include/eos/morphablemodel/io/mat_cerealisation.hpp
 	include/eos/fitting/affine_camera_estimation.hpp
