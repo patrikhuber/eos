@@ -5,11 +5,15 @@ language: cpp
 
 env:
   - C_COMPILER=gcc-5 CXX_COMPILER=g++-5
+  - C_COMPILER=clang-3.8 CXX_COMPILER=clang++-3.8
 
 before_install:
   - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
+  - wget -O - http://llvm.org/apt/llvm-snapshot.gpg.key | sudo apt-key add -
+  - echo "deb http://llvm.org/apt/trusty/ llvm-toolchain-trusty-3.8 main" | sudo tee -a /etc/apt/sources.list
   - sudo apt-get update -q
   - sudo apt-get install gcc-5 g++-5 -y
+  - sudo apt-get install clang-3.8 -y
   - sudo apt-get install libboost-all-dev libeigen3-dev libopencv-dev -y
 
 before_script:
