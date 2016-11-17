@@ -118,6 +118,7 @@ set(HEADERS
 	include/eos/fitting/linear_shape_fitting.hpp
 	include/eos/fitting/contour_correspondence.hpp
 	include/eos/fitting/blendshape_fitting.hpp
+	include/eos/fitting/closest_edge_fitting.hpp
 	include/eos/fitting/fitting.hpp
 	include/eos/fitting/ceres_nonlinear.hpp
 	include/eos/fitting/RenderingParameters.hpp
