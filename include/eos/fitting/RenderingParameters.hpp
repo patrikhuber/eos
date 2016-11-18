@@ -121,13 +121,13 @@ public:
 		auto rot_mtx_y = glm::rotate(glm::mat4(1.0f), r_y, glm::vec3{ 0.0f, 1.0f, 0.0f });
 		auto rot_mtx_z = glm::rotate(glm::mat4(1.0f), r_z, glm::vec3{ 0.0f, 0.0f, 1.0f });
 		auto zxy_rotation_matrix = rot_mtx_z * rot_mtx_x * rot_mtx_y;
-		rotation = zxy_rotation_matrix;
+		rotation = glm::quat(zxy_rotation_matrix);
 	};
 
 	// This assumes estimate_sop was run on points with OpenCV viewport! I.e. y flipped.
 	RenderingParameters(ScaledOrthoProjectionParameters ortho_params, int image_width, int image_height) {
 		camera_type = CameraType::Orthographic;
-		rotation = ortho_params.R; // convert the rotation matrix to a quaternion
+		rotation = glm::quat(ortho_params.R);
 		t_x = ortho_params.tx;
 		t_y = ortho_params.ty;
 		const auto l = 0.0;
