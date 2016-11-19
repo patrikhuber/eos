@@ -213,6 +213,11 @@ std::vector<int> occluding_boundary_vertices(const eos::render::Mesh& mesh, cons
  *   typedef std::vector<std::vector<double> > my_vector_of_vectors_t;
  *   typedef std::vector<Eigen::VectorXd> my_vector_of_vectors_t;
  *
+ * It works with any type inside the vector that has operator[] defined to access
+ * its elements, as well as a ::size() operator to return its number of dimensions.
+ * Eigen::VectorX is one of them. cv::Point is not (no [] and no size()), glm is also
+ * not (no size()).
+ *
  *  \tparam DIM If set to >0, it specifies a compile-time fixed dimensionality for the points in the data set, allowing more compiler optimizations.
  *  \tparam num_t The type of the point coordinates (typically, double or float).
  *  \tparam Distance The distance metric to use: nanoflann::metric_L1, nanoflann::metric_L2, nanoflann::metric_L2_Simple, etc.
@@ -228,6 +233,7 @@ struct KDTreeVectorOfVectorsAdaptor
 	index_t* index; //! The kd-tree index for the user to call its methods as usual with any other FLANN index.
 
 	/// Constructor: takes a const ref to the vector of vectors object with the data points
+	// Make sure the data is kept alive while the kd-tree is in use.
 	KDTreeVectorOfVectorsAdaptor(const int dimensionality, const VectorOfVectorsType &mat, const int leaf_max_size = 10) : m_data(mat)
 	{
 		assert(mat.size() != 0 && mat[0].size() != 0);
@@ -297,7 +303,7 @@ struct KDTreeVectorOfVectorsAdaptor
 
 	/** @} */
 
-}; // end of KDTreeVectorOfVectorsAdaptor
+};
 
 	} /* namespace fitting */
 } /* namespace eos */
