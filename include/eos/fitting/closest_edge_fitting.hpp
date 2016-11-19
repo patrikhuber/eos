@@ -23,6 +23,7 @@
 #define CLOSESTEDGEFITTING_HPP_
 
 #include "eos/morphablemodel/EdgeTopology.hpp"
+#include "eos/fitting/RenderingParameters.hpp"
 #include "eos/render/Mesh.hpp"
 #include "eos/render/utils.hpp"
 
@@ -33,11 +34,16 @@
 #include "glm/vec4.hpp"
 #include "glm/mat4x4.hpp"
 
+#include "Eigen/Dense" // Need only Vector2f actually.
+
+#include "opencv2/core/core.hpp"
+
 #include "boost/optional.hpp"
 
 #include <vector>
 #include <algorithm>
 #include <utility>
+#include <cstddef>
 
 namespace eos {
 	namespace fitting {
@@ -303,6 +309,87 @@ struct KDTreeVectorOfVectorsAdaptor
 
 	/** @} */
 
+};
+
+/**
+ * @brief For a given list of 2D edge points, find corresponding 3D vertex IDs.
+ *
+ * This algorithm first computes the 3D mesh's occluding boundary vertices under
+ * the given pose. Then, for each 2D image edge point given, it searches for the
+ * closest 3D edge vertex (projected to 2D). Correspondences lying further away
+ * than \c distance_threshold (times a scale-factor) are discarded.
+ * It returns a list of the remaining image edge points and their corresponding
+ * 3D vertex ID.
+ *
+ * The given \c rendering_parameters camery_type must be CameraType::Orthographic.
+ *
+ * The units of \c distance_threshold are somewhat complicated. The function
+ * uses squared distances, and the \c distance_threshold is further multiplied
+ * with a face-size and image resolution dependent scale factor.
+ * It's reasonable to use correspondences that are 10 to 15 pixels away on a
+ * 1280x720 image with s=0.93. This would be a distance_threshold of around 200.
+ * 64 might be a conservative default.
+ *
+ * @param[in] mesh The 3D mesh.
+ * @param[in] edge_topology The mesh's edge topology (used for fast computation).
+ * @param[in] rendering_parameters Rendering (pose) parameters of the mesh.
+ * @param[in] image_edges A list of points that are edges.
+ * @param[in] distance_threshold All correspondences below this threshold.
+ * @return A pair consisting of the used image edge points and their associated 3D vertex index.
+ */
+std::pair<std::vector<cv::Vec2f>, std::vector<int>> find_occluding_edge_correspondences(const render::Mesh& mesh, const morphablemodel::EdgeTopology& edge_topology, const fitting::RenderingParameters& rendering_parameters, const std::vector<Eigen::Vector2f>& image_edges, float distance_threshold = 64.0f)
+{
+	assert(rendering_parameters.get_camera_type() == fitting::CameraType::Orthographic);
+	using std::vector;
+	using Eigen::Vector2f;
+
+	// Compute vertices that lye on occluding boundaries:
+	auto occluding_vertices = occluding_boundary_vertices(mesh, edge_topology, glm::mat4x4(rendering_parameters.get_rotation()));
+
+	// Project these occluding boundary vertices from 3D to 2D:
+	vector<Vector2f> model_edges_projected;
+	for (const auto& v : occluding_vertices)
+	{
+		auto p = glm::project({ mesh.vertices[v][0], mesh.vertices[v][1], mesh.vertices[v][2] }, rendering_parameters.get_modelview(), rendering_parameters.get_projection(), fitting::get_opencv_viewport(rendering_parameters.get_screen_width(), rendering_parameters.get_screen_height()));
+		model_edges_projected.push_back({ p.x, p.y });
+	}
+
+	// Find edge correspondences:
+	// Build a kd-tree and use nearest neighbour search:
+	using kd_tree_t = KDTreeVectorOfVectorsAdaptor<vector<Vector2f>, float, 2>;
+	kd_tree_t tree(2, image_edges); // dim, samples, max_leaf
+	tree.index->buildIndex();
+
+	vector<std::pair<std::size_t, double>> idx_d; // will contain [ index to the 2D edge in 'image_edges', distance (L2^2) ]
+	for (const auto& e : model_edges_projected)
+	{
+		std::size_t idx; // contains the indices into the original 'image_edges' vector
+		double dist_sq; // squared distances
+		nanoflann::KNNResultSet<double> resultSet(1);
+		resultSet.init(&idx, &dist_sq);
+		tree.index->findNeighbors(resultSet, e.data(), nanoflann::SearchParams(10));
+		idx_d.push_back({ idx, dist_sq });
+	}
+	// Filter edge matches:
+	// We filter below by discarding all correspondence that are a certain distance apart.
+	// We could also (or in addition to) discard the worst 5% of the distances or something like that.
+
+	// Filter and store the image (edge) points with their corresponding vertex id:
+	vector<int> vertex_indices;
+	vector<cv::Vec2f> image_points;
+	assert(occluding_vertices.size() == idx_d.size());
+	for (int i = 0; i < occluding_vertices.size(); ++i)
+	{
+		auto ortho_scale = rendering_parameters.get_screen_width() / rendering_parameters.get_frustum().r; // This might be a bit of a hack - we recover the "real" scaling from the SOP estimate
+		if (idx_d[i].second <= distance_threshold * ortho_scale) // I think multiplying by the scale is good here and gives us invariance w.r.t. the image resolution and face size.
+		{
+			auto edge_point = image_edges[idx_d[i].first];
+			// Store the found 2D edge point, and the associated vertex id:
+			vertex_indices.push_back(occluding_vertices[i]);
+			image_points.push_back(cv::Vec2f(edge_point[0], edge_point[1]));
+		}
+	}
+	return { image_points, vertex_indices };
 };
 
 	} /* namespace fitting */
