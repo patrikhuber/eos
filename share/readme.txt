@@ -20,6 +20,10 @@ Files in this directory:
 	6 expression blendshapes for the sfm_shape_3448 model. Contains the expressions angry,
 	disgust, fear, happy, sad and surprised.
 
+- sfm_3448_edge_topology.json:
+	Contains a precomputed list of the model's edges, and the two faces and vertices that are
+	adjacent to	each edge. Used in the edge-fitting.
+
 - model_contours.json:
 	Definition of the model's contour vertices of the right and left side of the face.
 
