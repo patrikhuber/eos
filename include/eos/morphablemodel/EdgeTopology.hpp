@@ -74,7 +74,7 @@ struct EdgeTopology {
  * @param[in] filename The file to write.
  * @throws std::runtime_error if unable to open the given file for writing.
  */
-void save_edge_topology(EdgeTopology edge_topology, std::string filename)
+inline void save_edge_topology(EdgeTopology edge_topology, std::string filename)
 {
 	std::ofstream file(filename);
 	if (file.fail()) {
@@ -91,7 +91,7 @@ void save_edge_topology(EdgeTopology edge_topology, std::string filename)
  * @return A struct containing the edge topology.
  * @throws std::runtime_error if unable to open the given file for writing.
  */
-EdgeTopology load_edge_topology(std::string filename)
+inline EdgeTopology load_edge_topology(std::string filename)
 {
 	EdgeTopology edge_topology;
 	std::ifstream file(filename);
