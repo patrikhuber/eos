@@ -192,7 +192,7 @@ private:
  * @param[in] filename The file to write.
  * @throws std::runtime_error if unable to open the given file for writing.
  */
-void save_rendering_parameters(RenderingParameters rendering_parameters, std::string filename)
+inline void save_rendering_parameters(RenderingParameters rendering_parameters, std::string filename)
 {
 	std::ofstream file(filename);
 	if (file.fail()) {
@@ -206,7 +206,7 @@ void save_rendering_parameters(RenderingParameters rendering_parameters, std::st
  * @brief Returns a glm/OpenGL compatible viewport vector that flips y and
  * has the origin on the top-left, like in OpenCV.
  */
-glm::vec4 get_opencv_viewport(int width, int height)
+inline glm::vec4 get_opencv_viewport(int width, int height)
 {
 	return glm::vec4(0, height, width, -height);
 };
@@ -217,7 +217,7 @@ glm::vec4 get_opencv_viewport(int width, int height)
  * Note: I think the last use of this function is below in
  * get_3x4_affine_camera_matrix().
  */
-cv::Mat to_mat(const glm::mat4x4& glm_matrix)
+inline cv::Mat to_mat(const glm::mat4x4& glm_matrix)
 {
 	// glm stores its matrices in col-major order in memory, OpenCV in row-major order.
 	// Hence we transpose the glm matrix to flip the memory layout, and then point OpenCV
@@ -235,7 +235,7 @@ cv::Mat to_mat(const glm::mat4x4& glm_matrix)
  * This function is mainly used since the linear shape fitting fitting::fit_shape_to_landmarks_linear
  * expects one of these 3x4 affine camera matrices, as well as render::extract_texture.
  */
-cv::Mat get_3x4_affine_camera_matrix(fitting::RenderingParameters params, int width, int height)
+inline cv::Mat get_3x4_affine_camera_matrix(RenderingParameters params, int width, int height)
 {
 	auto view_model = to_mat(params.get_modelview());
 	auto ortho_projection = to_mat(params.get_projection());

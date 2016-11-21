@@ -56,7 +56,7 @@ std::vector<cv::Vec2f> load_isomap(boost::filesystem::path isomap_file);
  * @return The Morphable Model loaded from the file.
  * @throws ...
  */
-MorphableModel load_scm_model(boost::filesystem::path model_filename, boost::filesystem::path isomap_file = boost::filesystem::path())
+inline MorphableModel load_scm_model(boost::filesystem::path model_filename, boost::filesystem::path isomap_file = boost::filesystem::path())
 {
 	using cv::Mat;
 	if (sizeof(unsigned int) != 4) { // note/todo: maybe use uint32 or similar instead? Yep, but still we could encounter endianness-trouble.
@@ -228,7 +228,7 @@ MorphableModel load_scm_model(boost::filesystem::path model_filename, boost::fil
  * @return The 2D texture coordinates for every vertex.
  * @throws ...
  */
-std::vector<cv::Vec2f> load_isomap(boost::filesystem::path isomapFile)
+inline std::vector<cv::Vec2f> load_isomap(boost::filesystem::path isomapFile)
 {
 	using std::string;
 	std::vector<float> xCoords, yCoords;

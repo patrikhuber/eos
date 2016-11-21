@@ -231,7 +231,7 @@ double implicit_line(float x, float y, const glm::tvec4<T, P>& v1, const glm::tv
 	return ((double)v1[1] - (double)v2[1])*(double)x + ((double)v2[0] - (double)v1[0])*(double)y + (double)v1[0] * (double)v2[1] - (double)v2[0] * (double)v1[1];
 };
 
-std::vector<Vertex> clip_polygon_to_plane_in_4d(const std::vector<Vertex>& vertices, const glm::tvec4<float>& plane_normal)
+inline std::vector<Vertex> clip_polygon_to_plane_in_4d(const std::vector<Vertex>& vertices, const glm::tvec4<float>& plane_normal)
 {
 	std::vector<Vertex> clippedVertices;
 
@@ -281,12 +281,12 @@ std::vector<Vertex> clip_polygon_to_plane_in_4d(const std::vector<Vertex>& verti
 
 // used only in tex2D_linear_mipmap_linear
 // template?
-float clamp(float x, float a, float b)
+inline float clamp(float x, float a, float b)
 {
 	return std::max(std::min(x, b), a);
 };
 
-cv::Vec2f texcoord_wrap(const cv::Vec2f& texcoords)
+inline cv::Vec2f texcoord_wrap(const cv::Vec2f& texcoords)
 {
 	return cv::Vec2f(texcoords[0] - (int)texcoords[0], texcoords[1] - (int)texcoords[1]);
 };
@@ -295,7 +295,7 @@ cv::Vec2f texcoord_wrap(const cv::Vec2f& texcoords)
 cv::Vec3f tex2d_linear_mipmap_linear(const cv::Vec2f& texcoords, const Texture& texture, float dudx, float dudy, float dvdx, float dvdy);
 cv::Vec3f tex2d_linear(const cv::Vec2f& imageTexCoord, unsigned char mipmapIndex, const Texture& texture);
 
-cv::Vec3f tex2d(const cv::Vec2f& texcoords, const Texture& texture, float dudx, float dudy, float dvdx, float dvdy)
+inline cv::Vec3f tex2d(const cv::Vec2f& texcoords, const Texture& texture, float dudx, float dudy, float dvdx, float dvdy)
 {
 	return (1.0f / 255.0f) * tex2d_linear_mipmap_linear(texcoords, texture, dudx, dudy, dvdx, dvdy);
 };
@@ -308,7 +308,7 @@ glm::tvec3<T, P> tex2d(const glm::tvec2<T, P>& texcoords, const Texture& texture
 	return glm::tvec3<T, P>(ret[0], ret[1], ret[2]);
 };
 
-cv::Vec3f tex2d_linear_mipmap_linear(const cv::Vec2f& texcoords, const Texture& texture, float dudx, float dudy, float dvdx, float dvdy)
+inline cv::Vec3f tex2d_linear_mipmap_linear(const cv::Vec2f& texcoords, const Texture& texture, float dudx, float dudy, float dvdx, float dvdy)
 {
 	using cv::Vec2f;
 	float px = std::sqrt(std::pow(dudx, 2) + std::pow(dvdx, 2));
@@ -335,7 +335,7 @@ cv::Vec3f tex2d_linear_mipmap_linear(const cv::Vec2f& texcoords, const Texture& 
 	return color;
 };
 
-cv::Vec3f tex2d_linear(const cv::Vec2f& imageTexCoord, unsigned char mipmap_index, const Texture& texture)
+inline cv::Vec3f tex2d_linear(const cv::Vec2f& imageTexCoord, unsigned char mipmap_index, const Texture& texture)
 {
 	int x = (int)imageTexCoord[0];
 	int y = (int)imageTexCoord[1];
@@ -387,7 +387,7 @@ cv::Vec3f tex2d_linear(const cv::Vec2f& imageTexCoord, unsigned char mipmap_inde
 // Todo: Split this function into the general (core-part) and the texturing part.
 // Then, utils::extractTexture can re-use the core-part.
 // Note: Maybe a bit outdated "todo" above.
-boost::optional<TriangleToRasterize> process_prospective_tri(Vertex v0, Vertex v1, Vertex v2, int viewport_width, int viewport_height, bool enable_backface_culling)
+inline boost::optional<TriangleToRasterize> process_prospective_tri(Vertex v0, Vertex v1, Vertex v2, int viewport_width, int viewport_height, bool enable_backface_culling)
 {
 	using cv::Vec2f;
 	using cv::Vec3f;
@@ -464,7 +464,7 @@ boost::optional<TriangleToRasterize> process_prospective_tri(Vertex v0, Vertex v
 	return boost::optional<TriangleToRasterize>(t);
 };
 
-void raster_triangle(TriangleToRasterize triangle, cv::Mat colourbuffer, cv::Mat depthbuffer, boost::optional<Texture> texture, bool enable_far_clipping)
+inline void raster_triangle(TriangleToRasterize triangle, cv::Mat colourbuffer, cv::Mat depthbuffer, boost::optional<Texture> texture, bool enable_far_clipping)
 {
 	using cv::Vec2f;
 	using cv::Vec3f;

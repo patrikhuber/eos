@@ -50,7 +50,7 @@ namespace eos {
  * @param[in] model_points Corresponding points of a 3D model.
  * @return A 3x4 affine camera matrix (the third row is [0, 0, 0, 1]).
  */
-cv::Mat estimate_affine_camera(std::vector<cv::Vec2f> image_points, std::vector<cv::Vec4f> model_points)
+inline cv::Mat estimate_affine_camera(std::vector<cv::Vec2f> image_points, std::vector<cv::Vec4f> model_points)
 {
 	using cv::Mat;
 	assert(image_points.size() == model_points.size());

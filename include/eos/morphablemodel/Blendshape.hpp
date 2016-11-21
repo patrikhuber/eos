@@ -69,7 +69,7 @@ struct Blendshape
  * @return The loaded blendshapes.
  * @throw std::runtime_error When the file given in \c filename fails to be opened (most likely because the file doesn't exist).
  */
-std::vector<Blendshape> load_blendshapes(std::string filename)
+inline std::vector<Blendshape> load_blendshapes(std::string filename)
 {
 	std::vector<Blendshape> blendshapes;
 
@@ -89,7 +89,7 @@ std::vector<Blendshape> load_blendshapes(std::string filename)
  * @param[in] blendshapes Vector of blendshapes.
  * @return The resulting matrix.
  */
-cv::Mat to_matrix(const std::vector<Blendshape>& blendshapes)
+inline cv::Mat to_matrix(const std::vector<Blendshape>& blendshapes)
 {
 	// assert: all blendshapes have to have the same number of rows, and one col
 	assert(blendshapes.size() > 0);

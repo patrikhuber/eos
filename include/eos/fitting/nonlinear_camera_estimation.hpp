@@ -62,7 +62,7 @@ namespace eos {
  * @param[in] height Height of the image (or viewport).
  * @return The estimated model and camera parameters.
  */
-RenderingParameters estimate_orthographic_camera(std::vector<cv::Vec2f> image_points, std::vector<cv::Vec4f> model_points, int width, int height)
+inline RenderingParameters estimate_orthographic_camera(std::vector<cv::Vec2f> image_points, std::vector<cv::Vec4f> model_points, int width, int height)
 {
 	using cv::Mat;
 	assert(image_points.size() == model_points.size());

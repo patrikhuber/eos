@@ -48,7 +48,7 @@ namespace eos {
  * @param[in] affine_camera_matrix A 3x4 affine camera matrix.
  * @return The matrix with a third row inserted.
  */
-cv::Mat calculate_affine_z_direction(cv::Mat affine_camera_matrix)
+inline cv::Mat calculate_affine_z_direction(cv::Mat affine_camera_matrix)
 {
 	using cv::Mat;
 	// Take the cross product of row 0 with row 1 to get the direction perpendicular to the viewing plane (= the viewing direction).
@@ -93,7 +93,7 @@ cv::Mat calculate_affine_z_direction(cv::Mat affine_camera_matrix)
  * @param[in] colourbuffer The colour buffer to draw into.
  * @param[in] depthbuffer The depth buffer to draw into and use for the depth test.
  */
-void raster_triangle_affine(TriangleToRasterize triangle, cv::Mat colourbuffer, cv::Mat depthbuffer)
+inline void raster_triangle_affine(TriangleToRasterize triangle, cv::Mat colourbuffer, cv::Mat depthbuffer)
 {
 	for (int yi = triangle.min_y; yi <= triangle.max_y; ++yi)
 	{

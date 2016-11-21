@@ -55,7 +55,7 @@ namespace eos {
  * @param[out] blendshape_coefficients Output parameter that will contain the resulting blendshape coefficients.
  * @return The fitted model shape instance.
  */
-cv::Mat fit_shape(cv::Mat affine_camera_matrix, eos::morphablemodel::MorphableModel morphable_model, std::vector<eos::morphablemodel::Blendshape> blendshapes, std::vector<cv::Vec2f> image_points, std::vector<int> vertex_indices, float lambda, boost::optional<int> num_coefficients_to_fit, std::vector<float>& pca_shape_coefficients, std::vector<float>& blendshape_coefficients)
+inline cv::Mat fit_shape(cv::Mat affine_camera_matrix, morphablemodel::MorphableModel morphable_model, std::vector<morphablemodel::Blendshape> blendshapes, std::vector<cv::Vec2f> image_points, std::vector<int> vertex_indices, float lambda, boost::optional<int> num_coefficients_to_fit, std::vector<float>& pca_shape_coefficients, std::vector<float>& blendshape_coefficients)
 {
 	using cv::Mat;
 	
@@ -105,7 +105,7 @@ cv::Mat fit_shape(cv::Mat affine_camera_matrix, eos::morphablemodel::MorphableMo
  * @param[in] num_coefficients_to_fit How many shape-coefficients to fit (all others will stay 0). Should be bigger than zero, or boost::none to fit all coefficients.
  * @return The fitted model shape instance.
  */
-cv::Mat fit_shape(cv::Mat affine_camera_matrix, eos::morphablemodel::MorphableModel morphable_model, std::vector<eos::morphablemodel::Blendshape> blendshapes, std::vector<cv::Vec2f> image_points, std::vector<int> vertex_indices, float lambda = 3.0f, boost::optional<int> num_coefficients_to_fit = boost::optional<int>())
+inline cv::Mat fit_shape(cv::Mat affine_camera_matrix, morphablemodel::MorphableModel morphable_model, std::vector<morphablemodel::Blendshape> blendshapes, std::vector<cv::Vec2f> image_points, std::vector<int> vertex_indices, float lambda = 3.0f, boost::optional<int> num_coefficients_to_fit = boost::optional<int>())
 {
 	std::vector<float> unused;
 	return fit_shape(affine_camera_matrix, morphable_model, blendshapes, image_points, vertex_indices, lambda, num_coefficients_to_fit, unused, unused);

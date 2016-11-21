@@ -50,7 +50,7 @@ enum class TextureInterpolation {
 };
 
 // Forward declarations:
-inline cv::Mat extract_texture(Mesh mesh, cv::Mat affine_camera_matrix, cv::Mat image, cv::Mat depthbuffer, bool compute_view_angle, TextureInterpolation mapping_type, int isomap_resolution);
+cv::Mat extract_texture(Mesh mesh, cv::Mat affine_camera_matrix, cv::Mat image, cv::Mat depthbuffer, bool compute_view_angle, TextureInterpolation mapping_type, int isomap_resolution);
 namespace detail { cv::Mat interpolate_black_line(cv::Mat isomap); }
 
 /**
@@ -353,7 +353,7 @@ namespace detail {
 // manifest themselves as black lines in the final isomap. This function
 // just fills these missing values by interpolating between two neighbouring
 // pixels. See GitHub issue #4.
-cv::Mat interpolate_black_line(cv::Mat isomap)
+inline cv::Mat interpolate_black_line(cv::Mat isomap)
 {
 	assert(isomap.type() == CV_8UC4);
 	// Replace the vertical black line ("missing data"):

@@ -92,7 +92,7 @@ inline cv::Vec2f screen_to_clip_space(const cv::Vec2f& screen_coordinates, int s
  * @param[in] v2 Third vertex.
  * @return The unit-length normal of the given triangle.
  */
-cv::Vec3f calculate_face_normal(const cv::Vec3f& v0, const cv::Vec3f& v1, const cv::Vec3f& v2)
+inline cv::Vec3f calculate_face_normal(const cv::Vec3f& v0, const cv::Vec3f& v1, const cv::Vec3f& v2)
 {
 	cv::Vec3f n = (v1 - v0).cross(v2 - v0); // v0-to-v1 x v0-to-v2
 	n /= cv::norm(n);
@@ -108,7 +108,7 @@ cv::Vec3f calculate_face_normal(const cv::Vec3f& v0, const cv::Vec3f& v1, const 
  * @param[in] image An optional image to draw onto.
  * @return An image with the texture coordinate triangles drawn in it, 512x512 if no image is given.
  */
-cv::Mat draw_texcoords(Mesh mesh, cv::Mat image = cv::Mat())
+inline cv::Mat draw_texcoords(Mesh mesh, cv::Mat image = cv::Mat())
 {
 	using cv::Point2f;
 	using cv::Scalar;
@@ -126,7 +126,7 @@ cv::Mat draw_texcoords(Mesh mesh, cv::Mat image = cv::Mat())
 };
 
 // TODO: Should go to detail:: namespace, or texturing/utils or whatever.
-unsigned int get_max_possible_mipmaps_num(unsigned int width, unsigned int height)
+inline unsigned int get_max_possible_mipmaps_num(unsigned int width, unsigned int height)
 {
 	unsigned int mipmapsNum = 1;
 	unsigned int size = std::max(width, height);
@@ -165,7 +165,8 @@ public:
 };
 
 // throws: ocv exc,  runtime_ex
-Texture create_mipmapped_texture(cv::Mat image, unsigned int mipmapsNum = 0) {
+inline Texture create_mipmapped_texture(cv::Mat image, unsigned int mipmapsNum = 0)
+{
 	assert(image.type() == CV_8UC3 || image.type() == CV_8UC4);
 
 	Texture texture;

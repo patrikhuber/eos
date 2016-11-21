@@ -268,7 +268,7 @@ private:
  * @return The loaded Morphable Model.
  * @throw std::runtime_error When the file given in \c filename fails to be opened (most likely because the file doesn't exist).
  */
-MorphableModel load_model(std::string filename)
+inline MorphableModel load_model(std::string filename)
 {
 	MorphableModel model;
 
@@ -289,7 +289,7 @@ MorphableModel load_model(std::string filename)
  * @param[in] model The model to be saved.
  * @param[in] filename Filename for the model.
  */
-void save_model(MorphableModel model, std::string filename)
+inline void save_model(MorphableModel model, std::string filename)
 {
 	std::ofstream file(filename, std::ios::binary);
 	cereal::BinaryOutputArchive output_archive(file);
@@ -312,13 +312,13 @@ namespace detail { /* eos::morphablemodel::detail */
  * @param[in] texture_coordinates Optional texture coordinates for each vertex.
  * @return A mesh created from given parameters.
  */
-eos::render::Mesh sample_to_mesh(cv::Mat shape, cv::Mat color, std::vector<std::array<int, 3>> tvi, std::vector<std::array<int, 3>> tci, std::vector<cv::Vec2f> texture_coordinates /* = std::vector<cv::Vec2f>() */)
+inline render::Mesh sample_to_mesh(cv::Mat shape, cv::Mat color, std::vector<std::array<int, 3>> tvi, std::vector<std::array<int, 3>> tci, std::vector<cv::Vec2f> texture_coordinates /* = std::vector<cv::Vec2f>() */)
 {
 	assert(shape.rows == color.rows || color.empty()); // The number of vertices (= model.getDataDimension() / 3) has to be equal for both models, or, alternatively, it has to be a shape-only model.
 
 	auto num_vertices = shape.rows / 3;
 
-	eos::render::Mesh mesh;
+	render::Mesh mesh;
 
 	// Construct the mesh vertices:
 	mesh.vertices.resize(num_vertices);

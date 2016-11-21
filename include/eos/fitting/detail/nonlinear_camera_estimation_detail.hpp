@@ -38,7 +38,7 @@ namespace eos {
 // ret: 3rd entry is the z
 // radians
 // expects the landmark points to be in opencv convention, i.e. origin TL
-glm::vec3 project_ortho(glm::vec3 point, float rot_x_pitch, float rot_y_yaw, float rot_z_roll, float tx, float ty, float frustum_scale, /* fixed params now: */ int width, int height)
+inline glm::vec3 project_ortho(glm::vec3 point, float rot_x_pitch, float rot_y_yaw, float rot_z_roll, float tx, float ty, float frustum_scale, /* fixed params now: */ int width, int height)
 {
 	// We could use quaternions in here, to be independent of the RPY... etc convention.
 	// Then, the user can decompose the quaternion as he wishes to. But then we'd have to estimate 4 parameters?

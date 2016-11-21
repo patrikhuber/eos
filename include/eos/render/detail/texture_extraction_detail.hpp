@@ -88,7 +88,7 @@ inline bool is_point_in_triangle(cv::Point2f point, cv::Point2f triV0, cv::Point
  * @param[in] depthbuffer Pre-calculated depthbuffer.
  * @return True if the whole triangle is visible in the image.
  */
-bool is_triangle_visible(const glm::tvec4<float>& v0, const glm::tvec4<float>& v1, const glm::tvec4<float>& v2, cv::Mat depthbuffer)
+inline bool is_triangle_visible(const glm::tvec4<float>& v0, const glm::tvec4<float>& v1, const glm::tvec4<float>& v2, cv::Mat depthbuffer)
 {
 	// #Todo: Actually, only check the 3 vertex points, don't loop over the pixels - this should be enough.
 

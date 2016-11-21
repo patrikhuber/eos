@@ -67,7 +67,7 @@ struct ScaledOrthoProjectionParameters {
  * @param[in] viewport_height Height of the viewport of the image points (needs to be given if is_viewport_upsidedown == true).
  * @return Rotation, translation and scaling of the estimated scaled orthographic projection.
  */
-ScaledOrthoProjectionParameters estimate_orthographic_projection_linear(std::vector<cv::Vec2f> image_points, std::vector<cv::Vec4f> model_points, bool is_viewport_upsidedown, boost::optional<int> viewport_height = boost::none)
+inline ScaledOrthoProjectionParameters estimate_orthographic_projection_linear(std::vector<cv::Vec2f> image_points, std::vector<cv::Vec4f> model_points, bool is_viewport_upsidedown, boost::optional<int> viewport_height = boost::none)
 {
 	using cv::Mat;
 	assert(image_points.size() == model_points.size());
