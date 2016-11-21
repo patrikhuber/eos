@@ -69,7 +69,7 @@ namespace eos {
  * @param[in] enable_backculling When culling is on, rays intersecting triangles from the back will be discarded.
  * @return Whether the ray intersects the triangle, and if yes, including the distance.
  */
-std::pair<bool, boost::optional<float>> ray_triangle_intersect(const glm::vec3& ray_origin, const glm::vec3& ray_direction, const glm::vec3& v0, const glm::vec3& v1, const glm::vec3& v2, bool enable_backculling)
+inline std::pair<bool, boost::optional<float>> ray_triangle_intersect(const glm::vec3& ray_origin, const glm::vec3& ray_direction, const glm::vec3& v0, const glm::vec3& v1, const glm::vec3& v2, bool enable_backculling)
 {
 	using glm::vec3;
 	const float epsilon = 1e-6f;
@@ -122,7 +122,7 @@ std::pair<bool, boost::optional<float>> ray_triangle_intersect(const glm::vec3& 
  * @param[in] R The rotation (pose) under which the occluding boundaries should be computed.
  * @return A vector with unique vertex id's making up the edges.
  */
-std::vector<int> occluding_boundary_vertices(const eos::render::Mesh& mesh, const morphablemodel::EdgeTopology& edge_topology, glm::mat4x4 R)
+inline std::vector<int> occluding_boundary_vertices(const render::Mesh& mesh, const morphablemodel::EdgeTopology& edge_topology, glm::mat4x4 R)
 {
 	// Rotate the mesh:
 	std::vector<glm::vec4> rotated_vertices;
@@ -337,7 +337,7 @@ struct KDTreeVectorOfVectorsAdaptor
  * @param[in] distance_threshold All correspondences below this threshold.
  * @return A pair consisting of the used image edge points and their associated 3D vertex index.
  */
-std::pair<std::vector<cv::Vec2f>, std::vector<int>> find_occluding_edge_correspondences(const render::Mesh& mesh, const morphablemodel::EdgeTopology& edge_topology, const fitting::RenderingParameters& rendering_parameters, const std::vector<Eigen::Vector2f>& image_edges, float distance_threshold = 64.0f)
+inline std::pair<std::vector<cv::Vec2f>, std::vector<int>> find_occluding_edge_correspondences(const render::Mesh& mesh, const morphablemodel::EdgeTopology& edge_topology, const fitting::RenderingParameters& rendering_parameters, const std::vector<Eigen::Vector2f>& image_edges, float distance_threshold = 64.0f)
 {
 	assert(rendering_parameters.get_camera_type() == fitting::CameraType::Orthographic);
 	using std::vector;
