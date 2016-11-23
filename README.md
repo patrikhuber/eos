@@ -9,7 +9,7 @@
 [appveyor]: https://ci.appveyor.com/project/patrikhuber/eos/branch/master
 [license]: https://github.com/patrikhuber/eos/blob/master/LICENSE
 
-eos is a lightweight 3D Morphable Face Model fitting library that provides just the bare minimum to load a model and perform camera and shape fitting. It's written in modern C++11/14.
+eos is a lightweight 3D Morphable Face Model fitting library that provides basic functionality to use face models, as well as camera and shape fitting functionality. It's written in modern C++11/14.
 
 At the moment, it mainly provides the following functionality:
 
@@ -43,7 +43,7 @@ To build:
 
 ```
 git clone --recursive https://github.com/patrikhuber/eos.git
-mkdir build && cd build # creates a build directory next to the _eos_ folder
+mkdir build && cd build # creates a build directory next to the 'eos' folder
 cmake -G "<your favourite generator>" ../eos -DCMAKE_INSTALL_PREFIX=../install/
 make && make install # or open the project file and build in an IDE like Visual Studio
 ```
