@@ -24,6 +24,9 @@
 
 #include "eos/render/Mesh.hpp"
 
+#include "glm/vec3.hpp"
+#include "glm/geometric.hpp"
+
 #include "opencv2/core/core.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 
