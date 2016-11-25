@@ -7,3 +7,6 @@
 [submodule "3rdparty/glm"]
 	path = 3rdparty/glm
 	url = https://github.com/g-truc/glm.git
+[submodule "3rdparty/eigen3-nnls"]
+	path = 3rdparty/eigen3-nnls
+	url = https://github.com/hmatuschek/eigen3-nnls.git
