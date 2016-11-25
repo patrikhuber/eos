@@ -81,7 +81,7 @@ cv::Mat fit_shape(cv::Mat affine_camera_matrix, eos::morphablemodel::MorphableMo
 
 		// Estimate the blendshape coefficients with the current PCA model estimate:
 		Mat pca_model_shape = morphable_model.get_shape_model().draw_sample(current_pca_coeffs);
-		current_blendshape_coeffs = eos::fitting::fit_blendshapes_to_landmarks_linear(blendshapes, pca_model_shape, affine_camera_matrix, image_points, vertex_indices, 0.0f);
+		current_blendshape_coeffs = fitting::fit_blendshapes_to_landmarks_nnls(blendshapes, pca_model_shape, affine_camera_matrix, image_points, vertex_indices);
 
 		combined_shape = pca_model_shape + blendshapes_as_basis * Mat(current_blendshape_coeffs);
 	} while (std::abs(cv::norm(current_pca_coeffs) - cv::norm(last_pca_coeffs)) >= 0.01 || std::abs(cv::norm(current_blendshape_coeffs) - cv::norm(last_blendshape_coeffs)) >= 0.01);
