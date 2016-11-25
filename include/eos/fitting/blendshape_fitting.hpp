@@ -197,7 +197,6 @@ inline std::vector<float> fit_blendshapes_to_landmarks_nnls(std::vector<eos::mor
 	bool non_singular = Eigen::NNLS<Eigen::MatrixXf>::solve(A_Eigen, -b_Eigen, x);
 	Mat c_s(x.rows(), x.cols(), CV_32FC1, x.data()); // create an OpenCV Mat header for the Eigen data
 
-	
 	return std::vector<float>(c_s);
 };
 
