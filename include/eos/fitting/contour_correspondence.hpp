@@ -225,6 +225,8 @@ std::tuple<std::vector<cv::Vec2f>, std::vector<cv::Vec4f>, std::vector<int>> get
  * have different size. 
  * Correspondence can be established using get_nearest_contour_correspondences().
  *
+ * If the yaw angle is between +-7.5°, both contours will be selected.
+ *
  * Note: Maybe rename to find_nearest_contour_points, to highlight that there is (potentially a lot) computational cost involved?
  *
  * @param[in] yaw_angle Yaw angle in degrees.
@@ -234,16 +236,21 @@ std::tuple<std::vector<cv::Vec2f>, std::vector<cv::Vec4f>, std::vector<int>> get
  */
 std::pair<std::vector<std::string>, std::vector<int>> select_contour(float yaw_angle, const ContourLandmarks& contour_landmarks, const ModelContour& model_contour)
 {
+	using std::begin;
+	using std::end;
 	std::vector<int> model_contour_indices;
 	std::vector<std::string> contour_landmark_identifiers;
-	if (yaw_angle >= 0.0f) { // positive yaw = subject looking to the left
-		model_contour_indices = model_contour.right_contour; // ==> we use the right cnt-lms
-		contour_landmark_identifiers = contour_landmarks.right_contour;
+	if (yaw_angle >= -7.5f) { // positive yaw = subject looking to the left
+		// ==> we use the right cnt-lms
+		model_contour_indices.insert(end(model_contour_indices), begin(model_contour.right_contour), end(model_contour.right_contour));
+		contour_landmark_identifiers.insert(end(contour_landmark_identifiers), begin(contour_landmarks.right_contour), end(contour_landmarks.right_contour));
 	}
-	else {
-		model_contour_indices = model_contour.left_contour;
-		contour_landmark_identifiers = contour_landmarks.left_contour;
+	if (yaw_angle <= 7.5f) {
+		// ==> we use the left cnt-lms
+		model_contour_indices.insert(end(model_contour_indices), begin(model_contour.left_contour), end(model_contour.left_contour));
+		contour_landmark_identifiers.insert(end(contour_landmark_identifiers), begin(contour_landmarks.left_contour), end(contour_landmarks.left_contour));
 	}
+	// Note there's an overlap between the angles - if a subject is between +- 7.5°, both contours get added.
 	return std::make_pair(contour_landmark_identifiers, model_contour_indices);
 };
 
