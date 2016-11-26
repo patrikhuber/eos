@@ -46,7 +46,7 @@ namespace eos {
 struct ModelContour;
 struct ContourLandmarks;
 std::pair<std::vector<std::string>, std::vector<int>> select_contour(float yaw_angle, const ContourLandmarks& contour_landmarks, const ModelContour& model_contour);
-std::tuple<std::vector<cv::Vec2f>, std::vector<cv::Vec4f>, std::vector<int>> get_nearest_contour_correspondences(const eos::core::LandmarkCollection<cv::Vec2f>& landmarks, const std::vector<std::string>& landmark_contour_identifiers, const std::vector<int>& model_contour_indices, const morphablemodel::MorphableModel& morphable_model, const glm::mat4x4& view_model, const glm::mat4x4& ortho_projection, const glm::vec4& viewport);
+std::tuple<std::vector<cv::Vec2f>, std::vector<cv::Vec4f>, std::vector<int>> get_nearest_contour_correspondences(const core::LandmarkCollection<cv::Vec2f>& landmarks, const std::vector<std::string>& landmark_contour_identifiers, const std::vector<int>& model_contour_indices, const render::Mesh& mesh, const glm::mat4x4& view_model, const glm::mat4x4& ortho_projection, const glm::vec4& viewport);
 
 
 /**
@@ -120,6 +120,7 @@ struct ModelContour
  *
  * Note: Better names could be ContourDefinition or ImageContourLandmarks, to
  * disambiguate 3D and 2D landmarks?
+ * Todo: I think this should go into the LandmarkMapper. Isn't it part of ibug2did.txt already?
  */
 struct ContourLandmarks
 {
@@ -193,13 +194,13 @@ struct ContourLandmarks
  * @param[in] contour_landmarks 2D image contour ids of left or right side (for example for ibug landmarks).
  * @param[in] model_contour The model contour indices that should be considered to find the closest corresponding 3D vertex.
  * @param[in] yaw_angle Yaw angle of the current fitting, in degrees. The front-facing contour will be chosen depending on this yaw angle.
- * @param[in] morphable_model A Morphable Model whose mean is used.
+ * @param[in] mesh The mesh that's used to find the nearest contour points.
  * @param[in] view_model Model-view matrix of the current fitting to project the 3D model vertices to 2D.
  * @param[in] ortho_projection Projection matrix to project the 3D model vertices to 2D.
  * @param[in] viewport Current viewport to use.
  * @return A tuple with the 2D contour landmark points, the corresponding points in the 3D shape model and their vertex indices.
  */
-std::tuple<std::vector<cv::Vec2f>, std::vector<cv::Vec4f>, std::vector<int>> get_contour_correspondences(const eos::core::LandmarkCollection<cv::Vec2f>& landmarks, const ContourLandmarks& contour_landmarks, const ModelContour& model_contour, float yaw_angle, const morphablemodel::MorphableModel& morphable_model, const glm::mat4x4& view_model, const glm::mat4x4& ortho_projection, const glm::vec4& viewport)
+std::tuple<std::vector<cv::Vec2f>, std::vector<cv::Vec4f>, std::vector<int>> get_contour_correspondences(const core::LandmarkCollection<cv::Vec2f>& landmarks, const ContourLandmarks& contour_landmarks, const ModelContour& model_contour, float yaw_angle, const render::Mesh& mesh, const glm::mat4x4& view_model, const glm::mat4x4& ortho_projection, const glm::vec4& viewport)
 {
 	// Select which side of the contour we'll use:
 	std::vector<int> model_contour_indices;
@@ -213,7 +214,7 @@ std::tuple<std::vector<cv::Vec2f>, std::vector<cv::Vec4f>, std::vector<int>> get
 	
 	// For each 2D contour landmark, get the corresponding 3D vertex point and vertex id:
 	// Note/Todo: Loop here instead of calling this function where we have no idea what it's doing? What does its documentation say?
-	return get_nearest_contour_correspondences(landmarks, landmark_contour_identifiers, model_contour_indices, morphable_model, view_model, ortho_projection, viewport);
+	return get_nearest_contour_correspondences(landmarks, landmark_contour_identifiers, model_contour_indices, mesh, view_model, ortho_projection, viewport);
 };
 
 /**
@@ -253,24 +254,18 @@ std::pair<std::vector<std::string>, std::vector<int>> select_contour(float yaw_a
  *
  * Note: Maybe rename to find_nearest_contour_points, to highlight that there is (potentially a lot) computational cost involved?
  * Note: Does ortho_projection have to be specifically orthographic? Otherwise, if it works with perspective too, rename to just "projection".
- * More notes:
- *   Actually, only return the vertex id, not the point? Same with get_corresponding_pointset? Because
- *   then it's much easier to use the current shape estimate instead of the mean! But this function needs to project.
- *   So... it should take a Mesh actually? But creating a Mesh is a lot of computation?
- *   When we want to use the non-mean, then we need to use draw_sample() anyway? So overhead of Mesh is only if we use the mean?
- *   Maybe two overloads?
- *   Note: Uses the mean to calculate.
+ * Note: Actually, only return the vertex id, not the model point as well? Same with get_corresponding_pointset?
  *
  * @param[in] landmarks All image landmarks.
  * @param[in] landmark_contour_identifiers 2D image contour ids of left or right side (for example for ibug landmarks).
  * @param[in] model_contour_indices The model contour indices that should be considered to find the closest corresponding 3D vertex.
- * @param[in] morphable_model The Morphable Model whose shape (coefficients) are estimated.
+ * @param[in] mesh The mesh that's projected to find the nearest contour vertex.
  * @param[in] view_model Model-view matrix of the current fitting to project the 3D model vertices to 2D.
  * @param[in] ortho_projection Projection matrix to project the 3D model vertices to 2D.
  * @param[in] viewport Current viewport to use.
  * @return A tuple with the 2D contour landmark points, the corresponding points in the 3D shape model and their vertex indices.
  */
-std::tuple<std::vector<cv::Vec2f>, std::vector<cv::Vec4f>, std::vector<int>> get_nearest_contour_correspondences(const eos::core::LandmarkCollection<cv::Vec2f>& landmarks, const std::vector<std::string>& landmark_contour_identifiers, const std::vector<int>& model_contour_indices, const morphablemodel::MorphableModel& morphable_model, const glm::mat4x4& view_model, const glm::mat4x4& ortho_projection, const glm::vec4& viewport)
+std::tuple<std::vector<cv::Vec2f>, std::vector<cv::Vec4f>, std::vector<int>> get_nearest_contour_correspondences(const core::LandmarkCollection<cv::Vec2f>& landmarks, const std::vector<std::string>& landmark_contour_identifiers, const std::vector<int>& model_contour_indices, const render::Mesh& mesh, const glm::mat4x4& view_model, const glm::mat4x4& ortho_projection, const glm::vec4& viewport)
 {
 	// These are the additional contour-correspondences we're going to find and then use!
 	std::vector<cv::Vec4f> model_points_cnt; // the points in the 3D shape model
@@ -290,8 +285,8 @@ std::tuple<std::vector<cv::Vec2f>, std::vector<cv::Vec4f>, std::vector<int>> get
 		std::vector<float> distances_2d;
 		for (auto&& model_contour_vertex_idx : model_contour_indices) // we could actually pre-project them, i.e. only project them once, not for each landmark newly...
 		{
-			auto vertex = morphable_model.get_shape_model().get_mean_at_point(model_contour_vertex_idx);
-			glm::vec3 proj = glm::project(glm::vec3{ vertex[0], vertex[1], vertex[2] }, view_model, ortho_projection, viewport);
+			auto vertex = mesh.vertices[model_contour_vertex_idx];
+			glm::vec3 proj = glm::project(glm::vec3(vertex), view_model, ortho_projection, viewport);
 			cv::Vec2f screen_point_model_contour(proj.x, proj.y);
 
 			double dist = cv::norm(screen_point_model_contour, screen_point_2d_contour_landmark, cv::NORM_L2);
@@ -302,7 +297,7 @@ std::tuple<std::vector<cv::Vec2f>, std::vector<cv::Vec4f>, std::vector<int>> get
 		auto min_ele_idx = std::distance(begin(distances_2d), min_ele);
 		auto the_3dmm_vertex_id_that_is_closest = model_contour_indices[min_ele_idx];
 
-		cv::Vec4f vertex = morphable_model.get_shape_model().get_mean_at_point(the_3dmm_vertex_id_that_is_closest);
+		cv::Vec4f vertex(mesh.vertices[the_3dmm_vertex_id_that_is_closest].x, mesh.vertices[the_3dmm_vertex_id_that_is_closest].y, mesh.vertices[the_3dmm_vertex_id_that_is_closest].z, mesh.vertices[the_3dmm_vertex_id_that_is_closest].w);
 		model_points_cnt.emplace_back(vertex);
 		vertex_indices_cnt.emplace_back(the_3dmm_vertex_id_that_is_closest);
 		image_points_cnt.emplace_back(screen_point_2d_contour_landmark);
