@@ -192,7 +192,7 @@ struct ContourLandmarks
  * @param[in] landmarks All image landmarks.
  * @param[in] contour_landmarks 2D image contour ids of left or right side (for example for ibug landmarks).
  * @param[in] model_contour The model contour indices that should be considered to find the closest corresponding 3D vertex.
- * @param[in] yaw_angle Yaw angle of the current fitting. The front-facing contour will be chosen depending on this yaw angle.
+ * @param[in] yaw_angle Yaw angle of the current fitting, in degrees. The front-facing contour will be chosen depending on this yaw angle.
  * @param[in] morphable_model A Morphable Model whose mean is used.
  * @param[in] view_model Model-view matrix of the current fitting to project the 3D model vertices to 2D.
  * @param[in] ortho_projection Projection matrix to project the 3D model vertices to 2D.
@@ -204,7 +204,7 @@ std::tuple<std::vector<cv::Vec2f>, std::vector<cv::Vec4f>, std::vector<int>> get
 	// Select which side of the contour we'll use:
 	std::vector<int> model_contour_indices;
 	std::vector<std::string> landmark_contour_identifiers;
-	std::tie(landmark_contour_identifiers, model_contour_indices) = select_contour(glm::degrees(yaw_angle), contour_landmarks, model_contour);
+	std::tie(landmark_contour_identifiers, model_contour_indices) = select_contour(yaw_angle, contour_landmarks, model_contour);
 
 	// These are the additional contour-correspondences we're going to find and then use:
 	std::vector<cv::Vec4f> model_points_contour; // the points in the 3D shape model
@@ -226,7 +226,7 @@ std::tuple<std::vector<cv::Vec2f>, std::vector<cv::Vec4f>, std::vector<int>> get
  *
  * Note: Maybe rename to find_nearest_contour_points, to highlight that there is (potentially a lot) computational cost involved?
  *
- * @param[in] yaw_angle yaw angle in degrees.
+ * @param[in] yaw_angle Yaw angle in degrees.
  * @param[in] contour_landmarks 2D image contour ids of left or right side (for example for ibug landmarks).
  * @param[in] model_contour The model contour indices that should be used/considered to find the closest corresponding 3D vertex.
  * @return A pair with two vectors containing the selected 2D image contour landmark ids and the 3D model contour indices.
