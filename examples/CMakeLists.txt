@@ -33,9 +33,13 @@ if(MSVC)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj")
 endif()
 
-# Model fitting (affine cam & shape to landmarks) example:
+# Simple model fitting (orthographic camera & shape to landmarks) example:
 add_executable(fit-model-simple fit-model-simple.cpp)
 target_link_libraries(fit-model-simple ${OpenCV_LIBS} ${Boost_LIBRARIES})
+
+# Model fitting example that fits orthographic camera, shape, blendshapes, and contours:
+add_executable(fit-model fit-model.cpp)
+target_link_libraries(fit-model ${OpenCV_LIBS} ${Boost_LIBRARIES})
 
 if(BUILD_CERES_EXAMPLE)
 	# Find Ceres, for the fit-model-ceres app:
@@ -56,5 +60,6 @@ target_link_libraries(generate-obj ${OpenCV_LIBS} ${Boost_LIBRARIES})
 
 # install target:
 install(TARGETS fit-model-simple DESTINATION bin)
+install(TARGETS fit-model DESTINATION bin)
 install(TARGETS generate-obj DESTINATION bin)
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/examples/data DESTINATION bin)
