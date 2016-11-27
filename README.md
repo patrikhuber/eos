@@ -62,11 +62,13 @@ You can run the example just by running:
 
 `fit-model`
 
-Or, by manually specifying the face model, landmark-to-vertex mappings, an image and its 2D landmarks:
+It will load the face model, landmark-to-vertex mappings, blendshapes, and other required files from the `../share/` directory, and run on the example image. It can be run on other images by giving it a `-i` parameter for the image and `-l` for a set of ibug landmarks. The full set of parameters can be viewed by running `fit-model --help`.
 
-`fit-model -m ../share/sfm_shape_3448.bin -p ../share/ibug2did.txt -i data/image_0010.png -l data/image_0010.pts`
+If you are just getting started, it is recommended to have a look at `fit-model-simple` too, as it requires much fewer input, and only fits pose and shape, without any blendshapes or edge-fitting. Its full set of arguments is:
 
-The output is an `obj` file with the shape and a `png` with the extracted isomap. The estimated pose angles and shape coefficients are available in the code via the API.
+`fit-model-simple -m ../share/sfm_shape_3448.bin -p ../share/ibug2did.txt -i data/image_0010.png -l data/image_0010.pts`
+
+The output in both cases is an `obj` file with the shape and a `png` with the extracted isomap. The estimated pose angles and shape coefficients are available in the code via the API.
 
 See [examples/fit-model.cpp](https://github.com/patrikhuber/eos/blob/master/examples/fit-model.cpp) for the full code.
 
