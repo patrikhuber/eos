@@ -331,7 +331,7 @@ std::pair<render::Mesh, fitting::RenderingParameters> fit_shape_and_pose(const m
 			auto contour_landmarks_ = core::filter(landmarks, contour_landmarks.right_contour);
 			std::for_each(begin(contour_landmarks_), end(contour_landmarks_), [&occluding_contour_landmarks](auto&& lm) { occluding_contour_landmarks.push_back({ lm.coordinates[0], lm.coordinates[1] }); });
 		}
-		auto edge_correspondences = fitting::find_occluding_edge_correspondences(current_mesh, edge_topology, rendering_params, occluding_contour_landmarks);
+		auto edge_correspondences = fitting::find_occluding_edge_correspondences(current_mesh, edge_topology, rendering_params, occluding_contour_landmarks, 180.0f);
 		image_points = fitting::concat(image_points, edge_correspondences.first);
 		vertex_indices = fitting::concat(vertex_indices, edge_correspondences.second);
 
@@ -350,7 +350,7 @@ std::pair<render::Mesh, fitting::RenderingParameters> fit_shape_and_pose(const m
 
 		// Estimate the PCA shape coefficients with the current blendshape coefficients:
 		Mat mean_plus_blendshapes = morphable_model.get_shape_model().get_mean() + blendshapes_as_basis * Mat(blendshape_coefficients);
-		pca_shape_coefficients = fitting::fit_shape_to_landmarks_linear(morphable_model, affine_from_ortho, image_points, vertex_indices, mean_plus_blendshapes, 3.0f);
+		pca_shape_coefficients = fitting::fit_shape_to_landmarks_linear(morphable_model, affine_from_ortho, image_points, vertex_indices, mean_plus_blendshapes, lambda);
 
 		// Estimate the blendshape coefficients with the current PCA model estimate:
 		current_pca_shape = morphable_model.get_shape_model().draw_sample(pca_shape_coefficients);
