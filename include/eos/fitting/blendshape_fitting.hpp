@@ -24,6 +24,7 @@
 
 #include "eos/morphablemodel/Blendshape.hpp"
 
+#include "Eigen/Core" // for nnls.h
 #include "nnls.h"
 
 #include "opencv2/core/core.hpp"
