@@ -125,16 +125,17 @@ public:
 	};
 
 	// This assumes estimate_sop was run on points with OpenCV viewport! I.e. y flipped.
-	RenderingParameters(ScaledOrthoProjectionParameters ortho_params, int image_width, int image_height) {
-		camera_type = CameraType::Orthographic;
+	RenderingParameters(ScaledOrthoProjectionParameters ortho_params, int screen_width, int screen_height) : camera_type(CameraType::Orthographic), t_x(ortho_params.tx), t_y(ortho_params.ty), screen_width(screen_width), screen_height(screen_height) {
 		rotation = glm::quat(ortho_params.R);
-		t_x = ortho_params.tx;
-		t_y = ortho_params.ty;
 		const auto l = 0.0;
-		const auto r = image_width / ortho_params.s;
+		const auto r = screen_width / ortho_params.s;
 		const auto b = 0.0; // The b and t values are not tested for what happens if the SOP parameters
-		const auto t = image_height / ortho_params.s; // were estimated on a non-flipped viewport.
+		const auto t = screen_height / ortho_params.s; // were estimated on a non-flipped viewport.
 		frustum = Frustum(l, r, b, t);
+	};
+
+	auto get_camera_type() const {
+		return camera_type;
 	};
 
 	glm::quat get_rotation() const {
@@ -156,6 +157,18 @@ public:
 		else {
 			throw std::runtime_error("get_projection() for CameraType::Perspective is not implemented yet.");
 		}
+	};
+
+	Frustum get_frustum() const {
+		return frustum;
+	};
+
+	int get_screen_width() const {
+		return screen_width;
+	};
+
+	int get_screen_height() const {
+		return screen_height;
 	};
 
 private:

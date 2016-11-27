@@ -24,6 +24,9 @@
 
 #include "eos/render/Mesh.hpp"
 
+#include "glm/vec3.hpp"
+#include "glm/geometric.hpp"
+
 #include "opencv2/core/core.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 
@@ -96,6 +99,24 @@ inline cv::Vec3f calculate_face_normal(const cv::Vec3f& v0, const cv::Vec3f& v1,
 {
 	cv::Vec3f n = (v1 - v0).cross(v2 - v0); // v0-to-v1 x v0-to-v2
 	n /= cv::norm(n);
+	return n;
+};
+
+/**
+ * Computes the normal of a face (or triangle), i.e. the
+ * per-face normal. Return normal will be normalised.
+ * Assumes the triangle is given in CCW order, i.e. vertices
+ * in counterclockwise order on the screen are front-facing.
+ *
+ * @param[in] v0 First vertex.
+ * @param[in] v1 Second vertex.
+ * @param[in] v2 Third vertex.
+ * @return The unit-length normal of the given triangle.
+ */
+glm::vec3 compute_face_normal(const glm::vec3& v0, const glm::vec3& v1, const glm::vec3& v2)
+{
+	glm::vec3 n = glm::cross(v1 - v0, v2 - v0); // v0-to-v1 x v0-to-v2
+	n = glm::normalize(n);
 	return n;
 };
 

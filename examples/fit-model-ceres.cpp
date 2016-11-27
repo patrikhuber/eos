@@ -212,10 +212,9 @@ int main(int argc, char *argv[])
 
 	constexpr bool use_perspective = false;
 
-	// These will be the final 2D and 3D points used for the fitting:
-	vector<Vec4f> model_points; // the points in the 3D shape model
-	vector<int> vertex_indices; // their vertex indices
-	vector<Vec2f> image_points; // the corresponding 2D landmark points
+	// These will be the 2D image points and their corresponding 3D vertex id's used for the fitting:
+	vector<Vec2f> image_points; // the 2D landmark points
+	vector<int> vertex_indices; // their corresponding vertex indices
 
 	// Sub-select all the landmarks which we have a mapping for (i.e. that are defined in the 3DMM):
 	for (int i = 0; i < landmarks.size(); ++i) {
@@ -225,7 +224,6 @@ int main(int argc, char *argv[])
 		}
 		int vertex_idx = std::stoi(converted_name.get());
 		Vec4f vertex = morphable_model.get_shape_model().get_mean_at_point(vertex_idx);
-		model_points.emplace_back(vertex);
 		vertex_indices.emplace_back(vertex_idx);
 		image_points.emplace_back(landmarks[i].coordinates);
 	}
@@ -259,7 +257,7 @@ int main(int argc, char *argv[])
 	blendshape_coefficients.resize(6);
 
 	Problem camera_costfunction;
-	for (int i = 0; i < model_points.size(); ++i)
+	for (int i = 0; i < image_points.size(); ++i)
 	{
 		CostFunction* cost_function = new AutoDiffCostFunction<fitting::LandmarkCost, 2 /* num residuals */, 4 /* camera rotation (quaternion) */, num_cam_trans_intr_params /* camera translation & fov/frustum_scale */, 10 /* shape-coeffs */, 6 /* bs-coeffs */>(new fitting::LandmarkCost(morphable_model.get_shape_model(), blendshapes, image_points[i], vertex_indices[i], image.cols, image.rows, use_perspective));
 		camera_costfunction.AddResidualBlock(cost_function, NULL, &camera_rotation[0], &camera_translation_and_intrinsics[0], &shape_coefficients[0], &blendshape_coefficients[0]);
@@ -333,13 +331,11 @@ int main(int argc, char *argv[])
 
 	// Contour fitting:
 	// These are the additional contour-correspondences we're going to find and then use:
-	vector<Vec4f> model_points_contour; // the points in the 3D shape model
-	vector<int> vertex_indices_contour; // their vertex indices
-	vector<Vec2f> image_points_contour; // the corresponding 2D landmark points
+	vector<Vec2f> image_points_contour; // the 2D landmark points
+	vector<int> vertex_indices_contour; // their corresponding 3D vertex indices
 	// For each 2D contour landmark, get the corresponding 3D vertex point and vertex id:
-	std::tie(image_points_contour, model_points_contour, vertex_indices_contour) = fitting::get_contour_correspondences(landmarks, ibug_contour, model_contour, glm::degrees(euler_angles[1]), morphable_model, t_mtx * rot_mtx, projection_mtx, viewport);
+	std::tie(image_points_contour, std::ignore, vertex_indices_contour) = fitting::get_contour_correspondences(landmarks, ibug_contour, model_contour, glm::degrees(euler_angles[1]), morphable_model.get_mean(), t_mtx * rot_mtx, projection_mtx, viewport);
 	using eos::fitting::concat;
-	model_points = concat(model_points, model_points_contour);
 	vertex_indices = concat(vertex_indices, vertex_indices_contour);
 	image_points = concat(image_points, image_points_contour);
 
@@ -347,7 +343,7 @@ int main(int argc, char *argv[])
 	start = std::chrono::steady_clock::now();
 	Problem fitting_costfunction;
 	// Landmark constraint:
-	for (int i = 0; i < model_points.size(); ++i)
+	for (int i = 0; i < image_points.size(); ++i)
 	{
 		CostFunction* cost_function = new AutoDiffCostFunction<fitting::LandmarkCost, 2 /* num residuals */, 4 /* camera rotation (quaternion) */, num_cam_trans_intr_params /* camera translation & focal length */, 10 /* shape-coeffs */, 6 /* bs-coeffs */>(new fitting::LandmarkCost(morphable_model.get_shape_model(), blendshapes, image_points[i], vertex_indices[i], image.cols, image.rows, use_perspective));
 		fitting_costfunction.AddResidualBlock(cost_function, NULL, &camera_rotation[0], &camera_translation_and_intrinsics[0], &shape_coefficients[0], &blendshape_coefficients[0]);

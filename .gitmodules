@@ -1,6 +1,12 @@
 [submodule "3rdparty/pybind11"]
 	path = 3rdparty/pybind11
 	url = https://github.com/pybind/pybind11.git
+[submodule "3rdparty/nanoflann"]
+	path = 3rdparty/nanoflann
+	url = https://github.com/jlblancoc/nanoflann.git
 [submodule "3rdparty/glm"]
 	path = 3rdparty/glm
 	url = https://github.com/g-truc/glm.git
+[submodule "3rdparty/eigen3-nnls"]
+	path = 3rdparty/eigen3-nnls
+	url = https://github.com/hmatuschek/eigen3-nnls.git
