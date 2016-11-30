@@ -266,7 +266,7 @@ inline std::pair<render::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
 	// Current mesh - either from the given coefficients, or the mean:
 	Mat current_pca_shape = morphable_model.get_shape_model().draw_sample(pca_shape_coefficients);
 	Mat current_combined_shape = current_pca_shape + blendshapes_as_basis * Mat(blendshape_coefficients);
-	auto current_mesh = morphablemodel::detail::sample_to_mesh(current_combined_shape, morphable_model.get_color_model().get_mean(), morphable_model.get_shape_model().get_triangle_list(), morphable_model.get_color_model().get_triangle_list(), morphable_model.get_texture_coordinates());
+	auto current_mesh = morphablemodel::sample_to_mesh(current_combined_shape, morphable_model.get_color_model().get_mean(), morphable_model.get_shape_model().get_triangle_list(), morphable_model.get_color_model().get_triangle_list(), morphable_model.get_texture_coordinates());
 
 	// The 2D and 3D point correspondences used for the fitting:
 	vector<Vec4f> model_points; // the points in the 3D shape model
@@ -298,7 +298,7 @@ inline std::pair<render::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
 
 	// Mesh with same PCA coeffs as before, but new expression fit (this is relevant if no initial blendshape coeffs have been given):
 	current_combined_shape = current_pca_shape + morphablemodel::to_matrix(blendshapes) * Mat(blendshape_coefficients);
-	current_mesh = morphablemodel::detail::sample_to_mesh(current_combined_shape, morphable_model.get_color_model().get_mean(), morphable_model.get_shape_model().get_triangle_list(), morphable_model.get_color_model().get_triangle_list(), morphable_model.get_texture_coordinates());
+	current_mesh = morphablemodel::sample_to_mesh(current_combined_shape, morphable_model.get_color_model().get_mean(), morphable_model.get_shape_model().get_triangle_list(), morphable_model.get_color_model().get_triangle_list(), morphable_model.get_texture_coordinates());
 
 	// The static (fixed) landmark correspondences which will stay the same throughout
 	// the fitting (the inner face landmarks):
@@ -356,7 +356,7 @@ inline std::pair<render::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
 		blendshape_coefficients = fitting::fit_blendshapes_to_landmarks_nnls(blendshapes, current_pca_shape, affine_from_ortho, image_points, vertex_indices);
 
 		current_combined_shape = current_pca_shape + blendshapes_as_basis * Mat(blendshape_coefficients);
-		current_mesh = morphablemodel::detail::sample_to_mesh(current_combined_shape, morphable_model.get_color_model().get_mean(), morphable_model.get_shape_model().get_triangle_list(), morphable_model.get_color_model().get_triangle_list(), morphable_model.get_texture_coordinates());
+		current_mesh = morphablemodel::sample_to_mesh(current_combined_shape, morphable_model.get_color_model().get_mean(), morphable_model.get_shape_model().get_triangle_list(), morphable_model.get_color_model().get_triangle_list(), morphable_model.get_texture_coordinates());
 	}
 
 	fitted_image_points = image_points;
