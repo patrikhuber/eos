@@ -92,11 +92,11 @@ inline std::vector<float> fit_shape_to_landmarks_linear(const morphablemodel::Mo
 	// 3D (model) variance: 0.0f. It only makes sense to set it to something when we have a different variance for different vertices.
 	// The 3D variance has to be projected to 2D (for details, see paper [1]) so the units do match up.
 	float sigma_squared_2D = std::pow(detector_standard_deviation.get_value_or(std::sqrt(3.0f)), 2) + std::pow(model_standard_deviation.get_value_or(0.0f), 2);
-	Mat Sigma = Mat::zeros(3 * num_landmarks, 3 * num_landmarks, CV_32FC1);
+	Mat Omega = Mat::zeros(3 * num_landmarks, 3 * num_landmarks, CV_32FC1);
 	for (int i = 0; i < 3 * num_landmarks; ++i) {
-		Sigma.at<float>(i, i) = 1.0f / std::sqrt(sigma_squared_2D); // the higher the sigma_squared_2D, the smaller the diagonal entries of Sigma will be
+		// Sigma(i, i) = sqrt(sigma_squared_2D), but then Omega is Sigma.t() * Sigma (squares the diagonal) - so we just assign 1/sigma_squared_2D to Omega here:
+		Omega.at<float>(i, i) = 1.0f / sigma_squared_2D; // the higher the sigma_squared_2D, the smaller the diagonal entries of Sigma will be
 	}
-	Mat Omega = Sigma.t() * Sigma; // just squares the diagonal
 	// The landmarks in matrix notation (in homogeneous coordinates), $3N\times 1$
 	Mat y = Mat::ones(3 * num_landmarks, 1, CV_32FC1);
 	for (int i = 0; i < num_landmarks; ++i) {
