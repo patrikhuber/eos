@@ -349,7 +349,7 @@ inline std::pair<render::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
 
 		// Estimate the PCA shape coefficients with the current blendshape coefficients:
 		Mat mean_plus_blendshapes = morphable_model.get_shape_model().get_mean() + blendshapes_as_basis * Mat(blendshape_coefficients);
-		pca_shape_coefficients = fitting::fit_shape_to_landmarks_linear(morphable_model, affine_from_ortho, image_points, vertex_indices, mean_plus_blendshapes, lambda);
+		pca_shape_coefficients = fitting::fit_shape_to_landmarks_linear(morphable_model, affine_from_ortho, image_points, vertex_indices, mean_plus_blendshapes, lambda, num_shape_coefficients_to_fit);
 
 		// Estimate the blendshape coefficients with the current PCA model estimate:
 		current_pca_shape = morphable_model.get_shape_model().draw_sample(pca_shape_coefficients);
