@@ -35,14 +35,15 @@
 #include "glm/vec2.hpp"
 #include "glm/vec3.hpp"
 #include "glm/vec4.hpp"
+
 #include <vector>
 #include <array>
 #include <cstdint>
 
-// Forward declaration of an internal function:
-namespace eos { namespace morphablemodel { namespace detail {
-	eos::render::Mesh sample_to_mesh(cv::Mat shape, cv::Mat color, std::vector<std::array<int, 3>> tvi, std::vector<std::array<int, 3>> tci, std::vector<cv::Vec2f> texture_coordinates = std::vector<cv::Vec2f>());
-} } }
+// Forward declaration:
+namespace eos { namespace morphablemodel {
+	eos::render::Mesh sample_to_mesh(cv::Mat shape_instance, cv::Mat color_instance, std::vector<std::array<int, 3>> tvi, std::vector<std::array<int, 3>> tci, std::vector<cv::Vec2f> texture_coordinates = std::vector<cv::Vec2f>());
+} }
 
 namespace eos {
 	namespace morphablemodel {
@@ -133,10 +134,10 @@ public:
 
 		render::Mesh mesh;
 		if (has_texture_coordinates()) {
-			mesh = detail::sample_to_mesh(shape, color, shape_model.get_triangle_list(), color_model.get_triangle_list(), texture_coordinates);
+			mesh = sample_to_mesh(shape, color, shape_model.get_triangle_list(), color_model.get_triangle_list(), texture_coordinates);
 		}
 		else {
-			mesh = detail::sample_to_mesh(shape, color, shape_model.get_triangle_list(), color_model.get_triangle_list());
+			mesh = sample_to_mesh(shape, color, shape_model.get_triangle_list(), color_model.get_triangle_list());
 		}
 		return mesh;
 	};
@@ -159,10 +160,10 @@ public:
 
 		render::Mesh mesh;
 		if (has_texture_coordinates()) {
-			mesh = detail::sample_to_mesh(shape_sample, color_sample, shape_model.get_triangle_list(), color_model.get_triangle_list(), texture_coordinates);
+			mesh = sample_to_mesh(shape_sample, color_sample, shape_model.get_triangle_list(), color_model.get_triangle_list(), texture_coordinates);
 		}
 		else {
-			mesh = detail::sample_to_mesh(shape_sample, color_sample, shape_model.get_triangle_list(), color_model.get_triangle_list());
+			mesh = sample_to_mesh(shape_sample, color_sample, shape_model.get_triangle_list(), color_model.get_triangle_list());
 		}
 		return mesh;
 	};
@@ -203,10 +204,10 @@ public:
 
 		render::Mesh mesh;
 		if (has_texture_coordinates()) {
-			mesh = detail::sample_to_mesh(shape_sample, color_sample, shape_model.get_triangle_list(), color_model.get_triangle_list(), texture_coordinates);
+			mesh = sample_to_mesh(shape_sample, color_sample, shape_model.get_triangle_list(), color_model.get_triangle_list(), texture_coordinates);
 		}
 		else {
-			mesh = detail::sample_to_mesh(shape_sample, color_sample, shape_model.get_triangle_list(), color_model.get_triangle_list());
+			mesh = sample_to_mesh(shape_sample, color_sample, shape_model.get_triangle_list(), color_model.get_triangle_list());
 		}
 		return mesh;
 	};
@@ -296,41 +297,39 @@ inline void save_model(MorphableModel model, std::string filename)
 	output_archive(model);
 };
 
-
-namespace detail { /* eos::morphablemodel::detail */
 /**
- * Internal helper function that creates a Mesh from given shape and colour
- * PCA instances. Needs the vertex index lists as well to assemble the mesh -
+ * Helper function that creates a Mesh from given shape and colour PCA
+ * instances. Needs the vertex index lists as well to assemble the mesh -
  * and optional texture coordinates.
  *
  * If \c color is empty, it will create a mesh without vertex colouring.
  *
- * @param[in] shape PCA shape model instance.
- * @param[in] color PCA colour model instance.
+ * @param[in] shape_instance PCA shape model instance.
+ * @param[in] color_instance PCA colour model instance.
  * @param[in] tvi Triangle vertex indices.
  * @param[in] tci Triangle colour indices (usually identical to the vertex indices).
  * @param[in] texture_coordinates Optional texture coordinates for each vertex.
  * @return A mesh created from given parameters.
  */
-inline render::Mesh sample_to_mesh(cv::Mat shape, cv::Mat color, std::vector<std::array<int, 3>> tvi, std::vector<std::array<int, 3>> tci, std::vector<cv::Vec2f> texture_coordinates /* = std::vector<cv::Vec2f>() */)
+inline render::Mesh sample_to_mesh(cv::Mat shape_instance, cv::Mat color_instance, std::vector<std::array<int, 3>> tvi, std::vector<std::array<int, 3>> tci, std::vector<cv::Vec2f> texture_coordinates /* = std::vector<cv::Vec2f>() */)
 {
-	assert(shape.rows == color.rows || color.empty()); // The number of vertices (= model.getDataDimension() / 3) has to be equal for both models, or, alternatively, it has to be a shape-only model.
+	assert(shape_instance.rows == color_instance.rows || color_instance.empty()); // The number of vertices (= model.getDataDimension() / 3) has to be equal for both models, or, alternatively, it has to be a shape-only model.
 
-	auto num_vertices = shape.rows / 3;
+	auto num_vertices = shape_instance.rows / 3;
 
 	render::Mesh mesh;
 
 	// Construct the mesh vertices:
 	mesh.vertices.resize(num_vertices);
 	for (auto i = 0; i < num_vertices; ++i) {
-		mesh.vertices[i] = glm::tvec4<float>(shape.at<float>(i * 3 + 0), shape.at<float>(i * 3 + 1), shape.at<float>(i * 3 + 2), 1.0f);
+		mesh.vertices[i] = glm::tvec4<float>(shape_instance.at<float>(i * 3 + 0), shape_instance.at<float>(i * 3 + 1), shape_instance.at<float>(i * 3 + 2), 1.0f);
 	}
 
 	// Assign the vertex colour information if it's not a shape-only model:
-	if (!color.empty()) {
+	if (!color_instance.empty()) {
 		mesh.colors.resize(num_vertices);
 		for (auto i = 0; i < num_vertices; ++i) {
-			mesh.colors[i] = glm::tvec3<float>(color.at<float>(i * 3 + 0), color.at<float>(i * 3 + 1), color.at<float>(i * 3 + 2));        // order in hdf5: RGB. Order in OCV: BGR. But order in vertex.color: RGB
+			mesh.colors[i] = glm::tvec3<float>(color_instance.at<float>(i * 3 + 0), color_instance.at<float>(i * 3 + 1), color_instance.at<float>(i * 3 + 2));        // order in hdf5: RGB. Order in OCV: BGR. But order in vertex.color: RGB
 		}
 	}
 
@@ -348,7 +347,6 @@ inline render::Mesh sample_to_mesh(cv::Mat shape, cv::Mat color, std::vector<std
 
 	return mesh;
 };
-} /* namespace eos::morphablemodel::detail */
 
 	} /* namespace morphablemodel */
 } /* namespace eos */

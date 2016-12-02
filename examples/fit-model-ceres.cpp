@@ -421,7 +421,7 @@ int main(int argc, char *argv[])
 		return std::vector<float>(std::begin(vec), std::end(vec));
 	};
 	auto shape_ceres = morphable_model.get_shape_model().draw_sample(shape_coefficients) + to_matrix(blendshapes) * Mat(vectord_to_vectorf(blendshape_coefficients), true);
-	render::Mesh mesh = morphablemodel::detail::sample_to_mesh(shape_ceres, morphable_model.get_color_model().draw_sample(colour_coefficients), morphable_model.get_shape_model().get_triangle_list(), morphable_model.get_color_model().get_triangle_list(), morphable_model.get_texture_coordinates());
+	render::Mesh mesh = morphablemodel::sample_to_mesh(shape_ceres, morphable_model.get_color_model().draw_sample(colour_coefficients), morphable_model.get_shape_model().get_triangle_list(), morphable_model.get_color_model().get_triangle_list(), morphable_model.get_texture_coordinates());
 	for (auto&& idx : vertex_indices)
 	{
 		glm::dvec3 point_3d(mesh.vertices[idx][0], mesh.vertices[idx][1], mesh.vertices[idx][2]); // The 3D model point
