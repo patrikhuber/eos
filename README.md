@@ -90,7 +90,7 @@ After building the bindings, they can be used like any python module:
 import eos
 import numpy as np
 
-model = eos.morphablemodel.load_model("eos/share/sfm_shape_3440.bin")
+model = eos.morphablemodel.load_model("eos/share/sfm_shape_3448.bin")
 s = model.get_shape_model().draw_sample([1.0, -0.5, 0.7])
 sample = np.array(s) # the conversion from 'Mat' to a numpy array is necessary at the moment
 
