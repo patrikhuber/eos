@@ -294,7 +294,7 @@ inline std::pair<render::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
 	fitting::RenderingParameters rendering_params(current_pose, image_width, image_height);
 
 	Mat affine_from_ortho = fitting::get_3x4_affine_camera_matrix(rendering_params, image_width, image_height);
-	blendshape_coefficients = eos::fitting::fit_blendshapes_to_landmarks_nnls(blendshapes, current_pca_shape, affine_from_ortho, image_points, vertex_indices);
+	blendshape_coefficients = fitting::fit_blendshapes_to_landmarks_nnls(blendshapes, current_pca_shape, affine_from_ortho, image_points, vertex_indices);
 
 	// Mesh with same PCA coeffs as before, but new expression fit (this is relevant if no initial blendshape coeffs have been given):
 	current_combined_shape = current_pca_shape + morphablemodel::to_matrix(blendshapes) * Mat(blendshape_coefficients);
@@ -316,8 +316,8 @@ inline std::pair<render::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
 		// For each 2D contour landmark, get the corresponding 3D vertex point and vertex id:
 		std::tie(image_points_contour, std::ignore, vertex_indices_contour) = fitting::get_contour_correspondences(landmarks, contour_landmarks, model_contour, yaw_angle, current_mesh, rendering_params.get_modelview(), rendering_params.get_projection(), fitting::get_opencv_viewport(image_width, image_height));
 		// Add the contour correspondences to the set of landmarks that we use for the fitting:
-		vertex_indices = concat(vertex_indices, vertex_indices_contour);
-		image_points = concat(image_points, image_points_contour);
+		vertex_indices = fitting::concat(vertex_indices, vertex_indices_contour);
+		image_points = fitting::concat(image_points, image_points_contour);
 
 		// Fit the occluding (away-facing) contour using the detected contour LMs:
 		vector<Eigen::Vector2f> occluding_contour_landmarks;
