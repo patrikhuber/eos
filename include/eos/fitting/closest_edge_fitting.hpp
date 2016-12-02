@@ -74,12 +74,12 @@ inline std::pair<bool, boost::optional<float>> ray_triangle_intersect(const glm:
 	using glm::vec3;
 	const float epsilon = 1e-6f;
 
-	vec3 v0v1 = v1 - v0;
-	vec3 v0v2 = v2 - v0;
+	const vec3 v0v1 = v1 - v0;
+	const vec3 v0v2 = v2 - v0;
 
-	vec3 pvec = glm::cross(ray_direction, v0v2);
+	const vec3 pvec = glm::cross(ray_direction, v0v2);
 
-	float det = glm::dot(v0v1, pvec);
+	const float det = glm::dot(v0v1, pvec);
 	if (enable_backculling)
 	{
 		// If det is negative, the triangle is back-facing.
@@ -92,19 +92,19 @@ inline std::pair<bool, boost::optional<float>> ray_triangle_intersect(const glm:
 		if (std::abs(det) < epsilon)
 			return { false, boost::none };
 	}
-	float inv_det = 1 / det;
+	const float inv_det = 1 / det;
 
-	vec3 tvec = ray_origin - v0;
-	auto u = glm::dot(tvec, pvec) * inv_det;
+	const vec3 tvec = ray_origin - v0;
+	const auto u = glm::dot(tvec, pvec) * inv_det;
 	if (u < 0 || u > 1)
 		return { false, boost::none };
 
-	vec3 qvec = glm::cross(tvec, v0v1);
-	auto v = glm::dot(ray_direction, qvec) * inv_det;
+	const vec3 qvec = glm::cross(tvec, v0v1);
+	const auto v = glm::dot(ray_direction, qvec) * inv_det;
 	if (v < 0 || u + v > 1)
 		return { false, boost::none };
 
-	auto t = glm::dot(v0v2, qvec) * inv_det;
+	const auto t = glm::dot(v0v2, qvec) * inv_det;
 
 	return { true, t };
 };
