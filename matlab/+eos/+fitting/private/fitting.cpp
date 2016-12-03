@@ -26,24 +26,30 @@
 #include "mex.h"
 //#include "matrix.h"
 
+#include <string>
+
 using namespace mexplus;
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
-	using std::vector;
+	using std::string;
 	// Check for proper number of input and output arguments:
 	mexPrintf("nlhs: %d, nrhs: %d\n", nlhs, nrhs);
-	if (nrhs != 2) {
-		mexErrMsgIdAndTxt("eos:example:nargin", "Example requires two input arguments.");
+	if (nrhs != 12) {
+		mexErrMsgIdAndTxt("eos:example:nargin", "fit_shape_and_pose requires 12 input arguments.");
 	}
-	else if (nlhs >= 2) { // 'nlhs >= 1' means no output argument apparently?
-		mexErrMsgIdAndTxt("eos:example:nargout", "Example requires zero or one output arguments.");
+	if (nlhs != 2) { // 'nlhs >= 1' means no output argument apparently?
+		mexErrMsgIdAndTxt("eos:example:nargout", "fit_shape_and_pose returns two output arguments.");
 	}
 
-	InputArguments input(nrhs, prhs, 2);
-	double vin1 = input.get<double>(0);
+	InputArguments input(nrhs, prhs, 12);
+	auto morphablemodel_file = input.get<string>(0);
+	auto blendshapes_file = input.get<string>(1);
+	auto landmarks = input.get<Eigen::MatrixXd>(2);
+//	auto mm = input.get<string>(0);
+//	double vin1 = input.get<double>(0);
 	// Matlab stores col-wise in memory - hence the entry of the second row comes first
-	auto vin2 = input.get<vector<double>>(1);
+	//auto vin2 = input.get<vector<double>>(1);
 /*	auto test = input[1];
 	MxArray mxa(test);
 	auto ndim = mxa.dimensionSize();
@@ -57,18 +63,19 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 */
 	//auto x = MxArray::Numeric<double>(2, 2);
 
-	auto asdf = input.get<Eigen::MatrixXd>(1);
+/*	auto asdf = input.get<Eigen::MatrixXd>(1);
 	std::stringstream ss2;
 	ss2 << asdf;
-	std::string msg2 = ss2.str();
+	std::string msg2 = ss2.str();*/
 
-	OutputArguments output(nlhs, plhs, 1);
-	output.set(0, asdf);
+	OutputArguments output(nlhs, plhs, 2);
+	output.set(0, landmarks);
+	output.set(1, landmarks);
 
 	//double *vin1, *vin2;
 	//vin1 = (double*)mxGetPr(prhs[0]);
 	//vin2 = (double*)mxGetPr(prhs[1]);
-	mexPrintf("%f, %f\n", vin1, vin2[0]);
+	//mexPrintf("%f, %f\n", vin1, vin2[0]);
 };
 
 void func()
