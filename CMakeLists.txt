@@ -180,3 +180,7 @@ endif()
 if(BUILD_DOCUMENTATION)
 	add_subdirectory(doc)
 endif()
+
+if(GENERATE_MATLAB_BINDINGS)
+	add_subdirectory(matlab)
+endif()
