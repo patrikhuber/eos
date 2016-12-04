@@ -38,11 +38,26 @@
 #include "mex.h"
 
 /**
- * Todo: Add a doxygen file comment? See opencv cereal?
+ * @file
+ * @brief Contains mexplus template specialisations to convert eos data
+ * structures into Matlab.
+ *
+ * Note 1: These all copy the data, which I believe might be necessary, since
+ * Matlab may unload a mex module (with all its allocated data) at any given
+ * time.
+ * Note 2: They all return double vectors and matrices, even when the data given
+ * are floats. We can think about changing that if it's a speed issue, however,
+ * I think double is Matlab's default data type.
  */
 
 namespace mexplus {
 
+/**
+ * @brief Converts a glm::tquat<float> to a Matlab vector.
+ *
+ * @param[in] quat The quaternion to convert.
+ * @return An 1x4 Matlab vector.
+ */
 template<>
 mxArray* MxArray::from(const glm::tquat<float>& quat)
 {
@@ -53,6 +68,12 @@ mxArray* MxArray::from(const glm::tquat<float>& quat)
 	return out_array.release();
 };
 
+/**
+ * @brief Converts a glm::tmat4x4<float> to a Matlab matrix.
+ *
+ * @param[in] mat The matrix to convert.
+ * @return A 4x4 Matlab matrix.
+ */
 template<>
 mxArray* MxArray::from(const glm::tmat4x4<float>& mat)
 {
@@ -65,63 +86,117 @@ mxArray* MxArray::from(const glm::tmat4x4<float>& mat)
 	return out_array.release();
 };
 
-// We have an overload for vector<tvec4<float>> directly because otherwise a cell
-// will be used. However, such overload for tvec4<float> can be added without affecting
-// this one, this overload takes precedence!
-// Todo: Numeric<float> instead?
+/**
+ * @brief Converts an std::vector of glm::tvec2<float> to a Matlab matrix.
+ *
+ * This function converts a whole vector of vec2's to an n x 2 Matlab matrix,
+ * where n is data.size(). It is mainly used to pass texture coordinates of
+ * a Mesh to Matlab.
+ *
+ * We specialise for std::vector<glm::tvec2<float>> directly (and not for
+ * glm::tvec2<float>) because otherwise a cell array of vec2's would be
+ * generated. Luckily, even if a tvec2 specialisation was to exist too,
+ * this one would take precedence to convert a vector<tvec2>.
+ *
+ * @param[in] data The data to convert.
+ * @return An n x 2 Matlab matrix.
+ */
 template<>
-mxArray* MxArray::from(const std::vector<glm::tvec2<float>>& vec)
+mxArray* MxArray::from(const std::vector<glm::tvec2<float>>& data)
 {
-	MxArray out_array(MxArray::Numeric<double>(vec.size(), 2));
-	for (int r = 0; r < vec.size(); ++r) {
+	MxArray out_array(MxArray::Numeric<double>(data.size(), 2));
+	for (int r = 0; r < data.size(); ++r) {
 		for (int c = 0; c < 2; ++c) {
-			out_array.set(r, c, vec[r][c]);
-		}
-	}
-	return out_array.release();
-};
-
-template<>
-mxArray* MxArray::from(const std::vector<glm::tvec3<float>>& vec)
-{
-	MxArray out_array(MxArray::Numeric<double>(vec.size(), 3));
-	for (int r = 0; r < vec.size(); ++r) {
-		for (int c = 0; c < 3; ++c) {
-			out_array.set(r, c, vec[r][c]);
-		}
-	}
-	return out_array.release();
-};
-
-template<>
-mxArray* MxArray::from(const std::vector<glm::tvec4<float>>& vec)
-{
-	MxArray out_array(MxArray::Numeric<double>(vec.size(), 4));
-	for (int r = 0; r < vec.size(); ++r) {
-		for (int c = 0; c < 4; ++c) {
-			out_array.set(r, c, vec[r][c]);
-		}
-	}
-	return out_array.release();
-};
-
-// This is for tvi and tci - return them as matrix, not as cell-array.
-template<>
-mxArray* MxArray::from(const std::vector<std::array<int, 3>>& vec)
-{
-	MxArray out_array(MxArray::Numeric<int>(vec.size(), 3));
-	for (int r = 0; r < vec.size(); ++r) {
-		for (int c = 0; c < 3; ++c) {
-			out_array.set(r, c, vec[r][c]);
+			out_array.set(r, c, data[r][c]);
 		}
 	}
 	return out_array.release();
 };
 
 /**
- * @brief Define a template specialisation for ... .
+ * @brief Converts an std::vector of glm::tvec3<float> to a Matlab matrix.
  *
- * Todo: Documentation.
+ * This function converts a whole vector of vec3's to an n x 3 Matlab matrix,
+ * where n is data.size(). It is mainly used to pass vertex colour data of
+ * a Mesh to Matlab.
+ *
+ * See template<> mxArray* MxArray::from(const std::vector<glm::tvec2<float>>&)
+ * for more details.
+ *
+ * @param[in] data The data to convert.
+ * @return An n x 3 Matlab matrix.
+ */
+template<>
+mxArray* MxArray::from(const std::vector<glm::tvec3<float>>& data)
+{
+	MxArray out_array(MxArray::Numeric<double>(data.size(), 3));
+	for (int r = 0; r < data.size(); ++r) {
+		for (int c = 0; c < 3; ++c) {
+			out_array.set(r, c, data[r][c]);
+		}
+	}
+	return out_array.release();
+};
+
+/**
+ * @brief Converts an std::vector of glm::tvec4<float> to a Matlab matrix.
+ *
+ * This function converts a whole vector of vec4's to an n x 4 Matlab matrix,
+ * where n is data.size(). It is mainly used to pass vertex data of a Mesh
+ * to Matlab.
+ *
+ * See template<> mxArray* MxArray::from(const std::vector<glm::tvec2<float>>&)
+ * for more details.
+ *
+ * @param[in] data The data to convert.
+ * @return An n x 4 Matlab matrix.
+ */
+template<>
+mxArray* MxArray::from(const std::vector<glm::tvec4<float>>& data)
+{
+	MxArray out_array(MxArray::Numeric<double>(data.size(), 4));
+	for (int r = 0; r < data.size(); ++r) {
+		for (int c = 0; c < 4; ++c) {
+			out_array.set(r, c, data[r][c]);
+		}
+	}
+	return out_array.release();
+};
+
+/**
+ * @brief Converts an std::vector of std::array<int, 3> to a Matlab matrix.
+ *
+ * This function converts a whole vector of array<int, 3>'s to an n x 3 Matlab
+ * matrix, where n is data.size(). It is mainly used to pass triangle indices
+ * data of a Mesh to Matlab.
+ *
+ * We specialise for vector<array<int, 3>> directly (and not for array<int, 3>)
+ * because otherwise a cell array of arrays would be generated. Luckily, even
+ * if an array<int, 3> specialisation was to exist too, this one would take
+ * precedence to convert a vector<array<int, 3>>.
+ *
+ * @param[in] data The data to convert.
+ * @return An n x 3 Matlab matrix.
+ */
+template<>
+mxArray* MxArray::from(const std::vector<std::array<int, 3>>& data)
+{
+	MxArray out_array(MxArray::Numeric<int>(data.size(), 3));
+	for (int r = 0; r < data.size(); ++r) {
+		for (int c = 0; c < 3; ++c) {
+			out_array.set(r, c, data[r][c]);
+		}
+	}
+	return out_array.release();
+};
+
+/**
+ * @brief Define a template specialisation for eos::render::Mesh.
+ *
+ * This converts an eos::render::Mesh into a Matlab struct.
+ * 
+ * @param[in] mesh The Mesh that will be returned to Matlab.
+ * @return An mxArray containing a Matlab struct with all vertex, colour, texcoords and triangle data.
  */
 template<>
 mxArray* MxArray::from(const eos::render::Mesh& mesh) {
@@ -137,9 +212,12 @@ mxArray* MxArray::from(const eos::render::Mesh& mesh) {
 };
 
 /**
- * @brief Define a template specialisation for ... .
+ * @brief Define a template specialisation for eos::fitting::RenderingParameters.
  *
- * Todo: Documentation.
+ * This converts an eos::fitting::RenderingParameters into a Matlab struct.
+ * 
+ * @param[in] rendering_parameters The RenderingParameters that will be returned to Matlab.
+ * @return An mxArray containing a Matlab struct with all required parameters.
  */
 template<>
 mxArray* MxArray::from(const eos::fitting::RenderingParameters& rendering_parameters) {
