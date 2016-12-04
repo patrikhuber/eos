@@ -31,3 +31,4 @@ set(BUILD_CERES_EXAMPLE OFF CACHE BOOL "Build the fit-model-ceres example (requi
 set(BUILD_UTILS OFF CACHE BOOL "Build utility applications." FORCE)
 set(BUILD_DOCUMENTATION OFF CACHE BOOL "Build the library documentation." FORCE)
 set(GENERATE_PYTHON_BINDINGS OFF CACHE BOOL "Build python bindings. Needs BUILD_UTILS enabled too." FORCE)
+set(GENERATE_MATLAB_BINDINGS OFF CACHE BOOL "Build Matlab bindings. Requires Matlab with the compiler installed or the Matlab Compiler Runtime." FORCE)
