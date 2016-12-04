@@ -158,10 +158,24 @@ mxArray* MxArray::from(const eos::fitting::RenderingParameters& rendering_parame
 			return "unknown";
 		}
 	}();
+
+	// Since we don't expose get_opencv_viewport(), and Matlab doesn't have glm::project()
+	// anyway, we'll make a 4x4 viewport matrix available. Matlab seems to have the same
+	// convention than OpenCV (top-left is the image origin).
+	auto viewport = eos::fitting::get_opencv_viewport(rendering_parameters.get_screen_width(), rendering_parameters.get_screen_height());
+	glm::mat4x4 viewport_matrix; // Identity matrix
+	viewport_matrix[0][0] = 0.5f * viewport[2];
+	viewport_matrix[3][0] = 0.5f * viewport[2] + viewport[0];
+	viewport_matrix[1][1] = 0.5f * viewport[3];
+	viewport_matrix[3][1] = 0.5f * viewport[3] + viewport[1];
+	viewport_matrix[2][2] = 0.5f;
+	viewport_matrix[3][2] = 0.5f;
+
 	out_array.set("camera_type", camera_type);
 	out_array.set("rotation_quaternion", rendering_parameters.get_rotation());
 	out_array.set("modelview", rendering_parameters.get_modelview());
 	out_array.set("projection", rendering_parameters.get_projection());
+	out_array.set("viewport", viewport_matrix);
 	out_array.set("screen_width", rendering_parameters.get_screen_width());
 	out_array.set("screen_height", rendering_parameters.get_screen_height());
 
