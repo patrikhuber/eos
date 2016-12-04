@@ -24,6 +24,10 @@
 # ==============================
 #set(PYTHON_EXECUTABLE "C:\\Users\\user\\AppData\\Local\\Programs\\Python\\Python35\\python.exe" CACHE PATH "Path to the python interpreter." FORCE)
 
+# Set the path to the Matlab root directory if you want to build the Matlab bindings and it doesn't find Matlab automatically:
+# ==============================
+#set(Matlab_ROOT_DIR "/opt/matlab" CACHE PATH "Path to the Matlab installation directory." FORCE)
+
 # Configuration options
 # ==============================
 set(BUILD_EXAMPLES ON CACHE BOOL "Build the example applications." FORCE)
