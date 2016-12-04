@@ -26,15 +26,11 @@ function [mesh, rendering_parameters] = fit_shape_and_pose(morphable_model, ...
 %   contour_landmarks and model_contour as *filenames* to the respective
 %   files in the eos/share/ directory, and not the objects directly.
 
-morphable_model = '../share/sfm_shape_3448.bin';
-blendshapes = '../share/expression_blendshapes_3448.bin';
-landmarks = zeros(68, 2);
-landmark_mapper = '../share/ibug2did.txt';
-image_width = 1280;
-image_height = 720;
-edge_topology = '../share/sfm_3448_edge_topology.json';
-contour_landmarks = '../share/ibug2did.txt';
-model_contour = '../share/model_contours.json';
+% We'll use default values to the following arguments, if they're not
+% provided:
+if (~exist('edge_topology', 'var')), edge_topology = '../share/sfm_3448_edge_topology.json'; end
+if (~exist('contour_landmarks', 'var')), contour_landmarks = '../share/ibug2did.txt'; end
+if (~exist('model_contour', 'var')), model_contour = '../share/model_contours.json'; end
 if (~exist('num_iterations', 'var')), num_iterations = 5; end
 if (~exist('num_shape_coefficients_to_fit', 'var')), num_shape_coefficients_to_fit = -1; end
 if (~exist('lambda', 'var')), lambda = 30.0; end
