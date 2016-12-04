@@ -10,3 +10,6 @@
 [submodule "3rdparty/eigen3-nnls"]
 	path = 3rdparty/eigen3-nnls
 	url = https://github.com/hmatuschek/eigen3-nnls.git
+[submodule "3rdparty/mexplus"]
+	path = 3rdparty/mexplus
+	url = https://github.com/kyamagu/mexplus.git
