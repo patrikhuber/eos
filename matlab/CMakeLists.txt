@@ -31,6 +31,3 @@ install(FILES ${CMAKE_SOURCE_DIR}/matlab/demo.m DESTINATION matlab)
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/matlab/include DESTINATION matlab)
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/matlab/+eos DESTINATION matlab PATTERN "*.cpp" EXCLUDE)
 install(TARGETS eos_fitting DESTINATION matlab/+eos/+fitting/private)
-
-# Todo: Look at opencv mex... eg Rect, the .c file. Do they do all the dispatching in mexFunc()?
-# Also this may have wrapping for std::vector<T>: https://github.com/kyamagu/mexopencv/blob/master/include/MxArray.hpp
