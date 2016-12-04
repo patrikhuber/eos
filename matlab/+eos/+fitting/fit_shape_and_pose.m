@@ -12,7 +12,7 @@ function [mesh, rendering_parameters] = fit_shape_and_pose(morphable_model, ...
 %   It fits the pose (camera), PCA shape model, and expression blendshapes
 %   in an iterative way.
 %
-%   landmarks must be a 68 x 2 vector with ibug landmarks, in the order
+%   landmarks must be a 68 x 2 matrix with ibug landmarks, in the order
 %   from 1 to 68.
 %
 %   Default values for some of the parameters:: num_iterations = 5,

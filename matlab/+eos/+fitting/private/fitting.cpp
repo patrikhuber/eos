@@ -27,6 +27,7 @@
 #include "eos/render/Mesh.hpp"
 
 #include "mexplus_eigen.hpp"
+#include "mexplus_eos_types.hpp"
 
 #include "mexplus.h"
 
@@ -46,7 +47,6 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
 	using std::string;
 	// Check for proper number of input and output arguments:
-	mexPrintf("nlhs: %d, nrhs: %d\n", nlhs, nrhs);
 	if (nrhs != 12) {
 		mexErrMsgIdAndTxt("eos:fitting:nargin", "fit_shape_and_pose requires 12 input arguments.");
 	}
@@ -92,9 +92,17 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	fitting::RenderingParameters rendering_parameters;
 	std::tie(mesh, rendering_parameters) = fitting::fit_shape_and_pose(morphable_model, blendshapes, landmarks, landmark_mapper, image_width, image_height, edge_topology, contour_landmarks, model_contour, num_iterations, num_shape_coefficients_to_fit, lambda);
 
+	// C++ counts the vertex indices starting at zero, Matlab starts counting
+	// at one - therefore, add +1 to all triangle indices:
+	for (auto&& t : mesh.tvi) {
+		for (auto&& idx : t) {
+			idx += 1;
+		}
+	}
+
 	// Return the mesh and the rendering_parameters:
 	OutputArguments output(nlhs, plhs, 2);
-	output.set(0, landmarks_in); // the Mesh
+	output.set(0, mesh);
 	output.set(1, landmarks_in); // RenderingParameters
 };
 
