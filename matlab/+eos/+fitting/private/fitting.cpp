@@ -103,7 +103,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	// Return the mesh and the rendering_parameters:
 	OutputArguments output(nlhs, plhs, 2);
 	output.set(0, mesh);
-	output.set(1, landmarks_in); // RenderingParameters
+	output.set(1, rendering_parameters);
 };
 
 void func()

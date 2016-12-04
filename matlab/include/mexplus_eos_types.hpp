@@ -23,10 +23,15 @@
 #define MEXPLUS_EOS_TYPES_HPP_
 
 #include "eos/render/Mesh.hpp"
+#include "eos/fitting/RenderingParameters.hpp"
 
 #include "mexplus/mxarray.h"
 
+#include "glm/vec2.hpp"
+#include "glm/vec3.hpp"
 #include "glm/vec4.hpp"
+#include "glm/gtc/quaternion.hpp"
+#include "glm/mat4x4.hpp"
 
 #include "Eigen/Core"
 
@@ -37,6 +42,28 @@
  */
 
 namespace mexplus {
+
+template<>
+mxArray* MxArray::from(const glm::tquat<float>& quat)
+{
+	MxArray out_array(MxArray::Numeric<double>(1, 4));
+	for (int c = 0; c < 4; ++c) {
+		out_array.set(c, quat[c]);
+	}
+	return out_array.release();
+};
+
+template<>
+mxArray* MxArray::from(const glm::tmat4x4<float>& mat)
+{
+	MxArray out_array(MxArray::Numeric<double>(4, 4));
+	for (int r = 0; r < 4; ++r) {
+		for (int c = 0; c < 4; ++c) {
+			out_array.set(r, c, mat[c][r]);
+		}
+	}
+	return out_array.release();
+};
 
 // We have an overload for vector<tvec4<float>> directly because otherwise a cell
 // will be used. However, such overload for tvec4<float> can be added without affecting
@@ -110,42 +137,37 @@ mxArray* MxArray::from(const eos::render::Mesh& mesh) {
 };
 
 /**
- * @brief Define a template specialisation for Eigen::MatrixXd for ... .
+ * @brief Define a template specialisation for ... .
  *
  * Todo: Documentation.
  */
-/*
 template<>
-void MxArray::to(const mxArray* in_array, Eigen::MatrixXd* eigen_matrix)
-{
-	MxArray array(in_array);
+mxArray* MxArray::from(const eos::fitting::RenderingParameters& rendering_parameters) {
 
-	if (array.dimensionSize() > 2)
-	{
-		mexErrMsgIdAndTxt("eos:matlab", "Given array has > 2 dimensions. Can only create 2-dimensional matrices (and vectors).");
-	}
+	MxArray out_array(MxArray::Struct());
+	
+	const std::string camera_type = [&rendering_parameters]() {
+		if (rendering_parameters.get_camera_type() == eos::fitting::CameraType::Orthographic)
+		{
+			return "Orthographic";
+		}
+		else if (rendering_parameters.get_camera_type() == eos::fitting::CameraType::Perspective) {
+			return "Perspective";
+		}
+		else {
+			return "unknown";
+		}
+	}();
+	out_array.set("camera_type", camera_type);
+	out_array.set("rotation_quaternion", rendering_parameters.get_rotation());
+	out_array.set("modelview", rendering_parameters.get_modelview());
+	out_array.set("projection", rendering_parameters.get_projection());
+	out_array.set("screen_width", rendering_parameters.get_screen_width());
+	out_array.set("screen_height", rendering_parameters.get_screen_height());
 
-	if (array.dimensionSize() == 1 || array.dimensionSize() == 0)
-	{
-		mexErrMsgIdAndTxt("eos:matlab", "Given array has 0 or 1 dimensions but we expected a 2-dimensional matrix (or row/column vector).");
-		// Even when given a single value dimensionSize() is 2, with n=m=1. When does this happen?
-	}
-
-	if (!array.isDouble())
-	{
-		mexErrMsgIdAndTxt("eos:matlab", "Trying to create a Eigen::MatrixXd in C++, but the given data is not of type double.");
-	}
-
-	// We can be sure now that the array is 2-dimensional (or 0, but then we're screwed anyway)
-	auto nrows = array.dimensions()[0]; // or use array.rows()
-	auto ncols = array.dimensions()[1];
-
-	// I think I can just use Eigen::Matrix, not a Map - the Matrix c'tor that we call creates a Map anyway?
-	Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor>> eigen_map(array.getData<double>(), nrows, ncols);
-	// Not sure that's alright - who owns the data? I think as it is now, everything points to the data in the mxArray owned by Matlab, but I'm not 100% sure.
-	*eigen_matrix = eigen_map;
+	return out_array.release();
 };
-*/
+
 } /* namespace mexplus */
 
 #endif /* MEXPLUS_EOS_TYPES_HPP_ */
