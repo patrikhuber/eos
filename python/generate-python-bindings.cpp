@@ -1,7 +1,7 @@
 /*
  * eos - A 3D Morphable Model fitting library written in modern C++11/14.
  *
- * File: utils/generate-python-bindings.cpp
+ * File: python/generate-python-bindings.cpp
  *
  * Copyright 2016 Patrik Huber
  *

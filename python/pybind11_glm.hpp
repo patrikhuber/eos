@@ -1,6 +1,6 @@
 /*
-    utils/pybind11_glm.hpp: Transparent conversion for glm types to NumPy arrays.
-                            This header is based on pybind11/eigen.h.
+    python/pybind11_glm.hpp: Transparent conversion for glm types to NumPy arrays.
+                             This header is based on pybind11/eigen.h.
 
     Copyright (c) 2016 Patrik Huber
 
