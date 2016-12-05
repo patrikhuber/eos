@@ -7,9 +7,6 @@ env:
   - C_COMPILER=gcc-5 CXX_COMPILER=g++-5
   - C_COMPILER=clang-3.8 CXX_COMPILER=clang++-3.8
 
-#python:
-#  - "3.5"
-
 before_install:
   - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
   - wget -O - http://llvm.org/apt/llvm-snapshot.gpg.key | sudo apt-key add -
@@ -18,7 +15,6 @@ before_install:
   - sudo apt-get install gcc-5 g++-5 -y
   - sudo apt-get install clang-3.8 -y
   - sudo apt-get install libboost-all-dev libeigen3-dev libopencv-dev -y
-#  - sudo apt-get install python3 python3-dev
 
 before_script:
   - mkdir build
