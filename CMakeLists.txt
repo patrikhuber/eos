@@ -163,14 +163,19 @@ if(GENERATE_PYTHON_BINDINGS)
 	# If this fails, the repo has probably not been cloned with submodules. Run: git submodule update --init
 endif()
 
-# The install target:
+# The eos install target:
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/ DESTINATION include) # our library headers
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/share/ DESTINATION share) # the model and metadata
+# For 3rd party headers, we only copy the headers and licence files:
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/3rdparty/cereal-1.1.1/ DESTINATION 3rdparty/cereal-1.1.1) # cereal headers
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/3rdparty/glm/ DESTINATION 3rdparty/glm) # glm headers
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/3rdparty/pybind11/ DESTINATION 3rdparty/pybind11) # pybind11 headers
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/3rdparty/nanoflann/ DESTINATION 3rdparty/nanoflann) # nanoflann header
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/3rdparty/eigen3-nnls/ DESTINATION 3rdparty/eigen3-nnls) # eigen3-nnls header
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/3rdparty/glm/glm/ DESTINATION 3rdparty/glm/glm) # glm headers
+install(FILES ${CMAKE_SOURCE_DIR}/3rdparty/glm/copying.txt DESTINATION 3rdparty/glm/) # glm licence
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/3rdparty/pybind11/include/ DESTINATION 3rdparty/pybind11/include) # pybind11 headers
+install(FILES ${CMAKE_SOURCE_DIR}/3rdparty/pybind11/LICENSE DESTINATION 3rdparty/pybind11/) # pybind11 licence
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/3rdparty/nanoflann/include/ DESTINATION 3rdparty/nanoflann/include) # nanoflann header
+install(FILES ${CMAKE_SOURCE_DIR}/3rdparty/nanoflann/COPYING DESTINATION 3rdparty/nanoflann/) # nanoflann licence
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/3rdparty/eigen3-nnls/src/ DESTINATION 3rdparty/eigen3-nnls/src) # eigen3-nnls header
+install(FILES ${CMAKE_SOURCE_DIR}/3rdparty/eigen3-nnls/README.md DESTINATION 3rdparty/eigen3-nnls/) # eigen3-nnls attribution
 
 if(BUILD_EXAMPLES)
 	add_subdirectory(examples)
@@ -186,4 +191,6 @@ endif()
 
 if(GENERATE_MATLAB_BINDINGS)
 	add_subdirectory(matlab)
+	install(DIRECTORY ${CMAKE_SOURCE_DIR}/3rdparty/mexplus/include/ DESTINATION 3rdparty/mexplus/include) # mexplus headers
+	install(FILES ${CMAKE_SOURCE_DIR}/3rdparty/mexplus/LICENSE DESTINATION 3rdparty/mexplus/) # mexplus licence
 endif()
