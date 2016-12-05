@@ -24,6 +24,10 @@
 # ==============================
 #set(PYTHON_EXECUTABLE "C:\\Users\\user\\AppData\\Local\\Programs\\Python\\Python35\\python.exe" CACHE PATH "Path to the python interpreter." FORCE)
 
+# Set the path to the Matlab root directory if you want to build the Matlab bindings and it doesn't find Matlab automatically:
+# ==============================
+#set(Matlab_ROOT_DIR "/opt/matlab" CACHE PATH "Path to the Matlab installation directory." FORCE)
+
 # Configuration options
 # ==============================
 set(BUILD_EXAMPLES ON CACHE BOOL "Build the example applications." FORCE)
@@ -31,3 +35,4 @@ set(BUILD_CERES_EXAMPLE OFF CACHE BOOL "Build the fit-model-ceres example (requi
 set(BUILD_UTILS OFF CACHE BOOL "Build utility applications." FORCE)
 set(BUILD_DOCUMENTATION OFF CACHE BOOL "Build the library documentation." FORCE)
 set(GENERATE_PYTHON_BINDINGS OFF CACHE BOOL "Build python bindings. Needs BUILD_UTILS enabled too." FORCE)
+set(GENERATE_MATLAB_BINDINGS OFF CACHE BOOL "Build Matlab bindings. Requires Matlab with the compiler installed or the Matlab Compiler Runtime." FORCE)

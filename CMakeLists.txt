@@ -1,8 +1,8 @@
 project(eos)
 cmake_minimum_required(VERSION 2.8.12)
 set(eos_VERSION_MAJOR 0)
-set(eos_VERSION_MINOR 9)
-set(eos_VERSION_PATCH 1)
+set(eos_VERSION_MINOR 10)
+set(eos_VERSION_PATCH 0)
 set(eos_VERSION ${eos_VERSION_MAJOR}.${eos_VERSION_MINOR}.${eos_VERSION_PATCH})
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
@@ -62,6 +62,9 @@ option(BUILD_DOCUMENTATION "Build the library documentation." OFF)
 message(STATUS "BUILD_DOCUMENTATION: ${BUILD_DOCUMENTATION}")
 option(GENERATE_PYTHON_BINDINGS "Build python bindings. Needs BUILD_UTILS enabled too." OFF)
 message(STATUS "GENERATE_PYTHON_BINDINGS: ${GENERATE_PYTHON_BINDINGS}")
+option(GENERATE_MATLAB_BINDINGS "Build Matlab bindings. Requires Matlab with the compiler installed or the Matlab Compiler Runtime." OFF)
+message(STATUS "GENERATE_MATLAB_BINDINGS: ${GENERATE_MATLAB_BINDINGS}")
+
 
 # Build a CPack driven installer package:
 include(InstallRequiredSystemLibraries) # This module will include any runtime libraries that are needed by the project for the current platform
@@ -179,4 +182,8 @@ endif()
 
 if(BUILD_DOCUMENTATION)
 	add_subdirectory(doc)
+endif()
+
+if(GENERATE_MATLAB_BINDINGS)
+	add_subdirectory(matlab)
 endif()
