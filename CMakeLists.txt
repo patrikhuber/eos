@@ -60,7 +60,7 @@ option(BUILD_UTILS "Build utility applications." OFF)
 message(STATUS "BUILD_UTILS: ${BUILD_UTILS}")
 option(BUILD_DOCUMENTATION "Build the library documentation." OFF)
 message(STATUS "BUILD_DOCUMENTATION: ${BUILD_DOCUMENTATION}")
-option(GENERATE_PYTHON_BINDINGS "Build python bindings. Needs BUILD_UTILS enabled too." OFF)
+option(GENERATE_PYTHON_BINDINGS "Build python bindings. Requires python to be installed." OFF)
 message(STATUS "GENERATE_PYTHON_BINDINGS: ${GENERATE_PYTHON_BINDINGS}")
 option(GENERATE_MATLAB_BINDINGS "Build Matlab bindings. Requires Matlab with the compiler installed or the Matlab Compiler Runtime." OFF)
 message(STATUS "GENERATE_MATLAB_BINDINGS: ${GENERATE_MATLAB_BINDINGS}")
@@ -156,13 +156,6 @@ source_group(fitting\\detail include/eos/fitting/detail/*)
 source_group(render include/eos/render/*)
 source_group(render\\detail include/eos/render/detail/*)
 
-# Generate python bindings using pybind11:
-if(GENERATE_PYTHON_BINDINGS)
-	set(PYBIND11_PATH "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/pybind11")
-	add_subdirectory(${PYBIND11_PATH})
-	# If this fails, the repo has probably not been cloned with submodules. Run: git submodule update --init
-endif()
-
 # The eos install target:
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/ DESTINATION include) # our library headers
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/share/ DESTINATION share) # the model and metadata
@@ -170,8 +163,6 @@ install(DIRECTORY ${CMAKE_SOURCE_DIR}/share/ DESTINATION share) # the model and 
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/3rdparty/cereal-1.1.1/ DESTINATION 3rdparty/cereal-1.1.1) # cereal headers
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/3rdparty/glm/glm/ DESTINATION 3rdparty/glm/glm) # glm headers
 install(FILES ${CMAKE_SOURCE_DIR}/3rdparty/glm/copying.txt DESTINATION 3rdparty/glm/) # glm licence
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/3rdparty/pybind11/include/ DESTINATION 3rdparty/pybind11/include) # pybind11 headers
-install(FILES ${CMAKE_SOURCE_DIR}/3rdparty/pybind11/LICENSE DESTINATION 3rdparty/pybind11/) # pybind11 licence
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/3rdparty/nanoflann/include/ DESTINATION 3rdparty/nanoflann/include) # nanoflann header
 install(FILES ${CMAKE_SOURCE_DIR}/3rdparty/nanoflann/COPYING DESTINATION 3rdparty/nanoflann/) # nanoflann licence
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/3rdparty/eigen3-nnls/src/ DESTINATION 3rdparty/eigen3-nnls/src) # eigen3-nnls header
@@ -187,6 +178,15 @@ endif()
 
 if(BUILD_DOCUMENTATION)
 	add_subdirectory(doc)
+endif()
+
+if(GENERATE_PYTHON_BINDINGS)
+	set(PYBIND11_PATH "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/pybind11")
+	# If this fails, the repo has probably not been cloned with submodules. Run: git submodule update --init
+	add_subdirectory(${PYBIND11_PATH}) # add and initialise pybind11
+	add_subdirectory(python) # the actual bindings
+	install(DIRECTORY ${CMAKE_SOURCE_DIR}/3rdparty/pybind11/include/ DESTINATION 3rdparty/pybind11/include) # pybind11 headers
+	install(FILES ${CMAKE_SOURCE_DIR}/3rdparty/pybind11/LICENSE DESTINATION 3rdparty/pybind11/) # pybind11 licence
 endif()
 
 if(GENERATE_MATLAB_BINDINGS)
