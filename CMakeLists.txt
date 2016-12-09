@@ -1,5 +1,5 @@
-project(eos)
 cmake_minimum_required(VERSION 2.8.12)
+project(eos)
 set(eos_VERSION_MAJOR 0)
 set(eos_VERSION_MINOR 10)
 set(eos_VERSION_PATCH 1)
