@@ -10,16 +10,9 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 # Check if a supported compiler is used and add c++11/14 flag
 include(CheckCXXCompilerFlag)
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-	if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.8)
-		message(FATAL_ERROR "Need at least gcc 4.8 to compile.")
-	elseif(CMAKE_CXX_COMPILER_VERSION VERSION_EQUAL 4.8 OR (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 4.8 AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.9))
-		# This compiles with a warning at the moment, but support for gcc 4.8.x will be removed in the very near future.
-		check_cxx_compiler_flag(-std=c++11 HAS_CXX11_FLAG)
-		if(HAS_CXX11_FLAG)
-			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-		endif()
-		message(WARNING "Support for gcc 4.8 will be removed in the very near future. Please upgrade your compiler.")
-	else() # gcc version is >4.8
+	if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.9)
+		message(FATAL_ERROR "Need at least gcc 4.9 to compile.")
+	else() # gcc version is >4.9
 		check_cxx_compiler_flag(-std=c++14 HAS_CXX14_FLAG)
 		if(HAS_CXX14_FLAG)
 			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
