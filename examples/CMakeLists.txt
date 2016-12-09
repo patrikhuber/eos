@@ -41,7 +41,7 @@ target_link_libraries(fit-model-simple ${OpenCV_LIBS} ${Boost_LIBRARIES})
 add_executable(fit-model fit-model.cpp)
 target_link_libraries(fit-model ${OpenCV_LIBS} ${Boost_LIBRARIES})
 
-if(BUILD_CERES_EXAMPLE)
+if(EOS_BUILD_CERES_EXAMPLE)
 	# Find Ceres, for the fit-model-ceres app:
 	find_package(Ceres REQUIRED)
 	message(STATUS "Ceres locations: Headers: ${CERES_INCLUDE_DIRS} Library: ${CERES_LIBRARIES}")

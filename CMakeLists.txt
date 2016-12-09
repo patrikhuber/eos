@@ -45,18 +45,18 @@ endif()
 
 # All the options for building the library. Can be changed on the command-line or in initial_cache.cmake.
 message(STATUS "Options:")
-option(BUILD_EXAMPLES "Build the example applications." ON)
-message(STATUS "BUILD_EXAMPLES: ${BUILD_EXAMPLES}")
-option(BUILD_CERES_EXAMPLE "Build the fit-model-ceres example (requires Ceres)." OFF)
-message(STATUS "BUILD_CERES_EXAMPLE: ${BUILD_CERES_EXAMPLE}")
-option(BUILD_UTILS "Build utility applications." OFF)
-message(STATUS "BUILD_UTILS: ${BUILD_UTILS}")
-option(BUILD_DOCUMENTATION "Build the library documentation." OFF)
-message(STATUS "BUILD_DOCUMENTATION: ${BUILD_DOCUMENTATION}")
-option(GENERATE_PYTHON_BINDINGS "Build python bindings. Requires python to be installed." OFF)
-message(STATUS "GENERATE_PYTHON_BINDINGS: ${GENERATE_PYTHON_BINDINGS}")
-option(GENERATE_MATLAB_BINDINGS "Build Matlab bindings. Requires Matlab with the compiler installed or the Matlab Compiler Runtime." OFF)
-message(STATUS "GENERATE_MATLAB_BINDINGS: ${GENERATE_MATLAB_BINDINGS}")
+option(EOS_BUILD_EXAMPLES "Build the example applications." ON)
+message(STATUS "EOS_BUILD_EXAMPLES: ${EOS_BUILD_EXAMPLES}")
+option(EOS_BUILD_CERES_EXAMPLE "Build the fit-model-ceres example (requires Ceres)." OFF)
+message(STATUS "EOS_BUILD_CERES_EXAMPLE: ${EOS_BUILD_CERES_EXAMPLE}")
+option(EOS_BUILD_UTILS "Build utility applications." OFF)
+message(STATUS "EOS_BUILD_UTILS: ${EOS_BUILD_UTILS}")
+option(EOS_BUILD_DOCUMENTATION "Build the library documentation." OFF)
+message(STATUS "EOS_BUILD_DOCUMENTATION: ${EOS_BUILD_DOCUMENTATION}")
+option(EOS_GENERATE_PYTHON_BINDINGS "Build python bindings. Requires python to be installed." OFF)
+message(STATUS "EOS_GENERATE_PYTHON_BINDINGS: ${EOS_GENERATE_PYTHON_BINDINGS}")
+option(EOS_GENERATE_MATLAB_BINDINGS "Build Matlab bindings. Requires Matlab with the compiler installed or the Matlab Compiler Runtime." OFF)
+message(STATUS "EOS_GENERATE_MATLAB_BINDINGS: ${EOS_GENERATE_MATLAB_BINDINGS}")
 
 
 # Build a CPack driven installer package:
@@ -162,19 +162,19 @@ install(FILES ${CMAKE_SOURCE_DIR}/3rdparty/nanoflann/COPYING DESTINATION 3rdpart
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/3rdparty/eigen3-nnls/src/ DESTINATION 3rdparty/eigen3-nnls/src) # eigen3-nnls header
 install(FILES ${CMAKE_SOURCE_DIR}/3rdparty/eigen3-nnls/README.md DESTINATION 3rdparty/eigen3-nnls/) # eigen3-nnls attribution
 
-if(BUILD_EXAMPLES)
+if(EOS_BUILD_EXAMPLES)
 	add_subdirectory(examples)
 endif()
 
-if(BUILD_UTILS)
+if(EOS_BUILD_UTILS)
 	add_subdirectory(utils)
 endif()
 
-if(BUILD_DOCUMENTATION)
+if(EOS_BUILD_DOCUMENTATION)
 	add_subdirectory(doc)
 endif()
 
-if(GENERATE_PYTHON_BINDINGS)
+if(EOS_GENERATE_PYTHON_BINDINGS)
 	set(PYBIND11_PATH "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/pybind11")
 	# If this fails, the repo has probably not been cloned with submodules. Run: git submodule update --init
 	add_subdirectory(${PYBIND11_PATH}) # add and initialise pybind11
@@ -183,7 +183,7 @@ if(GENERATE_PYTHON_BINDINGS)
 	install(FILES ${CMAKE_SOURCE_DIR}/3rdparty/pybind11/LICENSE DESTINATION 3rdparty/pybind11/) # pybind11 licence
 endif()
 
-if(GENERATE_MATLAB_BINDINGS)
+if(EOS_GENERATE_MATLAB_BINDINGS)
 	add_subdirectory(matlab)
 	install(DIRECTORY ${CMAKE_SOURCE_DIR}/3rdparty/mexplus/include/ DESTINATION 3rdparty/mexplus/include) # mexplus headers
 	install(FILES ${CMAKE_SOURCE_DIR}/3rdparty/mexplus/LICENSE DESTINATION 3rdparty/mexplus/) # mexplus licence

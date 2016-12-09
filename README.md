@@ -84,7 +84,7 @@ The full model is available at [http://www.cvssp.org/facemodel](http://www.cvssp
 
 ## Python bindings
 
-_Experimental_: eos includes python bindings for some of its functionality (and more can be added!). Set `-DGENERATE_PYTHON_BINDINGS=on` when running `cmake` to build them (and optionally set `PYTHON_EXECUTABLE` to point to your python interpreter if it's not found automatically).
+_Experimental_: eos includes python bindings for some of its functionality (and more can be added!). Set `-DEOS_GENERATE_PYTHON_BINDINGS=on` when running `cmake` to build them (and optionally set `PYTHON_EXECUTABLE` to point to your python interpreter if it's not found automatically).
 
 After building the bindings, they can be used like any python module:
 
@@ -101,7 +101,7 @@ help(eos) # check the documentation
 
 ## Matlab bindings
 
-_Experimental_: eos includes Matlab bindings for the `fit_shape_and_pose(...)` function, which means the fitting can be run from Matlab. Set `-DGENERATE_MATLAB_BINDINGS=on` when running `cmake` to build the required mex-file and run the `INSTALL` target to install everything. (Set `Matlab_ROOT_DIR` to point to your Matlab directory if it's not found automatically). More bindings (e.g. the MorphableModel itself) might be added in the future.
+_Experimental_: eos includes Matlab bindings for the `fit_shape_and_pose(...)` function, which means the fitting can be run from Matlab. Set `-DEOS_GENERATE_MATLAB_BINDINGS=on` when running `cmake` to build the required mex-file and run the `INSTALL` target to install everything. (Set `Matlab_ROOT_DIR` to point to your Matlab directory if it's not found automatically). More bindings (e.g. the MorphableModel itself) might be added in the future.
 
 Go to the `install/eos/matlab` directory and run [`demo.m`](https://github.com/patrikhuber/eos/blob/master/matlab/demo.m) to see how to run the fitting. The result is a mesh and rendering parameters (pose).
 
