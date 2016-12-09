@@ -141,13 +141,14 @@ include_directories(${eigen3_nnls_INCLUDE_DIR})
 
 # Custom target for the library, to make the headers show up in IDEs:
 add_custom_target(eos SOURCES ${HEADERS})
-source_group(core include/eos/core/*)
-source_group(morphablemodel include/eos/morphablemodel/*)
-source_group(morphablemodel\\io include/eos/morphablemodel/io/*)
-source_group(fitting include/eos/fitting/*)
-source_group(fitting\\detail include/eos/fitting/detail/*)
-source_group(render include/eos/render/*)
-source_group(render\\detail include/eos/render/detail/*)
+source_group(core REGULAR_EXPRESSION include/eos/core/*)
+source_group(morphablemodel REGULAR_EXPRESSION include/eos/morphablemodel/*)
+source_group(morphablemodel\\io REGULAR_EXPRESSION include/eos/morphablemodel/io/*)
+source_group(fitting REGULAR_EXPRESSION include/eos/fitting/*)
+source_group(fitting\\detail REGULAR_EXPRESSION include/eos/fitting/detail/*)
+source_group(render REGULAR_EXPRESSION include/eos/render/*)
+source_group(render\\detail REGULAR_EXPRESSION include/eos/render/detail/*)
+source_group(video REGULAR_EXPRESSION include/eos/video/*)
 
 # The eos install target:
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/ DESTINATION include) # our library headers
