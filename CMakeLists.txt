@@ -7,41 +7,14 @@ set(eos_VERSION ${eos_VERSION_MAJOR}.${eos_VERSION_MINOR}.${eos_VERSION_PATCH})
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-# Check if a supported compiler is used and add c++11/14 flag
-include(CheckCXXCompilerFlag)
-if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-	if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.9)
-		message(FATAL_ERROR "Need at least gcc 4.9 to compile.")
-	else() # gcc version is >4.9
-		check_cxx_compiler_flag(-std=c++14 HAS_CXX14_FLAG)
-		if(HAS_CXX14_FLAG)
-			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
-		endif()
-	endif()
-	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pthread")
-elseif(MSVC)
-	if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19)
-		message(FATAL_ERROR "Visual Studio 2015 or newer is required.")
-	endif()
-elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-	# >=3.5 works, not sure about older versions. Also, libstdc++ from gcc >=4.9 may be needed.
-	if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 3.5)
-		message(WARNING "Clang below version 3.5 may or may not work. Please upgrade your compiler.")
-	endif()
-	check_cxx_compiler_flag(-std=c++14 HAS_CXX14_FLAG)
-	if(HAS_CXX14_FLAG)
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
-	endif()
-	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pthreads")
-	# Eigen::LevenbergMarquardt probably needs -pthreads.
-	# Cleaner way would be to add it to fit-model's target_link_libraries, but that requires a CMake >2.8.10.
-else() # no GNU, no MSVC, no Clang
-	message(WARNING "You are using an unsupported compiler. Compilation has only been tested with MSVC, GCC and Clang.")
-	check_cxx_compiler_flag(-std=c++14 HAS_CXX14_FLAG)
-	if(HAS_CXX14_FLAG)
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
-	endif()
-endif()
+# This sets the C++ standard to c++14 and required for all the following targets that we define.
+# It has no effect on MSVC though - we thus define more specific requirements for each executable target respectively.
+# Also it will not apply to the eos library target, since it is an INTERFACE_LIBRARY, and these properties do not apply to interface libraries.
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF) # This makes CMake use -std=c++11 instead of -std=gnu++11
+# This list is likely not complete, but it should be sufficient to error out on old compilers that we cannot build on:
+set(EOS_CXX_COMPILE_FEATURES cxx_defaulted_functions cxx_generalized_initializers cxx_generic_lambdas cxx_lambdas cxx_nonstatic_member_init cxx_range_for cxx_right_angle_brackets cxx_strong_enums)
 
 # All the options for building the library. Can be changed on the command-line or in initial_cache.cmake.
 message(STATUS "Options:")
@@ -57,7 +30,6 @@ option(EOS_GENERATE_PYTHON_BINDINGS "Build python bindings. Requires python to b
 message(STATUS "EOS_GENERATE_PYTHON_BINDINGS: ${EOS_GENERATE_PYTHON_BINDINGS}")
 option(EOS_GENERATE_MATLAB_BINDINGS "Build Matlab bindings. Requires Matlab with the compiler installed or the Matlab Compiler Runtime." OFF)
 message(STATUS "EOS_GENERATE_MATLAB_BINDINGS: ${EOS_GENERATE_MATLAB_BINDINGS}")
-
 
 # Build a CPack driven installer package:
 include(InstallRequiredSystemLibraries) # This module will include any runtime libraries that are needed by the project for the current platform
@@ -129,6 +101,8 @@ set(HEADERS
 	include/eos/render/detail/texture_extraction_detail.hpp
 )
 
+add_library(eos INTERFACE)
+target_compile_features(eos INTERFACE ${EOS_CXX_COMPILE_FEATURES})
 # Add header includes:
 include_directories("include")
 include_directories(${CEREAL_INCLUDE_DIR})
@@ -140,7 +114,7 @@ include_directories(${nanoflann_INCLUDE_DIR})
 include_directories(${eigen3_nnls_INCLUDE_DIR})
 
 # Custom target for the library, to make the headers show up in IDEs:
-add_custom_target(eos SOURCES ${HEADERS})
+#add_custom_target(eos SOURCES ${HEADERS}) # name it eos-headers?
 source_group(core REGULAR_EXPRESSION include/eos/core/*)
 source_group(morphablemodel REGULAR_EXPRESSION include/eos/morphablemodel/*)
 source_group(morphablemodel\\io REGULAR_EXPRESSION include/eos/morphablemodel/io/*)
