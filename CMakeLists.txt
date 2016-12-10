@@ -41,8 +41,6 @@ include(CPack)
 
 # Find dependencies:
 find_package(OpenCV REQUIRED core)
-message(STATUS "OpenCV include dir found at ${OpenCV_INCLUDE_DIRS}")
-message(STATUS "OpenCV lib dir found at ${OpenCV_LIB_DIR}")
 
 if(MSVC)
 	# The standard find_package for boost on Win finds the dynamic libs, so for dynamic linking to boost we need to #define:
@@ -58,9 +56,8 @@ endif()
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 find_package(Eigen3 REQUIRED)
-message(STATUS "Eigen3 found: ${EIGEN3_FOUND}")
+message(STATUS "Eigen3 found: ${EIGEN3_FOUND}, version: ${EIGEN3_VERSION}")
 message(STATUS "Eigen3 include dir found at ${EIGEN3_INCLUDE_DIR}")
-message(STATUS "Eigen3 version: ${EIGEN3_VERSION}")
 
 set(CEREAL_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/3rdparty/cereal-1.1.1/include")
 set(glm_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/3rdparty/glm")
