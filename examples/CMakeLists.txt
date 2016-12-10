@@ -40,6 +40,9 @@ endif()
 add_executable(fit-model-simple fit-model-simple.cpp)
 target_link_libraries(fit-model-simple eos ${OpenCV_LIBS} ${Boost_LIBRARIES})
 
+target_compile_options(fit-model-simple PUBLIC "$<$<CXX_COMPILER_ID:GNU>:-pthread>")
+target_compile_options(fit-model-simple PUBLIC "$<$<CXX_COMPILER_ID:Clang>:-pthreads>")
+
 # Model fitting example that fits orthographic camera, shape, blendshapes, and contours:
 add_executable(fit-model fit-model.cpp)
 target_link_libraries(fit-model eos ${OpenCV_LIBS} ${Boost_LIBRARIES})
