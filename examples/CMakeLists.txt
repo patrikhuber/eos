@@ -29,9 +29,6 @@ else(Boost_FOUND)
   message(FATAL_ERROR "Boost not found")
 endif()
 
-if(MSVC)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj")
-endif()
 
 # set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pthreads") # IF GCC OR CLANG!
 # Eigen::LevenbergMarquardt probably needs -pthreads. => So eos needs pthreads! How to add in modern CMake?
