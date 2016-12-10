@@ -101,7 +101,7 @@ set(HEADERS
 add_library(eos INTERFACE)
 target_compile_features(eos INTERFACE ${EOS_CXX_COMPILE_FEATURES})
 # Add header includes:
-include_directories("include")
+target_include_directories(eos INTERFACE "include")
 include_directories(${CEREAL_INCLUDE_DIR})
 include_directories(${Boost_INCLUDE_DIRS})
 include_directories(${OpenCV_INCLUDE_DIRS})
