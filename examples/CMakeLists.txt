@@ -32,12 +32,12 @@ endif()
 # Simple model fitting (orthographic camera & shape to landmarks) example:
 add_executable(fit-model-simple fit-model-simple.cpp)
 target_link_libraries(fit-model-simple eos ${OpenCV_LIBS} ${Boost_LIBRARIES})
-target_link_libraries(fit-model-simple "$<$<CXX_COMPILER_ID:GNU>:-pthread> $<$<CXX_COMPILER_ID:Clang>:-pthreads>")
+target_link_libraries(fit-model-simple "$<$<CXX_COMPILER_ID:GNU>:-pthread>$<$<CXX_COMPILER_ID:Clang>:-pthreads>")
 
 # Model fitting example that fits orthographic camera, shape, blendshapes, and contours:
 add_executable(fit-model fit-model.cpp)
 target_link_libraries(fit-model eos ${OpenCV_LIBS} ${Boost_LIBRARIES})
-target_link_libraries(fit-model "$<$<CXX_COMPILER_ID:GNU>:-pthread> $<$<CXX_COMPILER_ID:Clang>:-pthreads>")
+target_link_libraries(fit-model "$<$<CXX_COMPILER_ID:GNU>:-pthread>$<$<CXX_COMPILER_ID:Clang>:-pthreads>")
 
 
 if(EOS_BUILD_CERES_EXAMPLE)
