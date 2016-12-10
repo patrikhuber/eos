@@ -30,11 +30,7 @@ else(Boost_FOUND)
   message(FATAL_ERROR "Boost not found")
 endif()
 
-if(MSVC) # not sure this is required for the python bindings, just keep it for now
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj")
-endif()
-
 pybind11_add_module(python-bindings generate-python-bindings.cpp pybind11_glm.hpp)
-target_link_libraries(python-bindings PRIVATE ${OpenCV_LIBS} ${Boost_LIBRARIES})
+target_link_libraries(python-bindings PRIVATE eos ${OpenCV_LIBS} ${Boost_LIBRARIES})
 set_target_properties(python-bindings PROPERTIES OUTPUT_NAME eos)
 install(TARGETS python-bindings DESTINATION python)
