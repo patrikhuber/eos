@@ -30,7 +30,7 @@ matlab_add_mex(
     SRC +eos/+fitting/private/fitting.cpp
     OUTPUT_NAME fitting #[OUTPUT_NAME output_name]
     # DOCUMENTATION +eos/+fitting/fit_shape_and_pose.m # doesn't work - wrong path probably. But it renames the file to fitting.m, so not what we want anyway.
-    LINK_TO ${OpenCV_LIBS} ${Boost_LIBRARIES} #[LINK_TO target1 target2 ...]
+    LINK_TO eos ${OpenCV_LIBS} ${Boost_LIBRARIES} #[LINK_TO target1 target2 ...]
     #[...]
 )
 
