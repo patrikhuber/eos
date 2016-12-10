@@ -42,7 +42,7 @@ target_link_libraries(fit-model-simple eos ${OpenCV_LIBS} ${Boost_LIBRARIES})
 
 # Model fitting example that fits orthographic camera, shape, blendshapes, and contours:
 add_executable(fit-model fit-model.cpp)
-target_link_libraries(fit-model ${OpenCV_LIBS} ${Boost_LIBRARIES})
+target_link_libraries(fit-model eos ${OpenCV_LIBS} ${Boost_LIBRARIES})
 
 if(EOS_BUILD_CERES_EXAMPLE)
 	# Find Ceres, for the fit-model-ceres app:
