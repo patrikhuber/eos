@@ -49,8 +49,8 @@ target_link_libraries(fit-model eos ${OpenCV_LIBS} ${Boost_LIBRARIES})
 
 #target_compile_options(fit-model PUBLIC "$<$<CXX_COMPILER_ID:GNU>:-pthread>")
 #target_compile_options(fit-model PUBLIC "$<$<CXX_COMPILER_ID:Clang>:-pthreads>") # => clang says this is unused during compilation!
-target_link_libraries(rcr-train "$<$<CXX_COMPILER_ID:GNU>:-pthread>")
-target_link_libraries(rcr-train "$<$<CXX_COMPILER_ID:Clang>:-pthreads>")
+target_link_libraries(fit-model "$<$<CXX_COMPILER_ID:GNU>:-pthread>")
+target_link_libraries(fit-model "$<$<CXX_COMPILER_ID:Clang>:-pthreads>")
 
 if(EOS_BUILD_CERES_EXAMPLE)
 	# Find Ceres, for the fit-model-ceres app:
