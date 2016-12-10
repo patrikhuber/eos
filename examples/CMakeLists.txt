@@ -33,7 +33,7 @@ if(MSVC)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj")
 endif()
 
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pthreads") # IF GCC OR CLANG!
+# set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pthreads") # IF GCC OR CLANG!
 # Eigen::LevenbergMarquardt probably needs -pthreads. => So eos needs pthreads! How to add in modern CMake?
 # Cleaner way would be to add it to fit-model's target_link_libraries, but that requires a CMake >2.8.10.
 # clang and gcc.
