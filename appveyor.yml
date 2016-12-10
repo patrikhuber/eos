@@ -4,7 +4,7 @@ environment:
 
 version: '{branch}-{build}'
 
-os: Visual Studio 2015
+os: Visual Studio 2013
 
 install:
   # Get all submodules, since AppVeyor doesn't clone with '--recursive':
