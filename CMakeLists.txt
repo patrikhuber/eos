@@ -103,13 +103,13 @@ add_library(eos INTERFACE)
 target_compile_features(eos INTERFACE ${EOS_CXX_COMPILE_FEATURES})
 # Add header includes:
 target_include_directories(eos INTERFACE "include")
-include_directories(${CEREAL_INCLUDE_DIR})
-include_directories(${Boost_INCLUDE_DIRS})
-include_directories(${OpenCV_INCLUDE_DIRS})
-include_directories(${EIGEN3_INCLUDE_DIR})
-include_directories(${glm_INCLUDE_DIR})
-include_directories(${nanoflann_INCLUDE_DIR})
-include_directories(${eigen3_nnls_INCLUDE_DIR})
+target_include_directories(eos INTERFACE ${CEREAL_INCLUDE_DIR})
+target_include_directories(eos INTERFACE ${Boost_INCLUDE_DIRS})
+target_include_directories(eos INTERFACE ${OpenCV_INCLUDE_DIRS})
+target_include_directories(eos INTERFACE ${EIGEN3_INCLUDE_DIR})
+target_include_directories(eos INTERFACE ${glm_INCLUDE_DIR})
+target_include_directories(eos INTERFACE ${nanoflann_INCLUDE_DIR})
+target_include_directories(eos INTERFACE ${eigen3_nnls_INCLUDE_DIR})
 
 # Custom target for the library, to make the headers show up in IDEs:
 #add_custom_target(eos SOURCES ${HEADERS}) # name it eos-headers?
