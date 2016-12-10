@@ -55,13 +55,13 @@ if(EOS_BUILD_CERES_EXAMPLE)
 
 	# Single and multi-image non-linear model fitting with Ceres example:
 	add_executable(fit-model-ceres fit-model-ceres.cpp)
-	target_link_libraries(fit-model-ceres ${CERES_LIBRARIES} ${OpenCV_LIBS} ${Boost_LIBRARIES})
+	target_link_libraries(fit-model-ceres eos ${CERES_LIBRARIES} ${OpenCV_LIBS} ${Boost_LIBRARIES})
 	install(TARGETS fit-model-ceres DESTINATION bin)
 endif()
 
 # Generate random samples from the model:
 add_executable(generate-obj generate-obj.cpp)
-target_link_libraries(generate-obj ${OpenCV_LIBS} ${Boost_LIBRARIES})
+target_link_libraries(generate-obj eos ${OpenCV_LIBS} ${Boost_LIBRARIES})
 
 
 # install target:
