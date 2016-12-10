@@ -33,9 +33,15 @@ if(MSVC)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj")
 endif()
 
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pthreads") # IF GCC OR CLANG!
+# Eigen::LevenbergMarquardt probably needs -pthreads. => So eos needs pthreads! How to add in modern CMake?
+# Cleaner way would be to add it to fit-model's target_link_libraries, but that requires a CMake >2.8.10.
+# clang and gcc.
+# Or if we include Eigen in a modern way, it may include it as a transitive dependency and the problem may go away.
+
 # Simple model fitting (orthographic camera & shape to landmarks) example:
 add_executable(fit-model-simple fit-model-simple.cpp)
-target_link_libraries(fit-model-simple ${OpenCV_LIBS} ${Boost_LIBRARIES})
+target_link_libraries(fit-model-simple eos ${OpenCV_LIBS} ${Boost_LIBRARIES})
 
 # Model fitting example that fits orthographic camera, shape, blendshapes, and contours:
 add_executable(fit-model fit-model.cpp)
