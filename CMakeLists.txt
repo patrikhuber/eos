@@ -67,36 +67,36 @@ set(eigen3_nnls_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/3rdparty/eigen3-nnls/src")
 
 # Header files of the eos library:
 set(HEADERS
-	include/eos/core/Landmark.hpp
-	include/eos/core/LandmarkMapper.hpp
-	include/eos/morphablemodel/PcaModel.hpp
-	include/eos/morphablemodel/MorphableModel.hpp
-	include/eos/morphablemodel/Blendshape.hpp
-	include/eos/morphablemodel/coefficients.hpp
-	include/eos/morphablemodel/EdgeTopology.hpp
-	include/eos/morphablemodel/io/cvssp.hpp
-	include/eos/morphablemodel/io/mat_cerealisation.hpp
-	include/eos/fitting/affine_camera_estimation.hpp
-	include/eos/fitting/orthographic_camera_estimation_linear.hpp
-	include/eos/fitting/nonlinear_camera_estimation.hpp
-	include/eos/fitting/detail/nonlinear_camera_estimation_detail.hpp
-	include/eos/fitting/detail/optional_cerealisation.hpp
-	include/eos/fitting/detail/glm_cerealisation.hpp
-	include/eos/fitting/linear_shape_fitting.hpp
-	include/eos/fitting/contour_correspondence.hpp
-	include/eos/fitting/blendshape_fitting.hpp
-	include/eos/fitting/closest_edge_fitting.hpp
-	include/eos/fitting/fitting.hpp
-	include/eos/fitting/ceres_nonlinear.hpp
-	include/eos/fitting/RenderingParameters.hpp
-	include/eos/render/Mesh.hpp
-	include/eos/render/utils.hpp
-	include/eos/render/render.hpp
-	include/eos/render/render_affine.hpp
-	include/eos/render/detail/render_detail.hpp
-	include/eos/render/detail/render_affine_detail.hpp
-	include/eos/render/texture_extraction.hpp
-	include/eos/render/detail/texture_extraction_detail.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/core/Landmark.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/core/LandmarkMapper.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/morphablemodel/PcaModel.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/morphablemodel/MorphableModel.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/morphablemodel/Blendshape.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/morphablemodel/coefficients.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/morphablemodel/EdgeTopology.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/morphablemodel/io/cvssp.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/morphablemodel/io/mat_cerealisation.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/affine_camera_estimation.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/orthographic_camera_estimation_linear.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/nonlinear_camera_estimation.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/detail/nonlinear_camera_estimation_detail.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/detail/optional_cerealisation.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/detail/glm_cerealisation.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/linear_shape_fitting.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/contour_correspondence.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/blendshape_fitting.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/closest_edge_fitting.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/fitting.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/ceres_nonlinear.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/RenderingParameters.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/Mesh.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/utils.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/render.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/render_affine.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/detail/render_detail.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/detail/render_affine_detail.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/texture_extraction.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/detail/texture_extraction_detail.hpp
 )
 
 add_library(eos INTERFACE)
