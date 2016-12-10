@@ -59,12 +59,13 @@ find_package(Eigen3 REQUIRED)
 message(STATUS "Eigen3 found: ${EIGEN3_FOUND}, version: ${EIGEN3_VERSION}")
 message(STATUS "Eigen3 include dir found at ${EIGEN3_INCLUDE_DIR}")
 
+# Set the include directories of the 3rd-party submodules that we use:
 set(CEREAL_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/3rdparty/cereal-1.1.1/include")
 set(glm_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/3rdparty/glm")
 set(nanoflann_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/3rdparty/nanoflann/include")
 set(eigen3_nnls_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/3rdparty/eigen3-nnls/src")
 
-# Header files:
+# Header files of the eos library:
 set(HEADERS
 	include/eos/core/Landmark.hpp
 	include/eos/core/LandmarkMapper.hpp
