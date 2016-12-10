@@ -47,6 +47,9 @@ target_compile_options(fit-model-simple PUBLIC "$<$<CXX_COMPILER_ID:Clang>:-pthr
 add_executable(fit-model fit-model.cpp)
 target_link_libraries(fit-model eos ${OpenCV_LIBS} ${Boost_LIBRARIES})
 
+target_compile_options(fit-model PUBLIC "$<$<CXX_COMPILER_ID:GNU>:-pthread>")
+target_compile_options(fit-model PUBLIC "$<$<CXX_COMPILER_ID:Clang>:-pthreads>")
+
 if(EOS_BUILD_CERES_EXAMPLE)
 	# Find Ceres, for the fit-model-ceres app:
 	find_package(Ceres REQUIRED)
