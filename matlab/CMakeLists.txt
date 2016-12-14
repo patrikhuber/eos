@@ -16,7 +16,7 @@ find_package(Boost 1.50.0 COMPONENTS system filesystem REQUIRED) # Why do we nee
 
 # See: https://cmake.org/cmake/help/v3.7/module/FindMatlab.html?highlight=findmatlab#command:matlab_add_mex
 matlab_add_mex(
-    NAME eos_fitting
+    NAME eos-matlab-fitting
     #[EXECUTABLE | MODULE | SHARED] # SHARED is the default.
     SRC +eos/+fitting/private/fitting.cpp
     OUTPUT_NAME fitting #[OUTPUT_NAME output_name]
@@ -25,9 +25,9 @@ matlab_add_mex(
     #[...]
 )
 
-target_include_directories(eos_fitting PRIVATE ${CMAKE_SOURCE_DIR}/3rdparty/mexplus/include ${CMAKE_SOURCE_DIR}/matlab/include)
+target_include_directories(eos-matlab-fitting PRIVATE ${CMAKE_SOURCE_DIR}/3rdparty/mexplus/include ${CMAKE_SOURCE_DIR}/matlab/include)
 
 install(FILES ${CMAKE_SOURCE_DIR}/matlab/demo.m DESTINATION matlab)
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/matlab/include DESTINATION matlab)
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/matlab/+eos DESTINATION matlab PATTERN "*.cpp" EXCLUDE)
-install(TARGETS eos_fitting DESTINATION matlab/+eos/+fitting/private)
+install(TARGETS eos-matlab-fitting DESTINATION matlab/+eos/+fitting/private)
