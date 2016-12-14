@@ -17,11 +17,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "eos/core/LandmarkMapper.hpp"
 #include "eos/morphablemodel/PcaModel.hpp"
 #include "eos/morphablemodel/MorphableModel.hpp"
 #include "eos/morphablemodel/Blendshape.hpp"
+#include "eos/morphablemodel/EdgeTopology.hpp"
+#include "eos/fitting/contour_correspondence.hpp"
+#include "eos/fitting/fitting.hpp"
 #include "eos/fitting/orthographic_camera_estimation_linear.hpp"
 #include "eos/fitting/RenderingParameters.hpp"
+#include "eos/render/Mesh.hpp"
 
 #include "opencv2/core/core.hpp"
 
@@ -33,6 +38,7 @@
 #include <stdexcept>
 #include <string>
 #include <algorithm>
+#include <cassert>
 
 namespace py = pybind11;
 using namespace eos;
@@ -194,6 +200,19 @@ PYBIND11_PLUGIN(eos) {
 	;
 
 	/**
+	 * Bindings for the eos::core namespace:
+	 *  - LandmarkMapper
+	 */
+	py::module core_module = eos_module.def_submodule("core", "Essential functions and classes to work with 3D face models and landmarks.");
+	py::class_<core::LandmarkMapper>(core_module, "LandmarkMapper", "Represents a mapping from one kind of landmarks to a different format(e.g.model vertices).")
+		.def(py::init<>(), "Constructs a new landmark mapper that performs an identity mapping, that is, its output is the same as the input.")
+		.def("__init__", [](core::LandmarkMapper& instance, std::string filename) { // wrap the fs::path c'tor with std::string
+				new (&instance) core::LandmarkMapper(filename);
+			}, "Constructs a new landmark mapper from a file containing mappings from one set of landmark identifiers to another.")
+		// We can't expose the convert member function yet - need std::optional (or some trick with self/this and a lambda)
+		;
+
+	/**
 	 * Bindings for the eos::morphablemodel namespace:
 	 *  - PcaModel
 	 *  - MorphableModel
@@ -229,10 +248,21 @@ PYBIND11_PLUGIN(eos) {
 	morphablemodel_module.def("load_blendshapes", &morphablemodel::load_blendshapes, "Load a file with blendshapes from a cereal::BinaryInputArchive (.bin) from the harddisk.");
 
 	/**
+	 *  - EdgeTopology
+	 *  - load_edge_topology()
+	 */
+	py::class_<morphablemodel::EdgeTopology>(morphablemodel_module, "EdgeTopology", "A struct containing a 3D shape model's edge topology.");
+
+	morphablemodel_module.def("load_edge_topology", &morphablemodel::load_edge_topology, "Load a 3DMM edge topology file from a json file.");
+
+	/**
 	 * Bindings for the eos::fitting namespace:
 	 *  - ScaledOrthoProjectionParameters
 	 *  - RenderingParameters
 	 *  - estimate_orthographic_projection_linear()
+	 *  - ContourLandmarks
+	 *  - ModelContour
+	 *  - fit_shape_and_pose()
 	 */
 	py::module fitting_module = eos_module.def_submodule("fitting", "Pose and shape fitting of a 3D Morphable Model.");
 
@@ -260,6 +290,45 @@ PYBIND11_PLUGIN(eos) {
 			const boost::optional<int> viewport_height_opt = viewport_height == 0 ? boost::none : boost::optional<int>(viewport_height);
 			return fitting::estimate_orthographic_projection_linear(image_points_cv, model_points_cv, is_viewport_upsidedown, viewport_height_opt);
 		}, "This algorithm estimates the parameters of a scaled orthographic projection, given a set of corresponding 2D-3D points.", py::arg("image_points"), py::arg("model_points"), py::arg("is_viewport_upsidedown"), py::arg("viewport_height") = 0)
+		;
+
+	py::class_<fitting::ContourLandmarks>(fitting_module, "ContourLandmarks", "Defines which 2D landmarks comprise the right and left face contour.")
+		.def_static("load", &fitting::ContourLandmarks::load, "Helper method to load contour landmarks from a text file with landmark mappings, like ibug2did.txt.")
+		;
+
+	py::class_<fitting::ModelContour>(fitting_module, "ModelContour", "Definition of the vertex indices that define the right and left model contour.")
+		.def_static("load", &fitting::ModelContour::load, "Helper method to load a ModelContour from a json file from the hard drive.")
+		;
+	
+	fitting_module.def("fit_shape_and_pose", [](const morphablemodel::MorphableModel& morphable_model, const std::vector<morphablemodel::Blendshape>& blendshapes, const std::vector<glm::vec2>& landmarks, const std::vector<std::string>& landmark_ids, const core::LandmarkMapper& landmark_mapper, int image_width, int image_height, const morphablemodel::EdgeTopology& edge_topology, const fitting::ContourLandmarks& contour_landmarks, const fitting::ModelContour& model_contour, int num_iterations = 5, int num_shape_coefficients_to_fit = -1, float lambda = 3.0f) {
+			assert(landmarks.size() == landmark_ids.size());
+			std::vector<float> pca_coeffs;
+			std::vector<float> blendshape_coeffs;
+			std::vector<cv::Vec2f> fitted_image_points;
+			// We can change this to std::optional as soon as we switch to VS2017 and pybind supports std::optional
+			const boost::optional<int> num_shape_coefficients_opt = num_shape_coefficients_to_fit == -1 ? boost::none : boost::optional<int>(num_shape_coefficients_to_fit);
+			core::LandmarkCollection<cv::Vec2f> landmark_collection;
+			for (int i = 0; i < landmarks.size(); ++i)
+			{
+				landmark_collection.push_back(core::Landmark<cv::Vec2f>{ landmark_ids[i], cv::Vec2f(landmarks[i].x, landmarks[i].y) });
+			}
+			auto result = fitting::fit_shape_and_pose(morphable_model, blendshapes, landmark_collection, landmark_mapper, image_width, image_height, edge_topology, contour_landmarks, model_contour, num_iterations, num_shape_coefficients_opt, lambda, boost::none, pca_coeffs, blendshape_coeffs, fitted_image_points);
+			return std::make_tuple(result.first, result.second, pca_coeffs, blendshape_coeffs);
+		}, "Fit the pose (camera), shape model, and expression blendshapes to landmarks, in an iterative way.")
+		;
+
+	/**
+	 * Bindings for the eos::render namespace:
+	 *  - Mesh
+	 */
+	py::module render_module = eos_module.def_submodule("render", "3D mesh and texture extraction functionality.");
+
+	py::class_<render::Mesh>(render_module, "Mesh", "This class represents a 3D mesh consisting of vertices, vertex colour information and texture coordinates.")
+		.def_readwrite("vertices", &render::Mesh::vertices, "Vertices")
+		.def_readwrite("tvi", &render::Mesh::tvi, "Triangle vertex indices")
+		.def_readwrite("colors", &render::Mesh::colors, "Colour data")
+		.def_readwrite("tci", &render::Mesh::tci, "Triangle colour indices (usually the same as tvi)")
+		.def_readwrite("texcoords", &render::Mesh::texcoords, "Texture coordinates")
 		;
 
     return eos_module.ptr();
