@@ -65,8 +65,7 @@ public:
 	 * that performs an identity mapping is constructed.
 	 *
 	 * @param[in] filename A file with landmark mappings.
-	 * @throws runtime_error if there is an error loading
-	 *         the mappings from the file.
+	 * @throws runtime_error if there is an error loading the mappings from the file.
 	 */
 	LandmarkMapper(boost::filesystem::path filename)
 	{
@@ -125,7 +124,7 @@ public:
 	 *
 	 * @return The number of landmark mappings.
 	 */
-	auto size() const
+	auto num_mappings() const
 	{
 		return landmark_mappings.size();
 	};
