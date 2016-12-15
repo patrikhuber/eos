@@ -397,7 +397,7 @@ inline std::pair<render::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
  * @param[in] lambda Regularisation parameter of the PCA shape fitting.
  * @return The fitted model shape instance and the final pose.
  */
-inline std::pair<render::Mesh, fitting::RenderingParameters> fit_shape_and_pose(const morphablemodel::MorphableModel& morphable_model, const std::vector<morphablemodel::Blendshape>& blendshapes, const core::LandmarkCollection<cv::Vec2f>& landmarks, const core::LandmarkMapper& landmark_mapper, int image_width, int image_height, const morphablemodel::EdgeTopology& edge_topology, const fitting::ContourLandmarks& contour_landmarks, const fitting::ModelContour& model_contour, int num_iterations = 5, boost::optional<int> num_shape_coefficients_to_fit = boost::none, float lambda = 3.0f)
+inline std::pair<render::Mesh, fitting::RenderingParameters> fit_shape_and_pose(const morphablemodel::MorphableModel& morphable_model, const std::vector<morphablemodel::Blendshape>& blendshapes, const core::LandmarkCollection<cv::Vec2f>& landmarks, const core::LandmarkMapper& landmark_mapper, int image_width, int image_height, const morphablemodel::EdgeTopology& edge_topology, const fitting::ContourLandmarks& contour_landmarks, const fitting::ModelContour& model_contour, int num_iterations = 5, boost::optional<int> num_shape_coefficients_to_fit = boost::none, float lambda = 30.0f)
 {
 	std::vector<float> pca_coeffs;
 	std::vector<float> blendshape_coeffs;
