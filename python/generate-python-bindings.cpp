@@ -256,6 +256,21 @@ PYBIND11_PLUGIN(eos) {
 	morphablemodel_module.def("load_edge_topology", &morphablemodel::load_edge_topology, "Load a 3DMM edge topology file from a json file.");
 
 	/**
+	 * Bindings for the eos::render namespace:
+	 * (Note: Defining Mesh before using it below in fitting::fit_shape_and_pose)
+	 *  - Mesh
+	 */
+	py::module render_module = eos_module.def_submodule("render", "3D mesh and texture extraction functionality.");
+
+	py::class_<render::Mesh>(render_module, "Mesh", "This class represents a 3D mesh consisting of vertices, vertex colour information and texture coordinates.")
+		.def_readwrite("vertices", &render::Mesh::vertices, "Vertices")
+		.def_readwrite("tvi", &render::Mesh::tvi, "Triangle vertex indices")
+		.def_readwrite("colors", &render::Mesh::colors, "Colour data")
+		.def_readwrite("tci", &render::Mesh::tci, "Triangle colour indices (usually the same as tvi)")
+		.def_readwrite("texcoords", &render::Mesh::texcoords, "Texture coordinates")
+		;
+
+	/**
 	 * Bindings for the eos::fitting namespace:
 	 *  - ScaledOrthoProjectionParameters
 	 *  - RenderingParameters
@@ -315,20 +330,6 @@ PYBIND11_PLUGIN(eos) {
 			auto result = fitting::fit_shape_and_pose(morphable_model, blendshapes, landmark_collection, landmark_mapper, image_width, image_height, edge_topology, contour_landmarks, model_contour, num_iterations, num_shape_coefficients_opt, lambda, boost::none, pca_coeffs, blendshape_coeffs, fitted_image_points);
 			return std::make_tuple(result.first, result.second, pca_coeffs, blendshape_coeffs);
 		}, "Fit the pose (camera), shape model, and expression blendshapes to landmarks, in an iterative way.")
-		;
-
-	/**
-	 * Bindings for the eos::render namespace:
-	 *  - Mesh
-	 */
-	py::module render_module = eos_module.def_submodule("render", "3D mesh and texture extraction functionality.");
-
-	py::class_<render::Mesh>(render_module, "Mesh", "This class represents a 3D mesh consisting of vertices, vertex colour information and texture coordinates.")
-		.def_readwrite("vertices", &render::Mesh::vertices, "Vertices")
-		.def_readwrite("tvi", &render::Mesh::tvi, "Triangle vertex indices")
-		.def_readwrite("colors", &render::Mesh::colors, "Colour data")
-		.def_readwrite("tci", &render::Mesh::tci, "Triangle colour indices (usually the same as tvi)")
-		.def_readwrite("texcoords", &render::Mesh::texcoords, "Texture coordinates")
 		;
 
     return eos_module.ptr();
