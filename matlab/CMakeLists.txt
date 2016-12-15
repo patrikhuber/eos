@@ -1,5 +1,5 @@
-project(matlab-bindings)
 cmake_minimum_required(VERSION 3.7.0)
+project(matlab-bindings)
 
 # If Matlab_ROOT_DIR is set, the Matlab at that location is used.
 find_package(Matlab COMPONENTS MX_LIBRARY REQUIRED)
