@@ -44,7 +44,7 @@ struct type_caster<glm::tvec2<T, P>>
 	bool load(handle src, bool)
 	{
 		array_t<Scalar> buf(src, true);
-		if (!buf.check())
+		if (!buf)
 			return false;
 
 		if (buf.ndim() == 1) // a 1-dimensional vector
@@ -88,7 +88,7 @@ struct type_caster<glm::tvec3<T, P>>
 	bool load(handle src, bool)
 	{
 		array_t<Scalar> buf(src, true);
-		if (!buf.check())
+		if (!buf)
 			return false;
 
 		if (buf.ndim() == 1) // a 1-dimensional vector
@@ -132,7 +132,7 @@ struct type_caster<glm::tvec4<T, P>>
 	bool load(handle src, bool)
 	{
 		array_t<Scalar> buf(src, true);
-		if (!buf.check())
+		if (!buf)
 			return false;
 
 		if (buf.ndim() == 1) // a 1-dimensional vector
@@ -177,7 +177,7 @@ struct type_caster<glm::tmat3x3<T, P>>
 	bool load(handle src, bool)
 	{
 		array_t<Scalar> buf(src, true);
-		if (!buf.check())
+		if (!buf)
 			return false;
 
 		if (buf.ndim() == 2) // a 2-dimensional matrix
@@ -225,7 +225,7 @@ struct type_caster<glm::tmat4x3<T, P>>
 	bool load(handle src, bool)
 	{
 		array_t<Scalar> buf(src, true);
-		if (!buf.check())
+		if (!buf)
 			return false;
 
 		if (buf.ndim() == 2) // a 2-dimensional matrix
@@ -273,7 +273,7 @@ struct type_caster<glm::tmat4x4<T, P>>
 	bool load(handle src, bool)
 	{
 		array_t<Scalar> buf(src, true);
-		if (!buf.check())
+		if (!buf)
 			return false;
 
 		if (buf.ndim() == 2) // a 2-dimensional matrix
