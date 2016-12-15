@@ -99,6 +99,8 @@ sample = np.array(s) # the conversion from 'Mat' to a numpy array is necessary a
 help(eos) # check the documentation
 ```
 
+See [`demo.py`](https://github.com/patrikhuber/eos/blob/master/python/demo.py) for an example on how to run the fitting.
+
 ## Matlab bindings
 
 _Experimental_: eos includes Matlab bindings for the `fit_shape_and_pose(...)` function, which means the fitting can be run from Matlab. Set `-DEOS_GENERATE_MATLAB_BINDINGS=on` when running `cmake` to build the required mex-file and run the `INSTALL` target to install everything. (Set `Matlab_ROOT_DIR` to point to your Matlab directory if it's not found automatically). More bindings (e.g. the MorphableModel itself) might be added in the future.
