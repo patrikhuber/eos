@@ -30,9 +30,9 @@
 
 # Configuration options
 # ==============================
-set(BUILD_EXAMPLES ON CACHE BOOL "Build the example applications." FORCE)
-set(BUILD_CERES_EXAMPLE OFF CACHE BOOL "Build the fit-model-ceres example (requires Ceres)." FORCE)
-set(BUILD_UTILS OFF CACHE BOOL "Build utility applications." FORCE)
-set(BUILD_DOCUMENTATION OFF CACHE BOOL "Build the library documentation." FORCE)
-set(GENERATE_PYTHON_BINDINGS OFF CACHE BOOL "Build python bindings. Requires python to be installed." FORCE)
-set(GENERATE_MATLAB_BINDINGS OFF CACHE BOOL "Build Matlab bindings. Requires Matlab with the compiler installed or the Matlab Compiler Runtime." FORCE)
+set(EOS_BUILD_EXAMPLES ON CACHE BOOL "Build the example applications." FORCE)
+set(EOS_BUILD_CERES_EXAMPLE OFF CACHE BOOL "Build the fit-model-ceres example (requires Ceres)." FORCE)
+set(EOS_BUILD_UTILS OFF CACHE BOOL "Build utility applications." FORCE)
+set(EOS_BUILD_DOCUMENTATION OFF CACHE BOOL "Build the library documentation." FORCE)
+set(EOS_GENERATE_PYTHON_BINDINGS OFF CACHE BOOL "Build python bindings. Requires python to be installed." FORCE)
+set(EOS_GENERATE_MATLAB_BINDINGS OFF CACHE BOOL "Build Matlab bindings. Requires Matlab with the compiler installed or the Matlab Compiler Runtime." FORCE)

@@ -4,22 +4,25 @@ dist: trusty
 language: cpp
 
 env:
+  - C_COMPILER=gcc-4.9 CXX_COMPILER=g++-4.9
   - C_COMPILER=gcc-5 CXX_COMPILER=g++-5
+  - C_COMPILER=clang-3.5 CXX_COMPILER=clang++-3.5
   - C_COMPILER=clang-3.8 CXX_COMPILER=clang++-3.8
 
 before_install:
   - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
   - wget -O - http://llvm.org/apt/llvm-snapshot.gpg.key | sudo apt-key add -
+  - echo "deb http://llvm.org/apt/trusty/ llvm-toolchain-trusty-3.5 main" | sudo tee -a /etc/apt/sources.list
   - echo "deb http://llvm.org/apt/trusty/ llvm-toolchain-trusty-3.8 main" | sudo tee -a /etc/apt/sources.list
   - sudo apt-get update -q
-  - sudo apt-get install gcc-5 g++-5 -y
-  - sudo apt-get install clang-3.8 -y
+  - sudo apt-get install g++-4.9 gcc-5 g++-5 -y
+  - sudo apt-get install clang-3.5 clang-3.8 -y
   - sudo apt-get install libboost-all-dev libeigen3-dev libopencv-dev -y
 
 before_script:
   - mkdir build
   - cd build
-  - cmake -DCMAKE_C_COMPILER=${C_COMPILER} -DCMAKE_CXX_COMPILER=${CXX_COMPILER} -DBUILD_EXAMPLES=on -DBUILD_UTILS=on -DGENERATE_PYTHON_BINDINGS=on -DPYTHON_EXECUTABLE=`which python3.5` ..
+  - cmake -DCMAKE_C_COMPILER=${C_COMPILER} -DCMAKE_CXX_COMPILER=${CXX_COMPILER} -DEOS_BUILD_EXAMPLES=on -DEOS_BUILD_UTILS=on -DEOS_GENERATE_PYTHON_BINDINGS=on -DPYTHON_EXECUTABLE=`which python3.5` ..
 
 script:
   - make VERBOSE=1

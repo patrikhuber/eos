@@ -1,5 +1,5 @@
-project(eos)
 cmake_minimum_required(VERSION 2.8.12)
+project(eos)
 set(eos_VERSION_MAJOR 0)
 set(eos_VERSION_MINOR 10)
 set(eos_VERSION_PATCH 1)
@@ -7,64 +7,29 @@ set(eos_VERSION ${eos_VERSION_MAJOR}.${eos_VERSION_MINOR}.${eos_VERSION_PATCH})
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-# Check if a supported compiler is used and add c++11/14 flag
-include(CheckCXXCompilerFlag)
-if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-	if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.8)
-		message(FATAL_ERROR "Need at least gcc 4.8 to compile.")
-	elseif(CMAKE_CXX_COMPILER_VERSION VERSION_EQUAL 4.8 OR (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 4.8 AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.9))
-		# This compiles with a warning at the moment, but support for gcc 4.8.x will be removed in the very near future.
-		check_cxx_compiler_flag(-std=c++11 HAS_CXX11_FLAG)
-		if(HAS_CXX11_FLAG)
-			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-		endif()
-		message(WARNING "Support for gcc 4.8 will be removed in the very near future. Please upgrade your compiler.")
-	else() # gcc version is >4.8
-		check_cxx_compiler_flag(-std=c++14 HAS_CXX14_FLAG)
-		if(HAS_CXX14_FLAG)
-			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
-		endif()
-	endif()
-	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pthread")
-elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC") # the quotes are needed here, maybe because "MSVC" seems to be a keyword
-	if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19)
-		message(FATAL_ERROR "Visual Studio 2015 or newer is required.")
-	endif()
-elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-	# >=3.5 works, not sure about older versions. Also, libstdc++ from gcc >=4.9 may be needed.
-	if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 3.5)
-		message(WARNING "Clang below version 3.5 may or may not work. Please upgrade your compiler.")
-	endif()
-	check_cxx_compiler_flag(-std=c++14 HAS_CXX14_FLAG)
-	if(HAS_CXX14_FLAG)
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
-	endif()
-	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pthreads")
-	# Eigen::LevenbergMarquardt probably needs -pthreads.
-	# Cleaner way would be to add it to fit-model's target_link_libraries, but that requires a CMake >2.8.10.
-else() # no GNU, no MSVC, no Clang
-	message(WARNING "You are using an unsupported compiler. Compilation has only been tested with MSVC, GCC and Clang.")
-	check_cxx_compiler_flag(-std=c++14 HAS_CXX14_FLAG)
-	if(HAS_CXX14_FLAG)
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
-	endif()
-endif()
+# This sets the C++ standard to c++14 and required for all the following targets that we define.
+# It has no effect on MSVC though - we thus define more specific requirements for each executable target respectively.
+# Also it will not apply to the eos library target, since it is an INTERFACE_LIBRARY, and these properties do not apply to interface libraries.
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF) # This makes CMake use -std=c++11 instead of -std=gnu++11
+# This list is likely not complete, but it should be sufficient to error out on old compilers that we cannot build on:
+set(EOS_CXX_COMPILE_FEATURES cxx_defaulted_functions cxx_generalized_initializers cxx_generic_lambdas cxx_lambdas cxx_nonstatic_member_init cxx_range_for cxx_right_angle_brackets cxx_strong_enums)
 
 # All the options for building the library. Can be changed on the command-line or in initial_cache.cmake.
 message(STATUS "Options:")
-option(BUILD_EXAMPLES "Build the example applications." ON)
-message(STATUS "BUILD_EXAMPLES: ${BUILD_EXAMPLES}")
-option(BUILD_CERES_EXAMPLE "Build the fit-model-ceres example (requires Ceres)." OFF)
-message(STATUS "BUILD_CERES_EXAMPLE: ${BUILD_CERES_EXAMPLE}")
-option(BUILD_UTILS "Build utility applications." OFF)
-message(STATUS "BUILD_UTILS: ${BUILD_UTILS}")
-option(BUILD_DOCUMENTATION "Build the library documentation." OFF)
-message(STATUS "BUILD_DOCUMENTATION: ${BUILD_DOCUMENTATION}")
-option(GENERATE_PYTHON_BINDINGS "Build python bindings. Requires python to be installed." OFF)
-message(STATUS "GENERATE_PYTHON_BINDINGS: ${GENERATE_PYTHON_BINDINGS}")
-option(GENERATE_MATLAB_BINDINGS "Build Matlab bindings. Requires Matlab with the compiler installed or the Matlab Compiler Runtime." OFF)
-message(STATUS "GENERATE_MATLAB_BINDINGS: ${GENERATE_MATLAB_BINDINGS}")
-
+option(EOS_BUILD_EXAMPLES "Build the example applications." ON)
+message(STATUS "EOS_BUILD_EXAMPLES: ${EOS_BUILD_EXAMPLES}")
+option(EOS_BUILD_CERES_EXAMPLE "Build the fit-model-ceres example (requires Ceres)." OFF)
+message(STATUS "EOS_BUILD_CERES_EXAMPLE: ${EOS_BUILD_CERES_EXAMPLE}")
+option(EOS_BUILD_UTILS "Build utility applications." OFF)
+message(STATUS "EOS_BUILD_UTILS: ${EOS_BUILD_UTILS}")
+option(EOS_BUILD_DOCUMENTATION "Build the library documentation." OFF)
+message(STATUS "EOS_BUILD_DOCUMENTATION: ${EOS_BUILD_DOCUMENTATION}")
+option(EOS_GENERATE_PYTHON_BINDINGS "Build python bindings. Requires python to be installed." OFF)
+message(STATUS "EOS_GENERATE_PYTHON_BINDINGS: ${EOS_GENERATE_PYTHON_BINDINGS}")
+option(EOS_GENERATE_MATLAB_BINDINGS "Build Matlab bindings. Requires Matlab with the compiler installed or the Matlab Compiler Runtime." OFF)
+message(STATUS "EOS_GENERATE_MATLAB_BINDINGS: ${EOS_GENERATE_MATLAB_BINDINGS}")
 
 # Build a CPack driven installer package:
 include(InstallRequiredSystemLibraries) # This module will include any runtime libraries that are needed by the project for the current platform
@@ -75,9 +40,7 @@ set(CPACK_PACKAGE_VERSION_PATCH "${eos_VERSION_PATCH}")
 include(CPack)
 
 # Find dependencies:
-find_package(OpenCV 2.4.3 REQUIRED core)
-message(STATUS "OpenCV include dir found at ${OpenCV_INCLUDE_DIRS}")
-message(STATUS "OpenCV lib dir found at ${OpenCV_LIB_DIR}")
+find_package(OpenCV REQUIRED core)
 
 if(MSVC)
 	# The standard find_package for boost on Win finds the dynamic libs, so for dynamic linking to boost we need to #define:
@@ -93,68 +56,71 @@ endif()
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 find_package(Eigen3 REQUIRED)
-message(STATUS "Eigen3 found: ${EIGEN3_FOUND}")
+message(STATUS "Eigen3 found: ${EIGEN3_FOUND}, version: ${EIGEN3_VERSION}")
 message(STATUS "Eigen3 include dir found at ${EIGEN3_INCLUDE_DIR}")
-message(STATUS "Eigen3 version: ${EIGEN3_VERSION}")
 
+# Set the include directories of the 3rd-party submodules that we use:
 set(CEREAL_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/3rdparty/cereal-1.1.1/include")
 set(glm_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/3rdparty/glm")
 set(nanoflann_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/3rdparty/nanoflann/include")
 set(eigen3_nnls_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/3rdparty/eigen3-nnls/src")
 
-# Header files:
+# Header files of the eos library:
 set(HEADERS
-	include/eos/core/Landmark.hpp
-	include/eos/core/LandmarkMapper.hpp
-	include/eos/morphablemodel/PcaModel.hpp
-	include/eos/morphablemodel/MorphableModel.hpp
-	include/eos/morphablemodel/Blendshape.hpp
-	include/eos/morphablemodel/coefficients.hpp
-	include/eos/morphablemodel/EdgeTopology.hpp
-	include/eos/morphablemodel/io/cvssp.hpp
-	include/eos/morphablemodel/io/mat_cerealisation.hpp
-	include/eos/fitting/affine_camera_estimation.hpp
-	include/eos/fitting/orthographic_camera_estimation_linear.hpp
-	include/eos/fitting/nonlinear_camera_estimation.hpp
-	include/eos/fitting/detail/nonlinear_camera_estimation_detail.hpp
-	include/eos/fitting/detail/optional_cerealisation.hpp
-	include/eos/fitting/detail/glm_cerealisation.hpp
-	include/eos/fitting/linear_shape_fitting.hpp
-	include/eos/fitting/contour_correspondence.hpp
-	include/eos/fitting/blendshape_fitting.hpp
-	include/eos/fitting/closest_edge_fitting.hpp
-	include/eos/fitting/fitting.hpp
-	include/eos/fitting/ceres_nonlinear.hpp
-	include/eos/fitting/RenderingParameters.hpp
-	include/eos/render/Mesh.hpp
-	include/eos/render/utils.hpp
-	include/eos/render/render.hpp
-	include/eos/render/render_affine.hpp
-	include/eos/render/detail/render_detail.hpp
-	include/eos/render/detail/render_affine_detail.hpp
-	include/eos/render/texture_extraction.hpp
-	include/eos/render/detail/texture_extraction_detail.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/core/Landmark.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/core/LandmarkMapper.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/morphablemodel/PcaModel.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/morphablemodel/MorphableModel.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/morphablemodel/Blendshape.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/morphablemodel/coefficients.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/morphablemodel/EdgeTopology.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/morphablemodel/io/cvssp.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/morphablemodel/io/mat_cerealisation.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/affine_camera_estimation.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/orthographic_camera_estimation_linear.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/nonlinear_camera_estimation.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/detail/nonlinear_camera_estimation_detail.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/detail/optional_cerealisation.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/detail/glm_cerealisation.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/linear_shape_fitting.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/contour_correspondence.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/blendshape_fitting.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/closest_edge_fitting.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/fitting.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/ceres_nonlinear.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/RenderingParameters.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/Mesh.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/utils.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/render.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/render_affine.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/detail/render_detail.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/detail/render_affine_detail.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/texture_extraction.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/detail/texture_extraction_detail.hpp
 )
 
+add_library(eos INTERFACE)
+target_compile_features(eos INTERFACE ${EOS_CXX_COMPILE_FEATURES})
 # Add header includes:
-include_directories("include")
-include_directories(${CEREAL_INCLUDE_DIR})
-include_directories(${Boost_INCLUDE_DIRS})
-include_directories(${OpenCV_INCLUDE_DIRS})
-include_directories(${EIGEN3_INCLUDE_DIR})
-include_directories(${glm_INCLUDE_DIR})
-include_directories(${nanoflann_INCLUDE_DIR})
-include_directories(${eigen3_nnls_INCLUDE_DIR})
+target_include_directories(eos INTERFACE "include")
+target_include_directories(eos INTERFACE ${CEREAL_INCLUDE_DIR})
+target_include_directories(eos INTERFACE ${Boost_INCLUDE_DIRS})
+target_include_directories(eos INTERFACE ${OpenCV_INCLUDE_DIRS})
+target_include_directories(eos INTERFACE ${EIGEN3_INCLUDE_DIR})
+target_include_directories(eos INTERFACE ${glm_INCLUDE_DIR})
+target_include_directories(eos INTERFACE ${nanoflann_INCLUDE_DIR})
+target_include_directories(eos INTERFACE ${eigen3_nnls_INCLUDE_DIR})
 
 # Custom target for the library, to make the headers show up in IDEs:
-add_custom_target(eos SOURCES ${HEADERS})
-source_group(core include/eos/core/*)
-source_group(morphablemodel include/eos/morphablemodel/*)
-source_group(morphablemodel\\io include/eos/morphablemodel/io/*)
-source_group(fitting include/eos/fitting/*)
-source_group(fitting\\detail include/eos/fitting/detail/*)
-source_group(render include/eos/render/*)
-source_group(render\\detail include/eos/render/detail/*)
+#add_custom_target(eos SOURCES ${HEADERS}) # name it eos-headers?
+source_group(core REGULAR_EXPRESSION include/eos/core/*)
+source_group(morphablemodel REGULAR_EXPRESSION include/eos/morphablemodel/*)
+source_group(morphablemodel\\io REGULAR_EXPRESSION include/eos/morphablemodel/io/*)
+source_group(fitting REGULAR_EXPRESSION include/eos/fitting/*)
+source_group(fitting\\detail REGULAR_EXPRESSION include/eos/fitting/detail/*)
+source_group(render REGULAR_EXPRESSION include/eos/render/*)
+source_group(render\\detail REGULAR_EXPRESSION include/eos/render/detail/*)
+source_group(video REGULAR_EXPRESSION include/eos/video/*)
 
 # The eos install target:
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/ DESTINATION include) # our library headers
@@ -168,19 +134,19 @@ install(FILES ${CMAKE_SOURCE_DIR}/3rdparty/nanoflann/COPYING DESTINATION 3rdpart
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/3rdparty/eigen3-nnls/src/ DESTINATION 3rdparty/eigen3-nnls/src) # eigen3-nnls header
 install(FILES ${CMAKE_SOURCE_DIR}/3rdparty/eigen3-nnls/README.md DESTINATION 3rdparty/eigen3-nnls/) # eigen3-nnls attribution
 
-if(BUILD_EXAMPLES)
+if(EOS_BUILD_EXAMPLES)
 	add_subdirectory(examples)
 endif()
 
-if(BUILD_UTILS)
+if(EOS_BUILD_UTILS)
 	add_subdirectory(utils)
 endif()
 
-if(BUILD_DOCUMENTATION)
+if(EOS_BUILD_DOCUMENTATION)
 	add_subdirectory(doc)
 endif()
 
-if(GENERATE_PYTHON_BINDINGS)
+if(EOS_GENERATE_PYTHON_BINDINGS)
 	set(PYBIND11_PATH "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/pybind11")
 	# If this fails, the repo has probably not been cloned with submodules. Run: git submodule update --init
 	add_subdirectory(${PYBIND11_PATH}) # add and initialise pybind11
@@ -189,7 +155,7 @@ if(GENERATE_PYTHON_BINDINGS)
 	install(FILES ${CMAKE_SOURCE_DIR}/3rdparty/pybind11/LICENSE DESTINATION 3rdparty/pybind11/) # pybind11 licence
 endif()
 
-if(GENERATE_MATLAB_BINDINGS)
+if(EOS_GENERATE_MATLAB_BINDINGS)
 	add_subdirectory(matlab)
 	install(DIRECTORY ${CMAKE_SOURCE_DIR}/3rdparty/mexplus/include/ DESTINATION 3rdparty/mexplus/include) # mexplus headers
 	install(FILES ${CMAKE_SOURCE_DIR}/3rdparty/mexplus/LICENSE DESTINATION 3rdparty/mexplus/) # mexplus licence

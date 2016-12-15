@@ -10,10 +10,8 @@ if("${OpenCV_VERSION_MAJOR}$" EQUAL 2)
   find_package(OpenCV 2.4.3 REQUIRED core imgproc highgui)
 elseif("${OpenCV_VERSION_MAJOR}$" EQUAL 3)
   message(STATUS "OpenCV 3.x detected - including imgcodecs for compatibility")
-  find_package(OpenCV 3.0.0 REQUIRED core imgproc imgcodecs)
+  find_package(OpenCV 3 REQUIRED core imgproc imgcodecs)
 endif()
-message(STATUS "OpenCV include dir found at ${OpenCV_INCLUDE_DIRS}")
-message(STATUS "OpenCV lib dir found at ${OpenCV_LIB_DIR}")
 # This allows us to compile in RelWithDebInfo. It'll use the Release-version of OpenCV:
 set_target_properties(${OpenCV_LIBS} PROPERTIES MAP_IMPORTED_CONFIG_RELWITHDEBINFO RELEASE)
 
@@ -29,19 +27,18 @@ else(Boost_FOUND)
   message(FATAL_ERROR "Boost not found")
 endif()
 
-if(MSVC)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj")
-endif()
-
 # Simple model fitting (orthographic camera & shape to landmarks) example:
 add_executable(fit-model-simple fit-model-simple.cpp)
-target_link_libraries(fit-model-simple ${OpenCV_LIBS} ${Boost_LIBRARIES})
+target_link_libraries(fit-model-simple eos ${OpenCV_LIBS} ${Boost_LIBRARIES})
+target_link_libraries(fit-model-simple "$<$<CXX_COMPILER_ID:GNU>:-pthread>$<$<CXX_COMPILER_ID:Clang>:-pthreads>")
 
 # Model fitting example that fits orthographic camera, shape, blendshapes, and contours:
 add_executable(fit-model fit-model.cpp)
-target_link_libraries(fit-model ${OpenCV_LIBS} ${Boost_LIBRARIES})
+target_link_libraries(fit-model eos ${OpenCV_LIBS} ${Boost_LIBRARIES})
+target_link_libraries(fit-model "$<$<CXX_COMPILER_ID:GNU>:-pthread>$<$<CXX_COMPILER_ID:Clang>:-pthreads>")
 
-if(BUILD_CERES_EXAMPLE)
+
+if(EOS_BUILD_CERES_EXAMPLE)
 	# Find Ceres, for the fit-model-ceres app:
 	find_package(Ceres REQUIRED)
 	message(STATUS "Ceres locations: Headers: ${CERES_INCLUDE_DIRS} Library: ${CERES_LIBRARIES}")
@@ -49,13 +46,13 @@ if(BUILD_CERES_EXAMPLE)
 
 	# Single and multi-image non-linear model fitting with Ceres example:
 	add_executable(fit-model-ceres fit-model-ceres.cpp)
-	target_link_libraries(fit-model-ceres ${CERES_LIBRARIES} ${OpenCV_LIBS} ${Boost_LIBRARIES})
+	target_link_libraries(fit-model-ceres eos ${CERES_LIBRARIES} ${OpenCV_LIBS} ${Boost_LIBRARIES})
 	install(TARGETS fit-model-ceres DESTINATION bin)
 endif()
 
 # Generate random samples from the model:
 add_executable(generate-obj generate-obj.cpp)
-target_link_libraries(generate-obj ${OpenCV_LIBS} ${Boost_LIBRARIES})
+target_link_libraries(generate-obj eos ${OpenCV_LIBS} ${Boost_LIBRARIES})
 
 
 # install target:

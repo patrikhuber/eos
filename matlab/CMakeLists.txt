@@ -5,8 +5,17 @@ cmake_minimum_required(VERSION 3.7.0)
 find_package(Matlab COMPONENTS MX_LIBRARY REQUIRED)
 
 # Dependencies of the modules:
-find_package(OpenCV 2.4.3 REQUIRED core)
+#check installed version in order to include the correct OpenCV libraries
+#version variable is defined from project root's CMakeLists
+if("${OpenCV_VERSION_MAJOR}$" EQUAL 2)
+  message(STATUS "OpenCV 2.x detected")
+  find_package(OpenCV 2.4.3 REQUIRED core imgproc highgui)
+elseif("${OpenCV_VERSION_MAJOR}$" EQUAL 3)
+  message(STATUS "OpenCV 3.x detected - including imgcodecs for compatibility")
+  find_package(OpenCV 3 REQUIRED core imgproc imgcodecs)
+endif()
 set_target_properties(${OpenCV_LIBS} PROPERTIES MAP_IMPORTED_CONFIG_RELWITHDEBINFO RELEASE)
+
 if(MSVC)
 	# The standard find_package for boost on Win finds the dynamic libs, so for dynamic linking to boost we need to #define:
 	add_definitions(-DBOOST_ALL_NO_LIB) # Don't use the automatic library linking by boost with VS (#pragma ...). Instead, we specify everything here in cmake.
@@ -21,7 +30,7 @@ matlab_add_mex(
     SRC +eos/+fitting/private/fitting.cpp
     OUTPUT_NAME fitting #[OUTPUT_NAME output_name]
     # DOCUMENTATION +eos/+fitting/fit_shape_and_pose.m # doesn't work - wrong path probably. But it renames the file to fitting.m, so not what we want anyway.
-    LINK_TO ${OpenCV_LIBS} ${Boost_LIBRARIES} #[LINK_TO target1 target2 ...]
+    LINK_TO eos ${OpenCV_LIBS} ${Boost_LIBRARIES} #[LINK_TO target1 target2 ...]
     #[...]
 )
 
