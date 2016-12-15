@@ -37,4 +37,6 @@ endif()
 pybind11_add_module(python-bindings generate-python-bindings.cpp pybind11_glm.hpp)
 target_link_libraries(python-bindings PRIVATE ${OpenCV_LIBS} ${Boost_LIBRARIES})
 set_target_properties(python-bindings PROPERTIES OUTPUT_NAME eos)
+
 install(TARGETS python-bindings DESTINATION python)
+install(FILES ${CMAKE_SOURCE_DIR}/python/demo.py DESTINATION python)
