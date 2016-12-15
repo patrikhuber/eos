@@ -112,7 +112,7 @@ target_include_directories(eos INTERFACE ${nanoflann_INCLUDE_DIR})
 target_include_directories(eos INTERFACE ${eigen3_nnls_INCLUDE_DIR})
 
 # Custom target for the library, to make the headers show up in IDEs:
-#add_custom_target(eos SOURCES ${HEADERS}) # name it eos-headers?
+add_custom_target(eos-headers SOURCES ${HEADERS})
 source_group(core REGULAR_EXPRESSION include/eos/core/*)
 source_group(morphablemodel REGULAR_EXPRESSION include/eos/morphablemodel/*)
 source_group(morphablemodel\\io REGULAR_EXPRESSION include/eos/morphablemodel/io/*)
