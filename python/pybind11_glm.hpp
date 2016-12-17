@@ -15,11 +15,6 @@
 
 #include "glm/gtc/type_ptr.hpp" // includes all vector and matrix types too
 
-#if defined(_MSC_VER)
-#pragma warning(push)
-#pragma warning(disable: 4127) // warning C4127: Conditional expression is constant
-#endif
-
 NAMESPACE_BEGIN(pybind11)
 NAMESPACE_BEGIN(detail)
 
@@ -312,7 +307,3 @@ struct type_caster<glm::tmat4x4<T, P>>
 
 NAMESPACE_END(detail)
 NAMESPACE_END(pybind11)
-
-#if defined(_MSC_VER)
-#pragma warning(pop)
-#endif
