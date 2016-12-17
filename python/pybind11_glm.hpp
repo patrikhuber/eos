@@ -9,17 +9,18 @@
 */
 #pragma once
 
-#include <cstddef>
+#include "glm/gtc/type_ptr.hpp" // includes all vector and matrix types too
 
 #include "pybind11/numpy.h"
 
-#include "glm/gtc/type_ptr.hpp" // includes all vector and matrix types too
+#include <cstddef>
+#include <iostream> // would probably be better to use exceptions - but I think they were not showing in Python
 
 NAMESPACE_BEGIN(pybind11)
 NAMESPACE_BEGIN(detail)
 
 /**
- * @file utils/pybind11_glm.hpp
+ * @file python/pybind11_glm.hpp
  * @brief Transparent conversion to and from Python for glm vector and matrix types.
  *
  * All converters for matrices assume col-major storage of glm, the default.
