@@ -14,6 +14,7 @@
 #include "opencv2/core/core.hpp"
 #include "opencv2/core/types_c.h"
 
+#include <cstddef>
 #include <iostream>
 
 NAMESPACE_BEGIN(pybind11)
@@ -150,6 +151,10 @@ struct type_caster<cv::Mat>
 		{
 			opencv_depth = CV_8U;
 		}
+		else if (pybind11::isinstance<pybind11::array_t<std::int32_t>>(buf))
+		{
+			opencv_depth = CV_32S;
+		}
 		else if (pybind11::isinstance<pybind11::array_t<float>>(buf))
 		{
 			opencv_depth = CV_32F;
@@ -162,9 +167,6 @@ struct type_caster<cv::Mat>
 		{
 			return false;
 		}
-		// Todo: Would be nice to add int32, as it's the default in python if you create a
-		//       list with [1, 2, 3]. But it doesn't evaluate to true when comparing with
-		//       all integer dtypes (int, int32, uint32, etc.).
 
 		value = pyarray_to_mat(buf, opencv_depth);
 		if (value.empty())
@@ -206,6 +208,10 @@ struct type_caster<cv::Mat>
 		{
 			return array(pybind11::dtype::of<std::uint8_t>(), shape, src.data).release();
 		}
+		else if (opencv_depth == CV_32S)
+		{
+			return array(pybind11::dtype::of<std::int32_t>(), shape, src.data).release();
+		}
 		else if (opencv_depth == CV_32F)
 		{
 			return array(pybind11::dtype::of<float>(), shape, src.data).release();
@@ -215,11 +221,11 @@ struct type_caster<cv::Mat>
 			return array(pybind11::dtype::of<double>(), shape, src.data).release();
 		}
 		else {
-			throw std::runtime_error("Can currently only return matrices of type 8U, 32F and 64F back to Python. Other types can be added if needed.");
+			throw std::runtime_error("Can currently only return matrices of type 8U, 32S, 32F and 64F back to Python. Other types can be added if needed.");
 		}
 	};
 
-    PYBIND11_TYPE_CASTER(cv::Mat, _("numpy.ndarray[uint8|float32|float64[m, n, d]]"));
+    PYBIND11_TYPE_CASTER(cv::Mat, _("numpy.ndarray[uint8|int32|float32|float64[m, n, d]]"));
 };
 
 NAMESPACE_END(detail)
