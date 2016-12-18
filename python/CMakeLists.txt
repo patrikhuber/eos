@@ -28,7 +28,7 @@ else(Boost_FOUND)
   message(FATAL_ERROR "Boost not found")
 endif()
 
-pybind11_add_module(python-bindings generate-python-bindings.cpp pybind11_glm.hpp)
+pybind11_add_module(python-bindings generate-python-bindings.cpp pybind11_glm.hpp pybind11_opencv.hpp)
 target_link_libraries(python-bindings PRIVATE eos ${OpenCV_LIBS} ${Boost_LIBRARIES})
 set_target_properties(python-bindings PROPERTIES OUTPUT_NAME eos)
 
