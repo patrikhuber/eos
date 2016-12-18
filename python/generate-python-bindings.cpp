@@ -147,14 +147,9 @@ PYBIND11_PLUGIN(eos) {
 		.def("get_projection", &fitting::RenderingParameters::get_projection, "Returns the 4x4 projection matrix.")
 		;
 
-	fitting_module.def("estimate_orthographic_projection_linear", [](std::vector<glm::vec2> image_points, std::vector<glm::vec4> model_points, bool is_viewport_upsidedown, int viewport_height) {
-			// We take glm vec's (transparent conversion in python) and convert them to OpenCV vec's for now:
-			std::vector<cv::Vec2f> image_points_cv;
-			std::for_each(std::begin(image_points), std::end(image_points), [&image_points_cv](auto&& p) { image_points_cv.push_back({p.x, p.y}); });
-			std::vector<cv::Vec4f> model_points_cv;
-			std::for_each(std::begin(model_points), std::end(model_points), [&model_points_cv](auto&& p) { model_points_cv.push_back({ p.x, p.y, p.z, p.w }); });
+	fitting_module.def("estimate_orthographic_projection_linear", [](std::vector<cv::Vec2f> image_points, std::vector<cv::Vec4f> model_points, bool is_viewport_upsidedown, int viewport_height) {
 			const boost::optional<int> viewport_height_opt = viewport_height == 0 ? boost::none : boost::optional<int>(viewport_height);
-			return fitting::estimate_orthographic_projection_linear(image_points_cv, model_points_cv, is_viewport_upsidedown, viewport_height_opt);
+			return fitting::estimate_orthographic_projection_linear(image_points, model_points, is_viewport_upsidedown, viewport_height_opt);
 		}, "This algorithm estimates the parameters of a scaled orthographic projection, given a set of corresponding 2D-3D points.", py::arg("image_points"), py::arg("model_points"), py::arg("is_viewport_upsidedown"), py::arg("viewport_height") = 0)
 		;
 
