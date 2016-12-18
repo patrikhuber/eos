@@ -143,19 +143,18 @@ struct type_caster<cv::Mat>
 		if (!buf)
 			return false;
 
-		auto pyarray_dtype = buf.dtype();
 		// Todo: We should probably check that buf.strides(i) is "default", by dividing it by the Scalar type or something.
 
 		int opencv_depth;
-		if (pyarray_dtype == pybind11::dtype::of<std::uint8_t>())
+		if (pybind11::isinstance<pybind11::array_t<std::uint8_t>>(buf))
 		{
 			opencv_depth = CV_8U;
 		}
-		else if (pyarray_dtype == pybind11::dtype::of<float>())
+		else if (pybind11::isinstance<pybind11::array_t<float>>(buf))
 		{
 			opencv_depth = CV_32F;
 		}
-		else if (pyarray_dtype == pybind11::dtype::of<double>())
+		else if (pybind11::isinstance<pybind11::array_t<double>>(buf))
 		{
 			opencv_depth = CV_64F;
 		}
