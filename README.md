@@ -93,8 +93,7 @@ import eos
 import numpy as np
 
 model = eos.morphablemodel.load_model("eos/share/sfm_shape_3448.bin")
-s = model.get_shape_model().draw_sample([1.0, -0.5, 0.7])
-sample = np.array(s) # the conversion from 'Mat' to a numpy array is necessary at the moment
+sample = model.get_shape_model().draw_sample([1.0, -0.5, 0.7])
 
 help(eos) # check the documentation
 ```
