@@ -22,6 +22,11 @@ def main():
     # Now you can use your favourite plotting/rendering library to display the fitted mesh, using the rendering
     # parameters in the 'pose' variable.
 
+    # Or for example extract the texture map, like this:
+    # import cv2
+    # image = cv2.imread('../bin/data/image_0010.png')
+    # isomap = eos.render.extract_texture(mesh, pose, image)
+
 
 def read_pts(filename):
     """A helper function to read ibug .pts landmarks from a file."""
