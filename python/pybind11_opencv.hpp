@@ -220,7 +220,7 @@ struct type_caster<cv::Mat>
 		}
 	};
 
-    PYBIND11_TYPE_CASTER(cv::Mat, _("numpy.ndarray[uint8|float32|float64[m, n, d]] (d<=4)"));
+    PYBIND11_TYPE_CASTER(cv::Mat, _("numpy.ndarray[uint8|float32|float64[m, n, d]]"));
 };
 
 NAMESPACE_END(detail)
