@@ -129,6 +129,7 @@ cv::Mat pyarray_to_mat(pybind11::array buf, int opencv_depth)
  *
  * Note about strides: http://docs.opencv.org/2.4/modules/core/doc/basic_structures.html#mat-step1
  * And possibly use src.elemSize or src.elemSize1.
+ * See also the old bindings: https://github.com/patrikhuber/eos/commit/1c3b0113a3efcbb1a92efca646be663ef8593793
  */
 template<>
 struct type_caster<cv::Mat>
