@@ -27,11 +27,13 @@
 #include "eos/fitting/orthographic_camera_estimation_linear.hpp"
 #include "eos/fitting/RenderingParameters.hpp"
 #include "eos/render/Mesh.hpp"
+#include "eos/render/texture_extraction.hpp"
 
 #include "opencv2/core/core.hpp"
 
 #include "pybind11/pybind11.h"
 #include "pybind11/stl.h"
+//#include "pybind11/eigen.h"
 #include "pybind11_glm.hpp"
 #include "pybind11_opencv.hpp"
 
@@ -177,6 +179,16 @@ PYBIND11_PLUGIN(eos) {
 			return std::make_tuple(result.first, result.second, pca_coeffs, blendshape_coeffs);
 		}, "Fit the pose (camera), shape model, and expression blendshapes to landmarks, in an iterative way. Returns a tuple (mesh, rendering_parameters, shape_coefficients, blendshape_coefficients).", py::arg("morphable_model"), py::arg("blendshapes"), py::arg("landmarks"), py::arg("landmark_ids"), py::arg("landmark_mapper"), py::arg("image_width"), py::arg("image_height"), py::arg("edge_topology"), py::arg("contour_landmarks"), py::arg("model_contour"), py::arg("num_iterations") = 5, py::arg("num_shape_coefficients_to_fit") = -1, py::arg("lambda") = 30.0f)
 		;
+
+	/**
+	 * Bindings for the eos::render namespace:
+	 * (Note: Defining down here because we need fitting::RenderingParameters to be already exposed)
+	 *  - extract_texture()
+	 */
+	render_module.def("extract_texture", [](const render::Mesh& mesh, const fitting::RenderingParameters& rendering_params, cv::Mat image, bool compute_view_angle, int isomap_resolution) {
+		cv::Mat affine_from_ortho = fitting::get_3x4_affine_camera_matrix(rendering_params, image.cols, image.rows);
+		return render::extract_texture(mesh, affine_from_ortho, image, compute_view_angle, render::TextureInterpolation::NearestNeighbour, isomap_resolution);
+	}, "Extracts the texture of the face from the given image and stores it as isomap (a rectangular texture map).", py::arg("mesh"), py::arg("rendering_params"), py::arg("image"), py::arg("compute_view_angle") = false, py::arg("isomap_resolution") = 512);
 
     return eos_module.ptr();
 };
