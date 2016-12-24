@@ -26,4 +26,4 @@ target_link_libraries(python-bindings PRIVATE eos ${OpenCV_LIBS} ${Boost_LIBRARI
 set_target_properties(python-bindings PROPERTIES OUTPUT_NAME eos)
 
 install(TARGETS python-bindings DESTINATION python)
-install(FILES ${CMAKE_SOURCE_DIR}/python/demo.py DESTINATION python)
+install(FILES ${CMAKE_CURRENT_LIST_DIR}/demo.py DESTINATION python)
