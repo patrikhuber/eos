@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.1.3)
-
 # The examples need a few additional dependencies (e.g. boost filesystem and OpenCV highgui):
 
 #check installed version in order to include the correct OpenCV libraries
