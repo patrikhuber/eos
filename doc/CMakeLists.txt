@@ -1,7 +1,4 @@
-find_package(Doxygen)
-if(NOT DOXYGEN_FOUND)
-	message(FATAL_ERROR "Doxygen is needed to build the documentation.")
-endif()
+find_package(Doxygen REQUIRED)
 
 set(doxyfile_in ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in)
 set(doxyfile ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)

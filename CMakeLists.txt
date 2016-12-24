@@ -48,11 +48,7 @@ if(MSVC)
   add_definitions(-DBOOST_ALL_DYN_LINK) # Link against the dynamic boost lib - needs to match with the version that find_package finds.
 endif()
 find_package(Boost 1.50.0 COMPONENTS system REQUIRED)
-if(Boost_FOUND)
-  message(STATUS "Boost found at ${Boost_INCLUDE_DIRS}")
-else(Boost_FOUND)
-  message(FATAL_ERROR "Boost not found")
-endif()
+message(STATUS "Boost found at ${Boost_INCLUDE_DIRS}")
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 find_package(Eigen3 REQUIRED)
