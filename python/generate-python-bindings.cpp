@@ -66,6 +66,22 @@ PYBIND11_PLUGIN(eos) {
 		;
 
 	/**
+	 * Bindings for the eos::render namespace:
+	 * (Note: Defining Mesh before using it below in fitting::fit_shape_and_pose)
+     * TODO: Will move Mesh to eos::core namespace.
+	 *  - Mesh
+	 */
+	py::module render_module = eos_module.def_submodule("render", "3D mesh and texture extraction functionality.");
+
+	py::class_<render::Mesh>(render_module, "Mesh", "This class represents a 3D mesh consisting of vertices, vertex colour information and texture coordinates.")
+		.def_readwrite("vertices", &render::Mesh::vertices, "Vertices")
+		.def_readwrite("tvi", &render::Mesh::tvi, "Triangle vertex indices")
+		.def_readwrite("colors", &render::Mesh::colors, "Colour data")
+		.def_readwrite("tci", &render::Mesh::tci, "Triangle colour indices (usually the same as tvi)")
+		.def_readwrite("texcoords", &render::Mesh::texcoords, "Texture coordinates")
+		;
+
+	/**
 	 * Bindings for the eos::morphablemodel namespace:
 	 *  - PcaModel
 	 *  - MorphableModel
@@ -92,6 +108,7 @@ PYBIND11_PLUGIN(eos) {
 	/**
 	 *  - Blendshape
 	 *  - load_blendshapes()
+     *  - draw_sample()
 	 */
 	py::class_<morphablemodel::Blendshape>(morphablemodel_module, "Blendshape", "A class representing a 3D blendshape.")
 		.def_readwrite("name", &morphablemodel::Blendshape::name, "Name of the blendshape.")
@@ -100,6 +117,25 @@ PYBIND11_PLUGIN(eos) {
 
 	morphablemodel_module.def("load_blendshapes", &morphablemodel::load_blendshapes, "Load a file with blendshapes from a cereal::BinaryInputArchive (.bin) from the harddisk.");
 
+    morphablemodel_module.def("draw_sample", [](const morphablemodel::MorphableModel& morphable_model, const std::vector<morphablemodel::Blendshape>& blendshapes, const std::vector<float>& shape_coefficients, const std::vector<float>& blendshape_coefficients, const std::vector<float>& color_coefficients) {
+            // Helper function - draws a sample with given shape, blendshape and colour coeffs, and
+            // returns a mesh. This is quite useful and would be worth having in the C++ API too.
+            // If no color coeffs are given, then the resulting mesh won't have color information (that's the behaviour of sample_to_mesh when given '{}').
+            // assert all vectors > 0?
+            // Add expressions if both blendshapes and coefficients are given, otherwise just use the PCA model sample:
+            cv::Mat shape;
+            if (blendshape_coefficients.size() > 0 && blendshapes.size() > 0)
+            {
+                shape = morphable_model.get_shape_model().draw_sample(shape_coefficients) + morphablemodel::to_matrix(blendshapes) * cv::Mat(blendshape_coefficients);
+            }
+            else {
+                shape = morphable_model.get_shape_model().draw_sample(shape_coefficients);
+            }
+            // Draw sample from colour model if color_coefficients given, otherwise set to empty:
+            const cv::Mat albedo = color_coefficients.size() > 0 ? morphable_model.get_color_model().draw_sample(color_coefficients) : cv::Mat();
+            return morphablemodel::sample_to_mesh(shape, albedo, morphable_model.get_shape_model().get_triangle_list(), {}, morphable_model.get_texture_coordinates());
+        }, "Draws a sample with given shape, blendshape and colour coeffs, and returns a mesh.", py::arg("morphable_model"), py::arg("blendshapes"), py::arg("shape_coefficients"), py::arg("blendshape_coefficients"), py::arg("color_coefficients"));
+
 	/**
 	 *  - EdgeTopology
 	 *  - load_edge_topology()
@@ -107,21 +143,6 @@ PYBIND11_PLUGIN(eos) {
 	py::class_<morphablemodel::EdgeTopology>(morphablemodel_module, "EdgeTopology", "A struct containing a 3D shape model's edge topology.");
 
 	morphablemodel_module.def("load_edge_topology", &morphablemodel::load_edge_topology, "Load a 3DMM edge topology file from a json file.");
-
-	/**
-	 * Bindings for the eos::render namespace:
-	 * (Note: Defining Mesh before using it below in fitting::fit_shape_and_pose)
-	 *  - Mesh
-	 */
-	py::module render_module = eos_module.def_submodule("render", "3D mesh and texture extraction functionality.");
-
-	py::class_<render::Mesh>(render_module, "Mesh", "This class represents a 3D mesh consisting of vertices, vertex colour information and texture coordinates.")
-		.def_readwrite("vertices", &render::Mesh::vertices, "Vertices")
-		.def_readwrite("tvi", &render::Mesh::tvi, "Triangle vertex indices")
-		.def_readwrite("colors", &render::Mesh::colors, "Colour data")
-		.def_readwrite("tci", &render::Mesh::tci, "Triangle colour indices (usually the same as tvi)")
-		.def_readwrite("texcoords", &render::Mesh::texcoords, "Texture coordinates")
-		;
 
 	/**
 	 * Bindings for the eos::fitting namespace:
