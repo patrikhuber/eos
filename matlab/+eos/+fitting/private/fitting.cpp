@@ -18,13 +18,13 @@
  * limitations under the License.
  */
 #include "eos/core/LandmarkMapper.hpp"
+#include "eos/core/Mesh.hpp"
 #include "eos/morphablemodel/MorphableModel.hpp"
 #include "eos/morphablemodel/Blendshape.hpp"
 #include "eos/morphablemodel/EdgeTopology.hpp"
 #include "eos/fitting/contour_correspondence.hpp"
 #include "eos/fitting/fitting.hpp"
 #include "eos/fitting/RenderingParameters.hpp"
-#include "eos/render/Mesh.hpp"
 
 #include "mexplus_eigen.hpp"
 #include "mexplus_eos_types.hpp"
@@ -88,7 +88,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	boost::optional<int> num_shape_coefficients_to_fit = num_shape_coeffs == -1 ? boost::none : boost::optional<int>(num_shape_coeffs);
 
 	// Now do the actual fitting:
-	render::Mesh mesh;
+	core::Mesh mesh;
 	fitting::RenderingParameters rendering_parameters;
 	std::tie(mesh, rendering_parameters) = fitting::fit_shape_and_pose(morphable_model, blendshapes, landmarks, landmark_mapper, image_width, image_height, edge_topology, contour_landmarks, model_contour, num_iterations, num_shape_coefficients_to_fit, lambda);
 

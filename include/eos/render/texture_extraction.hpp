@@ -22,8 +22,8 @@
 #ifndef TEXTURE_EXTRACTION_HPP_
 #define TEXTURE_EXTRACTION_HPP_
 
+#include "eos/core/Mesh.hpp"
 #include "eos/render/detail/texture_extraction_detail.hpp"
-#include "eos/render/Mesh.hpp"
 #include "eos/render/render_affine.hpp"
 #include "eos/render/detail/render_detail.hpp"
 
@@ -50,7 +50,7 @@ enum class TextureInterpolation {
 };
 
 // Forward declarations:
-cv::Mat extract_texture(Mesh mesh, cv::Mat affine_camera_matrix, cv::Mat image, cv::Mat depthbuffer, bool compute_view_angle, TextureInterpolation mapping_type, int isomap_resolution);
+cv::Mat extract_texture(core::Mesh mesh, cv::Mat affine_camera_matrix, cv::Mat image, cv::Mat depthbuffer, bool compute_view_angle, TextureInterpolation mapping_type, int isomap_resolution);
 namespace detail { cv::Mat interpolate_black_line(cv::Mat isomap); }
 
 /**
@@ -75,7 +75,7 @@ namespace detail { cv::Mat interpolate_black_line(cv::Mat isomap); }
  * @param[in] isomap_resolution The resolution of the generated isomap. Defaults to 512x512.
  * @return The extracted texture as isomap (texture map).
  */
-inline cv::Mat extract_texture(Mesh mesh, cv::Mat affine_camera_matrix, cv::Mat image, bool compute_view_angle = false, TextureInterpolation mapping_type = TextureInterpolation::NearestNeighbour, int isomap_resolution = 512)
+inline cv::Mat extract_texture(core::Mesh mesh, cv::Mat affine_camera_matrix, cv::Mat image, bool compute_view_angle = false, TextureInterpolation mapping_type = TextureInterpolation::NearestNeighbour, int isomap_resolution = 512)
 {
 	// Render the model to get a depth buffer:
 	cv::Mat depthbuffer;
@@ -106,7 +106,7 @@ inline cv::Mat extract_texture(Mesh mesh, cv::Mat affine_camera_matrix, cv::Mat 
  * @param[in] isomap_resolution The resolution of the generated isomap. Defaults to 512x512.
  * @return The extracted texture as isomap (texture map).
  */
-inline cv::Mat extract_texture(Mesh mesh, cv::Mat affine_camera_matrix, cv::Mat image, cv::Mat depthbuffer, bool compute_view_angle = false, TextureInterpolation mapping_type = TextureInterpolation::NearestNeighbour, int isomap_resolution = 512)
+inline cv::Mat extract_texture(core::Mesh mesh, cv::Mat affine_camera_matrix, cv::Mat image, cv::Mat depthbuffer, bool compute_view_angle = false, TextureInterpolation mapping_type = TextureInterpolation::NearestNeighbour, int isomap_resolution = 512)
 {
 	assert(mesh.vertices.size() == mesh.texcoords.size());
 	assert(image.type() == CV_8UC3); // the other cases are not yet supported

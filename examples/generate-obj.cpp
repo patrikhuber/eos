@@ -89,9 +89,9 @@ int main(int argc, char *argv[])
 		colour_coefficients.resize(morphable_model.get_color_model().get_num_principal_components());
 	}
 
-	render::Mesh sample_mesh = morphable_model.draw_sample(shape_coefficients, colour_coefficients); // if one of the two vectors is empty, it uses get_mean()
+	core::Mesh sample_mesh = morphable_model.draw_sample(shape_coefficients, colour_coefficients); // if one of the two vectors is empty, it uses get_mean()
 
-	render::write_obj(sample_mesh, output_file.string());
+	core::write_obj(sample_mesh, output_file.string());
 	cv::Mat rendering;
 	std::tie(rendering, std::ignore) = render::render(sample_mesh, glm::mat4x4(1.0f), glm::ortho(-130.0f, 130.0f, -130.0f, 130.0f), 512, 512, boost::none, true, false, false);
 	output_file.replace_extension(".png");

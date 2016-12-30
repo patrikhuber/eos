@@ -24,7 +24,7 @@
 
 #include "eos/morphablemodel/PcaModel.hpp"
 
-#include "eos/render/Mesh.hpp"
+#include "eos/core/Mesh.hpp"
 
 #include "eos/morphablemodel/io/mat_cerealisation.hpp"
 #include "cereal/cereal.hpp"
@@ -42,7 +42,7 @@
 
 // Forward declaration:
 namespace eos { namespace morphablemodel {
-	eos::render::Mesh sample_to_mesh(cv::Mat shape_instance, cv::Mat color_instance, std::vector<std::array<int, 3>> tvi, std::vector<std::array<int, 3>> tci, std::vector<cv::Vec2f> texture_coordinates = std::vector<cv::Vec2f>());
+	eos::core::Mesh sample_to_mesh(cv::Mat shape_instance, cv::Mat color_instance, std::vector<std::array<int, 3>> tvi, std::vector<std::array<int, 3>> tci, std::vector<cv::Vec2f> texture_coordinates = std::vector<cv::Vec2f>());
 } }
 
 namespace eos {
@@ -125,14 +125,14 @@ public:
 	 *
 	 * @return An mesh instance of the mean of the Morphable Model.
 	 */
-	render::Mesh get_mean() const
+	core::Mesh get_mean() const
 	{
 		assert(shape_model.get_data_dimension() == color_model.get_data_dimension() || !has_color_model()); // The number of vertices (= model.getDataDimension() / 3) has to be equal for both models, or, alternatively, it has to be a shape-only model.
 
 		cv::Mat shape = shape_model.get_mean();
 		cv::Mat color = color_model.get_mean();
 
-		render::Mesh mesh;
+		core::Mesh mesh;
 		if (has_texture_coordinates()) {
 			mesh = sample_to_mesh(shape, color, shape_model.get_triangle_list(), color_model.get_triangle_list(), texture_coordinates);
 		}
@@ -151,14 +151,14 @@ public:
 	 * @param[in] color_sigma The colour model standard deviation.
 	 * @return A random sample from the model.
 	 */
-	render::Mesh draw_sample(float shape_sigma = 1.0f, float color_sigma = 1.0f)
+	core::Mesh draw_sample(float shape_sigma = 1.0f, float color_sigma = 1.0f)
 	{
 		assert(shape_model.get_data_dimension() == color_model.get_data_dimension()); // The number of vertices (= model.getDataDimension() / 3) has to be equal for both models.
 
 		cv::Mat shape_sample = shape_model.draw_sample(shape_sigma);
 		cv::Mat color_sample = color_model.draw_sample(color_sigma);
 
-		render::Mesh mesh;
+		core::Mesh mesh;
 		if (has_texture_coordinates()) {
 			mesh = sample_to_mesh(shape_sample, color_sample, shape_model.get_triangle_list(), color_model.get_triangle_list(), texture_coordinates);
 		}
@@ -182,7 +182,7 @@ public:
 	 * @param[in] color_coefficients The PCA coefficients used to generate the vertex colouring.
 	 * @return A model instance with given coefficients.
 	 */
-	render::Mesh draw_sample(std::vector<float> shape_coefficients, std::vector<float> color_coefficients) const
+	core::Mesh draw_sample(std::vector<float> shape_coefficients, std::vector<float> color_coefficients) const
 	{
 		assert(shape_model.get_data_dimension() == color_model.get_data_dimension() || !has_color_model()); // The number of vertices (= model.getDataDimension() / 3) has to be equal for both models, or, alternatively, it has to be a shape-only model.
 
@@ -202,7 +202,7 @@ public:
 			color_sample = color_model.draw_sample(color_coefficients);
 		}
 
-		render::Mesh mesh;
+		core::Mesh mesh;
 		if (has_texture_coordinates()) {
 			mesh = sample_to_mesh(shape_sample, color_sample, shape_model.get_triangle_list(), color_model.get_triangle_list(), texture_coordinates);
 		}
@@ -311,13 +311,13 @@ inline void save_model(MorphableModel model, std::string filename)
  * @param[in] texture_coordinates Optional texture coordinates for each vertex.
  * @return A mesh created from given parameters.
  */
-inline render::Mesh sample_to_mesh(cv::Mat shape_instance, cv::Mat color_instance, std::vector<std::array<int, 3>> tvi, std::vector<std::array<int, 3>> tci, std::vector<cv::Vec2f> texture_coordinates /* = std::vector<cv::Vec2f>() */)
+inline core::Mesh sample_to_mesh(cv::Mat shape_instance, cv::Mat color_instance, std::vector<std::array<int, 3>> tvi, std::vector<std::array<int, 3>> tci, std::vector<cv::Vec2f> texture_coordinates /* = std::vector<cv::Vec2f>() */)
 {
 	assert(shape_instance.rows == color_instance.rows || color_instance.empty()); // The number of vertices (= model.getDataDimension() / 3) has to be equal for both models, or, alternatively, it has to be a shape-only model.
 
 	auto num_vertices = shape_instance.rows / 3;
 
-	render::Mesh mesh;
+	core::Mesh mesh;
 
 	// Construct the mesh vertices:
 	mesh.vertices.resize(num_vertices);

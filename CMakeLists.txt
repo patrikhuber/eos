@@ -69,6 +69,7 @@ set(eigen3_nnls_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/3rdparty/eigen3-nnls/src")
 set(HEADERS
 	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/core/Landmark.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/core/LandmarkMapper.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/core/Mesh.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/morphablemodel/PcaModel.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/morphablemodel/MorphableModel.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/morphablemodel/Blendshape.hpp
@@ -89,7 +90,6 @@ set(HEADERS
 	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/fitting.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/ceres_nonlinear.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/RenderingParameters.hpp
-	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/Mesh.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/utils.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/render.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/render_affine.hpp

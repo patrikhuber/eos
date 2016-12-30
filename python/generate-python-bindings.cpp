@@ -18,6 +18,7 @@
  * limitations under the License.
  */
 #include "eos/core/LandmarkMapper.hpp"
+#include "eos/core/Mesh.hpp"
 #include "eos/morphablemodel/PcaModel.hpp"
 #include "eos/morphablemodel/MorphableModel.hpp"
 #include "eos/morphablemodel/Blendshape.hpp"
@@ -26,7 +27,6 @@
 #include "eos/fitting/fitting.hpp"
 #include "eos/fitting/orthographic_camera_estimation_linear.hpp"
 #include "eos/fitting/RenderingParameters.hpp"
-#include "eos/render/Mesh.hpp"
 #include "eos/render/texture_extraction.hpp"
 
 #include "opencv2/core/core.hpp"
@@ -55,6 +55,7 @@ PYBIND11_PLUGIN(eos) {
 	/**
 	 * Bindings for the eos::core namespace:
 	 *  - LandmarkMapper
+	 *  - Mesh
 	 */
 	py::module core_module = eos_module.def_submodule("core", "Essential functions and classes to work with 3D face models and landmarks.");
 	py::class_<core::LandmarkMapper>(core_module, "LandmarkMapper", "Represents a mapping from one kind of landmarks to a different format(e.g.model vertices).")
@@ -65,20 +66,12 @@ PYBIND11_PLUGIN(eos) {
 		// We can't expose the convert member function yet - need std::optional (or some trick with self/this and a lambda)
 		;
 
-	/**
-	 * Bindings for the eos::render namespace:
-	 * (Note: Defining Mesh before using it below in fitting::fit_shape_and_pose)
-     * TODO: Will move Mesh to eos::core namespace.
-	 *  - Mesh
-	 */
-	py::module render_module = eos_module.def_submodule("render", "3D mesh and texture extraction functionality.");
-
-	py::class_<render::Mesh>(render_module, "Mesh", "This class represents a 3D mesh consisting of vertices, vertex colour information and texture coordinates.")
-		.def_readwrite("vertices", &render::Mesh::vertices, "Vertices")
-		.def_readwrite("tvi", &render::Mesh::tvi, "Triangle vertex indices")
-		.def_readwrite("colors", &render::Mesh::colors, "Colour data")
-		.def_readwrite("tci", &render::Mesh::tci, "Triangle colour indices (usually the same as tvi)")
-		.def_readwrite("texcoords", &render::Mesh::texcoords, "Texture coordinates")
+	py::class_<core::Mesh>(core_module, "Mesh", "This class represents a 3D mesh consisting of vertices, vertex colour information and texture coordinates.")
+		.def_readwrite("vertices", &core::Mesh::vertices, "Vertices")
+		.def_readwrite("tvi", &core::Mesh::tvi, "Triangle vertex indices")
+		.def_readwrite("colors", &core::Mesh::colors, "Colour data")
+		.def_readwrite("tci", &core::Mesh::tci, "Triangle colour indices (usually the same as tvi)")
+		.def_readwrite("texcoords", &core::Mesh::texcoords, "Texture coordinates")
 		;
 
 	/**
@@ -203,10 +196,11 @@ PYBIND11_PLUGIN(eos) {
 
 	/**
 	 * Bindings for the eos::render namespace:
-	 * (Note: Defining down here because we need fitting::RenderingParameters to be already exposed)
 	 *  - extract_texture()
 	 */
-	render_module.def("extract_texture", [](const render::Mesh& mesh, const fitting::RenderingParameters& rendering_params, cv::Mat image, bool compute_view_angle, int isomap_resolution) {
+	py::module render_module = eos_module.def_submodule("render", "3D mesh and texture extraction functionality.");
+        
+	render_module.def("extract_texture", [](const core::Mesh& mesh, const fitting::RenderingParameters& rendering_params, cv::Mat image, bool compute_view_angle, int isomap_resolution) {
 		cv::Mat affine_from_ortho = fitting::get_3x4_affine_camera_matrix(rendering_params, image.cols, image.rows);
 		return render::extract_texture(mesh, affine_from_ortho, image, compute_view_angle, render::TextureInterpolation::NearestNeighbour, isomap_resolution);
 	}, "Extracts the texture of the face from the given image and stores it as isomap (a rectangular texture map).", py::arg("mesh"), py::arg("rendering_params"), py::arg("image"), py::arg("compute_view_angle") = false, py::arg("isomap_resolution") = 512);

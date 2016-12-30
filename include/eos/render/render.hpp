@@ -22,6 +22,8 @@
 #ifndef RENDER_HPP_
 #define RENDER_HPP_
 
+#include "eos/core/Mesh.hpp"
+
 #include "eos/render/detail/render_detail.hpp"
 #include "eos/render/utils.hpp"
 
@@ -122,7 +124,7 @@ namespace eos {
  * @param[in] enable_far_clipping Whether vertices should be clipped against the far plane.
  * @return A pair with the colourbuffer as its first element and the depthbuffer as the second element.
  */
-inline std::pair<cv::Mat, cv::Mat> render(Mesh mesh, glm::tmat4x4<float> model_view_matrix, glm::tmat4x4<float> projection_matrix, int viewport_width, int viewport_height, const boost::optional<Texture>& texture = boost::none, bool enable_backface_culling = false, bool enable_near_clipping = true, bool enable_far_clipping = true)
+inline std::pair<cv::Mat, cv::Mat> render(core::Mesh mesh, glm::tmat4x4<float> model_view_matrix, glm::tmat4x4<float> projection_matrix, int viewport_width, int viewport_height, const boost::optional<Texture>& texture = boost::none, bool enable_backface_culling = false, bool enable_near_clipping = true, bool enable_far_clipping = true)
 {
 	// Some internal documentation / old todos or notes:
 	// maybe change and pass depthBuffer as an optional arg (&?), because usually we never need it outside the renderer. Or maybe even a getDepthBuffer().

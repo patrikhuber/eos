@@ -22,7 +22,7 @@
 #ifndef RENDER_UTILS_HPP_
 #define RENDER_UTILS_HPP_
 
-#include "eos/render/Mesh.hpp"
+#include "eos/core/Mesh.hpp"
 
 #include "glm/vec3.hpp"
 #include "glm/geometric.hpp"
@@ -129,7 +129,7 @@ glm::vec3 compute_face_normal(const glm::vec3& v0, const glm::vec3& v1, const gl
  * @param[in] image An optional image to draw onto.
  * @return An image with the texture coordinate triangles drawn in it, 512x512 if no image is given.
  */
-inline cv::Mat draw_texcoords(Mesh mesh, cv::Mat image = cv::Mat())
+inline cv::Mat draw_texcoords(core::Mesh mesh, cv::Mat image = cv::Mat())
 {
 	using cv::Point2f;
 	using cv::Scalar;

@@ -200,14 +200,14 @@ int main(int argc, char *argv[])
 	vector<float> fitted_coeffs = fitting::fit_shape_to_landmarks_linear(morphable_model, affine_from_ortho, image_points, vertex_indices);
 
 	// Obtain the full mesh with the estimated coefficients:
-	render::Mesh mesh = morphable_model.draw_sample(fitted_coeffs, vector<float>());
+	core::Mesh mesh = morphable_model.draw_sample(fitted_coeffs, vector<float>());
 
 	// Extract the texture from the image using given mesh and camera parameters:
 	Mat isomap = render::extract_texture(mesh, affine_from_ortho, image);
 
 	// Save the mesh as textured obj:
 	outputfile += fs::path(".obj");
-	render::write_textured_obj(mesh, outputfile.string());
+	core::write_textured_obj(mesh, outputfile.string());
 
 	// And save the isomap:
 	outputfile.replace_extension(".isomap.png");
