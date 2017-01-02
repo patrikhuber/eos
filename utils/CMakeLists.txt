@@ -21,11 +21,7 @@ if(MSVC)
 	add_definitions(-DBOOST_ALL_DYN_LINK) # Link against the dynamic boost lib - needs to match with the version that find_package finds.
 endif()
 find_package(Boost 1.50.0 COMPONENTS system filesystem program_options REQUIRED)
-if(Boost_FOUND)
-  message(STATUS "Boost found at ${Boost_INCLUDE_DIRS}")
-else(Boost_FOUND)
-  message(FATAL_ERROR "Boost not found")
-endif()
+message(STATUS "Boost found at ${Boost_INCLUDE_DIRS}")
 
 # Converts a CVSSP .scm Morphable Model to a cereal binary file:
 add_executable(scm-to-cereal scm-to-cereal.cpp)
