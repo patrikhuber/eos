@@ -16,9 +16,9 @@ endif()
 set_target_properties(${OpenCV_LIBS} PROPERTIES MAP_IMPORTED_CONFIG_RELWITHDEBINFO RELEASE)
 
 if(MSVC)
-	# The standard find_package for boost on Win finds the dynamic libs, so for dynamic linking to boost we need to #define:
-	add_definitions(-DBOOST_ALL_NO_LIB) # Don't use the automatic library linking by boost with VS (#pragma ...). Instead, we specify everything here in cmake.
-	add_definitions(-DBOOST_ALL_DYN_LINK) # Link against the dynamic boost lib - needs to match with the version that find_package finds.
+  # The standard find_package for boost on Win finds the dynamic libs, so for dynamic linking to boost we need to #define:
+  add_definitions(-DBOOST_ALL_NO_LIB) # Don't use the automatic library linking by boost with VS (#pragma ...). Instead, we specify everything here in cmake.
+  add_definitions(-DBOOST_ALL_DYN_LINK) # Link against the dynamic boost lib - needs to match with the version that find_package finds.
 endif()
 find_package(Boost 1.50.0 COMPONENTS system filesystem program_options REQUIRED)
 message(STATUS "Boost found at ${Boost_INCLUDE_DIRS}")
@@ -35,15 +35,15 @@ target_link_libraries(fit-model "$<$<CXX_COMPILER_ID:GNU>:-pthread>$<$<CXX_COMPI
 
 
 if(EOS_BUILD_CERES_EXAMPLE)
-	# Find Ceres, for the fit-model-ceres app:
-	find_package(Ceres REQUIRED)
-	message(STATUS "Ceres locations: Headers: ${CERES_INCLUDE_DIRS} Library: ${CERES_LIBRARIES}")
-	include_directories(${CERES_INCLUDE_DIRS})
+  # Find Ceres, for the fit-model-ceres app:
+  find_package(Ceres REQUIRED)
+  message(STATUS "Ceres locations: Headers: ${CERES_INCLUDE_DIRS} Library: ${CERES_LIBRARIES}")
+  include_directories(${CERES_INCLUDE_DIRS})
 
-	# Single and multi-image non-linear model fitting with Ceres example:
-	add_executable(fit-model-ceres fit-model-ceres.cpp)
-	target_link_libraries(fit-model-ceres eos ${CERES_LIBRARIES} ${OpenCV_LIBS} ${Boost_LIBRARIES})
-	install(TARGETS fit-model-ceres DESTINATION bin)
+  # Single and multi-image non-linear model fitting with Ceres example:
+  add_executable(fit-model-ceres fit-model-ceres.cpp)
+  target_link_libraries(fit-model-ceres eos ${CERES_LIBRARIES} ${OpenCV_LIBS} ${Boost_LIBRARIES})
+  install(TARGETS fit-model-ceres DESTINATION bin)
 endif()
 
 # Generate random samples from the model:
