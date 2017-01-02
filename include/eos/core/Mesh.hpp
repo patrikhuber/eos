@@ -1,7 +1,7 @@
 /*
  * eos - A 3D Morphable Model fitting library written in modern C++11/14.
  *
- * File: include/eos/render/Mesh.hpp
+ * File: include/eos/core/Mesh.hpp
  *
  * Copyright 2014, 2015 Patrik Huber
  *
@@ -35,7 +35,7 @@
 #include <fstream>
 
 namespace eos {
-	namespace render {
+	namespace core {
 
 /**
  * @brief This class represents a 3D mesh consisting of vertices, vertex colour
@@ -46,9 +46,9 @@ namespace eos {
  */
 struct Mesh
 {
-	std::vector<glm::tvec4<float>> vertices; ///< 3D vertex positions.
-	std::vector<glm::tvec3<float>> colors; ///< Colour information for each vertex. Expected to be in RGB order.
-	std::vector<glm::tvec2<float>> texcoords; ///< Texture coordinates for each vertex.
+	std::vector<glm::vec4> vertices; ///< 3D vertex positions.
+	std::vector<glm::vec3> colors; ///< Colour information for each vertex. Expected to be in RGB order.
+	std::vector<glm::vec2> texcoords; ///< Texture coordinates for each vertex.
 
 	std::vector<std::array<int, 3>> tvi; ///< Triangle vertex indices
 	std::vector<std::array<int, 3>> tci; ///< Triangle color indices
@@ -153,7 +153,7 @@ inline void write_textured_obj(Mesh mesh, std::string filename)
 	return;
 };
 
-	} /* namespace render */
+	} /* namespace core */
 } /* namespace eos */
 
 #endif /* MESH_HPP_ */

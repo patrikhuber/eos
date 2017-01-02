@@ -23,6 +23,7 @@
 #define CONTOURCORRESPONDENCE_HPP_
 
 #include "eos/core/Landmark.hpp"
+#include "eos/core/Mesh.hpp"
 #include "eos/morphablemodel/MorphableModel.hpp"
 
 #include "cereal/archives/json.hpp"
@@ -46,7 +47,7 @@ namespace eos {
 struct ModelContour;
 struct ContourLandmarks;
 std::pair<std::vector<std::string>, std::vector<int>> select_contour(float yaw_angle, const ContourLandmarks& contour_landmarks, const ModelContour& model_contour);
-std::tuple<std::vector<cv::Vec2f>, std::vector<cv::Vec4f>, std::vector<int>> get_nearest_contour_correspondences(const core::LandmarkCollection<cv::Vec2f>& landmarks, const std::vector<std::string>& landmark_contour_identifiers, const std::vector<int>& model_contour_indices, const render::Mesh& mesh, const glm::mat4x4& view_model, const glm::mat4x4& ortho_projection, const glm::vec4& viewport);
+std::tuple<std::vector<cv::Vec2f>, std::vector<cv::Vec4f>, std::vector<int>> get_nearest_contour_correspondences(const core::LandmarkCollection<cv::Vec2f>& landmarks, const std::vector<std::string>& landmark_contour_identifiers, const std::vector<int>& model_contour_indices, const core::Mesh& mesh, const glm::mat4x4& view_model, const glm::mat4x4& ortho_projection, const glm::vec4& viewport);
 
 
 /**
@@ -200,7 +201,7 @@ struct ContourLandmarks
  * @param[in] viewport Current viewport to use.
  * @return A tuple with the 2D contour landmark points, the corresponding points in the 3D shape model and their vertex indices.
  */
-inline std::tuple<std::vector<cv::Vec2f>, std::vector<cv::Vec4f>, std::vector<int>> get_contour_correspondences(const core::LandmarkCollection<cv::Vec2f>& landmarks, const ContourLandmarks& contour_landmarks, const ModelContour& model_contour, float yaw_angle, const render::Mesh& mesh, const glm::mat4x4& view_model, const glm::mat4x4& ortho_projection, const glm::vec4& viewport)
+inline std::tuple<std::vector<cv::Vec2f>, std::vector<cv::Vec4f>, std::vector<int>> get_contour_correspondences(const core::LandmarkCollection<cv::Vec2f>& landmarks, const ContourLandmarks& contour_landmarks, const ModelContour& model_contour, float yaw_angle, const core::Mesh& mesh, const glm::mat4x4& view_model, const glm::mat4x4& ortho_projection, const glm::vec4& viewport)
 {
 	// Select which side of the contour we'll use:
 	std::vector<int> model_contour_indices;
@@ -272,7 +273,7 @@ std::pair<std::vector<std::string>, std::vector<int>> select_contour(float yaw_a
  * @param[in] viewport Current viewport to use.
  * @return A tuple with the 2D contour landmark points, the corresponding points in the 3D shape model and their vertex indices.
  */
-inline std::tuple<std::vector<cv::Vec2f>, std::vector<cv::Vec4f>, std::vector<int>> get_nearest_contour_correspondences(const core::LandmarkCollection<cv::Vec2f>& landmarks, const std::vector<std::string>& landmark_contour_identifiers, const std::vector<int>& model_contour_indices, const render::Mesh& mesh, const glm::mat4x4& view_model, const glm::mat4x4& ortho_projection, const glm::vec4& viewport)
+inline std::tuple<std::vector<cv::Vec2f>, std::vector<cv::Vec4f>, std::vector<int>> get_nearest_contour_correspondences(const core::LandmarkCollection<cv::Vec2f>& landmarks, const std::vector<std::string>& landmark_contour_identifiers, const std::vector<int>& model_contour_indices, const core::Mesh& mesh, const glm::mat4x4& view_model, const glm::mat4x4& ortho_projection, const glm::vec4& viewport)
 {
 	// These are the additional contour-correspondences we're going to find and then use!
 	std::vector<cv::Vec4f> model_points_cnt; // the points in the 3D shape model

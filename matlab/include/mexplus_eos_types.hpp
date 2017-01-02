@@ -22,7 +22,7 @@
 #ifndef MEXPLUS_EOS_TYPES_HPP_
 #define MEXPLUS_EOS_TYPES_HPP_
 
-#include "eos/render/Mesh.hpp"
+#include "eos/core/Mesh.hpp"
 #include "eos/fitting/RenderingParameters.hpp"
 
 #include "mexplus/mxarray.h"
@@ -199,7 +199,7 @@ mxArray* MxArray::from(const std::vector<std::array<int, 3>>& data)
  * @return An mxArray containing a Matlab struct with all vertex, colour, texcoords and triangle data.
  */
 template<>
-mxArray* MxArray::from(const eos::render::Mesh& mesh) {
+mxArray* MxArray::from(const eos::core::Mesh& mesh) {
 
 	MxArray out_array(MxArray::Struct());
 	out_array.set("vertices", mesh.vertices);

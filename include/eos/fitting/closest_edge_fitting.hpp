@@ -22,9 +22,9 @@
 #ifndef CLOSESTEDGEFITTING_HPP_
 #define CLOSESTEDGEFITTING_HPP_
 
+#include "eos/core/Mesh.hpp"
 #include "eos/morphablemodel/EdgeTopology.hpp"
 #include "eos/fitting/RenderingParameters.hpp"
-#include "eos/render/Mesh.hpp"
 #include "eos/render/utils.hpp"
 
 #include "nanoflann.hpp"
@@ -122,7 +122,7 @@ inline std::pair<bool, boost::optional<float>> ray_triangle_intersect(const glm:
  * @param[in] R The rotation (pose) under which the occluding boundaries should be computed.
  * @return A vector with unique vertex id's making up the edges.
  */
-inline std::vector<int> occluding_boundary_vertices(const render::Mesh& mesh, const morphablemodel::EdgeTopology& edge_topology, glm::mat4x4 R)
+inline std::vector<int> occluding_boundary_vertices(const core::Mesh& mesh, const morphablemodel::EdgeTopology& edge_topology, glm::mat4x4 R)
 {
 	// Rotate the mesh:
 	std::vector<glm::vec4> rotated_vertices;
@@ -337,7 +337,7 @@ struct KDTreeVectorOfVectorsAdaptor
  * @param[in] distance_threshold All correspondences below this threshold.
  * @return A pair consisting of the used image edge points and their associated 3D vertex index.
  */
-inline std::pair<std::vector<cv::Vec2f>, std::vector<int>> find_occluding_edge_correspondences(const render::Mesh& mesh, const morphablemodel::EdgeTopology& edge_topology, const fitting::RenderingParameters& rendering_parameters, const std::vector<Eigen::Vector2f>& image_edges, float distance_threshold = 64.0f)
+inline std::pair<std::vector<cv::Vec2f>, std::vector<int>> find_occluding_edge_correspondences(const core::Mesh& mesh, const morphablemodel::EdgeTopology& edge_topology, const fitting::RenderingParameters& rendering_parameters, const std::vector<Eigen::Vector2f>& image_edges, float distance_threshold = 64.0f)
 {
 	assert(rendering_parameters.get_camera_type() == fitting::CameraType::Orthographic);
 	using std::vector;

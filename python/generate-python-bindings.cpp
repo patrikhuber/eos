@@ -18,6 +18,7 @@
  * limitations under the License.
  */
 #include "eos/core/LandmarkMapper.hpp"
+#include "eos/core/Mesh.hpp"
 #include "eos/morphablemodel/PcaModel.hpp"
 #include "eos/morphablemodel/MorphableModel.hpp"
 #include "eos/morphablemodel/Blendshape.hpp"
@@ -26,7 +27,6 @@
 #include "eos/fitting/fitting.hpp"
 #include "eos/fitting/orthographic_camera_estimation_linear.hpp"
 #include "eos/fitting/RenderingParameters.hpp"
-#include "eos/render/Mesh.hpp"
 #include "eos/render/texture_extraction.hpp"
 
 #include "opencv2/core/core.hpp"
@@ -55,14 +55,23 @@ PYBIND11_PLUGIN(eos) {
 	/**
 	 * Bindings for the eos::core namespace:
 	 *  - LandmarkMapper
+	 *  - Mesh
 	 */
 	py::module core_module = eos_module.def_submodule("core", "Essential functions and classes to work with 3D face models and landmarks.");
 	py::class_<core::LandmarkMapper>(core_module, "LandmarkMapper", "Represents a mapping from one kind of landmarks to a different format(e.g.model vertices).")
 		.def(py::init<>(), "Constructs a new landmark mapper that performs an identity mapping, that is, its output is the same as the input.")
 		.def("__init__", [](core::LandmarkMapper& instance, std::string filename) { // wrap the fs::path c'tor with std::string
 				new (&instance) core::LandmarkMapper(filename);
-			}, "Constructs a new landmark mapper from a file containing mappings from one set of landmark identifiers to another.")
+			}, "Constructs a new landmark mapper from a file containing mappings from one set of landmark identifiers to another.", py::arg("filename"))
 		// We can't expose the convert member function yet - need std::optional (or some trick with self/this and a lambda)
+		;
+
+	py::class_<core::Mesh>(core_module, "Mesh", "This class represents a 3D mesh consisting of vertices, vertex colour information and texture coordinates.")
+		.def_readwrite("vertices", &core::Mesh::vertices, "Vertices")
+		.def_readwrite("tvi", &core::Mesh::tvi, "Triangle vertex indices")
+		.def_readwrite("colors", &core::Mesh::colors, "Colour data")
+		.def_readwrite("tci", &core::Mesh::tci, "Triangle colour indices (usually the same as tvi)")
+		.def_readwrite("texcoords", &core::Mesh::texcoords, "Texture coordinates")
 		;
 
 	/**
@@ -87,18 +96,38 @@ PYBIND11_PLUGIN(eos) {
 		.def("get_color_model", [](const morphablemodel::MorphableModel& m) { return m.get_color_model(); }, "Returns the PCA colour (albedo) model of this Morphable Model.")
 		;
 
-	morphablemodel_module.def("load_model", &morphablemodel::load_model, "Load a Morphable Model from a cereal::BinaryInputArchive (.bin) from the harddisk.");
+	morphablemodel_module.def("load_model", &morphablemodel::load_model, "Load a Morphable Model from a cereal::BinaryInputArchive (.bin) from the harddisk.", py::arg("filename"));
 
 	/**
 	 *  - Blendshape
 	 *  - load_blendshapes()
+     *  - draw_sample()
 	 */
 	py::class_<morphablemodel::Blendshape>(morphablemodel_module, "Blendshape", "A class representing a 3D blendshape.")
 		.def_readwrite("name", &morphablemodel::Blendshape::name, "Name of the blendshape.")
 		.def_readwrite("deformation", &morphablemodel::Blendshape::deformation, "A 3m x 1 col-vector (xyzxyz...)', where m is the number of model-vertices. Has the same format as PcaModel::mean.")
 		;
 
-	morphablemodel_module.def("load_blendshapes", &morphablemodel::load_blendshapes, "Load a file with blendshapes from a cereal::BinaryInputArchive (.bin) from the harddisk.");
+	morphablemodel_module.def("load_blendshapes", &morphablemodel::load_blendshapes, "Load a file with blendshapes from a cereal::BinaryInputArchive (.bin) from the harddisk.", py::arg("filename"));
+
+    morphablemodel_module.def("draw_sample", [](const morphablemodel::MorphableModel& morphable_model, const std::vector<morphablemodel::Blendshape>& blendshapes, const std::vector<float>& shape_coefficients, const std::vector<float>& blendshape_coefficients, const std::vector<float>& color_coefficients) {
+            // Helper function - draws a sample with given shape, blendshape and colour coeffs, and
+            // returns a mesh. This is quite useful and would be worth having in the C++ API too.
+            // If no color coeffs are given, then the resulting mesh won't have color information (that's the behaviour of sample_to_mesh when given '{}').
+            // assert all vectors > 0?
+            // Add expressions if both blendshapes and coefficients are given, otherwise just use the PCA model sample:
+            cv::Mat shape;
+            if (blendshape_coefficients.size() > 0 && blendshapes.size() > 0)
+            {
+                shape = morphable_model.get_shape_model().draw_sample(shape_coefficients) + morphablemodel::to_matrix(blendshapes) * cv::Mat(blendshape_coefficients);
+            }
+            else {
+                shape = morphable_model.get_shape_model().draw_sample(shape_coefficients);
+            }
+            // Draw sample from colour model if color_coefficients given, otherwise set to empty:
+            const cv::Mat albedo = color_coefficients.size() > 0 ? morphable_model.get_color_model().draw_sample(color_coefficients) : cv::Mat();
+            return morphablemodel::sample_to_mesh(shape, albedo, morphable_model.get_shape_model().get_triangle_list(), {}, morphable_model.get_texture_coordinates());
+        }, "Draws a sample with given shape, blendshape and colour coeffs, and returns a mesh.", py::arg("morphable_model"), py::arg("blendshapes"), py::arg("shape_coefficients"), py::arg("blendshape_coefficients"), py::arg("color_coefficients"));
 
 	/**
 	 *  - EdgeTopology
@@ -106,22 +135,7 @@ PYBIND11_PLUGIN(eos) {
 	 */
 	py::class_<morphablemodel::EdgeTopology>(morphablemodel_module, "EdgeTopology", "A struct containing a 3D shape model's edge topology.");
 
-	morphablemodel_module.def("load_edge_topology", &morphablemodel::load_edge_topology, "Load a 3DMM edge topology file from a json file.");
-
-	/**
-	 * Bindings for the eos::render namespace:
-	 * (Note: Defining Mesh before using it below in fitting::fit_shape_and_pose)
-	 *  - Mesh
-	 */
-	py::module render_module = eos_module.def_submodule("render", "3D mesh and texture extraction functionality.");
-
-	py::class_<render::Mesh>(render_module, "Mesh", "This class represents a 3D mesh consisting of vertices, vertex colour information and texture coordinates.")
-		.def_readwrite("vertices", &render::Mesh::vertices, "Vertices")
-		.def_readwrite("tvi", &render::Mesh::tvi, "Triangle vertex indices")
-		.def_readwrite("colors", &render::Mesh::colors, "Colour data")
-		.def_readwrite("tci", &render::Mesh::tci, "Triangle colour indices (usually the same as tvi)")
-		.def_readwrite("texcoords", &render::Mesh::texcoords, "Texture coordinates")
-		;
+	morphablemodel_module.def("load_edge_topology", &morphablemodel::load_edge_topology, "Load a 3DMM edge topology file from a json file.", py::arg("filename"));
 
 	/**
 	 * Bindings for the eos::fitting namespace:
@@ -156,11 +170,11 @@ PYBIND11_PLUGIN(eos) {
 		;
 
 	py::class_<fitting::ContourLandmarks>(fitting_module, "ContourLandmarks", "Defines which 2D landmarks comprise the right and left face contour.")
-		.def_static("load", &fitting::ContourLandmarks::load, "Helper method to load contour landmarks from a text file with landmark mappings, like ibug2did.txt.")
+		.def_static("load", &fitting::ContourLandmarks::load, "Helper method to load contour landmarks from a text file with landmark mappings, like ibug2did.txt.", py::arg("filename"))
 		;
 
 	py::class_<fitting::ModelContour>(fitting_module, "ModelContour", "Definition of the vertex indices that define the right and left model contour.")
-		.def_static("load", &fitting::ModelContour::load, "Helper method to load a ModelContour from a json file from the hard drive.")
+		.def_static("load", &fitting::ModelContour::load, "Helper method to load a ModelContour from a json file from the hard drive.", py::arg("filename"))
 		;
 	
 	fitting_module.def("fit_shape_and_pose", [](const morphablemodel::MorphableModel& morphable_model, const std::vector<morphablemodel::Blendshape>& blendshapes, const std::vector<glm::vec2>& landmarks, const std::vector<std::string>& landmark_ids, const core::LandmarkMapper& landmark_mapper, int image_width, int image_height, const morphablemodel::EdgeTopology& edge_topology, const fitting::ContourLandmarks& contour_landmarks, const fitting::ModelContour& model_contour, int num_iterations, int num_shape_coefficients_to_fit, float lambda) {
@@ -182,10 +196,11 @@ PYBIND11_PLUGIN(eos) {
 
 	/**
 	 * Bindings for the eos::render namespace:
-	 * (Note: Defining down here because we need fitting::RenderingParameters to be already exposed)
 	 *  - extract_texture()
 	 */
-	render_module.def("extract_texture", [](const render::Mesh& mesh, const fitting::RenderingParameters& rendering_params, cv::Mat image, bool compute_view_angle, int isomap_resolution) {
+	py::module render_module = eos_module.def_submodule("render", "3D mesh and texture extraction functionality.");
+        
+	render_module.def("extract_texture", [](const core::Mesh& mesh, const fitting::RenderingParameters& rendering_params, cv::Mat image, bool compute_view_angle, int isomap_resolution) {
 		cv::Mat affine_from_ortho = fitting::get_3x4_affine_camera_matrix(rendering_params, image.cols, image.rows);
 		return render::extract_texture(mesh, affine_from_ortho, image, compute_view_angle, render::TextureInterpolation::NearestNeighbour, isomap_resolution);
 	}, "Extracts the texture of the face from the given image and stores it as isomap (a rectangular texture map).", py::arg("mesh"), py::arg("rendering_params"), py::arg("image"), py::arg("compute_view_angle") = false, py::arg("isomap_resolution") = 512);
