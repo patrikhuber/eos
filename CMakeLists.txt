@@ -43,9 +43,9 @@ include(CPack)
 find_package(OpenCV REQUIRED core)
 
 if(MSVC)
-	# The standard find_package for boost on Win finds the dynamic libs, so for dynamic linking to boost we need to #define:
-	add_definitions(-DBOOST_ALL_NO_LIB) # Don't use the automatic library linking by boost with VS (#pragma ...). Instead, we specify everything here in cmake.
-	add_definitions(-DBOOST_ALL_DYN_LINK) # Link against the dynamic boost lib - needs to match with the version that find_package finds.
+  # The standard find_package for boost on Win finds the dynamic libs, so for dynamic linking to boost we need to #define:
+  add_definitions(-DBOOST_ALL_NO_LIB) # Don't use the automatic library linking by boost with VS (#pragma ...). Instead, we specify everything here in cmake.
+  add_definitions(-DBOOST_ALL_DYN_LINK) # Link against the dynamic boost lib - needs to match with the version that find_package finds.
 endif()
 find_package(Boost 1.50.0 COMPONENTS system REQUIRED)
 if(Boost_FOUND)
@@ -67,36 +67,36 @@ set(eigen3_nnls_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/3rdparty/eigen3-nnls/src")
 
 # Header files of the eos library:
 set(HEADERS
-	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/core/Landmark.hpp
-	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/core/LandmarkMapper.hpp
-	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/core/Mesh.hpp
-	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/morphablemodel/PcaModel.hpp
-	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/morphablemodel/MorphableModel.hpp
-	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/morphablemodel/Blendshape.hpp
-	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/morphablemodel/coefficients.hpp
-	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/morphablemodel/EdgeTopology.hpp
-	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/morphablemodel/io/cvssp.hpp
-	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/morphablemodel/io/mat_cerealisation.hpp
-	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/affine_camera_estimation.hpp
-	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/orthographic_camera_estimation_linear.hpp
-	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/nonlinear_camera_estimation.hpp
-	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/detail/nonlinear_camera_estimation_detail.hpp
-	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/detail/optional_cerealisation.hpp
-	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/detail/glm_cerealisation.hpp
-	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/linear_shape_fitting.hpp
-	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/contour_correspondence.hpp
-	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/blendshape_fitting.hpp
-	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/closest_edge_fitting.hpp
-	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/fitting.hpp
-	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/ceres_nonlinear.hpp
-	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/RenderingParameters.hpp
-	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/utils.hpp
-	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/render.hpp
-	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/render_affine.hpp
-	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/detail/render_detail.hpp
-	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/detail/render_affine_detail.hpp
-	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/texture_extraction.hpp
-	${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/detail/texture_extraction_detail.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/core/Landmark.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/core/LandmarkMapper.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/core/Mesh.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/morphablemodel/PcaModel.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/morphablemodel/MorphableModel.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/morphablemodel/Blendshape.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/morphablemodel/coefficients.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/morphablemodel/EdgeTopology.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/morphablemodel/io/cvssp.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/morphablemodel/io/mat_cerealisation.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/affine_camera_estimation.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/orthographic_camera_estimation_linear.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/nonlinear_camera_estimation.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/detail/nonlinear_camera_estimation_detail.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/detail/optional_cerealisation.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/detail/glm_cerealisation.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/linear_shape_fitting.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/contour_correspondence.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/blendshape_fitting.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/closest_edge_fitting.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/fitting.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/ceres_nonlinear.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/RenderingParameters.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/utils.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/render.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/render_affine.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/detail/render_detail.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/detail/render_affine_detail.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/texture_extraction.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/detail/texture_extraction_detail.hpp
 )
 
 add_library(eos INTERFACE)
@@ -135,28 +135,28 @@ install(DIRECTORY ${CMAKE_SOURCE_DIR}/3rdparty/eigen3-nnls/src/ DESTINATION 3rdp
 install(FILES ${CMAKE_SOURCE_DIR}/3rdparty/eigen3-nnls/README.md DESTINATION 3rdparty/eigen3-nnls/) # eigen3-nnls attribution
 
 if(EOS_BUILD_EXAMPLES)
-	add_subdirectory(examples)
+  add_subdirectory(examples)
 endif()
 
 if(EOS_BUILD_UTILS)
-	add_subdirectory(utils)
+  add_subdirectory(utils)
 endif()
 
 if(EOS_BUILD_DOCUMENTATION)
-	add_subdirectory(doc)
+  add_subdirectory(doc)
 endif()
 
 if(EOS_GENERATE_PYTHON_BINDINGS)
-	set(PYBIND11_PATH "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/pybind11")
-	# If this fails, the repo has probably not been cloned with submodules. Run: git submodule update --init
-	add_subdirectory(${PYBIND11_PATH}) # add and initialise pybind11
-	add_subdirectory(python) # the actual bindings
-	install(DIRECTORY ${CMAKE_SOURCE_DIR}/3rdparty/pybind11/include/ DESTINATION 3rdparty/pybind11/include) # pybind11 headers
-	install(FILES ${CMAKE_SOURCE_DIR}/3rdparty/pybind11/LICENSE DESTINATION 3rdparty/pybind11/) # pybind11 licence
+  set(PYBIND11_PATH "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/pybind11")
+  # If this fails, the repo has probably not been cloned with submodules. Run: git submodule update --init
+  add_subdirectory(${PYBIND11_PATH}) # add and initialise pybind11
+  add_subdirectory(python) # the actual bindings
+  install(DIRECTORY ${CMAKE_SOURCE_DIR}/3rdparty/pybind11/include/ DESTINATION 3rdparty/pybind11/include) # pybind11 headers
+  install(FILES ${CMAKE_SOURCE_DIR}/3rdparty/pybind11/LICENSE DESTINATION 3rdparty/pybind11/) # pybind11 licence
 endif()
 
 if(EOS_GENERATE_MATLAB_BINDINGS)
-	add_subdirectory(matlab)
-	install(DIRECTORY ${CMAKE_SOURCE_DIR}/3rdparty/mexplus/include/ DESTINATION 3rdparty/mexplus/include) # mexplus headers
-	install(FILES ${CMAKE_SOURCE_DIR}/3rdparty/mexplus/LICENSE DESTINATION 3rdparty/mexplus/) # mexplus licence
+  add_subdirectory(matlab)
+  install(DIRECTORY ${CMAKE_SOURCE_DIR}/3rdparty/mexplus/include/ DESTINATION 3rdparty/mexplus/include) # mexplus headers
+  install(FILES ${CMAKE_SOURCE_DIR}/3rdparty/mexplus/LICENSE DESTINATION 3rdparty/mexplus/) # mexplus licence
 endif()
