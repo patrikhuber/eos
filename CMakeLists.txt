@@ -93,6 +93,10 @@ set(HEADERS
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/detail/render_affine_detail.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/texture_extraction.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/detail/texture_extraction_detail.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/SoftwareRenderer.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/VertexShader.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/FragmentShader.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/detail/Vertex.hpp
 )
 
 add_library(eos INTERFACE)
