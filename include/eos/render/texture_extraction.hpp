@@ -26,8 +26,7 @@
 #include "eos/render/detail/texture_extraction_detail.hpp"
 #include "eos/render/render_affine.hpp"
 #include "eos/render/detail/render_detail.hpp"
-#include "eos/render/SoftwareRenderer.hpp"
-#include "eos/render/VertexShader.hpp" // remove after adding Rasterizer
+#include "eos/render/Rasterizer.hpp"
 #include "eos/render/FragmentShader.hpp"
 #include "eos/fitting/closest_edge_fitting.hpp" // for ray_triangle_intersect()
 
@@ -382,14 +381,13 @@ cv::Mat extract_texture(core::Mesh mesh, glm::mat4x4 view_model_matrix, glm::mat
     using glm::vec4;
     using std::vector;
     // actually we only need a rasteriser for this!
-    SoftwareRenderer<VertexShader, ExtractionFragmentShader> extraction_renderer(isomap_resolution,
-                                                                                 isomap_resolution);
+    Rasterizer<ExtractionFragmentShader> extraction_rasterizer(isomap_resolution, isomap_resolution);
     Texture image_to_extract_from_as_tex = create_mipmapped_texture(image, 1);
-    extraction_renderer.enable_depth_test = false;
-    extraction_renderer.extracting_tex = true;
+    extraction_rasterizer.enable_depth_test = false;
+    extraction_rasterizer.extracting_tex = true;
 
     vector<bool> visibility_ray;
-    std::vector<glm::vec4> rotated_vertices;
+    vector<vec4> rotated_vertices;
     // In perspective case... does the perspective projection matrix not change visibility? Do we not need to
     // apply it?
     // (If so, then we can change the two input matrices to this function to one (mvp_matrix)).
@@ -404,7 +402,7 @@ cv::Mat extract_texture(core::Mesh mesh, glm::mat4x4 view_model_matrix, glm::mat
         // For every tri of the rotated mesh:
         for (auto&& tri : mesh.tvi)
         {
-            auto& v0 = rotated_vertices[tri[0]];
+            auto& v0 = rotated_vertices[tri[0]]; // const?
             auto& v1 = rotated_vertices[tri[1]];
             auto& v2 = rotated_vertices[tri[2]];
 
@@ -480,11 +478,11 @@ cv::Mat extract_texture(core::Mesh mesh, glm::mat4x4 view_model_matrix, glm::mat
                     /* maybe 1 - ... ? */ wnd_coords[tvi[2]].y /
                         image
                             .rows /* wndcoords of the projected/rendered model triangle (in the input img). Normalised to 0,1. */)};
-            extraction_renderer.raster_triangle(pa, pb, pc, image_to_extract_from_as_tex);
+            extraction_rasterizer.raster_triangle(pa, pb, pc, image_to_extract_from_as_tex);
         }
     }
 
-    return extraction_renderer.colorbuffer;
+    return extraction_rasterizer.colorbuffer;
 };
 
 } /* namespace v2 */

@@ -23,6 +23,7 @@
 #define SOFTWARERENDERER_HPP_
 
 #include "eos/core/Mesh.hpp"
+#include "eos/render/Rasterizer.hpp"
 #include "eos/render/detail/Vertex.hpp"
 #include "eos/render/utils.hpp" // for Texture, potentially others
 
@@ -36,6 +37,7 @@
 
 #include <array>
 #include <limits>
+#include <memory>
 
 /**
  * @file include/eos/render/SoftwareRenderer.hpp
@@ -79,11 +81,8 @@ class SoftwareRenderer
 {
 public:
     SoftwareRenderer(int viewport_width, int viewport_height)
-        : viewport_width(viewport_width), viewport_height(viewport_height)
     {
-        colorbuffer = cv::Mat(viewport_height, viewport_width, CV_8UC4, cv::Scalar::all(255));
-        depthbuffer =
-            std::numeric_limits<double>::max() * Mat::ones(viewport_height, viewport_width, CV_64FC1);
+        rasterizer = std::make_unique<Rasterizer<FragmentShaderType>>(viewport_width, viewport_height);
     };
 
     // Deleting copy constructor and assignment for now because e.g. the framebuffer member is a
@@ -154,7 +153,7 @@ public:
                     visibility_bits[k] |= 8;
                 if (enable_near_clipping && z_cc < -w_cc) // near plane frustum clipping
                     visibility_bits[k] |= 16;
-                if (enable_far_clipping && z_cc > w_cc) // far plane frustum clipping
+                if (rasterizer->enable_far_clipping && z_cc > w_cc) // far plane frustum clipping
                     visibility_bits[k] |= 32;
             } // if all bits are 0, then it's inside the frustum
             // all vertices are not visible - reject the triangle.
@@ -175,16 +174,19 @@ public:
                 // z_ndc, 1/w_clip].
 
                 // Replaces x and y of the NDC coords with the screen coords. Keep z and w the same.
-                const glm::tvec2<T, P> v0_screen = clip_to_screen_space(
-                    prospective_tri[0].x, prospective_tri[0].y, viewport_width, viewport_height);
+                const glm::tvec2<T, P> v0_screen =
+                    clip_to_screen_space(prospective_tri[0].x, prospective_tri[0].y,
+                                         rasterizer->viewport_width, rasterizer->viewport_height);
                 prospective_tri[0].x = v0_screen.x;
                 prospective_tri[0].y = v0_screen.y;
-                const glm::tvec2<T, P> v1_screen = clip_to_screen_space(
-                    prospective_tri[1].x, prospective_tri[1].y, viewport_width, viewport_height);
+                const glm::tvec2<T, P> v1_screen =
+                    clip_to_screen_space(prospective_tri[1].x, prospective_tri[1].y,
+                                         rasterizer->viewport_width, rasterizer->viewport_height);
                 prospective_tri[1].x = v1_screen.x;
                 prospective_tri[1].y = v1_screen.y;
-                const glm::tvec2<T, P> v2_screen = clip_to_screen_space(
-                    prospective_tri[2].x, prospective_tri[2].y, viewport_width, viewport_height);
+                const glm::tvec2<T, P> v2_screen =
+                    clip_to_screen_space(prospective_tri[2].x, prospective_tri[2].y,
+                                         rasterizer->viewport_width, rasterizer->viewport_height);
                 prospective_tri[2].x = v2_screen.x;
                 prospective_tri[2].y = v2_screen.y;
 
@@ -203,8 +205,8 @@ public:
                 const cv::Rect boundingBox = detail::calculate_clipped_bounding_box(
                     glm::tvec2<T, P>(prospective_tri[0].x, prospective_tri[0].y),
                     glm::tvec2<T, P>(prospective_tri[1].x, prospective_tri[1].y),
-                    glm::tvec2<T, P>(prospective_tri[2].x, prospective_tri[2].y), viewport_width,
-                    viewport_height);
+                    glm::tvec2<T, P>(prospective_tri[2].x, prospective_tri[2].y), rasterizer->viewport_width,
+                    rasterizer->viewport_height);
                 const auto min_x = boundingBox.x;
                 const auto max_x = boundingBox.x + boundingBox.width;
                 const auto min_y = boundingBox.y;
@@ -265,16 +267,19 @@ public:
                                                                     divide_by_w(vertices[1 + k].position),
                                                                     divide_by_w(vertices[2 + k].position)};
 
-                    const glm::tvec2<T, P> v0_screen = clip_to_screen_space(
-                        prospective_tri[0].x, prospective_tri[0].y, viewport_width, viewport_height);
+                    const glm::tvec2<T, P> v0_screen =
+                        clip_to_screen_space(prospective_tri[0].x, prospective_tri[0].y,
+                                             rasterizer->viewport_width, rasterizer->viewport_height);
                     prospective_tri[0].x = v0_screen.x;
                     prospective_tri[0].y = v0_screen.y;
-                    const glm::tvec2<T, P> v1_screen = clip_to_screen_space(
-                        prospective_tri[1].x, prospective_tri[1].y, viewport_width, viewport_height);
+                    const glm::tvec2<T, P> v1_screen =
+                        clip_to_screen_space(prospective_tri[1].x, prospective_tri[1].y,
+                                             rasterizer->viewport_width, rasterizer->viewport_height);
                     prospective_tri[1].x = v1_screen.x;
                     prospective_tri[1].y = v1_screen.y;
-                    const glm::tvec2<T, P> v2_screen = clip_to_screen_space(
-                        prospective_tri[2].x, prospective_tri[2].y, viewport_width, viewport_height);
+                    const glm::tvec2<T, P> v2_screen =
+                        clip_to_screen_space(prospective_tri[2].x, prospective_tri[2].y,
+                                             rasterizer->viewport_width, rasterizer->viewport_height);
                     prospective_tri[2].x = v2_screen.x;
                     prospective_tri[2].y = v2_screen.y;
 
@@ -290,8 +295,8 @@ public:
                     const cv::Rect boundingBox = detail::calculate_clipped_bounding_box(
                         glm::tvec2<T, P>(prospective_tri[0].x, prospective_tri[0].y),
                         glm::tvec2<T, P>(prospective_tri[1].x, prospective_tri[1].y),
-                        glm::tvec2<T, P>(prospective_tri[2].x, prospective_tri[2].y), viewport_width,
-                        viewport_height);
+                        glm::tvec2<T, P>(prospective_tri[2].x, prospective_tri[2].y),
+                        rasterizer->viewport_width, rasterizer->viewport_height);
                     const auto min_x = boundingBox.x;
                     const auto max_x = boundingBox.x + boundingBox.width;
                     const auto min_y = boundingBox.y;
@@ -322,226 +327,19 @@ public:
         // Raster each triangle and apply the fragment shader on each pixel:
         for (const auto& tri : triangles_to_raster)
         {
-            raster_triangle(tri[0], tri[1], tri[2], texture);
+            rasterizer->raster_triangle(tri[0], tri[1], tri[2], texture);
         }
-        return colorbuffer;
+        return rasterizer->colorbuffer;
     };
 
 public: // Todo: these should go private in the final implementation
-    cv::Mat colorbuffer;
-    cv::Mat depthbuffer;
-
     boost::optional<Texture> texture = boost::none;
     bool enable_backface_culling = false;
     bool enable_near_clipping = true;
-    bool enable_far_clipping = true;
-    bool enable_depth_test = true; // maybe get rid of this again, it was just as a hack.
-    bool extracting_tex = false;
 
+    std::unique_ptr<Rasterizer<FragmentShaderType>> rasterizer; // Rasterizer is not default-constructible
+private:
     VertexShaderType vertex_shader;
-    FragmentShaderType fragment_shader; // Replace with Rasterizer, move FS into Rasterizer
-
-    int viewport_width;
-    int viewport_height;
-
-public:
-    /**
-     * @brief Todo.
-     *
-     * X
-     *
-     * @param[in] vertex X.
-     * @ return X.
-     */
-    template <typename T, glm::precision P = glm::defaultp>
-    void raster_triangle(const detail::v2::Vertex<T, P>& point_a, const detail::v2::Vertex<T, P>& point_b,
-                         const detail::v2::Vertex<T, P>& point_c, const boost::optional<Texture>& texture)
-    {
-        // We already calculated this in the culling/clipping stage. Maybe we should save/cache it after all.
-        cv::Rect boundingBox = detail::calculate_clipped_bounding_box(
-            glm::tvec2<T, P>(point_a.position.x, point_a.position.y),
-            glm::tvec2<T, P>(point_b.position.x, point_b.position.y),
-            glm::tvec2<T, P>(point_c.position.x, point_c.position.y), viewport_width, viewport_height);
-        const auto min_x = boundingBox.x;
-        const auto max_x = boundingBox.x + boundingBox.width;
-        const auto min_y = boundingBox.y;
-        const auto max_y = boundingBox.y + boundingBox.height;
-
-        // These are triangle-specific, i.e. calculate once per triangle.
-        // These ones are needed for perspective correct lambdas! (as well as mipmapping)
-        const auto& one_over_w0 = point_a.position[3];
-        const auto& one_over_w1 = point_b.position[3];
-        const auto& one_over_w2 = point_c.position[3];
-
-        // These are triangle-specific, i.e. calculate once per triangle.
-        // For partial derivatives computation (for mipmapping, texturing) (they work on screen-space coords):
-        using eos::render::detail::plane;
-        const auto alpha_plane = plane(
-            glm::tvec3<T, P>(point_a.position[0], point_a.position[1], point_a.texcoords[0] * one_over_w0),
-            glm::tvec3<T, P>(point_b.position[0], point_b.position[1], point_b.texcoords[0] * one_over_w1),
-            glm::tvec3<T, P>(point_c.position[0], point_c.position[1], point_c.texcoords[0] * one_over_w2));
-        const auto beta_plane = plane(
-            glm::tvec3<T, P>(point_a.position[0], point_a.position[1], point_a.texcoords[1] * one_over_w0),
-            glm::tvec3<T, P>(point_b.position[0], point_b.position[1], point_b.texcoords[1] * one_over_w1),
-            glm::tvec3<T, P>(point_c.position[0], point_c.position[1], point_c.texcoords[1] * one_over_w2));
-        const auto gamma_plane =
-            plane(glm::tvec3<T, P>(point_a.position[0], point_a.position[1], one_over_w0),
-                  glm::tvec3<T, P>(point_b.position[0], point_b.position[1], one_over_w1),
-                  glm::tvec3<T, P>(point_c.position[0], point_c.position[1], one_over_w2));
-        const auto one_over_alpha_c = 1.0f / alpha_plane.c;
-        const auto one_over_beta_c = 1.0f / beta_plane.c;
-        const auto one_over_gamma_c = 1.0f / gamma_plane.c;
-        const auto alpha_ffx = -alpha_plane.a * one_over_alpha_c;
-        const auto beta_ffx = -beta_plane.a * one_over_beta_c;
-        const auto gamma_ffx = -gamma_plane.a * one_over_gamma_c;
-        const auto alpha_ffy = -alpha_plane.b * one_over_alpha_c;
-        const auto beta_ffy = -beta_plane.b * one_over_beta_c;
-        const auto gamma_ffy = -gamma_plane.b * one_over_gamma_c;
-
-        for (int yi = min_y; yi <= max_y; ++yi)
-        {
-            for (int xi = min_x; xi <= max_x; ++xi)
-            {
-                // we want centers of pixels to be used in computations. Todo: Do we? Do we pass it with or
-                // without +0.5 to the FragShader?
-                const float x = static_cast<float>(xi) + 0.5f; // double? T?
-                const float y = static_cast<float>(yi) + 0.5f;
-
-                // These will be used for barycentric weights computation
-                using detail::implicit_line;
-                const double one_over_v0ToLine12 =
-                    1.0 / implicit_line(point_a.position[0], point_a.position[1], point_b.position,
-                                        point_c.position);
-                const double one_over_v1ToLine20 =
-                    1.0 / implicit_line(point_b.position[0], point_b.position[1], point_c.position,
-                                        point_a.position);
-                const double one_over_v2ToLine01 =
-                    1.0 / implicit_line(point_c.position[0], point_c.position[1], point_a.position,
-                                        point_b.position);
-                // Affine barycentric weights:
-                double alpha = implicit_line(x, y, point_b.position, point_c.position) * one_over_v0ToLine12;
-                double beta = implicit_line(x, y, point_c.position, point_a.position) * one_over_v1ToLine20;
-                double gamma = implicit_line(x, y, point_a.position, point_b.position) * one_over_v2ToLine01;
-
-                // if pixel (x, y) is inside the triangle or on one of its edges
-                if (alpha >= 0 && beta >= 0 && gamma >= 0)
-                {
-                    const int pixel_index_row = yi;
-                    const int pixel_index_col = xi;
-
-                    // TODO: Check this one. What about perspective?
-                    const double z_affine = alpha * static_cast<double>(point_a.position[2]) +
-                                            beta * static_cast<double>(point_b.position[2]) +
-                                            gamma * static_cast<double>(point_c.position[2]);
-
-                    bool draw = true;
-                    if (enable_far_clipping)
-                    {
-                        if (z_affine > 1.0)
-                        {
-                            draw = false;
-                        }
-                    }
-
-                    bool passes_depth_test = false;
-                    if (enable_depth_test)
-                    {
-                        // If enable_depth_test=false, avoid accessing the depthbuffer at all - it might be
-                        // empty or have other dimensions.
-                        passes_depth_test =
-                            (z_affine < depthbuffer.at<double>(pixel_index_row, pixel_index_col));
-                    }
-                    // The '<= 1.0' clips against the far-plane in NDC. We clip against the near-plane
-                    // earlier.
-                    // if (z_affine < depthbuffer.at<double>(pixelIndexRow, pixelIndexCol)/* && z_affine <=
-                    // 1.0*/) // what to do in ortho case without n/f "squashing"? should we always squash? or
-                    // a flag?
-                    if ((passes_depth_test && draw) || enable_depth_test == false)
-                    {
-                        // perspective-correct barycentric weights
-                        // Todo: Check this in the original/older implementation, i.e. if all is still
-                        // perspective-correct. I think so. Also compare 1:1 with OpenGL.
-                        double d = alpha * one_over_w0 + beta * one_over_w1 + gamma * one_over_w2;
-                        d = 1.0 / d;
-                        if (!extracting_tex) // Pass the uncorrected lambda if we're extracting tex... hack...
-                                             // do properly!
-                        {
-                            alpha *= d * one_over_w0; // In case of affine cam matrix, everything is 1 and
-                                                      // a/b/g don't get changed.
-                            beta *= d * one_over_w1;
-                            gamma *= d * one_over_w2;
-                        }
-                        glm::tvec3<T, P> lambda(alpha, beta, gamma);
-
-                        glm::tvec4<T, P> pixel_color;
-                        if (texture)
-                        {
-                            // check if texture != NULL?
-                            // partial derivatives (for mip-mapping, not needed for texturing otherwise!)
-                            const float u_over_z =
-                                -(alpha_plane.a * x + alpha_plane.b * y + alpha_plane.d) * one_over_alpha_c;
-                            const float v_over_z =
-                                -(beta_plane.a * x + beta_plane.b * y + beta_plane.d) * one_over_beta_c;
-                            const float one_over_z =
-                                -(gamma_plane.a * x + gamma_plane.b * y + gamma_plane.d) * one_over_gamma_c;
-                            const float one_over_squared_one_over_z = 1.0f / std::pow(one_over_z, 2);
-
-                            // partial derivatives of U/V coordinates with respect to X/Y pixel's screen
-                            // coordinates
-                            // These are exclusively used for the mipmap level computation (i.e. which mipmap
-                            // levels to use).
-                            // They're not needed for texturing otherwise at all!
-                            float dudx =
-                                one_over_squared_one_over_z * (alpha_ffx * one_over_z - u_over_z * gamma_ffx);
-                            float dudy =
-                                one_over_squared_one_over_z * (beta_ffx * one_over_z - v_over_z * gamma_ffx);
-                            float dvdx =
-                                one_over_squared_one_over_z * (alpha_ffy * one_over_z - u_over_z * gamma_ffy);
-                            float dvdy =
-                                one_over_squared_one_over_z * (beta_ffy * one_over_z - v_over_z * gamma_ffy);
-                            dudx *= texture.get().mipmaps[0].cols;
-                            dudy *= texture.get().mipmaps[0].cols;
-                            dvdx *= texture.get().mipmaps[0].rows;
-                            dvdy *= texture.get().mipmaps[0].rows;
-
-                            // Why does it need x and y? Maybe some shaders (eg TexExtr?) need it?
-                            pixel_color = fragment_shader.shade_triangle_pixel(
-                                x, y, point_a, point_b, point_c, lambda, texture, dudx, dudy, dvdx, dvdy);
-
-                        } else
-                        { // We use vertex-coloring
-                            // Why does it need x and y?
-                            pixel_color = fragment_shader.shade_triangle_pixel(
-                                x, y, point_a, point_b, point_c, lambda, texture, 0, 0, 0, 0);
-                        }
-
-                        // clamp bytes to 255
-                        // Todo: Proper casting (rounding?)? And we don't clamp/max against 255? Use
-                        // glm::clamp?
-                        const unsigned char red =
-                            static_cast<unsigned char>(255.0f * std::min(pixel_color[0], T(1)));
-                        const unsigned char green =
-                            static_cast<unsigned char>(255.0f * std::min(pixel_color[1], T(1)));
-                        const unsigned char blue =
-                            static_cast<unsigned char>(255.0f * std::min(pixel_color[2], T(1)));
-                        const unsigned char alpha =
-                            static_cast<unsigned char>(255.0f * std::min(pixel_color[3], T(1)));
-
-                        // update buffers
-                        colorbuffer.at<cv::Vec4b>(pixel_index_row, pixel_index_col)[0] = blue;
-                        colorbuffer.at<cv::Vec4b>(pixel_index_row, pixel_index_col)[1] = green;
-                        colorbuffer.at<cv::Vec4b>(pixel_index_row, pixel_index_col)[2] = red;
-                        colorbuffer.at<cv::Vec4b>(pixel_index_row, pixel_index_col)[3] = alpha;
-                        if (enable_depth_test) // TODO: A better name for this might be enable_zbuffer? or
-                                               // enable_zbuffer_test?
-                        {
-                            depthbuffer.at<double>(pixel_index_row, pixel_index_col) = z_affine;
-                        }
-                    }
-                }
-            }
-        }
-    };
 };
 
 /**
