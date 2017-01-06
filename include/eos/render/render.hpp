@@ -145,7 +145,7 @@ inline std::pair<cv::Mat, cv::Mat> render(core::Mesh mesh, glm::tmat4x4<float> m
 	// Vertex shader:
 	//processedVertex = shade(Vertex); // processedVertex : pos, col, tex, texweight
 	// Assemble the vertices, project to clip space, and store as detail::Vertex (the internal representation):
-	vector<detail::Vertex> clipspace_vertices;
+	vector<detail::Vertex<float>> clipspace_vertices;
 	clipspace_vertices.reserve(mesh.vertices.size());
 	for (int i = 0; i < mesh.vertices.size(); ++i) { // "previously": mesh.vertex
 		glm::tvec4<float> clipspace_coords = projection_matrix * model_view_matrix * mesh.vertices[i];
@@ -156,7 +156,7 @@ inline std::pair<cv::Mat, cv::Mat> render(core::Mesh mesh, glm::tmat4x4<float> m
 		else {
 			vertex_colour = mesh.colors[i];
 		}
-		clipspace_vertices.push_back(detail::Vertex(clipspace_coords, vertex_colour, mesh.texcoords[i]));
+		clipspace_vertices.push_back(detail::Vertex<float>{clipspace_coords, vertex_colour, mesh.texcoords[i]});
 	}
 
 	// All vertices are in clip-space now.
@@ -207,7 +207,7 @@ inline std::pair<cv::Mat, cv::Mat> render(core::Mesh mesh, glm::tmat4x4<float> m
 			continue;
 		}
 		// at this moment the triangle is known to be intersecting one of the view frustum's planes
-		std::vector<detail::Vertex> vertices;
+		std::vector<detail::Vertex<float>> vertices;
 		vertices.push_back(clipspace_vertices[tri_indices[0]]);
 		vertices.push_back(clipspace_vertices[tri_indices[1]]);
 		vertices.push_back(clipspace_vertices[tri_indices[2]]);

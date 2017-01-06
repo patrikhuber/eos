@@ -54,8 +54,8 @@ namespace render {
 
 // Forward declarations (these functions should probably be moved into detail/):
 template <typename T, glm::precision P = glm::defaultp>
-std::vector<detail::v2::Vertex<T, P>>
-clip_polygon_to_plane_in_4d(const std::vector<detail::v2::Vertex<T, P>>& vertices,
+std::vector<detail::Vertex<T, P>>
+clip_polygon_to_plane_in_4d(const std::vector<detail::Vertex<T, P>>& vertices,
                             const glm::tvec4<T, P>& plane_normal);
 
 /**
@@ -64,7 +64,7 @@ clip_polygon_to_plane_in_4d(const std::vector<detail::v2::Vertex<T, P>>& vertice
  * Can this go into the SoftwareRenderer class or something? No, I think FragShader needs it? Where to put it?
  */
 template <typename T, glm::precision P = glm::defaultp>
-using Triangle = std::array<detail::v2::Vertex<T, P>, 3>;
+using Triangle = std::array<detail::Vertex<T, P>, 3>;
 
 /**
  * @brief X.
@@ -218,11 +218,11 @@ public:
 
                 // If we're here, the triangle is CCW in screen space and the bbox is inside the viewport!
                 triangles_to_raster.push_back(
-                    Triangle<T, P>{detail::v2::Vertex<T, P>{prospective_tri[0], mesh.colors[tri_indices[0]],
+                    Triangle<T, P>{detail::Vertex<T, P>{prospective_tri[0], mesh.colors[tri_indices[0]],
                                                             mesh.texcoords[tri_indices[0]]},
-                                   detail::v2::Vertex<T, P>{prospective_tri[1], mesh.colors[tri_indices[1]],
+                                   detail::Vertex<T, P>{prospective_tri[1], mesh.colors[tri_indices[1]],
                                                             mesh.texcoords[tri_indices[1]]},
-                                   detail::v2::Vertex<T, P>{prospective_tri[2], mesh.colors[tri_indices[2]],
+                                   detail::Vertex<T, P>{prospective_tri[2], mesh.colors[tri_indices[2]],
                                                             mesh.texcoords[tri_indices[2]]}});
                 continue; // Triangle was either added or not added. Continue with next triangle.
             }
@@ -230,15 +230,15 @@ public:
             // Note: It seems that this is only w.r.t. the near-plane. If a triangle is partially outside the
             // tlbr viewport, it'll get rejected.
             // Well, 'z' of these triangles seems to be -1, so is that really the near plane?
-            std::vector<detail::v2::Vertex<T, P>> vertices;
+            std::vector<detail::Vertex<T, P>> vertices;
             vertices.reserve(3);
-            vertices.push_back(detail::v2::Vertex<T, P>{clipspace_vertices[tri_indices[0]],
+            vertices.push_back(detail::Vertex<T, P>{clipspace_vertices[tri_indices[0]],
                                                         mesh.colors[tri_indices[0]],
                                                         mesh.texcoords[tri_indices[0]]});
-            vertices.push_back(detail::v2::Vertex<T, P>{clipspace_vertices[tri_indices[1]],
+            vertices.push_back(detail::Vertex<T, P>{clipspace_vertices[tri_indices[1]],
                                                         mesh.colors[tri_indices[1]],
                                                         mesh.texcoords[tri_indices[1]]});
-            vertices.push_back(detail::v2::Vertex<T, P>{clipspace_vertices[tri_indices[2]],
+            vertices.push_back(detail::Vertex<T, P>{clipspace_vertices[tri_indices[2]],
                                                         mesh.colors[tri_indices[2]],
                                                         mesh.texcoords[tri_indices[2]]});
             // split the triangle if it intersects the near plane:
@@ -307,11 +307,11 @@ public:
 
                     // If we're here, the triangle is CCW in screen space and the bbox is inside the viewport!
                     triangles_to_raster.push_back(
-                        Triangle<T, P>{detail::v2::Vertex<T, P>{prospective_tri[0], vertices[0].color,
+                        Triangle<T, P>{detail::Vertex<T, P>{prospective_tri[0], vertices[0].color,
                                                                 vertices[0].texcoords},
-                                       detail::v2::Vertex<T, P>{prospective_tri[1], vertices[1 + k].color,
+                                       detail::Vertex<T, P>{prospective_tri[1], vertices[1 + k].color,
                                                                 vertices[1 + k].texcoords},
-                                       detail::v2::Vertex<T, P>{prospective_tri[2], vertices[2 + k].color,
+                                       detail::Vertex<T, P>{prospective_tri[2], vertices[2 + k].color,
                                                                 vertices[2 + k].texcoords}});
                     // continue; // triangle was either added or not added. Continue with next triangle.
                     // COPY END
@@ -352,11 +352,11 @@ private:
  * @ return X.
  */
 template <typename T, glm::precision P = glm::defaultp>
-std::vector<detail::v2::Vertex<T, P>>
-clip_polygon_to_plane_in_4d(const std::vector<detail::v2::Vertex<T, P>>& vertices,
+std::vector<detail::Vertex<T, P>>
+clip_polygon_to_plane_in_4d(const std::vector<detail::Vertex<T, P>>& vertices,
                             const glm::tvec4<T, P>& plane_normal)
 {
-    std::vector<detail::v2::Vertex<T, P>> clipped_vertices;
+    std::vector<detail::Vertex<T, P>> clipped_vertices;
 
     // We can have 2 cases:
     //	* 1 vertex visible: we make 1 new triangle out of the visible vertex plus the 2 intersection points
@@ -395,10 +395,10 @@ clip_polygon_to_plane_in_4d(const std::vector<detail::v2::Vertex<T, P>>& vertice
             if (fa < 0) // we keep the original vertex plus the new one
             {
                 clipped_vertices.push_back(vertices[a]);
-                clipped_vertices.push_back(detail::v2::Vertex<T, P>{position, color, texcoords});
+                clipped_vertices.push_back(detail::Vertex<T, P>{position, color, texcoords});
             } else if (fb < 0) // we use only the new vertex
             {
-                clipped_vertices.push_back(detail::v2::Vertex<T, P>{position, color, texcoords});
+                clipped_vertices.push_back(detail::Vertex<T, P>{position, color, texcoords});
             }
         } else if (fa < 0 && fb < 0) // both are visible (on the "good" side of the plane), no splitting
                                      // required, use the current vertex

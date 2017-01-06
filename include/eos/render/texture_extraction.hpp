@@ -453,7 +453,7 @@ cv::Mat extract_texture(core::Mesh mesh, glm::mat4x4 view_model_matrix, glm::mat
             // Test with a rendered & re-extracted texture shows that we're off by a pixel or more,
             // definitely need to correct this. Probably here.
             // It looks like it is 1-2 pixels off. Definitely a bit more than 1.
-            detail::v2::Vertex<double> pa{
+            detail::Vertex<double> pa{
                 vec4(mesh.texcoords[tvi[0]][0] * tex_width, mesh.texcoords[tvi[0]][1] * tex_height,
                      wnd_coords[tvi[0]].z /* z_ndc */, wnd_coords[tvi[0]].w /* 1/w_clip */),
                 vec3(/* empty */),
@@ -462,7 +462,7 @@ cv::Mat extract_texture(core::Mesh mesh, glm::mat4x4 view_model_matrix, glm::mat
                     /* maybe 1 - ... ? */ wnd_coords[tvi[0]].y /
                         image
                             .rows /* wndcoords of the projected/rendered model triangle (in the input img). Normalised to 0,1. */)};
-            detail::v2::Vertex<double> pb{
+            detail::Vertex<double> pb{
                 vec4(mesh.texcoords[tvi[1]][0] * tex_width, mesh.texcoords[tvi[1]][1] * tex_height,
                      wnd_coords[tvi[1]].z /* z_ndc */, wnd_coords[tvi[1]].w /* 1/w_clip */),
                 vec3(/* empty */),
@@ -471,7 +471,7 @@ cv::Mat extract_texture(core::Mesh mesh, glm::mat4x4 view_model_matrix, glm::mat
                     /* maybe 1 - ... ? */ wnd_coords[tvi[1]].y /
                         image
                             .rows /* wndcoords of the projected/rendered model triangle (in the input img). Normalised to 0,1. */)};
-            detail::v2::Vertex<double> pc{
+            detail::Vertex<double> pc{
                 vec4(mesh.texcoords[tvi[2]][0] * tex_width, mesh.texcoords[tvi[2]][1] * tex_height,
                      wnd_coords[tvi[2]].z /* z_ndc */, wnd_coords[tvi[2]].w /* 1/w_clip */),
                 vec3(/* empty */),

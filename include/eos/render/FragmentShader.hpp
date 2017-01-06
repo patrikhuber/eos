@@ -65,8 +65,8 @@ public:
      */
     template <typename T, glm::precision P = glm::defaultp>
     glm::tvec4<T, P>
-    shade_triangle_pixel(int x, int y, const detail::v2::Vertex<T, P>& point_a,
-                         const detail::v2::Vertex<T, P>& point_b, const detail::v2::Vertex<T, P>& point_c,
+    shade_triangle_pixel(int x, int y, const detail::Vertex<T, P>& point_a,
+                         const detail::Vertex<T, P>& point_b, const detail::Vertex<T, P>& point_c,
                          const glm::tvec3<T, P>& lambda, const boost::optional<Texture>& texture, float dudx,
                          float dudy, float dvdx, float dvdy)
     {
@@ -95,8 +95,8 @@ public:
      */
     template <typename T, glm::precision P = glm::defaultp>
     glm::tvec4<T, P>
-    shade_triangle_pixel(int x, int y, const detail::v2::Vertex<T, P>& point_a,
-                         const detail::v2::Vertex<T, P>& point_b, const detail::v2::Vertex<T, P>& point_c,
+    shade_triangle_pixel(int x, int y, const detail::Vertex<T, P>& point_a,
+                         const detail::Vertex<T, P>& point_b, const detail::Vertex<T, P>& point_c,
                          const glm::tvec3<T, P>& lambda, const boost::optional<eos::render::Texture>& texture,
                          float dudx, float dudy, float dvdx, float dvdy)
     {
@@ -164,8 +164,8 @@ public:
      */
     template <typename T, glm::precision P = glm::defaultp>
     glm::tvec4<T, P>
-    shade_triangle_pixel(int x, int y, const detail::v2::Vertex<T, P>& point_a,
-                         const detail::v2::Vertex<T, P>& point_b, const detail::v2::Vertex<T, P>& point_c,
+    shade_triangle_pixel(int x, int y, const detail::Vertex<T, P>& point_a,
+                         const detail::Vertex<T, P>& point_b, const detail::Vertex<T, P>& point_c,
                          const glm::tvec3<T, P>& lambda, const boost::optional<Texture>& texture, float dudx,
                          float dudy, float dvdx, float dvdy)
     {

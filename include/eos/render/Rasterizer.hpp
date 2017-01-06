@@ -57,8 +57,8 @@ public:
       * @ return X.
       */
     template <typename T, glm::precision P = glm::defaultp>
-    void raster_triangle(const detail::v2::Vertex<T, P>& point_a, const detail::v2::Vertex<T, P>& point_b,
-                         const detail::v2::Vertex<T, P>& point_c, const boost::optional<Texture>& texture)
+    void raster_triangle(const detail::Vertex<T, P>& point_a, const detail::Vertex<T, P>& point_b,
+                         const detail::Vertex<T, P>& point_c, const boost::optional<Texture>& texture)
     {
         // We already calculated this in the culling/clipping stage. Maybe we should save/cache it after all.
         cv::Rect boundingBox = detail::calculate_clipped_bounding_box(

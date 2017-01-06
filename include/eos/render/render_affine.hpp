@@ -66,7 +66,7 @@ inline std::pair<cv::Mat, cv::Mat> render_affine(core::Mesh mesh, cv::Mat affine
 
 	Mat affine_with_z = detail::calculate_affine_z_direction(affine_camera_matrix);
 
-	vector<detail::Vertex> projected_vertices;
+	vector<detail::Vertex<float>> projected_vertices;
 	projected_vertices.reserve(mesh.vertices.size());
 	for (int i = 0; i < mesh.vertices.size(); ++i) {
 		Mat vertex_screen_coords = affine_with_z * Mat(cv::Vec4f(mesh.vertices[i].x, mesh.vertices[i].y, mesh.vertices[i].z, mesh.vertices[i].w));
@@ -78,7 +78,7 @@ inline std::pair<cv::Mat, cv::Mat> render_affine(core::Mesh mesh, cv::Mat affine
 		else {
 			vertex_colour = mesh.colors[i];
 		}
-		projected_vertices.push_back(detail::Vertex(vertex_screen_coords_glm, vertex_colour, mesh.texcoords[i]));
+		projected_vertices.push_back(detail::Vertex<float>{vertex_screen_coords_glm, vertex_colour, mesh.texcoords[i]});
 	}
 
 	// All vertices are screen-coordinates now

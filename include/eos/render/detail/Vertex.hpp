@@ -34,9 +34,6 @@ namespace eos {
 namespace render {
 namespace detail {
 
-// In a v2 namespace for now to disambiguate between this and the "older" Vertex class:
-namespace v2 {
-
 /**
  * @brief A representation for a vertex during rendering, used internally.
  *
@@ -57,8 +54,6 @@ struct Vertex
     glm::tvec3<T, P> color;     // RGB order
     glm::tvec2<T, P> texcoords; // UV
 };
-
-} /* namespace v2 */
 
 } /* namespace detail */
 } /* namespace render */
