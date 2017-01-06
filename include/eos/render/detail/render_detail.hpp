@@ -3,7 +3,7 @@
  *
  * File: include/eos/render/detail/render_detail.hpp
  *
- * Copyright 2014, 2015 Patrik Huber
+ * Copyright 2014-2017 Patrik Huber
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@
 
 #include "eos/render/utils.hpp"
 
-#include "glm/glm.hpp" // tvec2, glm::precision, tvec3, normalize, dot, cross
+#include "glm/glm.hpp" // tvec2, glm::precision, tvec3, tvec4, normalize, dot, cross
 
 #include "opencv2/core/core.hpp"
 
@@ -277,6 +277,27 @@ inline std::vector<Vertex> clip_polygon_to_plane_in_4d(const std::vector<Vertex>
 	}
 
 	return clippedVertices;
+};
+
+/**
+ * @brief Todo.
+ *
+ * Takes in clip coords? and outputs NDC.
+ * divides by w and outputs [x_ndc, y_ndc, z_ndc, 1/w_clip].
+ * The w-component is set to 1/w_clip (which is what OpenGL passes to the FragmentShader).
+ *
+ * @param[in] vertex X.
+ * @ return X.
+ */
+template <typename T, glm::precision P = glm::defaultp>
+glm::tvec4<T, P> divide_by_w(const glm::tvec4<T, P>& vertex)
+{
+    auto one_over_w = 1.0 / vertex.w;
+    // divide by w: (if ortho, w will just be 1)
+    glm::tvec4<T, P> v_ndc(vertex / vertex.w);
+    // Set the w coord to 1/w (i.e. 1/w_clip). This is what OpenGL passes to the FragmentShader.
+    v_ndc.w = one_over_w;
+    return v_ndc;
 };
 
 // used only in tex2D_linear_mipmap_linear

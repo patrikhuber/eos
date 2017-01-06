@@ -25,6 +25,7 @@
 #include "eos/core/Mesh.hpp"
 #include "eos/render/Rasterizer.hpp"
 #include "eos/render/detail/Vertex.hpp"
+#include "eos/render/detail/render_detail.hpp"
 #include "eos/render/utils.hpp" // for Texture, potentially others
 
 #include "glm/mat4x4.hpp"
@@ -52,9 +53,6 @@ namespace eos {
 namespace render {
 
 // Forward declarations (these functions should probably be moved into detail/):
-template <typename T, glm::precision P = glm::defaultp>
-glm::tvec4<T, P> divide_by_w(const glm::tvec4<T, P>& vertex);
-
 template <typename T, glm::precision P = glm::defaultp>
 std::vector<detail::v2::Vertex<T, P>>
 clip_polygon_to_plane_in_4d(const std::vector<detail::v2::Vertex<T, P>>& vertices,
@@ -115,6 +113,7 @@ public:
                mesh.texcoords.empty()); // same for the texcoords
         // Add another assert: If cv::Mat texture != empty (and/or texturing=true?), then we need texcoords?
 
+        using detail::divide_by_w;
         using cv::Mat;
         using std::vector;
 
@@ -340,27 +339,6 @@ public: // Todo: these should go private in the final implementation
     std::unique_ptr<Rasterizer<FragmentShaderType>> rasterizer; // Rasterizer is not default-constructible
 private:
     VertexShaderType vertex_shader;
-};
-
-/**
- * @brief Todo.
- *
- * Takes in clip coords? and outputs NDC.
- * divides by w and outputs [x_ndc, y_ndc, z_ndc, 1/w_clip].
- * The w-component is set to 1/w_clip (which is what OpenGL passes to the FragmentShader).
- *
- * @param[in] vertex X.
- * @ return X.
- */
-template <typename T, glm::precision P = glm::defaultp>
-glm::tvec4<T, P> divide_by_w(const glm::tvec4<T, P>& vertex)
-{
-    auto one_over_w = 1.0 / vertex.w;
-    // divide by w: (if ortho, w will just be 1)
-    glm::tvec4<T, P> v_ndc(vertex / vertex.w);
-    // Set the w coord to 1/w (i.e. 1/w_clip). This is what OpenGL passes to the FragmentShader.
-    v_ndc.w = one_over_w;
-    return v_ndc;
 };
 
 /**

@@ -26,6 +26,7 @@
 #include "eos/render/detail/texture_extraction_detail.hpp"
 #include "eos/render/render_affine.hpp"
 #include "eos/render/detail/render_detail.hpp"
+#include "eos/render/utils.hpp" // for clip_to_screen_space()
 #include "eos/render/Rasterizer.hpp"
 #include "eos/render/FragmentShader.hpp"
 #include "eos/fitting/closest_edge_fitting.hpp" // for ray_triangle_intersect()
@@ -376,6 +377,7 @@ cv::Mat extract_texture(core::Mesh mesh, glm::mat4x4 view_model_matrix, glm::mat
                         glm::vec4 /*viewport, not needed at the moment */, cv::Mat image,
                         bool /* compute_view_angle, unused atm */, int isomap_resolution = 512)
 {
+    using detail::divide_by_w;
     using glm::vec2;
     using glm::vec3;
     using glm::vec4;
