@@ -45,7 +45,7 @@ public:
     {
         colorbuffer = cv::Mat(viewport_height, viewport_width, CV_8UC4, cv::Scalar::all(255));
         depthbuffer =
-            std::numeric_limits<double>::max() * Mat::ones(viewport_height, viewport_width, CV_64FC1);
+            std::numeric_limits<double>::max() * cv::Mat::ones(viewport_height, viewport_width, CV_64FC1);
     };
 
     /**
