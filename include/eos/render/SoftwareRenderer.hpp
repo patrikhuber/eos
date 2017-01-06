@@ -37,7 +37,6 @@
 #include "boost/optional.hpp"
 
 #include <array>
-#include <limits>
 #include <memory>
 
 /**
@@ -102,9 +101,9 @@ public:
      * @ return The framebuffer (colourbuffer) with the rendered object.
      */
     template <typename T, glm::precision P = glm::defaultp>
-    cv::Mat render(const eos::core::Mesh& mesh, const glm::tmat4x4<T, P>& model_view_matrix,
+    cv::Mat render(const core::Mesh& mesh, const glm::tmat4x4<T, P>& model_view_matrix,
                    const glm::tmat4x4<T, P>& projection_matrix,
-                   const boost::optional<eos::render::Texture>& texture = boost::none)
+                   const boost::optional<Texture>& texture = boost::none)
     {
         assert(mesh.vertices.size() == mesh.colors.size() ||
                mesh.colors.empty()); // The number of vertices has to be equal for both shape and colour, or,

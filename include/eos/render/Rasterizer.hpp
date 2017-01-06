@@ -23,8 +23,13 @@
 #define RASTERIZER_HPP_
 
 #include "eos/render/detail/Vertex.hpp"
+#include "eos/render/utils.hpp" // for Texture
 
-// std includes
+#include "opencv2/core/core.hpp"
+
+#include "boost/optional.hpp"
+
+#include <limits>
 
 namespace eos {
 namespace render {
