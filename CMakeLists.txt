@@ -98,6 +98,7 @@ set(HEADERS
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/Rasterizer.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/FragmentShader.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/detail/Vertex.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/video/Keyframe.hpp
 )
 
 add_library(eos INTERFACE)

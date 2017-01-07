@@ -22,3 +22,8 @@
  * @namespace eos::render
  * @brief Software rendering and texture extraction functionality.
  */
+
+ /**
+ * @namespace eos::video
+ * @brief Video keyframe extraction and fusion.
+ */
