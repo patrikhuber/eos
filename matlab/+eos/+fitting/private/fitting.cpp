@@ -105,22 +105,3 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	output.set(0, mesh);
 	output.set(1, rendering_parameters);
 };
-
-void func()
-{
-	int x = 4;
-};
-
-int func1()
-{
-	return 5;
-};
-
-class MyClass
-{
-public:
-	MyClass() = default;
-	int test() {
-		return 6;
-	};
-};
