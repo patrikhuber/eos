@@ -33,6 +33,8 @@ namespace mexplus {
 /**
  * @brief Define a template specialisation for Eigen::MatrixXd for ... .
  *
+ * The default precision in Matlab is double, so for now we only define conversions for MatrixXd.
+ *
  * Todo: Documentation.
  */
 template<>
