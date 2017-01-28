@@ -55,18 +55,18 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	}
 
 	InputArguments input(nrhs, prhs, 12);
-	auto morphablemodel_file = input.get<string>(0);
-	auto blendshapes_file = input.get<string>(1);
-	auto landmarks_in = input.get<Eigen::MatrixXd>(2);
-	auto mapper_file = input.get<string>(3);
-	auto image_width = input.get<int>(4);
-	auto image_height = input.get<int>(5);
-	auto edgetopo_file = input.get<string>(6);
-	auto contour_lms_file = input.get<string>(7);
-	auto model_cnt_file = input.get<string>(8);
-	auto num_iterations = input.get<int>(9);
-	auto num_shape_coeffs = input.get<int>(10);
-	auto lambda = input.get<double>(11);
+	const auto morphablemodel_file = input.get<string>(0);
+	const auto blendshapes_file = input.get<string>(1);
+	const auto landmarks_in = input.get<Eigen::MatrixXd>(2);
+	const auto mapper_file = input.get<string>(3);
+	const auto image_width = input.get<int>(4);
+	const auto image_height = input.get<int>(5);
+	const auto edgetopo_file = input.get<string>(6);
+	const auto contour_lms_file = input.get<string>(7);
+	const auto model_cnt_file = input.get<string>(8);
+	const auto num_iterations = input.get<int>(9);
+	const auto num_shape_coeffs = input.get<int>(10);
+	const auto lambda = input.get<double>(11);
 
 	if (landmarks_in.rows() != 68) {
 		mexErrMsgIdAndTxt("eos:fitting:argin", "Given landmarks must be a 68 x 2 vector with ibug landmarks, in the order from 1 to 68.");
@@ -80,12 +80,12 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
 	// Load everything:
 	const auto morphable_model = morphablemodel::load_model(morphablemodel_file);
-	auto blendshapes = morphablemodel::load_blendshapes(blendshapes_file);
-	core::LandmarkMapper landmark_mapper(mapper_file);
-	auto edge_topology = morphablemodel::load_edge_topology(edgetopo_file);
-	auto contour_landmarks = fitting::ContourLandmarks::load(contour_lms_file);
-	auto model_contour = fitting::ModelContour::load(model_cnt_file);
-	boost::optional<int> num_shape_coefficients_to_fit = num_shape_coeffs == -1 ? boost::none : boost::optional<int>(num_shape_coeffs);
+	const auto blendshapes = morphablemodel::load_blendshapes(blendshapes_file);
+	const core::LandmarkMapper landmark_mapper(mapper_file);
+	const auto edge_topology = morphablemodel::load_edge_topology(edgetopo_file);
+	const auto contour_landmarks = fitting::ContourLandmarks::load(contour_lms_file);
+	const auto model_contour = fitting::ModelContour::load(model_cnt_file);
+	const boost::optional<int> num_shape_coefficients_to_fit = num_shape_coeffs == -1 ? boost::none : boost::optional<int>(num_shape_coeffs);
 
 	// Now do the actual fitting:
 	core::Mesh mesh;
