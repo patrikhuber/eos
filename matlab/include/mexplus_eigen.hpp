@@ -78,7 +78,7 @@ void MxArray::to(const mxArray* in_array, Eigen::MatrixXd* eigen_matrix)
 
 	if (!array.isDouble())
 	{
-		mexErrMsgIdAndTxt("eos:matlab", "Trying to create a Eigen::MatrixXd in C++, but the given data is not of type double.");
+		mexErrMsgIdAndTxt("eos:matlab", "Trying to create an Eigen::MatrixXd in C++, but the given data is not of type double.");
 	}
 
 	// We can be sure now that the array is 2-dimensional (or 0, but then we're screwed anyway)
