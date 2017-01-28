@@ -83,7 +83,7 @@ namespace detail { cv::Mat interpolate_black_line(cv::Mat isomap); }
  * @param[in] isomap_resolution The resolution of the generated isomap. Defaults to 512x512.
  * @return The extracted texture as isomap (texture map).
  */
-inline cv::Mat extract_texture(core::Mesh mesh, cv::Mat affine_camera_matrix, cv::Mat image, bool compute_view_angle = false, TextureInterpolation mapping_type = TextureInterpolation::NearestNeighbour, int isomap_resolution = 512)
+inline cv::Mat extract_texture(const core::Mesh& mesh, cv::Mat affine_camera_matrix, cv::Mat image, bool compute_view_angle = false, TextureInterpolation mapping_type = TextureInterpolation::NearestNeighbour, int isomap_resolution = 512)
 {
 	// Render the model to get a depth buffer:
 	cv::Mat depthbuffer;

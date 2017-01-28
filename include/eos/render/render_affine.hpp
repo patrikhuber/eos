@@ -53,7 +53,7 @@ namespace eos {
  * @param[in] do_backface_culling Whether the renderer should perform backface culling.
  * @return A pair with the colourbuffer as its first element and the depthbuffer as the second element.
  */
-inline std::pair<cv::Mat, cv::Mat> render_affine(core::Mesh mesh, cv::Mat affine_camera_matrix, int viewport_width, int viewport_height, bool do_backface_culling = true)
+inline std::pair<cv::Mat, cv::Mat> render_affine(const core::Mesh& mesh, cv::Mat affine_camera_matrix, int viewport_width, int viewport_height, bool do_backface_culling = true)
 {
 	assert(mesh.vertices.size() == mesh.colors.size() || mesh.colors.empty()); // The number of vertices has to be equal for both shape and colour, or, alternatively, it has to be a shape-only model.
 	//assert(mesh.vertices.size() == mesh.texcoords.size() || mesh.texcoords.empty()); // same for the texcoords
