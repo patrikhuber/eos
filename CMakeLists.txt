@@ -55,11 +55,13 @@ find_package(Eigen3 REQUIRED)
 message(STATUS "Eigen3 found: ${EIGEN3_FOUND}, version: ${EIGEN3_VERSION}")
 message(STATUS "Eigen3 include dir found at ${EIGEN3_INCLUDE_DIR}")
 
+set(eos_3RDPARTY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty") # this is used by the CMakeLists.txt files in the subdirectories
+
 # Set the include directories of the 3rd-party submodules that we use:
-set(CEREAL_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/cereal-1.1.1/include")
-set(glm_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/glm")
-set(nanoflann_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/nanoflann/include")
-set(eigen3_nnls_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/eigen3-nnls/src")
+set(CEREAL_INCLUDE_DIR "${eos_3RDPARTY_DIR}/cereal-1.1.1/include")
+set(glm_INCLUDE_DIR "${eos_3RDPARTY_DIR}/glm")
+set(nanoflann_INCLUDE_DIR "${eos_3RDPARTY_DIR}/nanoflann/include")
+set(eigen3_nnls_INCLUDE_DIR "${eos_3RDPARTY_DIR}/eigen3-nnls/src")
 
 # Header files of the eos library:
 set(HEADERS
