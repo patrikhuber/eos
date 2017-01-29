@@ -33,9 +33,9 @@ matlab_add_mex(
   #[...]
 )
 
-target_include_directories(eos-matlab-fitting PRIVATE ${CMAKE_SOURCE_DIR}/3rdparty/mexplus/include ${CMAKE_SOURCE_DIR}/matlab/include)
+target_include_directories(eos-matlab-fitting PRIVATE ${eos_3RDPARTY_DIR}/mexplus/include ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-install(FILES ${CMAKE_SOURCE_DIR}/matlab/demo.m DESTINATION matlab)
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/matlab/include DESTINATION matlab)
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/matlab/+eos DESTINATION matlab PATTERN "*.cpp" EXCLUDE)
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/demo.m DESTINATION matlab)
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include DESTINATION matlab)
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/+eos DESTINATION matlab PATTERN "*.cpp" EXCLUDE)
 install(TARGETS eos-matlab-fitting DESTINATION matlab/+eos/+fitting/private)
