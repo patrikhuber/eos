@@ -199,14 +199,30 @@ mxArray* MxArray::from(const std::vector<std::array<int, 3>>& data)
  * @return An mxArray containing a Matlab struct with all vertex, colour, texcoords and triangle data.
  */
 template<>
-mxArray* MxArray::from(const eos::core::Mesh& mesh) {
+mxArray* MxArray::from(const eos::core::Mesh& mesh)
+{
+	// C++ counts the vertex indices starting at zero, Matlab starts counting
+	// at one - therefore, add +1 to all triangle indices:
+	auto tvi_1based = mesh.tvi;
+	for (auto&& t : tvi_1based) {
+		for (auto&& idx : t) {
+			idx += 1;
+		}
+	}
+	// Same for tci:
+	auto tci_1based = mesh.tci;
+	for (auto&& t : tci_1based) {
+		for (auto&& idx : t) {
+			idx += 1;
+		}
+	}
 
 	MxArray out_array(MxArray::Struct());
 	out_array.set("vertices", mesh.vertices);
 	out_array.set("colors", mesh.colors);
 	out_array.set("texcoords", mesh.texcoords);
-	out_array.set("tvi", mesh.tvi);
-	out_array.set("tci", mesh.tci);
+	out_array.set("tvi", tvi_1based);
+	out_array.set("tci", tci_1based);
 
 	return out_array.release();
 };

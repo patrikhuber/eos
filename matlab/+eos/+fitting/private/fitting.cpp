@@ -92,14 +92,6 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	fitting::RenderingParameters rendering_parameters;
 	std::tie(mesh, rendering_parameters) = fitting::fit_shape_and_pose(morphable_model, blendshapes, landmarks, landmark_mapper, image_width, image_height, edge_topology, contour_landmarks, model_contour, num_iterations, num_shape_coefficients_to_fit, lambda);
 
-	// C++ counts the vertex indices starting at zero, Matlab starts counting
-	// at one - therefore, add +1 to all triangle indices:
-	for (auto&& t : mesh.tvi) {
-		for (auto&& idx : t) {
-			idx += 1;
-		}
-	}
-
 	// Return the mesh and the rendering_parameters:
 	OutputArguments output(nlhs, plhs, 2);
 	output.set(0, mesh);
