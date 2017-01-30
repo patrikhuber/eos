@@ -22,6 +22,13 @@ if(MSVC)
 endif()
 find_package(Boost 1.50.0 COMPONENTS system filesystem REQUIRED) # Why do we need boost for MorphableModel.hpp?
 
+# Our helper-headers, and Matlab-specific headers - to make them show up in IDEs:
+set(EOS_MATLAB_HEADERS
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/mexplus_eigen.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/mexplus_eos_types.hpp
+)
+add_custom_target(eos-matlab-headers SOURCES ${EOS_MATLAB_HEADERS})
+
 # See: https://cmake.org/cmake/help/v3.7/module/FindMatlab.html?highlight=findmatlab#command:matlab_add_mex
 matlab_add_mex(
   NAME eos-matlab-fitting
