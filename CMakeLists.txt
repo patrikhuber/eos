@@ -50,16 +50,18 @@ endif()
 find_package(Boost 1.50.0 COMPONENTS system REQUIRED)
 message(STATUS "Boost found at ${Boost_INCLUDE_DIRS}")
 
-set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
+set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 find_package(Eigen3 REQUIRED)
 message(STATUS "Eigen3 found: ${EIGEN3_FOUND}, version: ${EIGEN3_VERSION}")
 message(STATUS "Eigen3 include dir found at ${EIGEN3_INCLUDE_DIR}")
 
+set(eos_3RDPARTY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty") # this is used by the CMakeLists.txt files in the subdirectories
+
 # Set the include directories of the 3rd-party submodules that we use:
-set(CEREAL_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/3rdparty/cereal-1.1.1/include")
-set(glm_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/3rdparty/glm")
-set(nanoflann_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/3rdparty/nanoflann/include")
-set(eigen3_nnls_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/3rdparty/eigen3-nnls/src")
+set(CEREAL_INCLUDE_DIR "${eos_3RDPARTY_DIR}/cereal-1.1.1/include")
+set(glm_INCLUDE_DIR "${eos_3RDPARTY_DIR}/glm")
+set(nanoflann_INCLUDE_DIR "${eos_3RDPARTY_DIR}/nanoflann/include")
+set(eigen3_nnls_INCLUDE_DIR "${eos_3RDPARTY_DIR}/eigen3-nnls/src")
 
 # Header files of the eos library:
 set(HEADERS
@@ -125,16 +127,16 @@ source_group(render\\detail REGULAR_EXPRESSION include/eos/render/detail/*)
 source_group(video REGULAR_EXPRESSION include/eos/video/*)
 
 # The eos install target:
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/ DESTINATION include) # our library headers
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/share/ DESTINATION share) # the model and metadata
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/ DESTINATION include) # our library headers
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/share/ DESTINATION share) # the model and metadata
 # For 3rd party headers, we only copy the headers and licence files:
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/3rdparty/cereal-1.1.1/ DESTINATION 3rdparty/cereal-1.1.1) # cereal headers
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/3rdparty/glm/glm/ DESTINATION 3rdparty/glm/glm) # glm headers
-install(FILES ${CMAKE_SOURCE_DIR}/3rdparty/glm/copying.txt DESTINATION 3rdparty/glm/) # glm licence
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/3rdparty/nanoflann/include/ DESTINATION 3rdparty/nanoflann/include) # nanoflann header
-install(FILES ${CMAKE_SOURCE_DIR}/3rdparty/nanoflann/COPYING DESTINATION 3rdparty/nanoflann/) # nanoflann licence
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/3rdparty/eigen3-nnls/src/ DESTINATION 3rdparty/eigen3-nnls/src) # eigen3-nnls header
-install(FILES ${CMAKE_SOURCE_DIR}/3rdparty/eigen3-nnls/README.md DESTINATION 3rdparty/eigen3-nnls/) # eigen3-nnls attribution
+install(DIRECTORY ${eos_3RDPARTY_DIR}/cereal-1.1.1/ DESTINATION 3rdparty/cereal-1.1.1) # cereal headers
+install(DIRECTORY ${eos_3RDPARTY_DIR}/glm/glm/ DESTINATION 3rdparty/glm/glm) # glm headers
+install(FILES ${eos_3RDPARTY_DIR}/glm/copying.txt DESTINATION 3rdparty/glm/) # glm licence
+install(DIRECTORY ${eos_3RDPARTY_DIR}/nanoflann/include/ DESTINATION 3rdparty/nanoflann/include) # nanoflann header
+install(FILES ${eos_3RDPARTY_DIR}/nanoflann/COPYING DESTINATION 3rdparty/nanoflann/) # nanoflann licence
+install(DIRECTORY ${eos_3RDPARTY_DIR}/eigen3-nnls/src/ DESTINATION 3rdparty/eigen3-nnls/src) # eigen3-nnls header
+install(FILES ${eos_3RDPARTY_DIR}/eigen3-nnls/README.md DESTINATION 3rdparty/eigen3-nnls/) # eigen3-nnls attribution
 
 if(EOS_BUILD_EXAMPLES)
   add_subdirectory(examples)
@@ -149,16 +151,16 @@ if(EOS_BUILD_DOCUMENTATION)
 endif()
 
 if(EOS_GENERATE_PYTHON_BINDINGS)
-  set(PYBIND11_PATH "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/pybind11")
+  set(PYBIND11_PATH "${eos_3RDPARTY_DIR}/pybind11")
   # If this fails, the repo has probably not been cloned with submodules. Run: git submodule update --init
   add_subdirectory(${PYBIND11_PATH}) # add and initialise pybind11
   add_subdirectory(python) # the actual bindings
-  install(DIRECTORY ${CMAKE_SOURCE_DIR}/3rdparty/pybind11/include/ DESTINATION 3rdparty/pybind11/include) # pybind11 headers
-  install(FILES ${CMAKE_SOURCE_DIR}/3rdparty/pybind11/LICENSE DESTINATION 3rdparty/pybind11/) # pybind11 licence
+  install(DIRECTORY ${eos_3RDPARTY_DIR}/pybind11/include/ DESTINATION 3rdparty/pybind11/include) # pybind11 headers
+  install(FILES ${eos_3RDPARTY_DIR}/pybind11/LICENSE DESTINATION 3rdparty/pybind11/) # pybind11 licence
 endif()
 
 if(EOS_GENERATE_MATLAB_BINDINGS)
   add_subdirectory(matlab)
-  install(DIRECTORY ${CMAKE_SOURCE_DIR}/3rdparty/mexplus/include/ DESTINATION 3rdparty/mexplus/include) # mexplus headers
-  install(FILES ${CMAKE_SOURCE_DIR}/3rdparty/mexplus/LICENSE DESTINATION 3rdparty/mexplus/) # mexplus licence
+  install(DIRECTORY ${eos_3RDPARTY_DIR}/mexplus/include/ DESTINATION 3rdparty/mexplus/include) # mexplus headers
+  install(FILES ${eos_3RDPARTY_DIR}/mexplus/LICENSE DESTINATION 3rdparty/mexplus/) # mexplus licence
 endif()
