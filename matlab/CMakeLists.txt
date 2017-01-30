@@ -41,6 +41,9 @@ matlab_add_mex(
 )
 
 target_include_directories(eos-matlab-fitting PRIVATE ${eos_3RDPARTY_DIR}/mexplus/include ${CMAKE_CURRENT_SOURCE_DIR}/include)
+# Group the matlab bindings targets into one folder (in IDEs):
+set_target_properties(eos-matlab-headers eos-matlab-fitting PROPERTIES FOLDER "matlab-bindings")
+
 
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/demo.m DESTINATION matlab)
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include DESTINATION matlab)
