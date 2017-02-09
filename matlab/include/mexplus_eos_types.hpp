@@ -37,6 +37,9 @@
 
 #include "mex.h"
 
+#include <array>
+#include <vector>
+
 /**
  * @file
  * @brief Contains mexplus template specialisations to convert eos data
