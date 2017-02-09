@@ -72,7 +72,7 @@ mxArray* MxArray::from(const glm::tquat<float>& quat)
 };
 
 /**
- * @brief Converts a glm::tmat4x4<float> to a Matlab matrix.
+ * @brief Converts a glm::tmat4x4<float> to a Matlab (double) matrix.
  *
  * @param[in] mat The matrix to convert.
  * @return A 4x4 Matlab matrix.
@@ -117,13 +117,53 @@ mxArray* MxArray::from(const std::vector<glm::tvec2<float>>& data)
 };
 
 /**
+ * @brief Converts a Matlab matrix into an std::vector of glm::vec2.
+ *
+ * This function converts an n x 2 Matlab matrix to a vector of vec2's.
+ * It is mainly used to pass vertex texture coordinate data from Matlab back to C++.
+ *
+ * See template <> mxArray* MxArray::from(const std::vector<glm::tvec2<float>>&)
+ * for more details regarding the type specialisation.
+ *
+ * @param[in] in_array The matrix data from Matlab.
+ * @param[in,out] data The converted data in C++.
+ */
+template <>
+void MxArray::to(const mxArray* in_array, std::vector<glm::vec2>* data)
+{
+    MxArray arr(in_array);
+
+    if (arr.dimensionSize() != 2)
+    {
+        mexErrMsgIdAndTxt("eos:matlab", "Given array has to have 2 dimensions, i.e. n x 2.");
+    }
+    if (arr.cols() != 2)
+    {
+        mexErrMsgIdAndTxt("eos:matlab", "Given array has to have 2 elements in the second dimension, i.e. n x 2.");
+    }
+    if (!arr.isDouble())
+    {
+        mexErrMsgIdAndTxt("eos:matlab", "Given array should be of type double.");
+    }
+
+    const auto num_vertices = arr.rows();
+    data->reserve(num_vertices);
+
+    for (int i = 0; i < num_vertices; ++i)
+    {
+        data->push_back(
+            glm::vec2(arr.at<double>(mwIndex(i), mwIndex(0)), arr.at<double>(mwIndex(i), mwIndex(1))));
+    }
+};
+
+/**
  * @brief Converts an std::vector of glm::tvec3<float> to a Matlab matrix.
  *
  * This function converts a whole vector of vec3's to an n x 3 Matlab matrix,
  * where n is data.size(). It is mainly used to pass vertex colour data of
  * a Mesh to Matlab.
  *
- * See template<> mxArray* MxArray::from(const std::vector<glm::tvec2<float>>&)
+ * See template <> mxArray* MxArray::from(const std::vector<glm::tvec2<float>>&)
  * for more details.
  *
  * @param[in] data The data to convert.
@@ -148,7 +188,7 @@ mxArray* MxArray::from(const std::vector<glm::tvec3<float>>& data)
  * where n is data.size(). It is mainly used to pass vertex data of a Mesh
  * to Matlab.
  *
- * See template<> mxArray* MxArray::from(const std::vector<glm::tvec2<float>>&)
+ * See template <> mxArray* MxArray::from(const std::vector<glm::tvec2<float>>&)
  * for more details.
  *
  * @param[in] data The data to convert.
@@ -164,6 +204,47 @@ mxArray* MxArray::from(const std::vector<glm::tvec4<float>>& data)
 		}
 	}
 	return out_array.release();
+};
+
+/**
+ * @brief Converts a Matlab matrix into an std::vector of glm::vec4.
+ *
+ * This function converts an n x 4 Matlab matrix to a vector of vec4's.
+ * It is mainly used to pass vertex data from Matlab back to C++.
+ *
+ * See template <> mxArray* MxArray::from(const std::vector<glm::tvec2<float>>&)
+ * for more details regarding the type specialisation.
+ *
+ * @param[in] in_array The matrix data from Matlab.
+ * @param[in,out] data The converted data in C++.
+ */
+template <>
+void MxArray::to(const mxArray* in_array, std::vector<glm::vec4>* data)
+{
+    MxArray arr(in_array);
+
+    if (arr.dimensionSize() != 2)
+    {
+        mexErrMsgIdAndTxt("eos:matlab", "Given array has to have 2 dimensions, i.e. n x 4.");
+    }
+    if (arr.cols() != 4)
+    {
+        mexErrMsgIdAndTxt("eos:matlab", "Given array has to have 4 elements in the second dimension, i.e. n x 4.");
+    }
+    if (!arr.isDouble())
+    {
+        mexErrMsgIdAndTxt("eos:matlab", "Given array should be of type double.");
+    }
+
+    const auto num_vertices = arr.rows();
+    data->reserve(num_vertices);
+
+    for (int i = 0; i < num_vertices; ++i)
+    {
+        data->push_back(
+            glm::vec4(arr.at<double>(mwIndex(i), mwIndex(0)), arr.at<double>(mwIndex(i), mwIndex(1)),
+                      arr.at<double>(mwIndex(i), mwIndex(2)), arr.at<double>(mwIndex(i), mwIndex(3))));
+    }
 };
 
 /**
@@ -194,10 +275,51 @@ mxArray* MxArray::from(const std::vector<std::array<int, 3>>& data)
 };
 
 /**
- * @brief Define a template specialisation for eos::render::Mesh.
+ * @brief Converts a Matlab matrix into an std::vector of std::array<int, 3>.
  *
- * This converts an eos::render::Mesh into a Matlab struct.
- * 
+ * This function converts a n x 3 Matlab matrix to a vector<array<int, 3>>.
+ * It is mainly used to pass triangle indices data of a Mesh to Matlab.
+ *
+ * See template <> mxArray* MxArray::from(const std::vector<glm::tvec2<float>>&)
+ * for more details regarding the type specialisation.
+ *
+ * @param[in] in_array The matrix data from Matlab.
+ * @param[in,out] data The converted data in C++.
+ */
+template <>
+void MxArray::to(const mxArray* in_array, std::vector<std::array<int, 3>>* data)
+{
+    MxArray arr(in_array);
+
+    if (arr.dimensionSize() != 2)
+    {
+        mexErrMsgIdAndTxt("eos:matlab", "Given array has to have 2 dimensions, i.e. n x 3.");
+    }
+    if (arr.cols() != 3)
+    {
+        mexErrMsgIdAndTxt("eos:matlab", "Given array has to have 3 elements in the second dimension, i.e. n x 3.");
+    }
+    if (!arr.isInt32())
+    {
+        mexErrMsgIdAndTxt("eos:matlab", "Given array should be of type int32.");
+    }
+
+    const auto num_faces = arr.rows();
+    data->reserve(num_faces);
+
+    for (int i = 0; i < num_faces; ++i)
+    {
+        data->push_back(std::array<int, 3>{arr.at<std::int32_t>(mwIndex(i), mwIndex(0)),
+                                           arr.at<std::int32_t>(mwIndex(i), mwIndex(1)),
+                                           arr.at<std::int32_t>(mwIndex(i), mwIndex(2))});
+    }
+};
+
+/**
+ * @brief Convert an eos::core::Mesh into a Matlab struct.
+ *
+ * Adjusts the triangle indices from 0-based (C++) to 1-based (Matlab).
+ *
  * @param[in] mesh The Mesh that will be returned to Matlab.
  * @return An mxArray containing a Matlab struct with all vertex, colour, texcoords and triangle data.
  */
@@ -228,6 +350,45 @@ mxArray* MxArray::from(const eos::core::Mesh& mesh)
 	out_array.set("tci", tci_1based);
 
 	return out_array.release();
+};
+
+/**
+ * @brief Convert a Matlab mesh struct back into an eos::core::Mesh.
+ *
+ * Adjusts the triangle indices from 1-based (Matlab) to 0-based (C++).
+ *
+ * @param[in] in_array Input mesh data from Matlab.
+ * @param[in,out] mesh Converted eos::core::Mesh.
+ */
+template <>
+void MxArray::to(const mxArray* in_array, eos::core::Mesh* mesh)
+{
+    MxArray array(in_array);
+
+    if (!array.isStruct())
+    {
+        mexErrMsgIdAndTxt("eos:matlab", "Given mesh is not a Matlab struct.");
+    }
+
+    if (!array.hasField("vertices") || !array.hasField("tvi"))
+    {
+        mexErrMsgIdAndTxt("eos:matlab",
+                          "Given mesh struct must contain at least the fields 'vertices' and 'tvi'.");
+    }
+
+    // We could check whether num_vertices is equal for these, but we'll leave it up to the user to give us
+    // valid mesh data.
+    array.at("vertices", &mesh->vertices);   // num_vertices x 4 double
+    array.at("texcoords", &mesh->texcoords); // num_vertices x 2 double
+    array.at("tvi", &mesh->tvi);             // num_faces x 3 int32
+
+    // Adjust the vertex indices from 1-based (Matlab) to 0-based (C++):
+    for (auto&& t : mesh->tvi)
+    {
+        t[0] -= 1;
+        t[1] -= 1;
+        t[2] -= 1;
+    }
 };
 
 /**
