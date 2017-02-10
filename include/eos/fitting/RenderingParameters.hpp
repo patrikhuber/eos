@@ -142,6 +142,15 @@ public:
 		return rotation;
 	};
 
+	void set_rotation(glm::quat rotation_quaternion) {
+		rotation = rotation_quaternion;
+	};
+
+	void set_translation(float t_x, float t_y) {
+		this->t_x = t_x;
+		this->t_y = t_y;
+	};
+
 	glm::mat4x4 get_modelview() const {
 		glm::mat4x4 modelview = glm::mat4_cast(rotation);
 		modelview[3][0] = t_x;
@@ -163,12 +172,24 @@ public:
 		return frustum;
 	};
 
+	void set_frustum(Frustum frustum) {
+		this->frustum = frustum;
+	};
+
 	int get_screen_width() const {
 		return screen_width;
 	};
 
+	void set_screen_width(int screen_width) {
+		this->screen_width = screen_width;
+	};
+
 	int get_screen_height() const {
 		return screen_height;
+	};
+
+	void set_screen_height(int screen_height) {
+		this->screen_height = screen_height;
 	};
 
 private:
