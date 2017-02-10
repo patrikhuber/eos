@@ -37,6 +37,7 @@
 
 #include "mex.h"
 
+#include <cstdint>
 #include <array>
 #include <vector>
 
@@ -87,6 +88,32 @@ mxArray* MxArray::from(const glm::tmat4x4<float>& mat)
 		}
 	}
 	return out_array.release();
+};
+
+/**
+ * @brief Converts a 4x4 Matlab matrix to a glm::tmat4x4<float>.
+ *
+ * @param[in] in_array The matrix data from Matlab.
+ * @param[in,out] mat The converted matrix in C++.
+ */
+template <>
+void MxArray::to(const mxArray* in_array, glm::tmat4x4<float>* mat)
+{
+    MxArray arr(in_array);
+    if (!arr.isDouble())
+    {
+        mexErrMsgIdAndTxt("eos:matlab", "Given array should be of type double.");
+    }
+    if (arr.rows() != 4 || arr.cols() != 4)
+    {
+        mexErrMsgIdAndTxt("eos:matlab", "Given array has to have 4 rows and 4 cols.");
+    }
+
+    for (int c = 0; c < 4; ++c) {
+        for (int r = 0; r < 4; ++r) {
+            (*mat)[c][r] = arr.at<double>(mwIndex(r), mwIndex(c));
+        }
+    }
 };
 
 /**
@@ -392,6 +419,52 @@ void MxArray::to(const mxArray* in_array, eos::core::Mesh* mesh)
 };
 
 /**
+ * @brief Convert an eos::fitting::Frustum into a Matlab struct.
+ *
+ * @param[in] frustum The Frustum that will be returned to Matlab.
+ * @return An mxArray containing a Matlab struct with all frustum information.
+ */
+template <>
+mxArray* MxArray::from(const eos::fitting::Frustum& frustum)
+{
+    MxArray out_array(MxArray::Struct());
+    out_array.set("l", frustum.l);
+    out_array.set("r", frustum.r);
+    out_array.set("b", frustum.b);
+    out_array.set("t", frustum.t);
+
+    return out_array.release();
+};
+
+/**
+ * @brief Convert a Matlab frustum struct back into an eos::fitting::Frustum.
+ *
+ * @param[in] in_array Input mesh data from Matlab.
+ * @param[in,out] frustum Converted eos::fitting::Frustum.
+ */
+template <>
+void MxArray::to(const mxArray* in_array, eos::fitting::Frustum* frustum)
+{
+    MxArray array(in_array);
+
+    if (!array.isStruct())
+    {
+        mexErrMsgIdAndTxt("eos:matlab", "Given frustum is not a Matlab struct.");
+    }
+
+    if (!array.hasField("l") || !array.hasField("r") || !array.hasField("b") || !array.hasField("t"))
+    {
+        mexErrMsgIdAndTxt("eos:matlab",
+                          "Given frustum struct must contain the fields 'l', 'r', 'b' and 't'.");
+    }
+
+    array.at("l", &frustum->l);
+    array.at("r", &frustum->r);
+    array.at("b", &frustum->b);
+    array.at("t", &frustum->t);
+};
+
+/**
  * @brief Define a template specialisation for eos::fitting::RenderingParameters.
  *
  * This converts an eos::fitting::RenderingParameters into a Matlab struct.
@@ -430,6 +503,7 @@ mxArray* MxArray::from(const eos::fitting::RenderingParameters& rendering_parame
 	viewport_matrix[3][2] = 0.5f;
 
 	out_array.set("camera_type", camera_type);
+	out_array.set("frustum", rendering_parameters.get_frustum());
 	out_array.set("rotation_quaternion", rendering_parameters.get_rotation());
 	out_array.set("modelview", rendering_parameters.get_modelview());
 	out_array.set("projection", rendering_parameters.get_projection());
@@ -438,6 +512,44 @@ mxArray* MxArray::from(const eos::fitting::RenderingParameters& rendering_parame
 	out_array.set("screen_height", rendering_parameters.get_screen_height());
 
 	return out_array.release();
+};
+
+/**
+ * @brief Convert a RenderingParameters Matlab struct back to an eos::fitting::RenderingParameters.
+ *
+ * @param[in] in_array Input rendering-parameters data from Matlab.
+ * @param[in,out] rendering_parameters Converted RenderingParameters.
+ */
+template <>
+void MxArray::to(const mxArray* in_array, eos::fitting::RenderingParameters* rendering_parameters)
+{
+    MxArray array(in_array);
+
+    if (!array.isStruct())
+    {
+        mexErrMsgIdAndTxt("eos:matlab", "Given rendering parameters argument is not a Matlab struct.");
+    }
+
+    // This is what we're converting for now, mainly to make extract_texture(...) work:
+    if (!array.hasField("frustum") || !array.hasField("modelview") || !array.hasField("projection") ||
+        !array.hasField("screen_width") || !array.hasField("screen_height"))
+    {
+        mexErrMsgIdAndTxt("eos:matlab", "Given rendering parameters struct must contain at least the fields "
+                                        "'frustum', 'modelview', 'projection', 'screen_width' and 'screen_height'.");
+    }
+
+    auto frustum = array.at<eos::fitting::Frustum>("frustum");
+    // Get the modelview matrix, extract the rotation quaternion and translation:
+    glm::mat4x4 modelview = array.at<glm::mat4x4>("modelview");
+    glm::quat rot(modelview);
+    auto t_x = modelview[3][0];
+    auto t_y = modelview[3][1];
+
+    rendering_parameters->set_rotation(rot);
+    rendering_parameters->set_translation(t_x, t_y);
+    rendering_parameters->set_screen_width(array.at<int>("screen_width"));
+    rendering_parameters->set_screen_height(array.at<int>("screen_height"));
+    rendering_parameters->set_frustum(frustum);
 };
 
 } /* namespace mexplus */
