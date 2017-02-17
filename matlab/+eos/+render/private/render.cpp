@@ -25,6 +25,7 @@
 #include "mexplus_eos_types.hpp"
 
 #include "mexplus.h"
+#include "mexplus/dispatch.h"
 
 #include "opencv2/core/core.hpp"
 
@@ -33,7 +34,7 @@
 using namespace eos;
 using namespace mexplus;
 
-void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
+MEX_DEFINE(extract_texture) (int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
 	// Check for proper number of input and output arguments:
 	if (nrhs != 5) {
@@ -63,3 +64,5 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	OutputArguments output(nlhs, plhs, 1);
 	output.set(0, isomap);
 };
+
+MEX_DISPATCH;

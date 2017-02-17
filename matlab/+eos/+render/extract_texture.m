@@ -1,4 +1,4 @@
-function [texturemap] = extract_texture(mesh, rendering_params, image, ...
+function [ texturemap ] = extract_texture(mesh, rendering_params, image, ...
     compute_view_angle, isomap_resolution)
 % EXTRACT_TEXTURE  Extracts the texture from an image and returns the texture map.
 %   [ texturemap ] = EXTRACT_TEXTURE(mesh, rendering_params, image, ...
@@ -18,6 +18,6 @@ function [texturemap] = extract_texture(mesh, rendering_params, image, ...
 if (~exist('compute_view_angle', 'var')), compute_view_angle = false; end
 if (~exist('isomap_resolution', 'var')), isomap_resolution = 512; end
 
-[ texturemap ] = render(mesh, rendering_params, image, compute_view_angle, isomap_resolution);
+[ texturemap ] = render('extract_texture', mesh, rendering_params, image, compute_view_angle, isomap_resolution);
 
 end
