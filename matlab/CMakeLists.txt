@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 3.7.0)
 find_package(Matlab COMPONENTS MX_LIBRARY REQUIRED)
 
 # Dependencies of the modules:
-find_package(OpenCV 2.4.3 REQUIRED core)
+find_package(OpenCV REQUIRED core)
 set_target_properties(${OpenCV_LIBS} PROPERTIES MAP_IMPORTED_CONFIG_RELWITHDEBINFO RELEASE)
 if(MSVC)
 	# The standard find_package for boost on Win finds the dynamic libs, so for dynamic linking to boost we need to #define:
