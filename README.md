@@ -21,8 +21,8 @@ At the moment, it mainly provides the following functionality:
  * Expression fitting, and 6 linear expression blendshapes: anger, disgust, fear, happiness, sadness, surprise
  * Edge-fitting, heavily inspired by: A. Bas et al., _Fitting a 3D Morphable Model to Edges: A Comparison Between Hard and Soft Correspondences_, ACCVW 2016
 * Isomap texture extraction to obtain a pose-invariant representation of the face texture
+* (**New**): Python bindings for parts of the library, and Matlab bindings for the fitting
 * (_Experimental_): Non-linear fitting cost functions using Ceres for shape, camera, blendshapes and the colour model (needs Ceres to be installed separately)
-* (_**New**, experimental_): Python bindings for parts of the library, and Matlab bindings for the fitting
 
 ## Usage
 
