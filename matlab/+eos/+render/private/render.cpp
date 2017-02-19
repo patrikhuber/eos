@@ -66,7 +66,7 @@ MEX_DEFINE(extract_texture)(int nlhs, mxArray* plhs[], int nrhs, const mxArray* 
         render::extract_texture(mesh, affine_from_ortho, image, compute_view_angle,
                                 render::TextureInterpolation::NearestNeighbour, isomap_resolution);
 
-    // Return the extracted texturemap:
+    // Return the extracted texture map:
     OutputArguments output(nlhs, plhs, 1);
     output.set(0, isomap);
 };
