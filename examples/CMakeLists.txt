@@ -7,7 +7,7 @@ cmake_minimum_required(VERSION 2.8.10)
 #version variable is defined from project root's CMakeLists
 if("${OpenCV_VERSION_MAJOR}$" EQUAL 2)
   message(STATUS "OpenCV 2.x detected")
-  find_package(OpenCV 2 REQUIRED core imgproc highgui)
+  find_package(OpenCV 2.4.3 REQUIRED core imgproc highgui)
 elseif("${OpenCV_VERSION_MAJOR}$" EQUAL 3)
   message(STATUS "OpenCV 3.x detected - including imgcodecs for compatibility")
   find_package(OpenCV 3 REQUIRED core imgproc imgcodecs)
