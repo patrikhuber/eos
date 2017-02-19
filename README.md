@@ -41,7 +41,7 @@ To use the library in your own project, just add the following directories to yo
 
 ### Build the examples and tests
 
-* Needed dependencies for the example app: CMake (>=2.8.10), Boost system, filesystem, program_options (>=1.50.0), OpenCV core, imgproc, highgui (>=2.4.3).
+* Needed dependencies for the example app: CMake (>=3.1.3), Boost system, filesystem, program_options (>=1.50.0), OpenCV core, imgproc, highgui (>=2.4.3).
 
 To build:
 
@@ -84,7 +84,7 @@ The full model is available at [http://www.cvssp.org/facemodel](http://www.cvssp
 
 ## Python bindings
 
-_Experimental_: eos includes python bindings for some of its functionality (and more can be added!). Set `-DEOS_GENERATE_PYTHON_BINDINGS=on` when running `cmake` to build them (and optionally set `PYTHON_EXECUTABLE` to point to your python interpreter if it's not found automatically).
+eos includes python bindings for some of its functionality (and more can be added!). Set `-DEOS_GENERATE_PYTHON_BINDINGS=on` when running `cmake` to build them (and optionally set `PYTHON_EXECUTABLE` to point to your python interpreter if it's not found automatically).
 
 After building the bindings, they can be used like any python module:
 
