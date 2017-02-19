@@ -90,6 +90,7 @@ void MxArray::to(const mxArray* in_array, Eigen::MatrixXd* eigen_matrix)
 	// I think I can just use Eigen::Matrix, not a Map - the Matrix c'tor that we call creates a Map anyway?
 	Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor>> eigen_map(array.getData<double>(), nrows, ncols);
 	// Not sure that's alright - who owns the data? I think as it is now, everything points to the data in the mxArray owned by Matlab, but I'm not 100% sure.
+	// Actually, doesn't eigen_map go out of scope and get destroyed? This might be trouble? But this assignment should (or might) copy, then it's fine? Check if it invokes the copy c'tor.
 	*eigen_matrix = eigen_map;
 };
 
