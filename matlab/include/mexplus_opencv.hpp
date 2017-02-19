@@ -33,30 +33,33 @@
 
 namespace mexplus {
 
-// Note/Todo: Currently only works for 4-chan U8 images
+/**
+ * @brief Convert a cv::Mat to a Matlab matrix.
+ *
+ * Conversion should work for matrices of any type, with any number of channels.
+ * The function creates a new MxArray of the same data type and copies the data over.
+ *
+ * Note: Even non-standard step/stride sizes should work, but that is not tested.
+ */
 template <typename InputScalar, typename OutputScalar>
 void deepcopy_and_transpose(const cv::Mat& in, MxArray& out)
 {
-    if (in.channels() != 4)
-    {
-        mexErrMsgIdAndTxt("eos:matlab", "Currently only works for 4-channel U8 images.");
-    }
-
     const std::size_t num_rows = in.rows;
     const std::size_t num_cols = in.cols;
     const std::size_t num_chans = in.channels();
-    out = MxArray::Numeric<std::uint8_t>({num_rows, num_cols, num_chans});
+    out = MxArray::Numeric<OutputScalar>({num_rows, num_cols, num_chans});
 
-    for (std::size_t c = 0; c < num_cols; ++c) {
+    for (std::size_t c = 0; c < num_cols; ++c) { // outer loop over rows would be faster if OpenCV stores data row-major?
         for (std::size_t r = 0; r < num_rows; ++r) {
             for (std::size_t chan = 0; chan < num_chans; ++chan) {
-                out.set(std::vector<mwIndex>{r, c, chan}, in.at<cv::Vec4b>(r, c)[chan]);
+                out.set(std::vector<mwIndex>{r, c, chan}, in.ptr<InputScalar>(r, c)[chan]);
             }
         }
     }
 };
 
-// Note/Todo: Currently only works for 3-chan U8 images
+// Note/Todo: Currently only works for 3-chan and 4-chan U8 images
+// Matlab stores matrices in col - major order in memory, OpenCV stores them in row - major.Thus, we copy & transpose...
 template <typename InputScalar, typename OutputScalar>
 void deepcopy_and_transpose(const MxArray& in, cv::Mat& out)
 {
@@ -68,19 +71,18 @@ void deepcopy_and_transpose(const MxArray& in, cv::Mat& out)
 	auto s = in.size();
 	auto n = in.isNumeric();
 	
-	const auto num_channels = [num_dims = in.dimensionSize()]() {
+	const auto num_channels = [num_dims = in.dimensionSize(), dims = in.dimensions()]() {
 		if (num_dims == 1 || num_dims == 2)
 		{
-			return 1;
+			return std::size_t(1);
 		}
-		else if (num_dims == 3) {
-			return 3;
+		else if (num_dims == 3) { // the dims vector has 3 entries, the 3rd entry tell us if there are 3 or 4 channels.
+			return dims[2];
 		}
-		// What about 4-channel images, what dimensionSize() will they have?
 	}();
 
 	const auto actual_cols = [&num_channels, num_cols = in.cols()]() {
-		if (num_channels == 3)
+		if (num_channels == 3 || num_channels == 4) // aargh... simplify all this... just use in.dimensions()?
 		{
 			return num_cols / num_channels;
 		}
@@ -94,6 +96,7 @@ void deepcopy_and_transpose(const MxArray& in, cv::Mat& out)
     {
         cv::Mat outmat;
 		// Note: I think this doesn't actually copy the data, does it?
+		// We construct with (cols, rows) because it'll later get transposed.
         cv::Mat inmat(actual_cols, in.rows(), cv::DataType<InputScalar>::type,
             static_cast<void*>(const_cast<InputScalar*>(in.getData<InputScalar>() + actual_cols * in.rows() * c)));
         inmat.convertTo(outmat, cv::DataType<OutputScalar>::type);
@@ -104,24 +107,37 @@ void deepcopy_and_transpose(const MxArray& in, cv::Mat& out)
 };
 
 /**
- * @brief Convert a 4-channel uchar cv::Mat to a Matlab matrix.
+ * @brief Convert a cv::Mat to a Matlab matrix.
  *
- * Currently, only CV_8UC4 matrices are supported. Don't try to convert anything else.
- * Todo: Add some error detection, it will silently fail or crash when the type/channels are
- * not correct.
+ * Conversion should work for matrices of type CV_8U, CV_32F and CV_64F, with any number of channels.
  */
 template <>
 mxArray* MxArray::from(const cv::Mat& opencv_matrix)
 {
     MxArray out_array;
-    deepcopy_and_transpose<std::uint8_t, std::uint8_t>(opencv_matrix, out_array);
+    if (opencv_matrix.depth() == CV_8U)
+    {
+        deepcopy_and_transpose<std::uint8_t, std::uint8_t>(opencv_matrix, out_array);
+    }
+	else if (opencv_matrix.depth() == CV_32F)
+    {
+        deepcopy_and_transpose<float, float>(opencv_matrix, out_array);
+    }
+	else if (opencv_matrix.depth() == CV_64F)
+    {
+        deepcopy_and_transpose<double, double>(opencv_matrix, out_array);
+    }
+	else
+    {
+        mexErrMsgIdAndTxt("eos:matlab", "Can only convert CV_8U, CV_32F and CV_64F matrices at this point.");
+    }
     return out_array.release();
 };
 
 /**
- * @brief Convert a 3-channel uint8 Matlab matrix to a cv::Mat.
+ * @brief Convert a 3-channel or 4-channel uint8 Matlab matrix to a cv::Mat.
  *
- * Currently only works for 3-channel uint8 Matlab matrices (i.e. images)!
+ * Currently only works for 3-channel and 4-channel uint8 Matlab matrices (i.e. images and isomaps).
  * Todo: Add some error detection, it will silently fail or crash when the type/channels are
  * not correct.
  */
