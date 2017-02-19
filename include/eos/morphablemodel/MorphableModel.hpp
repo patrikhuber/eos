@@ -285,7 +285,7 @@ inline MorphableModel load_model(std::string filename)
 
 /**
  * Helper method to save a Morphable Model to the
- * harddrive as cereal::BinaryInputArchive.
+ * harddrive as cereal::BinaryOutputArchive.
  *
  * @param[in] model The model to be saved.
  * @param[in] filename Filename for the model.
