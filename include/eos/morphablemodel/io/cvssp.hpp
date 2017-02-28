@@ -49,7 +49,7 @@ std::vector<std::array<double, 2>> load_isomap(boost::filesystem::path isomap_fi
  * Note: For new landmarks we add, this might not be the case if we add them
  * in the highest resolution model, so take care!
  *
- * - The pcaBasis matrix stored in the file and loaded is the orthogonal PCA basis, i.e. it is not normalised by the eigenvalues.
+ * - The PCA basis matrix stored in the file and loaded is the orthogonal PCA basis, i.e. it is not normalised by the eigenvalues.
  *
  * @param[in] model_filename A binary .scm-file containing the model.
  * @param[in] isomap_file An optional path to an isomap containing texture coordinates.
@@ -152,8 +152,13 @@ inline MorphableModel load_scm_model(boost::filesystem::path model_filename, boo
 	}
 
 	// We read the unnormalised basis from the file. Now let's normalise it and store the normalised basis separately.
-	Mat normalisedPcaBasisShape = normalise_pca_basis(unnormalisedPcaBasisShape, eigenvaluesShape);
-	PcaModel shapeModel(meanShape, normalisedPcaBasisShape, eigenvaluesShape, triangleList);
+	// Todo: We should change these to read into an Eigen matrix directly, and not into a cv::Mat first.
+	using RowMajorMatrixXf = Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
+	Eigen::Map<RowMajorMatrixXf> unnormalisedPcaBasisShape_(unnormalisedPcaBasisShape.ptr<float>(), unnormalisedPcaBasisShape.rows, unnormalisedPcaBasisShape.cols);
+	Eigen::Map<RowMajorMatrixXf> eigenvaluesShape_(eigenvaluesShape.ptr<float>(), eigenvaluesShape.rows, eigenvaluesShape.cols);
+	Eigen::Map<RowMajorMatrixXf> meanShape_(meanShape.ptr<float>(), meanShape.rows, meanShape.cols);
+	Eigen::MatrixXf normalisedPcaBasisShape_ = normalise_pca_basis(unnormalisedPcaBasisShape_, eigenvaluesShape_);
+	PcaModel shapeModel(meanShape_, normalisedPcaBasisShape_, eigenvaluesShape_, triangleList);
 
 	// Reading the color model
 	// Read number of rows and columns of projection matrix
@@ -201,13 +206,16 @@ inline MorphableModel load_scm_model(boost::filesystem::path model_filename, boo
 	}
 
 	// We read the unnormalised basis from the file. Now let's normalise it and store the normalised basis separately.
-	Mat normalisedPcaBasisColor = normalise_pca_basis(unnormalisedPcaBasisColor, eigenvaluesColor);
-	PcaModel colorModel(meanColor, normalisedPcaBasisColor, eigenvaluesColor, triangleList);
+	Eigen::Map<RowMajorMatrixXf> unnormalisedPcaBasisColor_(unnormalisedPcaBasisColor.ptr<float>(), unnormalisedPcaBasisColor.rows, unnormalisedPcaBasisColor.cols);
+	Eigen::Map<RowMajorMatrixXf> eigenvaluesColor_(eigenvaluesColor.ptr<float>(), eigenvaluesColor.rows, eigenvaluesColor.cols);
+	Eigen::Map<RowMajorMatrixXf> meanColor_(meanColor.ptr<float>(), meanColor.rows, meanColor.cols);
+	Eigen::MatrixXf normalisedPcaBasisColor_ = normalise_pca_basis(unnormalisedPcaBasisColor_, eigenvaluesColor_);
+	PcaModel colorModel(meanColor_, normalisedPcaBasisColor_, eigenvaluesColor_, triangleList);
 
 	modelFile.close();
 
 	// Load the isomap with texture coordinates if a filename has been given:
-	std::vector<cv::Vec2f> texCoords;
+	std::vector<std::array<double, 2>> texCoords;
 	if (!isomap_file.empty()) {
 		texCoords = load_isomap(isomap_file);
 		if (shapeModel.get_data_dimension() / 3.0f != texCoords.size()) {
@@ -228,7 +236,7 @@ inline MorphableModel load_scm_model(boost::filesystem::path model_filename, boo
  * @return The 2D texture coordinates for every vertex.
  * @throws ...
  */
-inline std::vector<cv::Vec2f> load_isomap(boost::filesystem::path isomapFile)
+inline std::vector<std::array<double, 2>> load_isomap(boost::filesystem::path isomapFile)
 {
 	using std::string;
 	std::vector<float> xCoords, yCoords;
@@ -253,11 +261,11 @@ inline std::vector<cv::Vec2f> load_isomap(boost::filesystem::path isomapFile)
 	auto minMaxX = std::minmax_element(begin(xCoords), end(xCoords)); // minMaxX is a pair, first=min, second=max
 	auto minMaxY = std::minmax_element(begin(yCoords), end(yCoords));
 
-	std::vector<cv::Vec2f> texCoords;
+	std::vector<std::array<double, 2>> texCoords;
 	float divisorX = *minMaxX.second - *minMaxX.first;
 	float divisorY = *minMaxY.second - *minMaxY.first;
 	for (int i = 0; i < xCoords.size(); ++i) {
-		texCoords.push_back(cv::Vec2f((xCoords[i] - *minMaxX.first) / divisorX, 1.0f - (yCoords[i] - *minMaxY.first) / divisorY)); // We rescale to [0, 1] and at the same time flip the y-coords (because in the isomap, the coordinates are stored upside-down).
+		texCoords.push_back(std::array<double, 2>{(xCoords[i] - *minMaxX.first) / divisorX, 1.0f - (yCoords[i] - *minMaxY.first) / divisorY}); // We rescale to [0, 1] and at the same time flip the y-coords (because in the isomap, the coordinates are stored upside-down).
 	}
 
 	return texCoords;
