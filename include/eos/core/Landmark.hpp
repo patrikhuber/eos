@@ -50,7 +50,7 @@ template<class LandmarkType> using LandmarkCollection = std::vector<Landmark<Lan
  * containing all landmarks whose name matches the one given by \p filter.
  *
  * @param[in] landmarks The input LandmarkCollection to be filtered.
- * @param[in] filter A landmark name (identifier) by which the given LandmarkCollection is filtered.
+ * @param[in] filter A list of landmark names (identifiers) by which the given LandmarkCollection is filtered.
  * @return A new, filtered LandmarkCollection.
  */
 template<class T>
