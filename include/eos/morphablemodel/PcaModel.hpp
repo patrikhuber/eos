@@ -55,7 +55,7 @@ cv::Mat unnormalise_pca_basis(cv::Mat normalised_basis, cv::Mat eigenvalues);
 class PcaModel
 {
 public:
-	PcaModel() {}; // workaround for a VS2015 RC bug. Change to '=default' in RTM.
+	PcaModel() = default;
 
 	/**
 	 * Construct a PCA model from given mean, normalised PCA basis, eigenvalues
