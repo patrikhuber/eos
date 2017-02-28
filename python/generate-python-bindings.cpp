@@ -56,6 +56,7 @@ PYBIND11_PLUGIN(eos) {
 	 * Bindings for the eos::core namespace:
 	 *  - LandmarkMapper
 	 *  - Mesh
+	 *  - write_obj()
 	 */
 	py::module core_module = eos_module.def_submodule("core", "Essential functions and classes to work with 3D face models and landmarks.");
 	py::class_<core::LandmarkMapper>(core_module, "LandmarkMapper", "Represents a mapping from one kind of landmarks to a different format(e.g.model vertices).")
@@ -73,6 +74,8 @@ PYBIND11_PLUGIN(eos) {
 		.def_readwrite("tci", &core::Mesh::tci, "Triangle colour indices (usually the same as tvi)")
 		.def_readwrite("texcoords", &core::Mesh::texcoords, "Texture coordinates")
 		;
+
+	core_module.def("write_obj", &core::write_obj, "Writes the given Mesh to an obj file.", py::arg("mesh"), py::arg("filename"));
 
 	/**
 	 * Bindings for the eos::morphablemodel namespace:
