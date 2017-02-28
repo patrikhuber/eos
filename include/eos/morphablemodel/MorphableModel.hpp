@@ -36,17 +36,17 @@
 #include "glm/vec3.hpp"
 #include "glm/vec4.hpp"
 
+#include "Eigen/Core"
+
 #include <vector>
 #include <array>
 #include <cstdint>
 
-// Forward declaration:
-namespace eos { namespace morphablemodel {
-	eos::core::Mesh sample_to_mesh(cv::Mat shape_instance, cv::Mat color_instance, std::vector<std::array<int, 3>> tvi, std::vector<std::array<int, 3>> tci, std::vector<cv::Vec2f> texture_coordinates = std::vector<cv::Vec2f>());
-} }
-
 namespace eos {
 	namespace morphablemodel {
+
+// Forward declaration:
+core::Mesh sample_to_mesh(const Eigen::VectorXf& shape_instance, const Eigen::VectorXf& color_instance, const std::vector<std::array<int, 3>>& tvi, const std::vector<std::array<int, 3>>& tci, const std::vector<std::array<double, 2>>& texture_coordinates = std::vector<std::array<double, 2>>());
 
 /**
  * @brief A class representing a 3D Morphable Model, consisting
@@ -61,14 +61,14 @@ public:
 	MorphableModel() = default;
 
 	/**
-	 * Create a Morphable Model from a shape and a color PCA model, and optional
+	 * Create a Morphable Model from a shape and a colour PCA model, and optional
 	 * texture coordinates.
 	 *
 	 * @param[in] shape_model A PCA model over the shape.
 	 * @param[in] color_model A PCA model over the colour (albedo).
 	 * @param[in] texture_coordinates Optional texture coordinates for every vertex.
 	 */
-	MorphableModel(PcaModel shape_model, PcaModel color_model, std::vector<cv::Vec2f> texture_coordinates = std::vector<cv::Vec2f>()) : shape_model(shape_model), color_model(color_model), texture_coordinates(texture_coordinates)
+	MorphableModel(PcaModel shape_model, PcaModel color_model, std::vector<std::array<double, 2>> texture_coordinates = std::vector<std::array<double, 2>>()) : shape_model(shape_model), color_model(color_model), texture_coordinates(texture_coordinates)
 	{
 	};
 
@@ -129,8 +129,8 @@ public:
 	{
 		assert(shape_model.get_data_dimension() == color_model.get_data_dimension() || !has_color_model()); // The number of vertices (= model.getDataDimension() / 3) has to be equal for both models, or, alternatively, it has to be a shape-only model.
 
-		cv::Mat shape = shape_model.get_mean();
-		cv::Mat color = color_model.get_mean();
+		Eigen::VectorXf shape = shape_model.get_mean();
+		Eigen::VectorXf color = color_model.get_mean();
 
 		core::Mesh mesh;
 		if (has_texture_coordinates()) {
@@ -147,16 +147,21 @@ public:
 	 * for the shape- and colour models are both drawn from a standard
 	 * normal (or with the given standard deviation).
 	 *
+	 * If the Morphable Model is a shape-only model, the returned mesh will
+	 * not contain any colour data.
+	 *
+	 * @param[in] engine Random number engine used to draw random coefficients.
 	 * @param[in] shape_sigma The shape model standard deviation.
 	 * @param[in] color_sigma The colour model standard deviation.
 	 * @return A random sample from the model.
 	 */
-	core::Mesh draw_sample(float shape_sigma = 1.0f, float color_sigma = 1.0f)
+	template <class RNG>
+	core::Mesh draw_sample(RNG& engine, float shape_sigma = 1.0f, float color_sigma = 1.0f) const
 	{
-		assert(shape_model.get_data_dimension() == color_model.get_data_dimension()); // The number of vertices (= model.getDataDimension() / 3) has to be equal for both models.
+		assert(shape_model.get_data_dimension() == color_model.get_data_dimension() || !has_color_model()); // The number of vertices (= model.getDataDimension() / 3) has to be equal for both models, or, alternatively, it has to be a shape-only model.
 
-		cv::Mat shape_sample = shape_model.draw_sample(shape_sigma);
-		cv::Mat color_sample = color_model.draw_sample(color_sigma);
+		Eigen::VectorXf shape_sample = shape_model.draw_sample(engine, shape_sigma);
+		Eigen::VectorXf color_sample = color_model.draw_sample(engine, color_sigma);
 
 		core::Mesh mesh;
 		if (has_texture_coordinates()) {
@@ -186,8 +191,8 @@ public:
 	{
 		assert(shape_model.get_data_dimension() == color_model.get_data_dimension() || !has_color_model()); // The number of vertices (= model.getDataDimension() / 3) has to be equal for both models, or, alternatively, it has to be a shape-only model.
 
-		cv::Mat shape_sample;
-		cv::Mat color_sample;
+		Eigen::VectorXf shape_sample;
+		Eigen::VectorXf color_sample;
 
 		if (shape_coefficients.empty()) {
 			shape_sample = shape_model.get_mean();
@@ -220,7 +225,7 @@ public:
 	 */
 	bool has_color_model() const
 	{
-		return !color_model.get_mean().empty();
+		return (color_model.get_mean().size() > 0);
 	};
 
 	/**
@@ -228,7 +233,7 @@ public:
 	 *
 	 * @return The texture coordinates for the model vertices.
 	 */
-	std::vector<cv::Vec2f> get_texture_coordinates() const
+	std::vector<std::array<double, 2>> get_texture_coordinates() const
 	{
 		return texture_coordinates;
 	};
@@ -236,7 +241,7 @@ public:
 private:
 	PcaModel shape_model; ///< A PCA model of the shape
 	PcaModel color_model; ///< A PCA model of vertex colour information
-	std::vector<cv::Vec2f> texture_coordinates; ///< uv-coordinates for every vertex
+	std::vector<std::array<double, 2>> texture_coordinates; ///< uv-coordinates for every vertex
 
 	/**
 	 * Returns whether the model has texture mapping coordinates, i.e.
@@ -253,10 +258,15 @@ private:
 	 * Serialises this class using cereal.
 	 *
 	 * @param[in] ar The archive to serialise to (or to serialise from).
+	 * @throw std::runtime_error When the model file doesn't have the most recent version (=1).
 	 */
 	template<class Archive>
 	void serialize(Archive& archive, const std::uint32_t version)
 	{
+		if (version != 1)
+		{
+			throw std::runtime_error("The model file you are trying to load is in an old format. Please download the most recent model files.");
+		}
 		archive(CEREAL_NVP(shape_model), CEREAL_NVP(color_model), CEREAL_NVP(texture_coordinates));
 	};
 };
@@ -311,25 +321,25 @@ inline void save_model(MorphableModel model, std::string filename)
  * @param[in] texture_coordinates Optional texture coordinates for each vertex.
  * @return A mesh created from given parameters.
  */
-inline core::Mesh sample_to_mesh(cv::Mat shape_instance, cv::Mat color_instance, std::vector<std::array<int, 3>> tvi, std::vector<std::array<int, 3>> tci, std::vector<cv::Vec2f> texture_coordinates /* = std::vector<cv::Vec2f>() */)
+inline core::Mesh sample_to_mesh(const Eigen::VectorXf& shape_instance, const Eigen::VectorXf& color_instance, const std::vector<std::array<int, 3>>& tvi, const std::vector<std::array<int, 3>>& tci, const std::vector<std::array<double, 2>>& texture_coordinates /* = std::vector<std::array<double, 2>>() */)
 {
-	assert(shape_instance.rows == color_instance.rows || color_instance.empty()); // The number of vertices (= model.getDataDimension() / 3) has to be equal for both models, or, alternatively, it has to be a shape-only model.
+	assert(shape_instance.rows() == color_instance.rows() || color_instance.size() == 0); // The number of vertices (= model.getDataDimension() / 3) has to be equal for both models, or, alternatively, it has to be a shape-only model.
 
-	auto num_vertices = shape_instance.rows / 3;
+	auto num_vertices = shape_instance.rows() / 3;
 
 	core::Mesh mesh;
 
 	// Construct the mesh vertices:
 	mesh.vertices.resize(num_vertices);
 	for (auto i = 0; i < num_vertices; ++i) {
-		mesh.vertices[i] = glm::tvec4<float>(shape_instance.at<float>(i * 3 + 0), shape_instance.at<float>(i * 3 + 1), shape_instance.at<float>(i * 3 + 2), 1.0f);
+		mesh.vertices[i] = glm::tvec4<float>(shape_instance(i * 3 + 0), shape_instance(i * 3 + 1), shape_instance(i * 3 + 2), 1.0f);
 	}
 
 	// Assign the vertex colour information if it's not a shape-only model:
-	if (!color_instance.empty()) {
+	if (color_instance.size() > 0) {
 		mesh.colors.resize(num_vertices);
 		for (auto i = 0; i < num_vertices; ++i) {
-			mesh.colors[i] = glm::tvec3<float>(color_instance.at<float>(i * 3 + 0), color_instance.at<float>(i * 3 + 1), color_instance.at<float>(i * 3 + 2));        // order in hdf5: RGB. Order in OCV: BGR. But order in vertex.color: RGB
+			mesh.colors[i] = glm::tvec3<float>(color_instance(i * 3 + 0), color_instance(i * 3 + 1), color_instance(i * 3 + 2)); // We use RGB order everywhere
 		}
 	}
 
@@ -351,6 +361,6 @@ inline core::Mesh sample_to_mesh(cv::Mat shape_instance, cv::Mat color_instance,
 	} /* namespace morphablemodel */
 } /* namespace eos */
 
-CEREAL_CLASS_VERSION(eos::morphablemodel::MorphableModel, 0);
+CEREAL_CLASS_VERSION(eos::morphablemodel::MorphableModel, 1);
 
 #endif /* MORPHABLEMODEL_HPP_ */

@@ -57,7 +57,7 @@ namespace eos {
  * @param[in] model_standard_deviation The standard deviation of the 3D vertex points in the 3D model, projected to 2D (so the value is in pixels).
  * @return The estimated shape-coefficients (alphas).
  */
-inline std::vector<float> fit_shape_to_landmarks_linear(const morphablemodel::MorphableModel& morphable_model, cv::Mat affine_camera_matrix, std::vector<cv::Vec2f> landmarks, std::vector<int> vertex_ids, cv::Mat base_face=cv::Mat(), float lambda=3.0f, boost::optional<int> num_coefficients_to_fit=boost::optional<int>(), boost::optional<float> detector_standard_deviation=boost::optional<float>(), boost::optional<float> model_standard_deviation=boost::optional<float>())
+inline std::vector<float> fit_shape_to_landmarks_linear(const morphablemodel::MorphableModel& morphable_model, cv::Mat affine_camera_matrix, const std::vector<cv::Vec2f>& landmarks, const std::vector<int>& vertex_ids, Eigen::VectorXf base_face=Eigen::VectorXf(), float lambda=3.0f, boost::optional<int> num_coefficients_to_fit=boost::optional<int>(), boost::optional<float> detector_standard_deviation=boost::optional<float>(), boost::optional<float> model_standard_deviation=boost::optional<float>())
 {
 	using cv::Mat;
 	assert(landmarks.size() == vertex_ids.size());
@@ -65,7 +65,7 @@ inline std::vector<float> fit_shape_to_landmarks_linear(const morphablemodel::Mo
 	int num_coeffs_to_fit = num_coefficients_to_fit.get_value_or(morphable_model.get_shape_model().get_num_principal_components());
 	int num_landmarks = static_cast<int>(landmarks.size());
 
-	if (base_face.empty())
+	if (base_face.size() == 0)
 	{
 		base_face = morphable_model.get_shape_model().get_mean();
 	}
@@ -75,7 +75,8 @@ inline std::vector<float> fit_shape_to_landmarks_linear(const morphablemodel::Mo
 	Mat V_hat_h = Mat::zeros(4 * num_landmarks, num_coeffs_to_fit, CV_32FC1);
 	int row_index = 0;
 	for (int i = 0; i < num_landmarks; ++i) {
-		Mat basis_rows = morphable_model.get_shape_model().get_normalised_pca_basis(vertex_ids[i]); // In the paper, the not-normalised basis might be used? I'm not sure, check it. It's even a mess in the paper. PH 26.5.2014: I think the normalised basis is fine/better.
+		auto basis_rows_ = morphable_model.get_shape_model().get_normalised_pca_basis(vertex_ids[i]); // In the paper, the not-normalised basis might be used? I'm not sure, check it. It's even a mess in the paper. PH 26.5.2014: I think the normalised basis is fine/better.
+		Mat basis_rows = Mat(basis_rows_.rows(), basis_rows_.cols(), CV_32FC1, basis_rows_.data());
 		//basisRows.copyTo(V_hat_h.rowRange(rowIndex, rowIndex + 3));
 		basis_rows.colRange(0, num_coeffs_to_fit).copyTo(V_hat_h.rowRange(row_index, row_index + 3));
 		row_index += 4; // replace 3 rows and skip the 4th one, it has all zeros
@@ -108,7 +109,7 @@ inline std::vector<float> fit_shape_to_landmarks_linear(const morphablemodel::Mo
 	Mat v_bar = Mat::ones(4 * num_landmarks, 1, CV_32FC1);
 	for (int i = 0; i < num_landmarks; ++i) {
 		//cv::Vec4f model_mean = morphable_model.get_shape_model().get_mean_at_point(vertex_ids[i]);
-		cv::Vec4f model_mean(base_face.at<float>(vertex_ids[i] * 3), base_face.at<float>(vertex_ids[i] * 3 + 1), base_face.at<float>(vertex_ids[i] * 3 + 2), 1.0f);
+		cv::Vec4f model_mean(base_face(vertex_ids[i] * 3), base_face(vertex_ids[i] * 3 + 1), base_face(vertex_ids[i] * 3 + 2), 1.0f);
 		v_bar.at<float>(4 * i, 0) = model_mean[0];
 		v_bar.at<float>((4 * i) + 1, 0) = model_mean[1];
 		v_bar.at<float>((4 * i) + 2, 0) = model_mean[2];

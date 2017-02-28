@@ -27,6 +27,7 @@
 #include "Eigen/Core" // for nnls.h
 #include "nnls.h"
 
+#include "Eigen/Core"
 #include "opencv2/core/core.hpp"
 
 #include <vector>
@@ -55,30 +56,27 @@ namespace eos {
  * @param[in] lambda A regularisation parameter, constraining the L2-norm of the coefficients.
  * @return The estimated blendshape-coefficients.
  */
-inline std::vector<float> fit_blendshapes_to_landmarks_linear(std::vector<eos::morphablemodel::Blendshape> blendshapes, cv::Mat face_instance, cv::Mat affine_camera_matrix, std::vector<cv::Vec2f> landmarks, std::vector<int> vertex_ids, float lambda=500.0f)
+inline std::vector<float> fit_blendshapes_to_landmarks_linear(const std::vector<eos::morphablemodel::Blendshape>& blendshapes, const Eigen::VectorXf& face_instance, cv::Mat affine_camera_matrix, const std::vector<cv::Vec2f>& landmarks, const std::vector<int>& vertex_ids, float lambda=500.0f)
 {
-	using cv::Mat;
 	assert(landmarks.size() == vertex_ids.size());
 
-	int num_coeffs_to_fit = blendshapes.size();
-	int num_landmarks = static_cast<int>(landmarks.size());
+	using cv::Mat;
+	using Eigen::MatrixXf;
+
+	const int num_blendshapes = blendshapes.size();
+	const int num_landmarks = static_cast<int>(landmarks.size());
 
 	// Copy all blendshapes into a "basis" matrix with each blendshape being a column:
-	cv::Mat blendshapes_as_basis(blendshapes[0].deformation.rows, blendshapes.size(), CV_32FC1); // assert blendshapes.size() > 0 and all of them have same number of rows, and 1 col
-	for (int i = 0; i < blendshapes.size(); ++i)
-	{
-		blendshapes[i].deformation.copyTo(blendshapes_as_basis.col(i));
-	}
+	MatrixXf blendshapes_as_basis = morphablemodel::to_matrix(blendshapes);
 
 	// $\hat{V} \in R^{3N\times m-1}$, subselect the rows of the eigenvector matrix $V$ associated with the $N$ feature points
 	// And we insert a row of zeros after every third row, resulting in matrix $\hat{V}_h \in R^{4N\times m-1}$:
-	Mat V_hat_h = Mat::zeros(4 * num_landmarks, num_coeffs_to_fit, CV_32FC1);
+	Mat V_hat_h = Mat::zeros(4 * num_landmarks, num_blendshapes, CV_32FC1);
 	int row_index = 0;
 	for (int i = 0; i < num_landmarks; ++i) {
-		//Mat basis_rows = morphable_model.get_shape_model().get_normalised_pca_basis(vertex_ids[i]); // In the paper, the not-normalised basis might be used? I'm not sure, check it. It's even a mess in the paper. PH 26.5.2014: I think the normalised basis is fine/better.
-		Mat basis_rows = blendshapes_as_basis.rowRange(vertex_ids[i] * 3, (vertex_ids[i] * 3) + 3);
-		//basisRows.copyTo(V_hat_h.rowRange(rowIndex, rowIndex + 3));
-		basis_rows.colRange(0, num_coeffs_to_fit).copyTo(V_hat_h.rowRange(row_index, row_index + 3));
+		Mat blendshapes_basis_as_mat = Mat(blendshapes_as_basis.rows(), blendshapes_as_basis.cols(), CV_32FC1, blendshapes_as_basis.data());
+		Mat basis_rows = blendshapes_basis_as_mat.rowRange(vertex_ids[i] * 3, (vertex_ids[i] * 3) + 3);
+		basis_rows.copyTo(V_hat_h.rowRange(row_index, row_index + 3));
 		row_index += 4; // replace 3 rows and skip the 4th one, it has all zeros
 	}
 	// Form a block diagonal matrix $P \in R^{3N\times 4N}$ in which the camera matrix C (P_Affine, affine_camera_matrix) is placed on the diagonal:
@@ -99,7 +97,7 @@ inline std::vector<float> fit_blendshapes_to_landmarks_linear(std::vector<eos::m
 	Mat v_bar = Mat::ones(4 * num_landmarks, 1, CV_32FC1);
 	for (int i = 0; i < num_landmarks; ++i) {
 		//cv::Vec4f model_mean = morphable_model.get_shape_model().get_mean_at_point(vertex_ids[i]);
-		cv::Vec4f model_mean(face_instance.at<float>(vertex_ids[i]*3), face_instance.at<float>(vertex_ids[i]*3 + 1), face_instance.at<float>(vertex_ids[i]*3 + 2), 1.0f);
+		cv::Vec4f model_mean(face_instance(vertex_ids[i]*3), face_instance(vertex_ids[i]*3 + 1), face_instance(vertex_ids[i]*3 + 2), 1.0f);
 		v_bar.at<float>(4 * i, 0) = model_mean[0];
 		v_bar.at<float>((4 * i) + 1, 0) = model_mean[1];
 		v_bar.at<float>((4 * i) + 2, 0) = model_mean[2];
@@ -111,7 +109,7 @@ inline std::vector<float> fit_blendshapes_to_landmarks_linear(std::vector<eos::m
 	Mat A = P * V_hat_h; // camera matrix times the basis
 	Mat b = P * v_bar - y; // camera matrix times the mean, minus the landmarks.
 	
-	Mat AtAReg = A.t() * A + lambda * Mat::eye(num_coeffs_to_fit, num_coeffs_to_fit, CV_32FC1);
+	Mat AtAReg = A.t() * A + lambda * Mat::eye(num_blendshapes, num_blendshapes, CV_32FC1);
 	// Solve using OpenCV:
 	Mat c_s;
 	bool non_singular = cv::solve(AtAReg, -A.t() * b, c_s, cv::DECOMP_SVD); // DECOMP_SVD calculates the pseudo-inverse if the matrix is not invertible.
@@ -136,28 +134,27 @@ inline std::vector<float> fit_blendshapes_to_landmarks_linear(std::vector<eos::m
  * @param[in] vertex_ids The vertex ids in the model that correspond to the 2D points.
  * @return The estimated blendshape-coefficients.
  */
-inline std::vector<float> fit_blendshapes_to_landmarks_nnls(std::vector<eos::morphablemodel::Blendshape> blendshapes, cv::Mat face_instance, cv::Mat affine_camera_matrix, std::vector<cv::Vec2f> landmarks, std::vector<int> vertex_ids)
+inline std::vector<float> fit_blendshapes_to_landmarks_nnls(const std::vector<eos::morphablemodel::Blendshape>& blendshapes, const Eigen::VectorXf& face_instance, cv::Mat affine_camera_matrix, const std::vector<cv::Vec2f>& landmarks, const std::vector<int>& vertex_ids)
 {
-	using cv::Mat;
 	assert(landmarks.size() == vertex_ids.size());
 
-	int num_coeffs_to_fit = blendshapes.size();
-	int num_landmarks = static_cast<int>(landmarks.size());
+	using cv::Mat;
+	using Eigen::MatrixXf;
+
+	const int num_blendshapes = blendshapes.size();
+	const int num_landmarks = static_cast<int>(landmarks.size());
 
 	// Copy all blendshapes into a "basis" matrix with each blendshape being a column:
-	cv::Mat blendshapes_as_basis(blendshapes[0].deformation.rows, blendshapes.size(), CV_32FC1); // assert blendshapes.size() > 0 and all of them have same number of rows, and 1 col
-	for (int i = 0; i < blendshapes.size(); ++i)
-	{
-		blendshapes[i].deformation.copyTo(blendshapes_as_basis.col(i));
-	}
+	MatrixXf blendshapes_as_basis = morphablemodel::to_matrix(blendshapes);
 
 	// $\hat{V} \in R^{3N\times m-1}$, subselect the rows of the eigenvector matrix $V$ associated with the $N$ feature points
 	// And we insert a row of zeros after every third row, resulting in matrix $\hat{V}_h \in R^{4N\times m-1}$:
-	Mat V_hat_h = Mat::zeros(4 * num_landmarks, num_coeffs_to_fit, CV_32FC1);
+	Mat V_hat_h = Mat::zeros(4 * num_landmarks, num_blendshapes, CV_32FC1);
 	int row_index = 0;
 	for (int i = 0; i < num_landmarks; ++i) {
-		Mat basis_rows = blendshapes_as_basis.rowRange(vertex_ids[i] * 3, (vertex_ids[i] * 3) + 3);
-		basis_rows.colRange(0, num_coeffs_to_fit).copyTo(V_hat_h.rowRange(row_index, row_index + 3)); // Todo: I think we can remove colRange here, as we always want to use all given blendshapes
+		Mat blendshapes_basis_as_mat = Mat(blendshapes_as_basis.rows(), blendshapes_as_basis.cols(), CV_32FC1, blendshapes_as_basis.data());
+		Mat basis_rows = blendshapes_basis_as_mat.rowRange(vertex_ids[i] * 3, (vertex_ids[i] * 3) + 3);
+		basis_rows.copyTo(V_hat_h.rowRange(row_index, row_index + 3));
 		row_index += 4; // replace 3 rows and skip the 4th one, it has all zeros
 	}
 	// Form a block diagonal matrix $P \in R^{3N\times 4N}$ in which the camera matrix C (P_Affine, affine_camera_matrix) is placed on the diagonal:
@@ -177,7 +174,7 @@ inline std::vector<float> fit_blendshapes_to_landmarks_nnls(std::vector<eos::mor
 	// The mean, with an added homogeneous coordinate (x_1, y_1, z_1, 1, x_2, ...)^t
 	Mat v_bar = Mat::ones(4 * num_landmarks, 1, CV_32FC1);
 	for (int i = 0; i < num_landmarks; ++i) {
-		cv::Vec4f model_mean(face_instance.at<float>(vertex_ids[i]*3), face_instance.at<float>(vertex_ids[i]*3 + 1), face_instance.at<float>(vertex_ids[i]*3 + 2), 1.0f);
+		cv::Vec4f model_mean(face_instance(vertex_ids[i]*3), face_instance(vertex_ids[i]*3 + 1), face_instance(vertex_ids[i]*3 + 2), 1.0f);
 		v_bar.at<float>(4 * i, 0) = model_mean[0];
 		v_bar.at<float>((4 * i) + 1, 0) = model_mean[1];
 		v_bar.at<float>((4 * i) + 2, 0) = model_mean[2];

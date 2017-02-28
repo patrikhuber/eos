@@ -3,7 +3,7 @@
  *
  * File: include/eos/morphablemodel/PcaModel.hpp
  *
- * Copyright 2014, 2015 Patrik Huber
+ * Copyright 2014-2017 Patrik Huber
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,10 +22,12 @@
 #ifndef PCAMODEL_HPP_
 #define PCAMODEL_HPP_
 
-#include "eos/morphablemodel/io/mat_cerealisation.hpp"
+#include "eos/morphablemodel/io/eigen_cerealisation.hpp"
 #include "cereal/access.hpp"
 #include "cereal/types/array.hpp"
 #include "cereal/types/vector.hpp"
+
+#include "Eigen/Core"
 
 #include "opencv2/core/core.hpp"
 
@@ -39,8 +41,8 @@ namespace eos {
 	namespace morphablemodel {
 
 // Forward declarations of free functions:
-cv::Mat normalise_pca_basis(cv::Mat unnormalised_basis, cv::Mat eigenvalues);
-cv::Mat unnormalise_pca_basis(cv::Mat normalised_basis, cv::Mat eigenvalues);
+Eigen::MatrixXf normalise_pca_basis(const Eigen::MatrixXf& unnormalised_basis, const Eigen::VectorXf& eigenvalues);
+Eigen::MatrixXf unnormalise_pca_basis(const Eigen::MatrixXf& normalised_basis, const Eigen::VectorXf& eigenvalues);
 
 /**
  * @brief This class represents a PCA-model that consists of:
@@ -68,10 +70,8 @@ public:
 	 * @param[in] eigenvalues The eigenvalues used to build the PCA model.
 	 * @param[in] triangle_list An index list of how to assemble the mesh.
 	 */
-	PcaModel(cv::Mat mean, cv::Mat pca_basis, cv::Mat eigenvalues, std::vector<std::array<int, 3>> triangle_list) : mean(mean), normalised_pca_basis(pca_basis), eigenvalues(eigenvalues), triangle_list(triangle_list)
+	PcaModel(Eigen::VectorXf mean, Eigen::MatrixXf pca_basis, Eigen::VectorXf eigenvalues, std::vector<std::array<int, 3>> triangle_list) : mean(mean), normalised_pca_basis(pca_basis), eigenvalues(eigenvalues), triangle_list(triangle_list)
 	{
-		const auto seed = std::random_device()();
-		engine.seed(seed);
 		unnormalised_pca_basis = unnormalise_pca_basis(normalised_pca_basis, eigenvalues);
 	};
 
@@ -83,7 +83,7 @@ public:
 	int get_num_principal_components() const
 	{
 		// Note: we could assert(normalised_pca_basis.cols==unnormalised_pca_basis.cols)
-		return normalised_pca_basis.cols;
+		return normalised_pca_basis.cols();
 	};
 
 	/**
@@ -97,7 +97,7 @@ public:
 	int get_data_dimension() const
 	{
 		// Note: we could assert(normalised_pca_basis.rows==unnormalised_pca_basis.rows)
-		return normalised_pca_basis.rows;
+		return normalised_pca_basis.rows();
 	};
 
 	/**
@@ -113,9 +113,11 @@ public:
 	/**
 	 * Returns the mean of the model.
 	 *
+	 * Todo: Return a const-ref to avoid copying of the vector?
+	 *
 	 * @return The mean of the model.
 	 */
-	cv::Mat get_mean() const
+	Eigen::VectorXf get_mean() const
 	{
 		return mean;
 	};
@@ -123,23 +125,28 @@ public:
 	/**
 	 * Return the value of the mean at a given vertex index.
 	 *
+	 * Todo: Rename to get_mean? The other getters are overloaded on the vertex index too.
+	 * I also think we should just return an Eigen::Vector3f - homogenous coords have no place here?
+	 *
 	 * @param[in] vertex_index A vertex index.
 	 * @return A homogeneous vector containing the values at the given vertex index.
 	 */
 	cv::Vec4f get_mean_at_point(int vertex_index) const
 	{
 		vertex_index *= 3;
-		return cv::Vec4f(mean.at<float>(vertex_index), mean.at<float>(vertex_index + 1), mean.at<float>(vertex_index + 2), 1.0f);
+		return cv::Vec4f(mean(vertex_index), mean(vertex_index + 1), mean(vertex_index + 2), 1.0f);
 	};
 
 	/**
 	 * Draws a random sample from the model, where the coefficients are drawn
 	 * from a standard normal (or with the given standard deviation).
 	 *
+	 * @param[in] engine Random number engine used to draw random coefficients.
 	 * @param[in] sigma The standard deviation.
 	 * @return A random sample from the model.
 	 */
-	cv::Mat draw_sample(float sigma = 1.0f)
+	template <class RNG>
+	Eigen::VectorXf draw_sample(RNG& engine, float sigma = 1.0f) const
 	{
 		std::normal_distribution<float> distribution(0.0f, sigma); // this constructor takes the stddev
 
@@ -160,15 +167,15 @@ public:
 	 * @param[in] coefficients The PCA coefficients used to generate the sample.
 	 * @return A model instance with given coefficients.
 	 */
-	cv::Mat draw_sample(std::vector<float> coefficients) const
+	Eigen::VectorXf draw_sample(std::vector<float> coefficients) const
 	{
 		// Fill the rest with zeros if not all coefficients are given:
 		if (coefficients.size() < get_num_principal_components()) {
 			coefficients.resize(get_num_principal_components());
 		}
-		cv::Mat alphas(coefficients);
+		Eigen::Map<Eigen::VectorXf> alphas(coefficients.data(), coefficients.size());
 
-		cv::Mat model_sample = mean + normalised_pca_basis * alphas;
+		Eigen::VectorXf model_sample = mean + normalised_pca_basis * alphas;
 
 		return model_sample;
 	};
@@ -176,7 +183,7 @@ public:
 	/**
 	 * @copydoc PcaModel::draw_sample(std::vector<float>) const
 	 */
-	cv::Mat draw_sample(std::vector<double> coefficients) const
+	Eigen::VectorXf draw_sample(std::vector<double> coefficients) const
 	{
 		// We have to convert the vector of doubles to float:
 		std::vector<float> coeffs_float(std::begin(coefficients), std::end(coefficients));
@@ -189,14 +196,14 @@ public:
 	 * The returned basis is normalised, i.e. every eigenvector
 	 * is normalised by multiplying it with the square root of its eigenvalue.
 	 *
-	 * Returns a clone of the matrix so that the original cannot
+	 * Returns a copy of the matrix so that the original cannot
 	 * be modified. TODO: No, don't return a clone.
 	 *
 	 * @return Returns the normalised PCA basis matrix.
 	 */
-	cv::Mat get_normalised_pca_basis() const
+	Eigen::MatrixXf get_normalised_pca_basis() const
 	{
-		return normalised_pca_basis.clone();
+		return normalised_pca_basis;
 	};
 
 	/**
@@ -204,14 +211,16 @@ public:
 	 * The returned basis is normalised, i.e. every eigenvector
 	 * is normalised by multiplying it with the square root of its eigenvalue.
 	 *
+	 * Todo: Can we return a const & view that points into the original data?
+	 *
 	 * @param[in] vertex_id A vertex index. Make sure it is valid.
-	 * @return A Mat that points to the rows in the original basis.
+	 * @return A 1x3? 3x1? matrix that points to the rows in the original basis.
 	 */
-	cv::Mat get_normalised_pca_basis(int vertex_id) const
+	Eigen::MatrixXf get_normalised_pca_basis(int vertex_id) const
 	{
 		vertex_id *= 3; // the basis is stored in the format [x y z x y z ...]
 		assert(vertex_id < get_data_dimension()); // Make sure the given vertex index isn't larger than the number of model vertices.
-		return normalised_pca_basis.rowRange(vertex_id, vertex_id + 3);
+		return normalised_pca_basis.block(vertex_id, 0, 3, normalised_pca_basis.cols());
 	};
 
 	/**
@@ -224,9 +233,9 @@ public:
 	 *
 	 * @return Returns the unnormalised PCA basis matrix.
 	 */
-	cv::Mat get_unnormalised_pca_basis() const
+	Eigen::MatrixXf get_unnormalised_pca_basis() const
 	{
-		return unnormalised_pca_basis.clone();
+		return unnormalised_pca_basis;
 	};
 
 	/**
@@ -236,32 +245,40 @@ public:
 	 * @param[in] vertex_id A vertex index. Make sure it is valid.
 	 * @return A Mat that points to the rows in the original basis.
 	 */
-	cv::Mat get_unnormalised_pca_basis(int vertex_id) const
+	Eigen::MatrixXf get_unnormalised_pca_basis(int vertex_id) const
 	{
 		vertex_id *= 3; // the basis is stored in the format [x y z x y z ...]
 		assert(vertex_id < get_data_dimension()); // Make sure the given vertex index isn't larger than the number of model vertices.
-		return unnormalised_pca_basis.rowRange(vertex_id, vertex_id + 3);
+		return unnormalised_pca_basis.block(vertex_id, 0, 3, unnormalised_pca_basis.cols());
 	};
 
 	/**
-	 * Returns an eigenvalue.
+	 * Returns the models eigenvalues.
+	 *
+	 * @return The eigenvalues.
+	 */
+	Eigen::VectorXf get_eigenvalues() const
+	{
+		return eigenvalues;
+	};
+
+	/**
+	 * Returns a specific eigenvalue.
 	 *
 	 * @param[in] index The index of the eigenvalue to return.
 	 * @return The eigenvalue.
 	 */
 	float get_eigenvalue(int index) const
 	{
-		// no assert - OpenCV checks ::at in debug builds
-		return eigenvalues.at<float>(index);
+		// no assert - Eigen checks access with an assert in debug builds
+		return eigenvalues(index);
 	};
 
 private:
-	std::mt19937 engine; ///< Random number engine used to draw random coefficients.
-
-	cv::Mat mean; ///< A 3m x 1 col-vector (xyzxyz...)', where m is the number of model-vertices.
-	cv::Mat normalised_pca_basis; ///< The normalised PCA basis matrix. m x n (rows x cols) = numShapeDims x numShapePcaCoeffs, (=eigenvector matrix V). Each column is an eigenvector.
-	cv::Mat unnormalised_pca_basis; ///< The unnormalised PCA basis matrix. m x n (rows x cols) = numShapeDims x numShapePcaCoeffs, (=eigenvector matrix V). Each column is an eigenvector.
-	cv::Mat eigenvalues; ///< A col-vector of the eigenvalues (variances in the PCA space).
+	Eigen::VectorXf mean; ///< A 3m x 1 col-vector (xyzxyz...)', where m is the number of model-vertices.
+	Eigen::MatrixXf normalised_pca_basis; ///< The normalised PCA basis matrix. m x n (rows x cols) = numShapeDims x numShapePcaCoeffs, (=eigenvector matrix V). Each column is an eigenvector.
+	Eigen::MatrixXf unnormalised_pca_basis; ///< The unnormalised PCA basis matrix. m x n (rows x cols) = numShapeDims x numShapePcaCoeffs, (=eigenvector matrix V). Each column is an eigenvector.
+	Eigen::VectorXf eigenvalues; ///< A col-vector of the eigenvalues (variances in the PCA space).
 
 	std::vector<std::array<int, 3>> triangle_list; ///< List of triangles that make up the mesh of the model.
 
@@ -291,18 +308,14 @@ private:
  * @param[in] eigenvalues A row or column vector of eigenvalues.
  * @return The normalised PCA basis matrix.
  */
-inline cv::Mat normalise_pca_basis(cv::Mat unnormalised_basis, cv::Mat eigenvalues)
+inline Eigen::MatrixXf normalise_pca_basis(const Eigen::MatrixXf& unnormalised_basis, const Eigen::VectorXf& eigenvalues)
 {
-	using cv::Mat;
-	Mat normalised_basis(unnormalised_basis.size(), unnormalised_basis.type()); // empty matrix with the same dimensions
-	Mat sqrt_of_eigenvalues = eigenvalues.clone();
-	for (int i = 0; i < eigenvalues.rows; ++i) {
-		sqrt_of_eigenvalues.at<float>(i) = std::sqrt(eigenvalues.at<float>(i));
-	}
+	using Eigen::MatrixXf;
+	MatrixXf normalised_basis(unnormalised_basis.rows(), unnormalised_basis.cols()); // empty matrix with the same dimensions
+	MatrixXf sqrt_of_eigenvalues = eigenvalues.array().sqrt(); // using eigenvalues.sqrt() directly gives a compile error. These are all Eigen::Array functions? I don't think we copy here, do we?
 	// Normalise the basis: We multiply each eigenvector (i.e. each column) with the square root of its corresponding eigenvalue
-	for (int basis = 0; basis < unnormalised_basis.cols; ++basis) {
-		Mat normalised_eigenvector = unnormalised_basis.col(basis).mul(sqrt_of_eigenvalues.at<float>(basis));
-		normalised_eigenvector.copyTo(normalised_basis.col(basis));
+	for (int basis = 0; basis < unnormalised_basis.cols(); ++basis) {
+		normalised_basis.col(basis) = unnormalised_basis.col(basis) * sqrt_of_eigenvalues(basis);
 	}
 
 	return normalised_basis;
@@ -318,18 +331,14 @@ inline cv::Mat normalise_pca_basis(cv::Mat unnormalised_basis, cv::Mat eigenvalu
  * @param[in] eigenvalues A row or column vector of eigenvalues.
  * @return The unnormalised PCA basis matrix.
  */
-inline cv::Mat unnormalise_pca_basis(cv::Mat normalised_basis, cv::Mat eigenvalues)
+inline Eigen::MatrixXf unnormalise_pca_basis(const Eigen::MatrixXf& normalised_basis, const Eigen::VectorXf& eigenvalues)
 {
-	using cv::Mat;
-	Mat unnormalised_basis(normalised_basis.size(), normalised_basis.type()); // empty matrix with the same dimensions
-	Mat one_over_sqrt_of_eigenvalues = eigenvalues.clone();
-	for (int i = 0; i < eigenvalues.rows; ++i) {
-		one_over_sqrt_of_eigenvalues.at<float>(i) = 1.0f / std::sqrt(eigenvalues.at<float>(i));
-	}
+	using Eigen::MatrixXf;
+	MatrixXf unnormalised_basis(normalised_basis.rows(), normalised_basis.cols()); // empty matrix with the same dimensions
+	Eigen::VectorXf one_over_sqrt_of_eigenvalues = eigenvalues.array().rsqrt();
 	// De-normalise the basis: We multiply each eigenvector (i.e. each column) with 1 over the square root of its corresponding eigenvalue
-	for (int basis = 0; basis < normalised_basis.cols; ++basis) {
-		Mat unnormalised_eigenvector = normalised_basis.col(basis).mul(one_over_sqrt_of_eigenvalues.at<float>(basis));
-		unnormalised_eigenvector.copyTo(unnormalised_basis.col(basis));
+	for (int basis = 0; basis < normalised_basis.cols(); ++basis) {
+		unnormalised_basis.col(basis) = normalised_basis.col(basis) * one_over_sqrt_of_eigenvalues(basis);
 	}
 
 	return unnormalised_basis;
