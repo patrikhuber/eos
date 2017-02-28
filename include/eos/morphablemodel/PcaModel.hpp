@@ -50,7 +50,6 @@ cv::Mat unnormalise_pca_basis(cv::Mat normalised_basis, cv::Mat eigenvalues);
  *
  * It also contains a list of triangles to built a mesh as well as a mapping
  * from landmark points to the corresponding vertex-id in the mesh.
- * It is able to return instances of the model as meshes.
  */
 class PcaModel
 {
