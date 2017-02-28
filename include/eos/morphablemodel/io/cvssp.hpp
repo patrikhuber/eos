@@ -35,7 +35,7 @@ namespace eos {
 	namespace morphablemodel {
 
 // Forward declaration
-std::vector<cv::Vec2f> load_isomap(boost::filesystem::path isomap_file);
+std::vector<std::array<double, 2>> load_isomap(boost::filesystem::path isomap_file);
 
 /**
  * Load a shape or color model from a .scm file containing
