@@ -33,7 +33,7 @@
 
 #include "pybind11/pybind11.h"
 #include "pybind11/stl.h"
-//#include "pybind11/eigen.h"
+#include "pybind11/eigen.h"
 #include "pybind11_glm.hpp"
 #include "pybind11_opencv.hpp"
 
@@ -88,7 +88,7 @@ PYBIND11_PLUGIN(eos) {
 		.def("get_triangle_list", &morphablemodel::PcaModel::get_triangle_list, "Returns a list of triangles on how to assemble the vertices into a mesh.")
 		.def("get_mean", &morphablemodel::PcaModel::get_mean, "Returns the mean of the model.")
 		.def("get_mean_at_point", &morphablemodel::PcaModel::get_mean_at_point, "Return the value of the mean at a given vertex index.", py::arg("vertex_index"))
-		.def("draw_sample", (cv::Mat (morphablemodel::PcaModel::*)(std::vector<float>) const)&morphablemodel::PcaModel::draw_sample, "Returns a sample from the model with the given PCA coefficients. The given coefficients should follow a standard normal distribution, i.e. not be scaled with their eigenvalues/variances.", py::arg("coefficients"))
+		.def("draw_sample", (Eigen::VectorXf(morphablemodel::PcaModel::*)(std::vector<float>) const)&morphablemodel::PcaModel::draw_sample, "Returns a sample from the model with the given PCA coefficients. The given coefficients should follow a standard normal distribution, i.e. not be scaled with their eigenvalues/variances.", py::arg("coefficients"))
 		;
 
 	py::class_<morphablemodel::MorphableModel>(morphablemodel_module, "MorphableModel", "A class representing a 3D Morphable Model, consisting of a shape- and colour (albedo) PCA model, as well as texture (uv) coordinates.")
@@ -111,21 +111,20 @@ PYBIND11_PLUGIN(eos) {
 	morphablemodel_module.def("load_blendshapes", &morphablemodel::load_blendshapes, "Load a file with blendshapes from a cereal::BinaryInputArchive (.bin) from the harddisk.", py::arg("filename"));
 
     morphablemodel_module.def("draw_sample", [](const morphablemodel::MorphableModel& morphable_model, const std::vector<morphablemodel::Blendshape>& blendshapes, const std::vector<float>& shape_coefficients, const std::vector<float>& blendshape_coefficients, const std::vector<float>& color_coefficients) {
-            // Helper function - draws a sample with given shape, blendshape and colour coeffs, and
+            // Helper function - draws a sample with given shape, blendshape and colour coefficients, and
             // returns a mesh. This is quite useful and would be worth having in the C++ API too.
-            // If no color coeffs are given, then the resulting mesh won't have color information (that's the behaviour of sample_to_mesh when given '{}').
-            // assert all vectors > 0?
+            // If no colour coefficients are given, the resulting mesh won't have colour information.
             // Add expressions if both blendshapes and coefficients are given, otherwise just use the PCA model sample:
-            cv::Mat shape;
+            Eigen::VectorXf shape;
             if (blendshape_coefficients.size() > 0 && blendshapes.size() > 0)
             {
-                shape = morphable_model.get_shape_model().draw_sample(shape_coefficients) + morphablemodel::to_matrix(blendshapes) * cv::Mat(blendshape_coefficients);
+                shape = morphable_model.get_shape_model().draw_sample(shape_coefficients) + morphablemodel::to_matrix(blendshapes) * Eigen::Map<const Eigen::VectorXf>(blendshape_coefficients.data(), blendshape_coefficients.size());
             }
             else {
                 shape = morphable_model.get_shape_model().draw_sample(shape_coefficients);
             }
             // Draw sample from colour model if color_coefficients given, otherwise set to empty:
-            const cv::Mat albedo = color_coefficients.size() > 0 ? morphable_model.get_color_model().draw_sample(color_coefficients) : cv::Mat();
+            const Eigen::VectorXf albedo = color_coefficients.size() > 0 ? morphable_model.get_color_model().draw_sample(color_coefficients) : Eigen::VectorXf();
             return morphablemodel::sample_to_mesh(shape, albedo, morphable_model.get_shape_model().get_triangle_list(), {}, morphable_model.get_texture_coordinates());
         }, "Draws a sample with given shape, blendshape and colour coeffs, and returns a mesh.", py::arg("morphable_model"), py::arg("blendshapes"), py::arg("shape_coefficients"), py::arg("blendshape_coefficients"), py::arg("color_coefficients"));
 
