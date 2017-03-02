@@ -36,52 +36,32 @@ fwrite(f, size(bfm.shapeMU, 1), 'int32'); % num vertices times 3
 fwrite(f, size(bfm.shapePC, 2), 'int32'); % number of basis vectors
 
 % Write the shape mean:
-for i=1:size(bfm.shapeMU, 1)
-    fwrite(f, bfm.shapeMU(i), 'float');
-end
+fwrite(f, bfm.shapeMU, 'float');
 
 % Write the unnormalised shape PCA basis matrix:
 % All of basis 1 will be written first, then basis 2, etc.
-for basis=1:size(bfm.shapePC, 2)
-    for j=1:size(bfm.shapePC, 1) % all data points of the basis
-        fwrite(f, bfm.shapePC(j, basis), 'float');
-    end
-end
+fwrite(f, bfm.shapePC, 'float');
 
 % Write the shape eigenvalues:
-for i=1:size(bfm.shapeEV, 1)
-    fwrite(f, bfm.shapeEV(i), 'float');
-end
+fwrite(f, bfm.shapeEV, 'float');
 
 % Write num_triangles and the triangle list:
 fwrite(f, size(bfm.tl, 1), 'int32');
-for i=1:size(bfm.tl, 1)
-    fwrite(f, bfm.tl(i, 1), 'int32');
-    fwrite(f, bfm.tl(i, 2), 'int32');
-    fwrite(f, bfm.tl(i, 3), 'int32');
-end
+fwrite(f, bfm.tl', 'int32');
 
 % Now just exactly the same for the colour (albedo) model:
 fwrite(f, size(bfm.texMU, 1), 'int32'); % num vertices times 3
 fwrite(f, size(bfm.texPC, 2), 'int32'); % number of basis vectors
 
 % Write the colour mean:
-for i=1:size(bfm.texMU, 1)
-    fwrite(f, bfm.texMU(i), 'float');
-end
+fwrite(f, bfm.texMU, 'float');
 
 % Write the unnormalised colour PCA basis matrix:
 % All of basis 1 will be written first, then basis 2, etc.
-for basis=1:size(bfm.texPC, 2)
-    for j=1:size(bfm.texPC, 1) % all data points of the basis
-        fwrite(f, bfm.texPC(j, basis), 'float');
-    end
-end
+fwrite(f, bfm.texPC, 'float');
 
 % Write the colour eigenvalues:
-for i=1:size(bfm.texEV, 1)
-    fwrite(f, bfm.texEV(i), 'float');
-end
+fwrite(f, bfm.texEV, 'float');
 
 fclose(f);
 
