@@ -232,7 +232,7 @@ inline cv::Mat extract_texture(core::Mesh mesh, cv::Mat affine_camera_matrix, cv
 				for (int y = min(dst_tri[0].y, min(dst_tri[1].y, dst_tri[2].y)); y < max(dst_tri[0].y, max(dst_tri[1].y, dst_tri[2].y)); ++y) {
 					if (detail::is_point_in_triangle(cv::Point2f(x, y), dst_tri[0], dst_tri[1], dst_tri[2])) {
 
-						// As the coordinates of the transformed pixel in the image will most likely not lie on a texel, we have to choose how to 
+						// As the coordinates of the transformed pixel in the image will most likely not lie on a texel, we have to choose how to
 						// calculate the pixel colors depending on the next texels
 						// there are three different texture interpolation methods: area, bilinear and nearest neighbour
 
@@ -408,7 +408,7 @@ cv::Mat extract_texture(core::Mesh mesh, glm::mat4x4 view_model_matrix, glm::mat
             auto& v1 = rotated_vertices[tri[1]];
             auto& v2 = rotated_vertices[tri[2]];
 
-            vec3 ray_origin = vertex;
+            vec3 ray_origin(vertex);
             vec3 ray_direction(0.0f, 0.0f, 1.0f); // we shoot the ray from the vertex towards the camera
             auto intersect = fitting::ray_triangle_intersect(ray_origin, ray_direction, vec3(v0), vec3(v1),
                                                              vec3(v2), false);
