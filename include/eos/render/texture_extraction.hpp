@@ -408,7 +408,7 @@ cv::Mat extract_texture(core::Mesh mesh, glm::mat4x4 view_model_matrix, glm::mat
             auto& v1 = rotated_vertices[tri[1]];
             auto& v2 = rotated_vertices[tri[2]];
 
-            vec3 ray_origin = vertex;
+            vec3 ray_origin(vertex);
             vec3 ray_direction(0.0f, 0.0f, 1.0f); // we shoot the ray from the vertex towards the camera
             auto intersect = fitting::ray_triangle_intersect(ray_origin, ray_direction, vec3(v0), vec3(v1),
                                                              vec3(v2), false);

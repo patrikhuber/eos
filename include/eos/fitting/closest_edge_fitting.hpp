@@ -131,7 +131,7 @@ inline std::vector<int> occluding_boundary_vertices(const core::Mesh& mesh, cons
 	// Compute the face normals of the rotated mesh:
 	std::vector<glm::vec3> facenormals;
 	for (auto&& f : mesh.tvi) { // for each face (triangle):
-		auto n = render::compute_face_normal(rotated_vertices[f[0]], rotated_vertices[f[1]], rotated_vertices[f[2]]);
+		auto n = render::compute_face_normal(glm::vec3(rotated_vertices[f[0]]), glm::vec3(rotated_vertices[f[1]]), glm::vec3(rotated_vertices[f[2]]));
 		facenormals.push_back(n);
 	}
 
@@ -180,7 +180,7 @@ inline std::vector<int> occluding_boundary_vertices(const core::Mesh& mesh, cons
 			auto& v1 = rotated_vertices[tri[1]];
 			auto& v2 = rotated_vertices[tri[2]];
 
-			glm::vec3 ray_origin = rotated_vertices[vertex_idx];
+			glm::vec3 ray_origin(rotated_vertices[vertex_idx]);
 			glm::vec3 ray_direction(0.0f, 0.0f, 1.0f); // we shoot the ray from the vertex towards the camera
 			auto intersect = ray_triangle_intersect(ray_origin, ray_direction, glm::vec3(v0), glm::vec3(v1), glm::vec3(v2), false);
 			// first is bool intersect, second is the distance t
