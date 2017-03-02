@@ -335,7 +335,7 @@ inline Eigen::MatrixXf unnormalise_pca_basis(const Eigen::MatrixXf& normalised_b
 {
 	using Eigen::MatrixXf;
 	MatrixXf unnormalised_basis(normalised_basis.rows(), normalised_basis.cols()); // empty matrix with the same dimensions
-	Eigen::VectorXf one_over_sqrt_of_eigenvalues = eigenvalues.array().rsqrt();
+	Eigen::VectorXf one_over_sqrt_of_eigenvalues = eigenvalues.array().sqrt().inverse(); // Eigen added Array::rsqrt() in 3.3, switch back to that eventually
 	// De-normalise the basis: We multiply each eigenvector (i.e. each column) with 1 over the square root of its corresponding eigenvalue
 	for (int basis = 0; basis < normalised_basis.cols(); ++basis) {
 		unnormalised_basis.col(basis) = normalised_basis.col(basis) * one_over_sqrt_of_eigenvalues(basis);

@@ -20,8 +20,6 @@
 #include "eos/morphablemodel/MorphableModel.hpp"
 #include "eos/morphablemodel/io/cvssp.hpp"
 
-#include "opencv2/core/core.hpp"
-
 #include "boost/program_options.hpp"
 #include "boost/filesystem.hpp"
 
@@ -69,7 +67,7 @@ int main(int argc, char *argv[])
 	catch (const po::error& e) {
 		cout << "Error while parsing command-line arguments: " << e.what() << endl;
 		cout << "Use --help to display a list of options." << endl;
-		return EXIT_SUCCESS;
+		return EXIT_FAILURE;
 	}
 
 	// Load the .scm Morphable Model and save it as cereal model:

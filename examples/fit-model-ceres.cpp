@@ -164,7 +164,7 @@ int main(int argc, char *argv[])
 	catch (const po::error& e) {
 		cout << "Error while parsing command-line arguments: " << e.what() << endl;
 		cout << "Use --help to display a list of options." << endl;
-		return EXIT_SUCCESS;
+		return EXIT_FAILURE;
 	}
 
 	google::InitGoogleLogging(argv[0]); // Ceres logging initialisation
