@@ -1,7 +1,7 @@
-; Mapping from the 68-point ibug annotations to the Surrey DID format (3DMM vertex indices).
+; Mapping from the 68-point ibug annotations to the Surrey Face Model (SFM) mesh vertex indices.
 ; Note: Points above vertex id 845 are not defined on the reference and thus not available in all model resolutions.
 
-landmarkMappings ; A mapping from input landmarks (ibug, lhs) to output landmarks (DID, rhs)
+landmarkMappings ; A mapping from input landmarks (ibug, lhs) to output landmarks (SFM, rhs)
 {
 	         ; 1 to 8 are the right contour landmarks
 	 9    33 ; chin bottom

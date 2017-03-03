@@ -117,11 +117,11 @@ struct ModelContour
  * This class holds 2D image contour landmark information. More specifically,
  * it defines which 2D landmark IDs correspond to the right contour and which
  * to the left. These definitions are loaded from a file, for example from
- * the "contour_landmarks" part of share/ibug2did.txt.
+ * the "contour_landmarks" part of share/ibug_to_sfm.txt.
  *
  * Note: Better names could be ContourDefinition or ImageContourLandmarks, to
  * disambiguate 3D and 2D landmarks?
- * Todo: I think this should go into the LandmarkMapper. Isn't it part of ibug2did.txt already?
+ * Todo: I think this should go into the LandmarkMapper. Isn't it part of ibug_to_sfm.txt already?
  */
 struct ContourLandmarks
 {
@@ -135,7 +135,7 @@ struct ContourLandmarks
 	
 	/**
 	 * Helper method to load contour landmarks from a text file with landmark
-	 * mappings, like ibug2did.txt.
+	 * mappings, like ibug_to_sfm.txt.
 	 *
 	 * @param[in] filename Filename to a landmark-mapping file.
 	 * @return A ContourLandmarks instance with loaded 2D contour landmarks.
