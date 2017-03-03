@@ -123,7 +123,7 @@ int main(int argc, char *argv[])
 				"an input image")
 			("landmarks,l", po::value<fs::path>(&landmarksfile)->required()->default_value("data/image_0010.pts"),
 				"2D landmarks for the image, in ibug .pts format")
-			("mapping,p", po::value<fs::path>(&mappingsfile)->required()->default_value("../share/ibug2did.txt"),
+			("mapping,p", po::value<fs::path>(&mappingsfile)->required()->default_value("../share/ibug_to_sfm.txt"),
 				"landmark identifier to model vertex number mapping")
 			("output,o", po::value<fs::path>(&outputfile)->required()->default_value("out"),
 				"basename for the output rendering and obj files")

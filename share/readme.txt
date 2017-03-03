@@ -3,7 +3,7 @@ eos: A lightweight header-only 3D Morphable Model fitting library in modern C++1
 
 Files in this directory:
 
-- ibug2did.txt:
+- ibug_to_sfm.txt:
 	Mappings from the popular ibug 68-point 2D facial landmarks markup to
 	Surrey Face Model indices.
 
@@ -33,10 +33,10 @@ Files in this directory:
 	model, if the points exist here.
 	
 - reference_annotated.obj:
-	Visualisation of the landmark points defined in the ibug2did.txt mapping file.
+	Visualisation of the landmark points defined in the ibug_to_sfm.txt mapping file.
 	* Red: Annotated ibug points that are defined on the reference shape.
 	* Green: Contour vertices from the file model_contours.json.
-	The file ibug2did.txt contains a few more mappings of landmarks that are not present
+	The file ibug_to_sfm.txt contains a few more mappings of landmarks that are not present
 	in the reference, for example the middle-inner eyebrow points - they are not visualised.
 
 - reference_symmetry.txt:
