@@ -87,7 +87,7 @@ class CMakeBuild(build_ext):
         subprocess.check_call(['cmake', '--build', '.'] + build_args, cwd=self.build_temp)
 
 setup(
-    name='eos',
+    name='eos-py',
     version='0.11.0',
     author='Patrik Huber',
     author_email='patrikhuber@gmail.com',
