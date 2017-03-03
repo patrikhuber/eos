@@ -1,0 +1,10 @@
+include README.md LICENSE
+global-include CMakeLists.txt *.cmake
+recursive-include 3rdparty/cereal-1.1.1/include *
+recursive-include 3rdparty/eigen3-nnls/src *.h
+recursive-include 3rdparty/glm/glm *
+recursive-include 3rdparty/nanoflann/include *
+recursive-include 3rdparty/pybind11 *
+recursive-include cmake *
+recursive-include include *
+recursive-include python *
