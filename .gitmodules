@@ -13,3 +13,6 @@
 [submodule "3rdparty/mexplus"]
 	path = 3rdparty/mexplus
 	url = https://github.com/kyamagu/mexplus.git
+[submodule "3rdparty/cereal"]
+	path = 3rdparty/cereal
+	url = https://github.com/USCiLab/cereal.git

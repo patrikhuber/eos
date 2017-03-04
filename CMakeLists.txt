@@ -58,7 +58,7 @@ message(STATUS "Eigen3 include dir found at ${EIGEN3_INCLUDE_DIR}")
 set(eos_3RDPARTY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty") # this is used by the CMakeLists.txt files in the subdirectories
 
 # Set the include directories of the 3rd-party submodules that we use:
-set(CEREAL_INCLUDE_DIR "${eos_3RDPARTY_DIR}/cereal-1.1.1/include")
+set(CEREAL_INCLUDE_DIR "${eos_3RDPARTY_DIR}/cereal/include")
 set(glm_INCLUDE_DIR "${eos_3RDPARTY_DIR}/glm")
 set(nanoflann_INCLUDE_DIR "${eos_3RDPARTY_DIR}/nanoflann/include")
 set(eigen3_nnls_INCLUDE_DIR "${eos_3RDPARTY_DIR}/eigen3-nnls/src")
@@ -130,7 +130,7 @@ source_group(video REGULAR_EXPRESSION include/eos/video/*)
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/ DESTINATION include) # our library headers
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/share/ DESTINATION share) # the model and metadata
 # For 3rd party headers, we only copy the headers and licence files:
-install(DIRECTORY ${eos_3RDPARTY_DIR}/cereal-1.1.1/ DESTINATION 3rdparty/cereal-1.1.1) # cereal headers
+install(DIRECTORY ${eos_3RDPARTY_DIR}/cereal/ DESTINATION 3rdparty/cereal) # cereal headers
 install(DIRECTORY ${eos_3RDPARTY_DIR}/glm/glm/ DESTINATION 3rdparty/glm/glm) # glm headers
 install(FILES ${eos_3RDPARTY_DIR}/glm/copying.txt DESTINATION 3rdparty/glm/) # glm licence
 install(DIRECTORY ${eos_3RDPARTY_DIR}/nanoflann/include/ DESTINATION 3rdparty/nanoflann/include) # nanoflann header
