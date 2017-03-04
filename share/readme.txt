@@ -22,7 +22,7 @@ Files in this directory:
 
 - sfm_3448_edge_topology.json:
 	Contains a precomputed list of the model's edges, and the two faces and vertices that are
-	adjacent to each edge. Used in the edge-fitting.
+	adjacent to each edge. Uses 1-based indexing ("0" has a special meaning of "no adjacent vertex/edge") - this may change to 0-based in the future to be consistent with the rest of the library. The file is used in the edge-fitting.
 
 - model_contours.json:
 	Definition of the model's contour vertices of the right and left side of the face.
