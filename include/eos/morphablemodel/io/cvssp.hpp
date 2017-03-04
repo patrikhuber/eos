@@ -106,13 +106,13 @@ inline MorphableModel load_scm_model(boost::filesystem::path model_filename, boo
 	}
 
 	// Read shape projection matrix
-	Mat unnormalisedPcaBasisShape(numShapeDims, numShapePcaCoeffs, CV_32FC1); // m x n (rows x cols) = numShapeDims x numShapePcaCoeffs
-	std::cout << "Loading shape PCA basis matrix with " << unnormalisedPcaBasisShape.rows << " rows and " << unnormalisedPcaBasisShape.cols << " cols." << std::endl;
+	Mat orthonormal_pca_basis_shape(numShapeDims, numShapePcaCoeffs, CV_32FC1); // m x n (rows x cols) = numShapeDims x numShapePcaCoeffs
+	std::cout << "Loading shape PCA basis matrix with " << orthonormal_pca_basis_shape.rows << " rows and " << orthonormal_pca_basis_shape.cols << " cols." << std::endl;
 	for (unsigned int col = 0; col < numShapePcaCoeffs; ++col) {
 		for (unsigned int row = 0; row < numShapeDims; ++row) {
 			double var = 0.0;
 			modelFile.read(reinterpret_cast<char*>(&var), 8);
-			unnormalisedPcaBasisShape.at<float>(row, col) = static_cast<float>(var);
+			orthonormal_pca_basis_shape.at<float>(row, col) = static_cast<float>(var);
 		}
 	}
 
@@ -154,11 +154,11 @@ inline MorphableModel load_scm_model(boost::filesystem::path model_filename, boo
 	// We read the unnormalised basis from the file. Now let's normalise it and store the normalised basis separately.
 	// Todo: We should change these to read into an Eigen matrix directly, and not into a cv::Mat first.
 	using RowMajorMatrixXf = Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
-	Eigen::Map<RowMajorMatrixXf> unnormalisedPcaBasisShape_(unnormalisedPcaBasisShape.ptr<float>(), unnormalisedPcaBasisShape.rows, unnormalisedPcaBasisShape.cols);
+	Eigen::Map<RowMajorMatrixXf> orthonormal_pca_basis_shape_(orthonormal_pca_basis_shape.ptr<float>(), orthonormal_pca_basis_shape.rows, orthonormal_pca_basis_shape.cols);
 	Eigen::Map<RowMajorMatrixXf> eigenvaluesShape_(eigenvaluesShape.ptr<float>(), eigenvaluesShape.rows, eigenvaluesShape.cols);
 	Eigen::Map<RowMajorMatrixXf> meanShape_(meanShape.ptr<float>(), meanShape.rows, meanShape.cols);
-	Eigen::MatrixXf normalisedPcaBasisShape_ = rescale_pca_basis(unnormalisedPcaBasisShape_, eigenvaluesShape_);
-	PcaModel shapeModel(meanShape_, normalisedPcaBasisShape_, eigenvaluesShape_, triangleList);
+	Eigen::MatrixXf rescaled_pca_basis_shape_ = rescale_pca_basis(orthonormal_pca_basis_shape_, eigenvaluesShape_);
+	PcaModel shapeModel(meanShape_, rescaled_pca_basis_shape_, eigenvaluesShape_, triangleList);
 
 	// Reading the color model
 	// Read number of rows and columns of projection matrix
@@ -167,13 +167,13 @@ inline MorphableModel load_scm_model(boost::filesystem::path model_filename, boo
 	modelFile.read(reinterpret_cast<char*>(&numTexturePcaCoeffs), 4);
 	modelFile.read(reinterpret_cast<char*>(&numTextureDims), 4);
 	// Read color projection matrix
-	Mat unnormalisedPcaBasisColor(numTextureDims, numTexturePcaCoeffs, CV_32FC1);
-	std::cout << "Loading color PCA basis matrix with " << unnormalisedPcaBasisColor.rows << " rows and " << unnormalisedPcaBasisColor.cols << " cols." << std::endl;
+	Mat orthonormal_pca_basis_color(numTextureDims, numTexturePcaCoeffs, CV_32FC1);
+	std::cout << "Loading color PCA basis matrix with " << orthonormal_pca_basis_color.rows << " rows and " << orthonormal_pca_basis_color.cols << " cols." << std::endl;
 	for (unsigned int col = 0; col < numTexturePcaCoeffs; ++col) {
 		for (unsigned int row = 0; row < numTextureDims; ++row) {
 			double var = 0.0;
 			modelFile.read(reinterpret_cast<char*>(&var), 8);
-			unnormalisedPcaBasisColor.at<float>(row, col) = static_cast<float>(var);
+			orthonormal_pca_basis_color.at<float>(row, col) = static_cast<float>(var);
 		}
 	}
 
@@ -206,11 +206,11 @@ inline MorphableModel load_scm_model(boost::filesystem::path model_filename, boo
 	}
 
 	// We read the unnormalised basis from the file. Now let's normalise it and store the normalised basis separately.
-	Eigen::Map<RowMajorMatrixXf> unnormalisedPcaBasisColor_(unnormalisedPcaBasisColor.ptr<float>(), unnormalisedPcaBasisColor.rows, unnormalisedPcaBasisColor.cols);
+	Eigen::Map<RowMajorMatrixXf> orthonormal_pca_basis_color_(orthonormal_pca_basis_color.ptr<float>(), orthonormal_pca_basis_color.rows, orthonormal_pca_basis_color.cols);
 	Eigen::Map<RowMajorMatrixXf> eigenvaluesColor_(eigenvaluesColor.ptr<float>(), eigenvaluesColor.rows, eigenvaluesColor.cols);
 	Eigen::Map<RowMajorMatrixXf> meanColor_(meanColor.ptr<float>(), meanColor.rows, meanColor.cols);
-	Eigen::MatrixXf normalisedPcaBasisColor_ = rescale_pca_basis(unnormalisedPcaBasisColor_, eigenvaluesColor_);
-	PcaModel colorModel(meanColor_, normalisedPcaBasisColor_, eigenvaluesColor_, triangleList);
+	Eigen::MatrixXf rescaled_pca_basis_color_ = rescale_pca_basis(orthonormal_pca_basis_color_, eigenvaluesColor_);
+	PcaModel colorModel(meanColor_, rescaled_pca_basis_color_, eigenvaluesColor_, triangleList);
 
 	modelFile.close();
 
