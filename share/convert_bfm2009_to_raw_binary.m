@@ -38,7 +38,7 @@ fwrite(f, size(bfm.shapePC, 2), 'int32'); % number of basis vectors
 % Write the shape mean:
 fwrite(f, bfm.shapeMU, 'float');
 
-% Write the unnormalised shape PCA basis matrix:
+% Write the orthonormal shape PCA basis matrix:
 % All of basis 1 will be written first, then basis 2, etc.
 fwrite(f, bfm.shapePC, 'float');
 
@@ -56,7 +56,7 @@ fwrite(f, size(bfm.texPC, 2), 'int32'); % number of basis vectors
 % Write the colour mean:
 fwrite(f, bfm.texMU, 'float');
 
-% Write the unnormalised colour PCA basis matrix:
+% Write the orthonormal colour PCA basis matrix:
 % All of basis 1 will be written first, then basis 2, etc.
 fwrite(f, bfm.texPC, 'float');
 

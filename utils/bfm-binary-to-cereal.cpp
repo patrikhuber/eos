@@ -140,14 +140,14 @@ int main(int argc, char *argv[])
 		mean_shape(i) = value;
 	}
 
-	// Read the unnormalised shape basis matrix:
-	MatrixXf unnormalised_pca_basis_shape(num_vertices * 3, num_shape_basis_vectors); // m x n (rows x cols) = numShapeDims x numShapePcaCoeffs
-	std::cout << "Loading shape PCA basis matrix with " << unnormalised_pca_basis_shape.rows() << " rows and " << unnormalised_pca_basis_shape.cols() << " cols." << std::endl;
+	// Read the orthonormal shape basis matrix:
+	MatrixXf orthonormal_pca_basis_shape(num_vertices * 3, num_shape_basis_vectors); // m x n (rows x cols) = numShapeDims x numShapePcaCoeffs
+	std::cout << "Loading shape PCA basis matrix with " << orthonormal_pca_basis_shape.rows() << " rows and " << orthonormal_pca_basis_shape.cols() << " cols." << std::endl;
 	for (int col = 0; col < num_shape_basis_vectors; ++col) {
 		for (int row = 0; row < num_vertices * 3; ++row) {
 			float value = 0.0f;
 			file.read(reinterpret_cast<char*>(&value), 4);
-			unnormalised_pca_basis_shape(row, col) = value;
+			orthonormal_pca_basis_shape(row, col) = value;
 		}
 	}
 
@@ -177,9 +177,9 @@ int main(int argc, char *argv[])
 		triangle_list[i][2] = v2 - 1;
 	}
 
-	// We read the unnormalised basis from the file. Now let's normalise it and store the normalised basis separately.
-	auto normalised_pca_basis_shape = morphablemodel::normalise_pca_basis(unnormalised_pca_basis_shape, eigenvalues_shape);
-	morphablemodel::PcaModel shape_model(mean_shape, normalised_pca_basis_shape, eigenvalues_shape, triangle_list);
+	// We read the orthonormal basis from the file. Now let's rescale it and store the rescaled basis separately.
+	const auto rescaled_pca_basis_shape = morphablemodel::normalise_pca_basis(orthonormal_pca_basis_shape, eigenvalues_shape);
+	morphablemodel::PcaModel shape_model(mean_shape, rescaled_pca_basis_shape, eigenvalues_shape, triangle_list);
 
 	// Reading the colour (albedo) model:
 	int num_vertices_color = 0;
@@ -206,14 +206,14 @@ int main(int argc, char *argv[])
 		mean_color(i) = value / 255.0f;
 	}
 
-	// Read the unnormalised colour basis matrix:
-	MatrixXf unnormalised_pca_basis_color(num_vertices_color * 3, num_color_basis_vectors); // m x n (rows x cols) = num_colour_dims x num_colour_bases
-	std::cout << "Loading colour PCA basis matrix with " << unnormalised_pca_basis_color.rows() << " rows and " << unnormalised_pca_basis_color.cols() << " cols." << std::endl;
+	// Read the orthonormal colour basis matrix:
+	MatrixXf orthonormal_pca_basis_color(num_vertices_color * 3, num_color_basis_vectors); // m x n (rows x cols) = num_colour_dims x num_colour_bases
+	std::cout << "Loading colour PCA basis matrix with " << orthonormal_pca_basis_color.rows() << " rows and " << orthonormal_pca_basis_color.cols() << " cols." << std::endl;
 	for (int col = 0; col < num_color_basis_vectors; ++col) {
 		for (int row = 0; row < num_vertices_color * 3; ++row) {
 			float value = 0.0f;
 			file.read(reinterpret_cast<char*>(&value), 4);
-			unnormalised_pca_basis_color(row, col) = value;
+			orthonormal_pca_basis_color(row, col) = value;
 		}
 	}
 
@@ -225,9 +225,9 @@ int main(int argc, char *argv[])
 		eigenvalues_color(i) = value;
 	}
 
-	// We read the unnormalised basis from the file. Now let's normalise it and store the normalised basis separately.
-	auto normalised_pca_basis_color = morphablemodel::normalise_pca_basis(unnormalised_pca_basis_color, eigenvalues_color);
-	morphablemodel::PcaModel color_model(mean_color, normalised_pca_basis_color, eigenvalues_color, triangle_list);
+	// We read the orthonormal basis from the file. Now let's rescale it and store the rescaled basis separately.
+	const auto rescaled_pca_basis_color = morphablemodel::normalise_pca_basis(orthonormal_pca_basis_color, eigenvalues_color);
+	morphablemodel::PcaModel color_model(mean_color, rescaled_pca_basis_color, eigenvalues_color, triangle_list);
 
 	file.close();
 
