@@ -10,7 +10,7 @@ Files in this directory:
 - sfm_shape_3448.bin:
 	The public shape-only Surrey 3D Morphable Face Model.
 	To obtain a full 3DMM and higher resolution levels, follow the instructions
-	at <todo: add link to the page of the Uni>.
+	at cvssp.org/facemodel.
 	Details about the different models can be found in:
 	"A Multiresolution 3D Morphable Face Model and Fitting Framework",
 	P. Huber, G. Hu, R. Tena, P. Mortazavian, W. Koppen, W. Christmas, M. Rätsch, J. Kittler,
