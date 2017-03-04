@@ -178,7 +178,7 @@ int main(int argc, char *argv[])
 	}
 
 	// We read the orthonormal basis from the file. Now let's rescale it and store the rescaled basis separately.
-	const auto rescaled_pca_basis_shape = morphablemodel::normalise_pca_basis(orthonormal_pca_basis_shape, eigenvalues_shape);
+	const auto rescaled_pca_basis_shape = morphablemodel::rescale_pca_basis(orthonormal_pca_basis_shape, eigenvalues_shape);
 	morphablemodel::PcaModel shape_model(mean_shape, rescaled_pca_basis_shape, eigenvalues_shape, triangle_list);
 
 	// Reading the colour (albedo) model:
@@ -226,7 +226,7 @@ int main(int argc, char *argv[])
 	}
 
 	// We read the orthonormal basis from the file. Now let's rescale it and store the rescaled basis separately.
-	const auto rescaled_pca_basis_color = morphablemodel::normalise_pca_basis(orthonormal_pca_basis_color, eigenvalues_color);
+	const auto rescaled_pca_basis_color = morphablemodel::rescale_pca_basis(orthonormal_pca_basis_color, eigenvalues_color);
 	morphablemodel::PcaModel color_model(mean_color, rescaled_pca_basis_color, eigenvalues_color, triangle_list);
 
 	file.close();

@@ -41,13 +41,13 @@ namespace eos {
 	namespace morphablemodel {
 
 // Forward declarations of free functions:
-Eigen::MatrixXf normalise_pca_basis(const Eigen::MatrixXf& unnormalised_basis, const Eigen::VectorXf& eigenvalues);
-Eigen::MatrixXf unnormalise_pca_basis(const Eigen::MatrixXf& normalised_basis, const Eigen::VectorXf& eigenvalues);
+Eigen::MatrixXf rescale_pca_basis(const Eigen::MatrixXf& orthonormal_basis, const Eigen::VectorXf& eigenvalues);
+Eigen::MatrixXf normalise_pca_basis(const Eigen::MatrixXf& rescaled_basis, const Eigen::VectorXf& eigenvalues);
 
 /**
  * @brief This class represents a PCA-model that consists of:
  *   - a mean vector (y x z)
- *   - a PCA basis matrix (unnormalised and normalised)
+ *   - a PCA basis matrix (orthonormal and rescaled)
  *   - a PCA variance vector.
  *
  * It also contains a list of triangles to built a mesh as well as a mapping
@@ -70,9 +70,9 @@ public:
 	 * @param[in] eigenvalues The eigenvalues used to build the PCA model.
 	 * @param[in] triangle_list An index list of how to assemble the mesh.
 	 */
-	PcaModel(Eigen::VectorXf mean, Eigen::MatrixXf pca_basis, Eigen::VectorXf eigenvalues, std::vector<std::array<int, 3>> triangle_list) : mean(mean), normalised_pca_basis(pca_basis), eigenvalues(eigenvalues), triangle_list(triangle_list)
+	PcaModel(Eigen::VectorXf mean, Eigen::MatrixXf pca_basis, Eigen::VectorXf eigenvalues, std::vector<std::array<int, 3>> triangle_list) : mean(mean), rescaled_pca_basis(pca_basis), eigenvalues(eigenvalues), triangle_list(triangle_list)
 	{
-		unnormalised_pca_basis = unnormalise_pca_basis(normalised_pca_basis, eigenvalues);
+		orthonormal_pca_basis = normalise_pca_basis(rescaled_pca_basis, eigenvalues);
 	};
 
 	/**
@@ -82,8 +82,8 @@ public:
 	 */
 	int get_num_principal_components() const
 	{
-		// Note: we could assert(normalised_pca_basis.cols==unnormalised_pca_basis.cols)
-		return normalised_pca_basis.cols();
+		// Note: we could assert(rescaled_pca_basis.cols==orthonormal_pca_basis.cols)
+		return rescaled_pca_basis.cols();
 	};
 
 	/**
@@ -96,8 +96,8 @@ public:
 	 */
 	int get_data_dimension() const
 	{
-		// Note: we could assert(normalised_pca_basis.rows==unnormalised_pca_basis.rows)
-		return normalised_pca_basis.rows();
+		// Note: we could assert(rescaled_pca_basis.rows==orthonormal_pca_basis.rows)
+		return rescaled_pca_basis.rows();
 	};
 
 	/**
@@ -175,7 +175,7 @@ public:
 		}
 		Eigen::Map<Eigen::VectorXf> alphas(coefficients.data(), coefficients.size());
 
-		Eigen::VectorXf model_sample = mean + normalised_pca_basis * alphas;
+		Eigen::VectorXf model_sample = mean + rescaled_pca_basis * alphas;
 
 		return model_sample;
 	};
@@ -193,63 +193,61 @@ public:
 	/**
 	 * Returns the PCA basis matrix, i.e. the eigenvectors.
 	 * Each column of the matrix is an eigenvector.
-	 * The returned basis is normalised, i.e. every eigenvector
-	 * is normalised by multiplying it with the square root of its eigenvalue.
+	 * The returned basis is rescaled, i.e. every eigenvector
+	 * is rescaled by multiplying it with the square root of its eigenvalue.
 	 *
 	 * Returns a copy of the matrix so that the original cannot
 	 * be modified. TODO: No, don't return a clone.
 	 *
-	 * @return Returns the normalised PCA basis matrix.
+	 * @return Returns the rescaled PCA basis matrix.
 	 */
-	Eigen::MatrixXf get_normalised_pca_basis() const
+	Eigen::MatrixXf get_rescaled_pca_basis() const
 	{
-		return normalised_pca_basis;
+		return rescaled_pca_basis;
 	};
 
 	/**
-	 * Returns the PCA basis for a particular vertex.
-	 * The returned basis is normalised, i.e. every eigenvector
-	 * is normalised by multiplying it with the square root of its eigenvalue.
+	 * Returns the PCA basis for a particular vertex, from the rescaled basis.
 	 *
 	 * Todo: Can we return a const & view that points into the original data?
 	 *
 	 * @param[in] vertex_id A vertex index. Make sure it is valid.
 	 * @return A 1x3? 3x1? matrix that points to the rows in the original basis.
 	 */
-	Eigen::MatrixXf get_normalised_pca_basis(int vertex_id) const
+	Eigen::MatrixXf get_rescaled_pca_basis(int vertex_id) const
 	{
 		vertex_id *= 3; // the basis is stored in the format [x y z x y z ...]
 		assert(vertex_id < get_data_dimension()); // Make sure the given vertex index isn't larger than the number of model vertices.
-		return normalised_pca_basis.block(vertex_id, 0, 3, normalised_pca_basis.cols());
+		return rescaled_pca_basis.block(vertex_id, 0, 3, rescaled_pca_basis.cols());
 	};
 
 	/**
 	 * Returns the PCA basis matrix, i.e. the eigenvectors.
 	 * Each column of the matrix is an eigenvector.
-	 * The returned basis is unnormalised, i.e. not scaled by their eigenvalues.
+	 * The returned basis is orthonormal, i.e. the eigenvectors
+	 * are not scaled by their respective eigenvalues.
 	 *
 	 * Returns a clone of the matrix so that the original cannot
 	 * be modified. TODO: No, don't return a clone.
 	 *
-	 * @return Returns the unnormalised PCA basis matrix.
+	 * @return Returns the orthonormal PCA basis matrix.
 	 */
-	Eigen::MatrixXf get_unnormalised_pca_basis() const
+	Eigen::MatrixXf get_orthonormal_pca_basis() const
 	{
-		return unnormalised_pca_basis;
+		return orthonormal_pca_basis;
 	};
 
 	/**
-	 * Returns the PCA basis for a particular vertex.
-	 * The returned basis is unnormalised, i.e. not scaled by their eigenvalues.
+	 * Returns the PCA basis for a particular vertex, from the orthonormal basis.
 	 *
 	 * @param[in] vertex_id A vertex index. Make sure it is valid.
-	 * @return A Mat that points to the rows in the original basis.
+	 * @return A matrix that points to the rows in the original basis.
 	 */
-	Eigen::MatrixXf get_unnormalised_pca_basis(int vertex_id) const
+	Eigen::MatrixXf get_orthonormal_pca_basis(int vertex_id) const
 	{
 		vertex_id *= 3; // the basis is stored in the format [x y z x y z ...]
 		assert(vertex_id < get_data_dimension()); // Make sure the given vertex index isn't larger than the number of model vertices.
-		return unnormalised_pca_basis.block(vertex_id, 0, 3, unnormalised_pca_basis.cols());
+		return orthonormal_pca_basis.block(vertex_id, 0, 3, orthonormal_pca_basis.cols());
 	};
 
 	/**
@@ -276,8 +274,8 @@ public:
 
 private:
 	Eigen::VectorXf mean; ///< A 3m x 1 col-vector (xyzxyz...)', where m is the number of model-vertices.
-	Eigen::MatrixXf normalised_pca_basis; ///< The normalised PCA basis matrix. m x n (rows x cols) = numShapeDims x numShapePcaCoeffs, (=eigenvector matrix V). Each column is an eigenvector.
-	Eigen::MatrixXf unnormalised_pca_basis; ///< The unnormalised PCA basis matrix. m x n (rows x cols) = numShapeDims x numShapePcaCoeffs, (=eigenvector matrix V). Each column is an eigenvector.
+	Eigen::MatrixXf rescaled_pca_basis; ///< m x n (rows x cols) = numShapeDims x numShapePcaCoeffs, (=eigenvector matrix V). Each column is an eigenvector.
+	Eigen::MatrixXf orthonormal_pca_basis; ///< m x n (rows x cols) = numShapeDims x numShapePcaCoeffs, (=eigenvector matrix V). Each column is an eigenvector.
 	Eigen::VectorXf eigenvalues; ///< A col-vector of the eigenvalues (variances in the PCA space).
 
 	std::vector<std::array<int, 3>> triangle_list; ///< List of triangles that make up the mesh of the model.
@@ -291,7 +289,7 @@ private:
 	template<class Archive>
 	void serialize(Archive& archive)
 	{
-		archive(CEREAL_NVP(mean), CEREAL_NVP(normalised_pca_basis), CEREAL_NVP(unnormalised_pca_basis), CEREAL_NVP(eigenvalues), CEREAL_NVP(triangle_list));
+		archive(CEREAL_NVP(mean), CEREAL_NVP(rescaled_pca_basis), CEREAL_NVP(orthonormal_pca_basis), CEREAL_NVP(eigenvalues), CEREAL_NVP(triangle_list));
 		// Note: If the files are too big, We could split this in save/load, only
 		// store one of the bases, and calculate the other one when loading.
 	};
@@ -299,49 +297,48 @@ private:
 
 
 /**
- * Takes an unnormalised PCA basis matrix (a matrix consisting
- * of the eigenvectors and normalises it, i.e. multiplies each
+ * Takes an orthonormal PCA basis matrix (a matrix consisting
+ * of the eigenvectors) and rescales it, i.e. multiplies each
  * eigenvector by the square root of its corresponding
  * eigenvalue.
  *
- * @param[in] unnormalised_basis An unnormalised PCA basis matrix.
+ * @param[in] orthonormal_basis An orthonormal_basis PCA basis matrix.
  * @param[in] eigenvalues A row or column vector of eigenvalues.
- * @return The normalised PCA basis matrix.
+ * @return The rescaled PCA basis matrix.
  */
-inline Eigen::MatrixXf normalise_pca_basis(const Eigen::MatrixXf& unnormalised_basis, const Eigen::VectorXf& eigenvalues)
+inline Eigen::MatrixXf rescale_pca_basis(const Eigen::MatrixXf& orthonormal_basis, const Eigen::VectorXf& eigenvalues)
 {
 	using Eigen::MatrixXf;
-	MatrixXf normalised_basis(unnormalised_basis.rows(), unnormalised_basis.cols()); // empty matrix with the same dimensions
+	MatrixXf rescaled_basis(orthonormal_basis.rows(), orthonormal_basis.cols()); // empty matrix with the same dimensions
 	MatrixXf sqrt_of_eigenvalues = eigenvalues.array().sqrt(); // using eigenvalues.sqrt() directly gives a compile error. These are all Eigen::Array functions? I don't think we copy here, do we?
-	// Normalise the basis: We multiply each eigenvector (i.e. each column) with the square root of its corresponding eigenvalue
-	for (int basis = 0; basis < unnormalised_basis.cols(); ++basis) {
-		normalised_basis.col(basis) = unnormalised_basis.col(basis) * sqrt_of_eigenvalues(basis);
+	// Rescale the basis: We multiply each eigenvector (i.e. each column) with the square root of its corresponding eigenvalue
+	for (int basis = 0; basis < orthonormal_basis.cols(); ++basis) {
+		rescaled_basis.col(basis) = orthonormal_basis.col(basis) * sqrt_of_eigenvalues(basis);
 	}
 
-	return normalised_basis;
+	return rescaled_basis;
 };
 
 /**
- * Takes a normalised PCA basis matrix (a matrix consisting
- * of the eigenvectors and denormalises it, i.e. multiplies each
- * eigenvector by 1 over the square root of its corresponding
- * eigenvalue.
+ * Takes a rescaled PCA basis matrix and scales it back to
+ * an orthonormal basis matrix by multiplying each eigenvector
+ * by 1 over the square root of its corresponding eigenvalue.
  *
- * @param[in] normalised_basis A normalised PCA basis matrix.
+ * @param[in] rescaled_basis A rescaled PCA basis matrix.
  * @param[in] eigenvalues A row or column vector of eigenvalues.
- * @return The unnormalised PCA basis matrix.
+ * @return The orthonormal PCA basis matrix.
  */
-inline Eigen::MatrixXf unnormalise_pca_basis(const Eigen::MatrixXf& normalised_basis, const Eigen::VectorXf& eigenvalues)
+inline Eigen::MatrixXf normalise_pca_basis(const Eigen::MatrixXf& rescaled_basis, const Eigen::VectorXf& eigenvalues)
 {
 	using Eigen::MatrixXf;
-	MatrixXf unnormalised_basis(normalised_basis.rows(), normalised_basis.cols()); // empty matrix with the same dimensions
+	MatrixXf orthonormal_basis(rescaled_basis.rows(), rescaled_basis.cols()); // empty matrix with the same dimensions
 	Eigen::VectorXf one_over_sqrt_of_eigenvalues = eigenvalues.array().sqrt().inverse(); // Eigen added Array::rsqrt() in 3.3, switch back to that eventually
 	// De-normalise the basis: We multiply each eigenvector (i.e. each column) with 1 over the square root of its corresponding eigenvalue
-	for (int basis = 0; basis < normalised_basis.cols(); ++basis) {
-		unnormalised_basis.col(basis) = normalised_basis.col(basis) * one_over_sqrt_of_eigenvalues(basis);
+	for (int basis = 0; basis < rescaled_basis.cols(); ++basis) {
+		orthonormal_basis.col(basis) = rescaled_basis.col(basis) * one_over_sqrt_of_eigenvalues(basis);
 	}
 
-	return unnormalised_basis;
+	return orthonormal_basis;
 };
 
 	} /* namespace morphablemodel */

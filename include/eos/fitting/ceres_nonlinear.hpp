@@ -314,7 +314,7 @@ std::array<T, 3> get_shape_point(const morphablemodel::PcaModel& shape_model, co
 {
 	int num_coeffs_fitting = 10; // Todo: Should be inferred or a function parameter!
 	auto mean = shape_model.get_mean_at_point(vertex_id);
-	auto basis = shape_model.get_normalised_pca_basis(vertex_id);
+	auto basis = shape_model.get_rescaled_pca_basis(vertex_id);
 	// Computing Shape = mean + basis * coeffs:
 	// Note: Could use an Eigen matrix with type T to see if it gives a speedup.
 	std::array<T, 3> point{ T(mean[0]), T(mean[1]), T(mean[2]) };
@@ -355,7 +355,7 @@ std::array<T, 3> get_vertex_colour(const morphablemodel::PcaModel& color_model, 
 {
 	int num_coeffs_fitting = 10; // Todo: Should be inferred or a function parameter!
 	auto mean = color_model.get_mean_at_point(vertex_id);
-	auto basis = color_model.get_normalised_pca_basis(vertex_id);
+	auto basis = color_model.get_rescaled_pca_basis(vertex_id);
 	// Computing Colour = mean + basis * coeffs
 	// Note: Could use an Eigen matrix with type T to see if it gives a speedup.
 	std::array<T, 3> point{ T(mean[0]), T(mean[1]), T(mean[2]) };

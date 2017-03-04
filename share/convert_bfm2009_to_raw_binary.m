@@ -11,7 +11,7 @@
 %
 % Developer notes:
 %  - The BFM data type is single, SFM is double
-%  - The BFM Matlab file contains the "unnormalised", orthonormal basis
+%  - The BFM Matlab file contains the orthonormal basis
 %    (as do the Surrey .scm files).
 %  - Domains:
 %    Colour: BFM: [0, 255], SFM: [0, 1].

@@ -157,7 +157,7 @@ inline MorphableModel load_scm_model(boost::filesystem::path model_filename, boo
 	Eigen::Map<RowMajorMatrixXf> unnormalisedPcaBasisShape_(unnormalisedPcaBasisShape.ptr<float>(), unnormalisedPcaBasisShape.rows, unnormalisedPcaBasisShape.cols);
 	Eigen::Map<RowMajorMatrixXf> eigenvaluesShape_(eigenvaluesShape.ptr<float>(), eigenvaluesShape.rows, eigenvaluesShape.cols);
 	Eigen::Map<RowMajorMatrixXf> meanShape_(meanShape.ptr<float>(), meanShape.rows, meanShape.cols);
-	Eigen::MatrixXf normalisedPcaBasisShape_ = normalise_pca_basis(unnormalisedPcaBasisShape_, eigenvaluesShape_);
+	Eigen::MatrixXf normalisedPcaBasisShape_ = rescale_pca_basis(unnormalisedPcaBasisShape_, eigenvaluesShape_);
 	PcaModel shapeModel(meanShape_, normalisedPcaBasisShape_, eigenvaluesShape_, triangleList);
 
 	// Reading the color model
@@ -209,7 +209,7 @@ inline MorphableModel load_scm_model(boost::filesystem::path model_filename, boo
 	Eigen::Map<RowMajorMatrixXf> unnormalisedPcaBasisColor_(unnormalisedPcaBasisColor.ptr<float>(), unnormalisedPcaBasisColor.rows, unnormalisedPcaBasisColor.cols);
 	Eigen::Map<RowMajorMatrixXf> eigenvaluesColor_(eigenvaluesColor.ptr<float>(), eigenvaluesColor.rows, eigenvaluesColor.cols);
 	Eigen::Map<RowMajorMatrixXf> meanColor_(meanColor.ptr<float>(), meanColor.rows, meanColor.cols);
-	Eigen::MatrixXf normalisedPcaBasisColor_ = normalise_pca_basis(unnormalisedPcaBasisColor_, eigenvaluesColor_);
+	Eigen::MatrixXf normalisedPcaBasisColor_ = rescale_pca_basis(unnormalisedPcaBasisColor_, eigenvaluesColor_);
 	PcaModel colorModel(meanColor_, normalisedPcaBasisColor_, eigenvaluesColor_, triangleList);
 
 	modelFile.close();
