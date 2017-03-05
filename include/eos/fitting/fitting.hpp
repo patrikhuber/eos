@@ -160,8 +160,8 @@ inline auto get_corresponding_pointset(const T& landmarks, const core::LandmarkM
 			continue;
 		}
 		int vertex_idx = std::stoi(converted_name.get());
-		Vec4f vertex = morphable_model.get_shape_model().get_mean_at_point(vertex_idx);
-		model_points.emplace_back(vertex);
+		auto vertex = morphable_model.get_shape_model().get_mean_at_point(vertex_idx);
+		model_points.emplace_back(Vec4f(vertex.x(), vertex.y(), vertex.z(), 1.0f));
 		vertex_indices.emplace_back(vertex_idx);
 		image_points.emplace_back(landmarks[i].coordinates);
 	}
