@@ -83,39 +83,11 @@ public:
 	};
 
 	/**
-	 * Returns the PCA shape model of this Morphable Model.
-	 *
-	 * We need to have a non-const version because PcaModel::draw_sample(float)
-	 * is non-const and modifies the object (the RNG). Maybe the RNG-stuff should
-	 * be moved out of PcaModel into a free function that generates random coefficients.
-	 *
-	 * @return The shape model.
-	 */
-	PcaModel& get_shape_model()
-	{
-		return shape_model;
-	};
-
-	/**
 	 * Returns the PCA colour (albedo) model of this Morphable Model.
 	 *
 	 * @return The colour model.
 	 */
 	const PcaModel& get_color_model() const
-	{
-		return color_model;
-	};
-
-	/**
-	 * Returns the PCA colour (albedo) model of this Morphable Model.
-	 *
-	 * We need to have a non-const version because PcaModel::draw_sample(float)
-	 * is non-const and modifies the object (the RNG). Maybe the RNG-stuff should
-	 * be moved out of PcaModel into a free function that generates random coefficients.
-	 *
-	 * @return The colour model.
-	 */
-	PcaModel& get_color_model()
 	{
 		return color_model;
 	};
