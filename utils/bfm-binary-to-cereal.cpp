@@ -177,9 +177,7 @@ int main(int argc, char *argv[])
 		triangle_list[i][2] = v2 - 1;
 	}
 
-	// We read the orthonormal basis from the file. Now let's rescale it and store the rescaled basis separately.
-	const auto rescaled_pca_basis_shape = morphablemodel::rescale_pca_basis(orthonormal_pca_basis_shape, eigenvalues_shape);
-	morphablemodel::PcaModel shape_model(mean_shape, rescaled_pca_basis_shape, eigenvalues_shape, triangle_list);
+	morphablemodel::PcaModel shape_model(mean_shape, orthonormal_pca_basis_shape, eigenvalues_shape, triangle_list);
 
 	// Reading the colour (albedo) model:
 	int num_vertices_color = 0;
@@ -225,9 +223,7 @@ int main(int argc, char *argv[])
 		eigenvalues_color(i) = value;
 	}
 
-	// We read the orthonormal basis from the file. Now let's rescale it and store the rescaled basis separately.
-	const auto rescaled_pca_basis_color = morphablemodel::rescale_pca_basis(orthonormal_pca_basis_color, eigenvalues_color);
-	morphablemodel::PcaModel color_model(mean_color, rescaled_pca_basis_color, eigenvalues_color, triangle_list);
+	morphablemodel::PcaModel color_model(mean_color, orthonormal_pca_basis_color, eigenvalues_color, triangle_list);
 
 	file.close();
 

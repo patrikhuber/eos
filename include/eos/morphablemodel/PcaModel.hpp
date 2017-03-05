@@ -66,13 +66,13 @@ public:
 	 * be arranged.
 	 *
 	 * @param[in] mean The mean used to build the PCA model.
-	 * @param[in] pca_basis The PCA basis (eigenvectors), normalised (multiplied by the eigenvalues).
+	 * @param[in] orthonormal_pca_basis An orthonormal PCA basis (eigenvectors).
 	 * @param[in] eigenvalues The eigenvalues used to build the PCA model.
 	 * @param[in] triangle_list An index list of how to assemble the mesh.
 	 */
-	PcaModel(Eigen::VectorXf mean, Eigen::MatrixXf pca_basis, Eigen::VectorXf eigenvalues, std::vector<std::array<int, 3>> triangle_list) : mean(mean), rescaled_pca_basis(pca_basis), eigenvalues(eigenvalues), triangle_list(triangle_list)
+	PcaModel(Eigen::VectorXf mean, Eigen::MatrixXf orthonormal_pca_basis, Eigen::VectorXf eigenvalues, std::vector<std::array<int, 3>> triangle_list) : mean(mean), orthonormal_pca_basis(orthonormal_pca_basis), eigenvalues(eigenvalues), triangle_list(triangle_list)
 	{
-		orthonormal_pca_basis = normalise_pca_basis(rescaled_pca_basis, eigenvalues);
+		rescaled_pca_basis = rescale_pca_basis(orthonormal_pca_basis, eigenvalues);
 	};
 
 	/**
