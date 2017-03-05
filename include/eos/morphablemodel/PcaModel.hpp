@@ -113,11 +113,9 @@ public:
 	/**
 	 * Returns the mean of the model.
 	 *
-	 * Todo: Return a const-ref to avoid copying of the vector?
-	 *
 	 * @return The mean of the model.
 	 */
-	Eigen::VectorXf get_mean() const
+	const Eigen::VectorXf& get_mean() const
 	{
 		return mean;
 	};
@@ -195,12 +193,9 @@ public:
 	 * The returned basis is rescaled, i.e. every eigenvector
 	 * is rescaled by multiplying it with the square root of its eigenvalue.
 	 *
-	 * Returns a copy of the matrix so that the original cannot
-	 * be modified. TODO: No, don't return a clone.
-	 *
 	 * @return Returns the rescaled PCA basis matrix.
 	 */
-	Eigen::MatrixXf get_rescaled_pca_basis() const
+	const Eigen::MatrixXf& get_rescaled_pca_basis() const
 	{
 		return rescaled_pca_basis;
 	};
@@ -234,7 +229,7 @@ public:
 	 *
 	 * @return Returns the orthonormal PCA basis matrix.
 	 */
-	Eigen::MatrixXf get_orthonormal_pca_basis() const
+	const Eigen::MatrixXf& get_orthonormal_pca_basis() const
 	{
 		return orthonormal_pca_basis;
 	};
@@ -260,7 +255,7 @@ public:
 	 *
 	 * @return The eigenvalues.
 	 */
-	Eigen::VectorXf get_eigenvalues() const
+	const Eigen::VectorXf& get_eigenvalues() const
 	{
 		return eigenvalues;
 	};
