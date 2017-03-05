@@ -289,9 +289,12 @@ private:
 	template<class Archive>
 	void serialize(Archive& archive)
 	{
-		archive(CEREAL_NVP(mean), CEREAL_NVP(rescaled_pca_basis), CEREAL_NVP(orthonormal_pca_basis), CEREAL_NVP(eigenvalues), CEREAL_NVP(triangle_list));
-		// Note: If the files are too big, We could split this in save/load, only
-		// store one of the bases, and calculate the other one when loading.
+		archive(CEREAL_NVP(mean), CEREAL_NVP(orthonormal_pca_basis), CEREAL_NVP(eigenvalues), CEREAL_NVP(triangle_list));
+		// If we're loading, we have to recompute the rescaled basis, so that it's available (we don't store it anymore):
+		if (Archive::is_loading::value)
+		{
+			rescaled_pca_basis = rescale_pca_basis(orthonormal_pca_basis, eigenvalues);
+		}
 	};
 };
 

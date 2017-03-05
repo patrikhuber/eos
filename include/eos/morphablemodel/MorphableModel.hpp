@@ -3,7 +3,7 @@
  *
  * File: include/eos/morphablemodel/MorphableModel.hpp
  *
- * Copyright 2014, 2015 Patrik Huber
+ * Copyright 2014-2017 Patrik Huber
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
