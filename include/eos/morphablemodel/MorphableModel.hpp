@@ -257,10 +257,11 @@ private:
 	/**
 	 * Serialises this class using cereal.
 	 *
-	 * @param[in] ar The archive to serialise to (or to serialise from).
+	 * @param[in] archive The archive to serialise to (or to serialise from).
+	 * @param[in] version Version number of the archive.
 	 * @throw std::runtime_error When the model file doesn't have the most recent version (=1).
 	 */
-	template<class Archive>
+	template <class Archive>
 	void serialize(Archive& archive, const std::uint32_t version)
 	{
 		if (version != 1)

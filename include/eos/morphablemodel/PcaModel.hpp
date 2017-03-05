@@ -279,8 +279,8 @@ public:
 
 private:
 	Eigen::VectorXf mean; ///< A 3m x 1 col-vector (xyzxyz...)', where m is the number of model-vertices.
-	Eigen::MatrixXf rescaled_pca_basis; ///< m x n (rows x cols) = numShapeDims x numShapePcaCoeffs, (=eigenvector matrix V). Each column is an eigenvector.
 	Eigen::MatrixXf orthonormal_pca_basis; ///< m x n (rows x cols) = numShapeDims x numShapePcaCoeffs, (=eigenvector matrix V). Each column is an eigenvector.
+	Eigen::MatrixXf rescaled_pca_basis; ///< m x n (rows x cols) = numShapeDims x numShapePcaCoeffs, (=eigenvector matrix V). Each column is an eigenvector.
 	Eigen::VectorXf eigenvalues; ///< A col-vector of the eigenvalues (variances in the PCA space).
 
 	std::vector<std::array<int, 3>> triangle_list; ///< List of triangles that make up the mesh of the model.
@@ -289,9 +289,9 @@ private:
 	/**
 	 * Serialises this class using cereal.
 	 *
-	 * @param[in] ar The archive to serialise to (or to serialise from).
+	 * @param[in] archive The archive to serialise to (or to serialise from).
 	 */
-	template<class Archive>
+	template <class Archive>
 	void serialize(Archive& archive)
 	{
 		archive(CEREAL_NVP(mean), CEREAL_NVP(orthonormal_pca_basis), CEREAL_NVP(eigenvalues), CEREAL_NVP(triangle_list));
