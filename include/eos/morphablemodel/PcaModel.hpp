@@ -224,9 +224,6 @@ public:
 	 * The returned basis is orthonormal, i.e. the eigenvectors
 	 * are not scaled by their respective eigenvalues.
 	 *
-	 * Returns a clone of the matrix so that the original cannot
-	 * be modified. TODO: No, don't return a clone.
-	 *
 	 * @return Returns the orthonormal PCA basis matrix.
 	 */
 	const Eigen::MatrixXf& get_orthonormal_pca_basis() const
