@@ -29,8 +29,6 @@
 
 #include "Eigen/Core"
 
-#include "opencv2/core/core.hpp"
-
 #include <string>
 #include <vector>
 #include <array>
@@ -123,15 +121,14 @@ public:
 	/**
 	 * Return the value of the mean at a given vertex index.
 	 *
-	 * I think we should just return an Eigen::Vector3f - homogenous coords have no place here?
-	 *
 	 * @param[in] vertex_index A vertex index.
-	 * @return A homogeneous vector containing the values at the given vertex index.
+	 * @return A 3-dimensional vector containing the values at the given vertex index.
 	 */
-	cv::Vec4f get_mean_at_point(int vertex_index) const
+	Eigen::Vector3f get_mean_at_point(int vertex_index) const
 	{
 		vertex_index *= 3;
-		return cv::Vec4f(mean(vertex_index), mean(vertex_index + 1), mean(vertex_index + 2), 1.0f);
+		// Note: We could maybe also return a const& to mean.block(...).
+		return Eigen::Vector3f(mean(vertex_index), mean(vertex_index + 1), mean(vertex_index + 2));
 	};
 
 	/**
