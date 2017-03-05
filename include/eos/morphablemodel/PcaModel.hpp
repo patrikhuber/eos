@@ -125,8 +125,7 @@ public:
 	/**
 	 * Return the value of the mean at a given vertex index.
 	 *
-	 * Todo: Rename to get_mean? The other getters are overloaded on the vertex index too.
-	 * I also think we should just return an Eigen::Vector3f - homogenous coords have no place here?
+	 * I think we should just return an Eigen::Vector3f - homogenous coords have no place here?
 	 *
 	 * @param[in] vertex_index A vertex index.
 	 * @return A homogeneous vector containing the values at the given vertex index.
@@ -209,12 +208,15 @@ public:
 	/**
 	 * Returns the PCA basis for a particular vertex, from the rescaled basis.
 	 *
+	 * Note: The function does not return the i-th basis vector - it returns all basis
+	 * vectors, but only the block that is relevant for the vertex \p vertex_id.
+	 *
 	 * Todo: Can we return a const & view that points into the original data?
 	 *
 	 * @param[in] vertex_id A vertex index. Make sure it is valid.
 	 * @return A 1x3? 3x1? matrix that points to the rows in the original basis.
 	 */
-	Eigen::MatrixXf get_rescaled_pca_basis(int vertex_id) const
+	Eigen::MatrixXf get_rescaled_pca_basis_at_point(int vertex_id) const
 	{
 		vertex_id *= 3; // the basis is stored in the format [x y z x y z ...]
 		assert(vertex_id < get_data_dimension()); // Make sure the given vertex index isn't larger than the number of model vertices.
@@ -240,10 +242,13 @@ public:
 	/**
 	 * Returns the PCA basis for a particular vertex, from the orthonormal basis.
 	 *
+	 * Note: The function does not return the i-th basis vector - it returns all basis
+	 * vectors, but only the block that is relevant for the vertex \p vertex_id.
+	 *
 	 * @param[in] vertex_id A vertex index. Make sure it is valid.
 	 * @return A matrix that points to the rows in the original basis.
 	 */
-	Eigen::MatrixXf get_orthonormal_pca_basis(int vertex_id) const
+	Eigen::MatrixXf get_orthonormal_pca_basis_at_point(int vertex_id) const
 	{
 		vertex_id *= 3; // the basis is stored in the format [x y z x y z ...]
 		assert(vertex_id < get_data_dimension()); // Make sure the given vertex index isn't larger than the number of model vertices.
