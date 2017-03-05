@@ -66,8 +66,8 @@ inline MorphableModel load_scm_model(boost::filesystem::path model_filename, boo
 		std::cout << "Warning: We're reading 8 Bytes from the file but sizeof(double) != 8. Check the code/behaviour." << std::endl;
 	}
 
-	std::ifstream modelFile(model_filename.string(), std::ios::binary);
-	if (!modelFile.is_open()) {
+	std::ifstream model_file(model_filename.string(), std::ios::binary);
+	if (!model_file.is_open()) {
 		std::string msg("Unable to open model file: " + model_filename.string());
 		std::cout << msg << std::endl;
 		throw std::runtime_error(msg);
@@ -75,157 +75,157 @@ inline MorphableModel load_scm_model(boost::filesystem::path model_filename, boo
 
 	// Reading the shape model
 	// Read (reference?) num triangles and vertices
-	unsigned int numVertices = 0;
-	unsigned int numTriangles = 0;
-	modelFile.read(reinterpret_cast<char*>(&numVertices), 4); // 1 char = 1 byte. uint32=4bytes. float64=8bytes.
-	modelFile.read(reinterpret_cast<char*>(&numTriangles), 4);
+	unsigned int num_vertices = 0;
+	unsigned int num_triangles = 0;
+	model_file.read(reinterpret_cast<char*>(&num_vertices), 4); // 1 char = 1 byte. uint32=4bytes. float64=8bytes.
+	model_file.read(reinterpret_cast<char*>(&num_triangles), 4);
 
 	// Read triangles
-	std::vector<std::array<int, 3>> triangleList;
+	std::vector<std::array<int, 3>> triangle_list;
 
-	triangleList.resize(numTriangles);
+	triangle_list.resize(num_triangles);
 	unsigned int v0, v1, v2;
-	for (unsigned int i = 0; i < numTriangles; ++i) {
+	for (unsigned int i = 0; i < num_triangles; ++i) {
 		v0 = v1 = v2 = 0;
-		modelFile.read(reinterpret_cast<char*>(&v0), 4);	// would be nice to pass a &vector and do it in one
-		modelFile.read(reinterpret_cast<char*>(&v1), 4);	// go, but didn't work. Maybe a cv::Mat would work?
-		modelFile.read(reinterpret_cast<char*>(&v2), 4);
-		triangleList[i][0] = v0;
-		triangleList[i][1] = v1;
-		triangleList[i][2] = v2;
+		model_file.read(reinterpret_cast<char*>(&v0), 4);	// would be nice to pass a &vector and do it in one
+		model_file.read(reinterpret_cast<char*>(&v1), 4);	// go, but didn't work. Maybe a cv::Mat would work?
+		model_file.read(reinterpret_cast<char*>(&v2), 4);
+		triangle_list[i][0] = v0;
+		triangle_list[i][1] = v1;
+		triangle_list[i][2] = v2;
 	}
 
 	// Read number of rows and columns of the shape projection matrix (pcaBasis)
-	unsigned int numShapePcaCoeffs = 0;
-	unsigned int numShapeDims = 0;	// dimension of the shape vector (3*numVertices)
-	modelFile.read(reinterpret_cast<char*>(&numShapePcaCoeffs), 4);
-	modelFile.read(reinterpret_cast<char*>(&numShapeDims), 4);
+	unsigned int num_shape_pca_coeffs = 0;
+	unsigned int num_shape_dims = 0;	// dimension of the shape vector (3*num_vertices)
+	model_file.read(reinterpret_cast<char*>(&num_shape_pca_coeffs), 4);
+	model_file.read(reinterpret_cast<char*>(&num_shape_dims), 4);
 
-	if (3 * numVertices != numShapeDims) {
+	if (3 * num_vertices != num_shape_dims) {
 		std::cout << "Warning: Number of shape dimensions is not equal to three times the number of vertices. Something will probably go wrong during the loading." << std::endl;
 	}
 
 	// Read shape projection matrix
-	Mat orthonormal_pca_basis_shape(numShapeDims, numShapePcaCoeffs, CV_32FC1); // m x n (rows x cols) = numShapeDims x numShapePcaCoeffs
+	Mat orthonormal_pca_basis_shape(num_shape_dims, num_shape_pca_coeffs, CV_32FC1); // m x n (rows x cols) = numShapeDims x numShapePcaCoeffs
 	std::cout << "Loading shape PCA basis matrix with " << orthonormal_pca_basis_shape.rows << " rows and " << orthonormal_pca_basis_shape.cols << " cols." << std::endl;
-	for (unsigned int col = 0; col < numShapePcaCoeffs; ++col) {
-		for (unsigned int row = 0; row < numShapeDims; ++row) {
+	for (unsigned int col = 0; col < num_shape_pca_coeffs; ++col) {
+		for (unsigned int row = 0; row < num_shape_dims; ++row) {
 			double var = 0.0;
-			modelFile.read(reinterpret_cast<char*>(&var), 8);
+			model_file.read(reinterpret_cast<char*>(&var), 8);
 			orthonormal_pca_basis_shape.at<float>(row, col) = static_cast<float>(var);
 		}
 	}
 
 	// Read mean shape vector
-	unsigned int numMean = 0; // dimension of the mean (3*numVertices)
-	modelFile.read(reinterpret_cast<char*>(&numMean), 4);
-	if (numMean != numShapeDims) {
+	unsigned int mean_dims = 0; // dimension of the mean (3*num_vertices)
+	model_file.read(reinterpret_cast<char*>(&mean_dims), 4);
+	if (mean_dims != num_shape_dims) {
 		std::cout << "Warning: Number of shape dimensions is not equal to the number of dimensions of the mean. Something will probably go wrong during the loading." << std::endl;
 	}
-	Mat meanShape(numMean, 1, CV_32FC1);
+	Mat mean_shape(mean_dims, 1, CV_32FC1);
 	unsigned int counter = 0;
 	double vd0, vd1, vd2;
-	for (unsigned int i = 0; i < numMean / 3; ++i) {
+	for (unsigned int i = 0; i < mean_dims / 3; ++i) {
 		vd0 = vd1 = vd2 = 0.0;
-		modelFile.read(reinterpret_cast<char*>(&vd0), 8);
-		modelFile.read(reinterpret_cast<char*>(&vd1), 8);
-		modelFile.read(reinterpret_cast<char*>(&vd2), 8);
-		meanShape.at<float>(counter, 0) = static_cast<float>(vd0);
+		model_file.read(reinterpret_cast<char*>(&vd0), 8);
+		model_file.read(reinterpret_cast<char*>(&vd1), 8);
+		model_file.read(reinterpret_cast<char*>(&vd2), 8);
+		mean_shape.at<float>(counter, 0) = static_cast<float>(vd0);
 		++counter;
-		meanShape.at<float>(counter, 0) = static_cast<float>(vd1);
+		mean_shape.at<float>(counter, 0) = static_cast<float>(vd1);
 		++counter;
-		meanShape.at<float>(counter, 0) = static_cast<float>(vd2);
+		mean_shape.at<float>(counter, 0) = static_cast<float>(vd2);
 		++counter;
 	}
 
 	// Read shape eigenvalues
-	unsigned int numEigenValsShape = 0;
-	modelFile.read(reinterpret_cast<char*>(&numEigenValsShape), 4);
-	if (numEigenValsShape != numShapePcaCoeffs) {
+	unsigned int num_eigenvals_shape = 0;
+	model_file.read(reinterpret_cast<char*>(&num_eigenvals_shape), 4);
+	if (num_eigenvals_shape != num_shape_pca_coeffs) {
 		std::cout << "Warning: Number of coefficients in the PCA basis matrix is not equal to the number of eigenvalues. Something will probably go wrong during the loading." << std::endl;
 	}
-	Mat eigenvaluesShape(numEigenValsShape, 1, CV_32FC1);
-	for (unsigned int i = 0; i < numEigenValsShape; ++i) {
+	Mat eigenvalues_shape(num_eigenvals_shape, 1, CV_32FC1);
+	for (unsigned int i = 0; i < num_eigenvals_shape; ++i) {
 		double var = 0.0;
-		modelFile.read(reinterpret_cast<char*>(&var), 8);
-		eigenvaluesShape.at<float>(i, 0) = static_cast<float>(var);
+		model_file.read(reinterpret_cast<char*>(&var), 8);
+		eigenvalues_shape.at<float>(i, 0) = static_cast<float>(var);
 	}
 
 	// We read the unnormalised basis from the file. Now let's normalise it and store the normalised basis separately.
 	// Todo: We should change these to read into an Eigen matrix directly, and not into a cv::Mat first.
 	using RowMajorMatrixXf = Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
 	Eigen::Map<RowMajorMatrixXf> orthonormal_pca_basis_shape_(orthonormal_pca_basis_shape.ptr<float>(), orthonormal_pca_basis_shape.rows, orthonormal_pca_basis_shape.cols);
-	Eigen::Map<RowMajorMatrixXf> eigenvaluesShape_(eigenvaluesShape.ptr<float>(), eigenvaluesShape.rows, eigenvaluesShape.cols);
-	Eigen::Map<RowMajorMatrixXf> meanShape_(meanShape.ptr<float>(), meanShape.rows, meanShape.cols);
-	Eigen::MatrixXf rescaled_pca_basis_shape_ = rescale_pca_basis(orthonormal_pca_basis_shape_, eigenvaluesShape_);
-	PcaModel shapeModel(meanShape_, rescaled_pca_basis_shape_, eigenvaluesShape_, triangleList);
+	Eigen::Map<RowMajorMatrixXf> eigenvalues_shape_(eigenvalues_shape.ptr<float>(), eigenvalues_shape.rows, eigenvalues_shape.cols);
+	Eigen::Map<RowMajorMatrixXf> mean_shape_(mean_shape.ptr<float>(), mean_shape.rows, mean_shape.cols);
+	Eigen::MatrixXf rescaled_pca_basis_shape_ = rescale_pca_basis(orthonormal_pca_basis_shape_, eigenvalues_shape_);
+	PcaModel shape_model(mean_shape_, rescaled_pca_basis_shape_, eigenvalues_shape_, triangle_list);
 
 	// Reading the color model
 	// Read number of rows and columns of projection matrix
-	unsigned int numTexturePcaCoeffs = 0;
-	unsigned int numTextureDims = 0;
-	modelFile.read(reinterpret_cast<char*>(&numTexturePcaCoeffs), 4);
-	modelFile.read(reinterpret_cast<char*>(&numTextureDims), 4);
+	unsigned int num_color_pca_coeffs = 0;
+	unsigned int num_color_dims = 0;
+	model_file.read(reinterpret_cast<char*>(&num_color_pca_coeffs), 4);
+	model_file.read(reinterpret_cast<char*>(&num_color_dims), 4);
 	// Read color projection matrix
-	Mat orthonormal_pca_basis_color(numTextureDims, numTexturePcaCoeffs, CV_32FC1);
+	Mat orthonormal_pca_basis_color(num_color_dims, num_color_pca_coeffs, CV_32FC1);
 	std::cout << "Loading color PCA basis matrix with " << orthonormal_pca_basis_color.rows << " rows and " << orthonormal_pca_basis_color.cols << " cols." << std::endl;
-	for (unsigned int col = 0; col < numTexturePcaCoeffs; ++col) {
-		for (unsigned int row = 0; row < numTextureDims; ++row) {
+	for (unsigned int col = 0; col < num_color_pca_coeffs; ++col) {
+		for (unsigned int row = 0; row < num_color_dims; ++row) {
 			double var = 0.0;
-			modelFile.read(reinterpret_cast<char*>(&var), 8);
+			model_file.read(reinterpret_cast<char*>(&var), 8);
 			orthonormal_pca_basis_color.at<float>(row, col) = static_cast<float>(var);
 		}
 	}
 
 	// Read mean color vector
-	unsigned int numMeanColor = 0; // dimension of the mean (3*numVertices)
-	modelFile.read(reinterpret_cast<char*>(&numMeanColor), 4);
-	Mat meanColor(numMeanColor, 1, CV_32FC1);
+	unsigned int color_mean_dims = 0; // dimension of the mean (3*num_vertices)
+	model_file.read(reinterpret_cast<char*>(&color_mean_dims), 4);
+	Mat mean_color(color_mean_dims, 1, CV_32FC1);
 	counter = 0;
-	for (unsigned int i = 0; i < numMeanColor / 3; ++i) {
+	for (unsigned int i = 0; i < color_mean_dims / 3; ++i) {
 		vd0 = vd1 = vd2 = 0.0;
-		modelFile.read(reinterpret_cast<char*>(&vd0), 8); // order in hdf5: RGB. Order in OCV: BGR. But order in vertex.color: RGB
-		modelFile.read(reinterpret_cast<char*>(&vd1), 8);
-		modelFile.read(reinterpret_cast<char*>(&vd2), 8);
-		meanColor.at<float>(counter, 0) = static_cast<float>(vd0);
+		model_file.read(reinterpret_cast<char*>(&vd0), 8); // order in hdf5: RGB. Order in OCV: BGR. But order in vertex.color: RGB
+		model_file.read(reinterpret_cast<char*>(&vd1), 8);
+		model_file.read(reinterpret_cast<char*>(&vd2), 8);
+		mean_color.at<float>(counter, 0) = static_cast<float>(vd0);
 		++counter;
-		meanColor.at<float>(counter, 0) = static_cast<float>(vd1);
+		mean_color.at<float>(counter, 0) = static_cast<float>(vd1);
 		++counter;
-		meanColor.at<float>(counter, 0) = static_cast<float>(vd2);
+		mean_color.at<float>(counter, 0) = static_cast<float>(vd2);
 		++counter;
 	}
 
 	// Read color eigenvalues
-	unsigned int numEigenValsColor = 0;
-	modelFile.read(reinterpret_cast<char*>(&numEigenValsColor), 4);
-	Mat eigenvaluesColor(numEigenValsColor, 1, CV_32FC1);
-	for (unsigned int i = 0; i < numEigenValsColor; ++i) {
+	unsigned int num_eigenvals_color = 0;
+	model_file.read(reinterpret_cast<char*>(&num_eigenvals_color), 4);
+	Mat eigenvalues_color(num_eigenvals_color, 1, CV_32FC1);
+	for (unsigned int i = 0; i < num_eigenvals_color; ++i) {
 		double var = 0.0;
-		modelFile.read(reinterpret_cast<char*>(&var), 8);
-		eigenvaluesColor.at<float>(i, 0) = static_cast<float>(var);
+		model_file.read(reinterpret_cast<char*>(&var), 8);
+		eigenvalues_color.at<float>(i, 0) = static_cast<float>(var);
 	}
 
 	// We read the unnormalised basis from the file. Now let's normalise it and store the normalised basis separately.
 	Eigen::Map<RowMajorMatrixXf> orthonormal_pca_basis_color_(orthonormal_pca_basis_color.ptr<float>(), orthonormal_pca_basis_color.rows, orthonormal_pca_basis_color.cols);
-	Eigen::Map<RowMajorMatrixXf> eigenvaluesColor_(eigenvaluesColor.ptr<float>(), eigenvaluesColor.rows, eigenvaluesColor.cols);
-	Eigen::Map<RowMajorMatrixXf> meanColor_(meanColor.ptr<float>(), meanColor.rows, meanColor.cols);
-	Eigen::MatrixXf rescaled_pca_basis_color_ = rescale_pca_basis(orthonormal_pca_basis_color_, eigenvaluesColor_);
-	PcaModel colorModel(meanColor_, rescaled_pca_basis_color_, eigenvaluesColor_, triangleList);
+	Eigen::Map<RowMajorMatrixXf> eigenvalues_color_(eigenvalues_color.ptr<float>(), eigenvalues_color.rows, eigenvalues_color.cols);
+	Eigen::Map<RowMajorMatrixXf> mean_color_(mean_color.ptr<float>(), mean_color.rows, mean_color.cols);
+	Eigen::MatrixXf rescaled_pca_basis_color_ = rescale_pca_basis(orthonormal_pca_basis_color_, eigenvalues_color_);
+	PcaModel color_model(mean_color_, rescaled_pca_basis_color_, eigenvalues_color_, triangle_list);
 
-	modelFile.close();
+	model_file.close();
 
 	// Load the isomap with texture coordinates if a filename has been given:
-	std::vector<std::array<double, 2>> texCoords;
+	std::vector<std::array<double, 2>> tex_coords;
 	if (!isomap_file.empty()) {
-		texCoords = load_isomap(isomap_file);
-		if (shapeModel.get_data_dimension() / 3.0f != texCoords.size()) {
-			std::string errorMessage("Error, wrong number of texture coordinates. Don't have the same number of texcoords than the shape model has vertices.");
-			std::cout << errorMessage << std::endl;
-			throw std::runtime_error(errorMessage);
+		tex_coords = load_isomap(isomap_file);
+		if (shape_model.get_data_dimension() / 3.0f != tex_coords.size()) {
+			std::string error_msg("Error, wrong number of texture coordinates. Don't have the same number of texcoords than the shape model has vertices.");
+			std::cout << error_msg << std::endl;
+			throw std::runtime_error(error_msg);
 		}
 	}
 
-	return MorphableModel(shapeModel, colorModel, texCoords);
+	return MorphableModel(shape_model, color_model, tex_coords);
 };
 
 /**
@@ -236,39 +236,39 @@ inline MorphableModel load_scm_model(boost::filesystem::path model_filename, boo
  * @return The 2D texture coordinates for every vertex.
  * @throws ...
  */
-inline std::vector<std::array<double, 2>> load_isomap(boost::filesystem::path isomapFile)
+inline std::vector<std::array<double, 2>> load_isomap(boost::filesystem::path isomap_file)
 {
 	using std::string;
-	std::vector<float> xCoords, yCoords;
+	std::vector<float> x_coords, y_coords;
 	string line;
-	std::ifstream myfile(isomapFile.string());
-	if (!myfile.is_open()) {
-		string logMessage("The isomap file could not be opened. Did you specify a correct filename? " + isomapFile.string());
-		throw std::runtime_error(logMessage);
+	std::ifstream file(isomap_file.string());
+	if (!file.is_open()) {
+		string error_msg("The isomap file could not be opened. Did you specify a correct filename? " + isomap_file.string());
+		throw std::runtime_error(error_msg);
 	}
 	else {
-		while (getline(myfile, line))
+		while (getline(file, line))
 		{
 			std::istringstream iss(line);
 			string x, y;
 			iss >> x >> y;
-			xCoords.push_back(std::stof(x));
-			yCoords.push_back(std::stof(y));
+			x_coords.push_back(std::stof(x));
+			y_coords.push_back(std::stof(y));
 		}
-		myfile.close();
+		file.close();
 	}
 	// Process the coordinates: Find the min/max and rescale to [0, 1] x [0, 1]
-	auto minMaxX = std::minmax_element(begin(xCoords), end(xCoords)); // minMaxX is a pair, first=min, second=max
-	auto minMaxY = std::minmax_element(begin(yCoords), end(yCoords));
+	auto min_max_x = std::minmax_element(begin(x_coords), end(x_coords)); // minMaxX is a pair, first=min, second=max
+	auto min_max_y = std::minmax_element(begin(y_coords), end(y_coords));
 
-	std::vector<std::array<double, 2>> texCoords;
-	float divisorX = *minMaxX.second - *minMaxX.first;
-	float divisorY = *minMaxY.second - *minMaxY.first;
-	for (int i = 0; i < xCoords.size(); ++i) {
-		texCoords.push_back(std::array<double, 2>{(xCoords[i] - *minMaxX.first) / divisorX, 1.0f - (yCoords[i] - *minMaxY.first) / divisorY}); // We rescale to [0, 1] and at the same time flip the y-coords (because in the isomap, the coordinates are stored upside-down).
+	std::vector<std::array<double, 2>> tex_coords;
+	float divisor_x = *min_max_x.second - *min_max_x.first;
+	float divisor_y = *min_max_y.second - *min_max_y.first;
+	for (int i = 0; i < x_coords.size(); ++i) {
+		tex_coords.push_back(std::array<double, 2>{(x_coords[i] - *min_max_x.first) / divisor_x, 1.0f - (y_coords[i] - *min_max_y.first) / divisor_y}); // We rescale to [0, 1] and at the same time flip the y-coords (because in the isomap, the coordinates are stored upside-down).
 	}
 
-	return texCoords;
+	return tex_coords;
 };
 
 	} /* namespace morphablemodel */
