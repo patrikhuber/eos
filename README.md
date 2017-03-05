@@ -13,7 +13,7 @@ eos is a lightweight 3D Morphable Face Model fitting library that provides basic
 
 At the moment, it mainly provides the following functionality:
 
-* MorphableModel class to represent a 3DMM (using OpenCVs `cv::Mat`)
+* MorphableModel and PcaModel classes to represent 3DMMs, with basic operations like `draw_sample()`
 * Our low-resolution, shape-only 3D Morphable Face Model ([share/sfm_shape_3448.bin](https://github.com/patrikhuber/eos/blob/master/share/sfm_shape_3448.bin))
 * Fast, linear pose, shape and expression fitting, edge and contour fitting:
  * Linear scaled orthographic projection camera pose estimation
