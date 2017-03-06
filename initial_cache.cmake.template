@@ -8,12 +8,7 @@
 # Linux: Boost can usually be installed via a package manager (e.g. apt-get install boost-all-dev) and this variable can be left uncommented.
 #set(BOOST_ROOT "/home/user/boost/install" CACHE PATH "Boost search location" FORCE)
 
-# Eigen3:
-# -------
-# Windows: Set to the path of the unzipped Eigen3 file.
-set(EIGEN3_INCLUDE_DIR "D:/eigen-10219c95fe65" CACHE PATH "Directory of the Eigen3 headers" FORCE)
-# Linux: Can be left empty when installed system-wide. (Note/Todo: Doesnt work with Eigen 3.0.5 from Ubuntu 12.04). Otherwise, set the path manually.
-#set(EIGEN3_INCLUDE_DIR "/home/user/eigen-10219c95fe65" CACHE PATH "Directory of the Eigen3 headers" FORCE)
+
 # Mechanism via ConfigLIB.cmake in 3rd party library directory
 # ==============================
 # OpenCV:
