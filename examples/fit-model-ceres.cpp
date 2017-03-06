@@ -420,7 +420,7 @@ int main(int argc, char *argv[])
 		return std::vector<float>(std::begin(vec), std::end(vec));
 	};
 	auto blendshape_coeffs_float = vectord_to_vectorf(blendshape_coefficients);
-	auto shape_ceres = morphable_model.get_shape_model().draw_sample(shape_coefficients) + to_matrix(blendshapes) * Eigen::Map<const Eigen::VectorXf>(blendshape_coeffs_float.data(), blendshape_coeffs_float.size());
+	Eigen::VectorXf shape_ceres = morphable_model.get_shape_model().draw_sample(shape_coefficients) + to_matrix(blendshapes) * Eigen::Map<const Eigen::VectorXf>(blendshape_coeffs_float.data(), blendshape_coeffs_float.size());
 	core::Mesh mesh = morphablemodel::sample_to_mesh(shape_ceres, morphable_model.get_color_model().draw_sample(colour_coefficients), morphable_model.get_shape_model().get_triangle_list(), morphable_model.get_color_model().get_triangle_list(), morphable_model.get_texture_coordinates());
 	for (auto&& idx : vertex_indices)
 	{
