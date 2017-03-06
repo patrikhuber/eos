@@ -50,16 +50,16 @@ endif()
 find_package(Boost 1.50.0 COMPONENTS system REQUIRED)
 message(STATUS "Boost found at ${Boost_INCLUDE_DIRS}")
 
-set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/eigen/cmake)
+set(eos_3RDPARTY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty") # this is used by the CMakeLists.txt files in the subdirectories
+
+set(CMAKE_MODULE_PATH ${eos_3RDPARTY_DIR}/eigen/cmake)
 # Use the Eigen included in the submodule by default, but allow the user to override EIGEN3_INCLUDE_DIR:
 if(NOT DEFINED EIGEN3_INCLUDE_DIR)
-  set(EIGEN3_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/eigen)
+  set(EIGEN3_INCLUDE_DIR ${eos_3RDPARTY_DIR}/eigen)
 endif()
 find_package(Eigen3 REQUIRED)
 message(STATUS "Eigen3 found: ${EIGEN3_FOUND}, version: ${EIGEN3_VERSION}")
 message(STATUS "Eigen3 include dir found at ${EIGEN3_INCLUDE_DIR}")
-
-set(eos_3RDPARTY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty") # this is used by the CMakeLists.txt files in the subdirectories
 
 # Set the include directories of the 3rd-party submodules that we use:
 set(CEREAL_INCLUDE_DIR "${eos_3RDPARTY_DIR}/cereal/include")
