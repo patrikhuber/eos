@@ -17,7 +17,7 @@ before_install:
   - sudo apt-get update -q
   - sudo apt-get install g++-4.9 gcc-5 g++-5 -y
   - sudo apt-get install clang-3.5 clang-3.8 -y
-  - sudo apt-get install libboost-all-dev libeigen3-dev libopencv-dev -y
+  - sudo apt-get install libboost-all-dev libopencv-dev -y
 
 before_script:
   - mkdir build
