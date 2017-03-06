@@ -314,30 +314,30 @@ std::array<T, 3> get_shape_point(const morphablemodel::PcaModel& shape_model, co
 {
 	int num_coeffs_fitting = 10; // Todo: Should be inferred or a function parameter!
 	auto mean = shape_model.get_mean_at_point(vertex_id);
-	auto basis = shape_model.get_rescaled_pca_basis(vertex_id);
+	auto basis = shape_model.get_rescaled_pca_basis_at_point(vertex_id);
 	// Computing Shape = mean + basis * coeffs:
 	// Note: Could use an Eigen matrix with type T to see if it gives a speedup.
 	std::array<T, 3> point{ T(mean[0]), T(mean[1]), T(mean[2]) };
 	for (int i = 0; i < num_coeffs_fitting; ++i) {
-		point[0] += T(basis.row(0).col(i).at<float>(0)) * shape_coeffs[i]; // it seems to be ~15% faster when these are static_cast<double>() instead of T()?
+		point[0] += T(basis.row(0).col(i)(0)) * shape_coeffs[i]; // it seems to be ~15% faster when these are static_cast<double>() instead of T()?
 	}
 	for (int i = 0; i < num_coeffs_fitting; ++i) {
-		point[1] += T(basis.row(1).col(i).at<float>(0)) * shape_coeffs[i];
+		point[1] += T(basis.row(1).col(i)(0)) * shape_coeffs[i];
 	}
 	for (int i = 0; i < num_coeffs_fitting; ++i) {
-		point[2] += T(basis.row(2).col(i).at<float>(0)) * shape_coeffs[i];
+		point[2] += T(basis.row(2).col(i)(0)) * shape_coeffs[i];
 	}
 	// Adding the blendshape offsets: 
 	// Shape = mean + basis * coeffs + blendshapes * bs_coeffs:
 	auto num_blendshapes = blendshapes.size();
 	for (int i = 0; i < num_blendshapes; ++i) {
-		point[0] += T(blendshapes[i].deformation.at<float>(3 * vertex_id + 0)) * blendshape_coeffs[i];
+		point[0] += T(blendshapes[i].deformation(3 * vertex_id + 0)) * blendshape_coeffs[i];
 	}
 	for (int i = 0; i < num_blendshapes; ++i) {
-		point[1] += T(blendshapes[i].deformation.at<float>(3 * vertex_id + 1)) * blendshape_coeffs[i];
+		point[1] += T(blendshapes[i].deformation(3 * vertex_id + 1)) * blendshape_coeffs[i];
 	}
 	for (int i = 0; i < num_blendshapes; ++i) {
-		point[2] += T(blendshapes[i].deformation.at<float>(3 * vertex_id + 2)) * blendshape_coeffs[i];
+		point[2] += T(blendshapes[i].deformation(3 * vertex_id + 2)) * blendshape_coeffs[i];
 	}
 	return point;
 };
@@ -355,18 +355,18 @@ std::array<T, 3> get_vertex_colour(const morphablemodel::PcaModel& color_model, 
 {
 	int num_coeffs_fitting = 10; // Todo: Should be inferred or a function parameter!
 	auto mean = color_model.get_mean_at_point(vertex_id);
-	auto basis = color_model.get_rescaled_pca_basis(vertex_id);
+	auto basis = color_model.get_rescaled_pca_basis_at_point(vertex_id);
 	// Computing Colour = mean + basis * coeffs
 	// Note: Could use an Eigen matrix with type T to see if it gives a speedup.
 	std::array<T, 3> point{ T(mean[0]), T(mean[1]), T(mean[2]) };
 	for (int i = 0; i < num_coeffs_fitting; ++i) {
-		point[0] += T(basis.row(0).col(i).at<float>(0)) * color_coeffs[i]; // it seems to be ~15% faster when these are static_cast<double>() instead of T()?
+		point[0] += T(basis.row(0).col(i)(0)) * color_coeffs[i]; // it seems to be ~15% faster when these are static_cast<double>() instead of T()?
 	}
 	for (int i = 0; i < num_coeffs_fitting; ++i) {
-		point[1] += T(basis.row(1).col(i).at<float>(0)) * color_coeffs[i];
+		point[1] += T(basis.row(1).col(i)(0)) * color_coeffs[i];
 	}
 	for (int i = 0; i < num_coeffs_fitting; ++i) {
-		point[2] += T(basis.row(2).col(i).at<float>(0)) * color_coeffs[i];
+		point[2] += T(basis.row(2).col(i)(0)) * color_coeffs[i];
 	}
 	return point;
 };
