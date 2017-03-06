@@ -137,8 +137,8 @@ int main(int argc, char *argv[])
 		desc.add_options()
 			("help,h",
 				"display the help message")
-			("model,m", po::value<fs::path>(&modelfile)->required()->default_value("../share/sfm_shape_3448.bin"),
-				"a Morphable Model stored as cereal BinaryArchive")
+			("model,m", po::value<fs::path>(&modelfile)->required()->default_value("../share/sfm_3448.bin"),
+				"a Morphable Model, containing a shape and albedo model, stored as cereal BinaryArchive")
 			("blendshapes,b", po::value<fs::path>(&blendshapesfile)->required()->default_value("../share/expression_blendshapes_3448.bin"),
 				"file with blendshapes")
 			("image,i", po::value<fs::path>(&imagefile)->required()->default_value("data/image_0010.png"),
@@ -377,7 +377,12 @@ int main(int argc, char *argv[])
 	QuaternionParameterization* full_fit_quaternion_parameterisation = new QuaternionParameterization;
 	fitting_costfunction.SetParameterization(&camera_rotation[0], full_fit_quaternion_parameterisation);
 
-	// Colour model fitting:
+	// Colour model fitting (this needs a Morphable Model with colour (albedo) model, see note above main()):
+	if (!morphable_model.has_color_model())
+	{
+		cout << "The MorphableModel used does not contain a colour (albedo) model. ImageCost requires a model that contains a colour PCA model. You may want to use the full Surrey Face Model or remove this section.";
+		return EXIT_FAILURE;
+	}
 	std::vector<double> colour_coefficients;
 	colour_coefficients.resize(10);
 	// Add a residual for each vertex:

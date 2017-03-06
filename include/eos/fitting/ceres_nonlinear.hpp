@@ -200,6 +200,10 @@ struct ImageCost {
 		{
 			throw std::runtime_error("The image given to ImageCost must be of type CV_8UC3.");
 		}
+		if (!morphable_model.has_color_model())
+		{
+			throw std::runtime_error("The MorphableModel used does not contain a colour (albedo) model. ImageCost requires a model that contains a colour PCA model. You may want to use the full Surrey Face Model.");
+		}
 	};
 
 	/**
