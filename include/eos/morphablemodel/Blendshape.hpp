@@ -89,7 +89,7 @@ inline std::vector<Blendshape> load_blendshapes(std::string filename)
  * @param[in] blendshapes Vector of blendshapes.
  * @return The resulting matrix.
  */
-inline Eigen::VectorXf to_matrix(const std::vector<Blendshape>& blendshapes)
+inline Eigen::MatrixXf to_matrix(const std::vector<Blendshape>& blendshapes)
 {
 	assert(blendshapes.size() > 0);
 	// Todo: Assert all blendshapes have to have the same number of rows, and one col
