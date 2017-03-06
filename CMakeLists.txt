@@ -141,6 +141,10 @@ install(DIRECTORY ${eos_3RDPARTY_DIR}/nanoflann/include/ DESTINATION 3rdparty/na
 install(FILES ${eos_3RDPARTY_DIR}/nanoflann/COPYING DESTINATION 3rdparty/nanoflann/) # nanoflann licence
 install(DIRECTORY ${eos_3RDPARTY_DIR}/eigen3-nnls/src/ DESTINATION 3rdparty/eigen3-nnls/src) # eigen3-nnls header
 install(FILES ${eos_3RDPARTY_DIR}/eigen3-nnls/README.md DESTINATION 3rdparty/eigen3-nnls/) # eigen3-nnls attribution
+# Install Eigen headers if we're using the Eigen submodule included with eos:
+if(EIGEN3_INCLUDE_DIR STREQUAL ${eos_3RDPARTY_DIR}/eigen)
+  install(DIRECTORY ${eos_3RDPARTY_DIR}/eigen/Eigen/ DESTINATION 3rdparty/eigen/Eigen)
+endif()
 
 if(EOS_BUILD_EXAMPLES)
   add_subdirectory(examples)
