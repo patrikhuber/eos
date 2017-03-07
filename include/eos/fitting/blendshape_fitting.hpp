@@ -67,14 +67,15 @@ inline std::vector<float> fit_blendshapes_to_landmarks_linear(const std::vector<
 	const int num_landmarks = static_cast<int>(landmarks.size());
 
 	// Copy all blendshapes into a "basis" matrix with each blendshape being a column:
-	MatrixXf blendshapes_as_basis = morphablemodel::to_matrix(blendshapes);
+	Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> blendshapes_as_basis = morphablemodel::to_matrix(blendshapes);
+	// Above converts to a RowMajor matrix on return - for now, since the core algorithm still uses cv::Mat (and OpenCV stores data in row-major memory order).
+	Mat blendshapes_basis_as_mat = Mat(blendshapes_as_basis.rows(), blendshapes_as_basis.cols(), CV_32FC1, blendshapes_as_basis.data());
 
 	// $\hat{V} \in R^{3N\times m-1}$, subselect the rows of the eigenvector matrix $V$ associated with the $N$ feature points
 	// And we insert a row of zeros after every third row, resulting in matrix $\hat{V}_h \in R^{4N\times m-1}$:
 	Mat V_hat_h = Mat::zeros(4 * num_landmarks, num_blendshapes, CV_32FC1);
 	int row_index = 0;
 	for (int i = 0; i < num_landmarks; ++i) {
-		Mat blendshapes_basis_as_mat = Mat(blendshapes_as_basis.rows(), blendshapes_as_basis.cols(), CV_32FC1, blendshapes_as_basis.data());
 		Mat basis_rows = blendshapes_basis_as_mat.rowRange(vertex_ids[i] * 3, (vertex_ids[i] * 3) + 3);
 		basis_rows.copyTo(V_hat_h.rowRange(row_index, row_index + 3));
 		row_index += 4; // replace 3 rows and skip the 4th one, it has all zeros
@@ -145,14 +146,15 @@ inline std::vector<float> fit_blendshapes_to_landmarks_nnls(const std::vector<eo
 	const int num_landmarks = static_cast<int>(landmarks.size());
 
 	// Copy all blendshapes into a "basis" matrix with each blendshape being a column:
-	MatrixXf blendshapes_as_basis = morphablemodel::to_matrix(blendshapes);
+	Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> blendshapes_as_basis = morphablemodel::to_matrix(blendshapes);
+	// Above converts to a RowMajor matrix on return - for now, since the core algorithm still uses cv::Mat (and OpenCV stores data in row-major memory order).
+	Mat blendshapes_basis_as_mat = Mat(blendshapes_as_basis.rows(), blendshapes_as_basis.cols(), CV_32FC1, blendshapes_as_basis.data());
 
 	// $\hat{V} \in R^{3N\times m-1}$, subselect the rows of the eigenvector matrix $V$ associated with the $N$ feature points
 	// And we insert a row of zeros after every third row, resulting in matrix $\hat{V}_h \in R^{4N\times m-1}$:
 	Mat V_hat_h = Mat::zeros(4 * num_landmarks, num_blendshapes, CV_32FC1);
 	int row_index = 0;
 	for (int i = 0; i < num_landmarks; ++i) {
-		Mat blendshapes_basis_as_mat = Mat(blendshapes_as_basis.rows(), blendshapes_as_basis.cols(), CV_32FC1, blendshapes_as_basis.data());
 		Mat basis_rows = blendshapes_basis_as_mat.rowRange(vertex_ids[i] * 3, (vertex_ids[i] * 3) + 3);
 		basis_rows.copyTo(V_hat_h.rowRange(row_index, row_index + 3));
 		row_index += 4; // replace 3 rows and skip the 4th one, it has all zeros
