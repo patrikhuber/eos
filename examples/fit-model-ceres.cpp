@@ -380,7 +380,7 @@ int main(int argc, char *argv[])
 	// Colour model fitting (this needs a Morphable Model with colour (albedo) model, see note above main()):
 	if (!morphable_model.has_color_model())
 	{
-		cout << "The MorphableModel used does not contain a colour (albedo) model. ImageCost requires a model that contains a colour PCA model. You may want to use the full Surrey Face Model or remove this section.";
+		cout << "Error: The MorphableModel used does not contain a colour (albedo) model. ImageCost requires a model that contains a colour PCA model. You may want to use the full Surrey Face Model or remove this section.";
 		return EXIT_FAILURE;
 	}
 	std::vector<double> colour_coefficients;
