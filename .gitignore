@@ -1,2 +1,6 @@
 # Ignore the user-specific initial_cache file
 initial_cache.cmake
+
+# Ignore anything inside the "build" directory
+build/*
+
