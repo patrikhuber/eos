@@ -32,9 +32,10 @@ At the moment, it mainly provides the following functionality:
 To use the library in your own project, just add the following directories to your include path:
 
 * `eos/include`
-* `eos/3rdparty/cereal-1.1.1/include`
+* `eos/3rdparty/cereal/include`
 * `eos/3rdparty/glm`
 * `eos/3rdparty/nanoflann/include`
+* `eos/3rdparty/eigen/Eigen`
 * `eos/3rdparty/eigen3-nnls/src`
 
 **Make sure to clone with `--recursive` to download the required submodules!**
