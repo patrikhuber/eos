@@ -85,9 +85,10 @@ The full model is available at [http://www.cvssp.org/facemodel](http://www.cvssp
 
 ## Python bindings
 
-eos includes python bindings for some of its functionality (and more can be added!). Set `-DEOS_GENERATE_PYTHON_BINDINGS=on` when running `cmake` to build them (and optionally set `PYTHON_EXECUTABLE` to point to your python interpreter if it's not found automatically).
+eos includes python bindings for some of its functionality (and more can be added!). An experimental package is on PyPI: Try `pip install eos-py`. You will still need the data files from this repository.
+In case of issues, build the bindings manually: Clone the repository and set `-DEOS_GENERATE_PYTHON_BINDINGS=on` when running `cmake` (and optionally set `PYTHON_EXECUTABLE` to point to your python interpreter if it's not found automatically).
 
-After building the bindings, they can be used like any python module:
+After having obtained the bindings, they can be used like any python module:
 
 ```
 import eos
