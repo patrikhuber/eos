@@ -10,7 +10,7 @@ Files in this directory:
 - sfm_shape_3448.bin:
 	The public shape-only Surrey 3D Morphable Face Model.
 	To obtain a full 3DMM and higher resolution levels, follow the instructions
-	at <todo: add link to the page of the Uni>.
+	at cvssp.org/facemodel.
 	Details about the different models can be found in:
 	"A Multiresolution 3D Morphable Face Model and Fitting Framework",
 	P. Huber, G. Hu, R. Tena, P. Mortazavian, W. Koppen, W. Christmas, M. Rätsch, J. Kittler,
@@ -22,7 +22,9 @@ Files in this directory:
 
 - sfm_3448_edge_topology.json:
 	Contains a precomputed list of the model's edges, and the two faces and vertices that are
-	adjacent to each edge. Used in the edge-fitting.
+	adjacent to each edge. Uses 1-based indexing ("0" has a special meaning of "no adjacent
+	vertex/edge") - this may change to 0-based in the future to be consistent with the rest of
+	the library. The file is used in the edge-fitting.
 
 - model_contours.json:
 	Definition of the model's contour vertices of the right and left side of the face.
