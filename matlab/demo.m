@@ -3,7 +3,7 @@
 %% Set up some required paths to files:
 model_file = '../share/sfm_shape_3448.bin';
 blendshapes_file = '../share/expression_blendshapes_3448.bin';
-landmark_mappings = '../share/ibug2did.txt';
+landmark_mappings = '../share/ibug_to_sfm.txt';
 
 %% Load an image and its landmarks in ibug format:
 image = imread('../bin/data/image_0010.png');

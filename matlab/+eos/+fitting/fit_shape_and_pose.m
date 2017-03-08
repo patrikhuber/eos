@@ -33,7 +33,7 @@ end
 % We'll use default values to the following arguments, if they're not
 % provided:
 if (~exist('edge_topology', 'var')), edge_topology = '../share/sfm_3448_edge_topology.json'; end
-if (~exist('contour_landmarks', 'var')), contour_landmarks = '../share/ibug2did.txt'; end
+if (~exist('contour_landmarks', 'var')), contour_landmarks = '../share/ibug_to_sfm.txt'; end
 if (~exist('model_contour', 'var')), model_contour = '../share/model_contours.json'; end
 if (~exist('num_iterations', 'var')), num_iterations = 5; end
 if (~exist('num_shape_coefficients_to_fit', 'var')), num_shape_coefficients_to_fit = -1; end
