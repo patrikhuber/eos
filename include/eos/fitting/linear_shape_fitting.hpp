@@ -93,11 +93,11 @@ inline std::vector<float> fit_shape_to_landmarks_linear(const morphablemodel::Mo
 	// 3D (model) variance: 0.0f. It only makes sense to set it to something when we have a different variance for different vertices.
 	// The 3D variance has to be projected to 2D (for details, see paper [1]) so the units do match up.
 	float sigma_squared_2D = std::pow(detector_standard_deviation.get_value_or(std::sqrt(3.0f)), 2) + std::pow(model_standard_deviation.get_value_or(0.0f), 2);
-	MatrixXf Omega = MatrixXf::Zero(3 * num_landmarks, 3 * num_landmarks);
-	for (int i = 0; i < 3 * num_landmarks; ++i) {
-		// Sigma(i, i) = sqrt(sigma_squared_2D), but then Omega is Sigma.t() * Sigma (squares the diagonal) - so we just assign 1/sigma_squared_2D to Omega here:
-		Omega(i, i) = 1.0f / sigma_squared_2D;
-	}
+	// We use a VectorXf, and later use .asDiagonal():
+	VectorXf Omega = VectorXf::Constant(3 * num_landmarks, 1.0f / sigma_squared_2D);
+	// Earlier, we set Sigma in a for-loop and then computed Omega, but it was really unnecessary:
+	// Sigma(i, i) = sqrt(sigma_squared_2D), but then Omega is Sigma.t() * Sigma (squares the diagonal) - so we just assign 1/sigma_squared_2D to Omega here.
+
 	// The landmarks in matrix notation (in homogeneous coordinates), $3N\times 1$
 	VectorXf y = VectorXf::Ones(3 * num_landmarks);
 	for (int i = 0; i < num_landmarks; ++i) {
@@ -118,8 +118,8 @@ inline std::vector<float> fit_shape_to_landmarks_linear(const morphablemodel::Mo
 	// Bring into standard regularised quadratic form with diagonal distance matrix Omega:
 	const MatrixXf A = P * V_hat_h; // camera matrix times the basis
 	const MatrixXf b = P * v_bar - y; // camera matrix times the mean, minus the landmarks
-	const MatrixXf AtOmegaAReg = A.transpose() * Omega * A + lambda * Eigen::MatrixXf::Identity(num_coeffs_to_fit, num_coeffs_to_fit);
-	const MatrixXf rhs = -A.transpose() * Omega.transpose() * b;
+	const MatrixXf AtOmegaAReg = A.transpose() * Omega.asDiagonal() * A + lambda * Eigen::MatrixXf::Identity(num_coeffs_to_fit, num_coeffs_to_fit);
+	const MatrixXf rhs = -A.transpose() * Omega.asDiagonal() * b; // It's -A^t*Omega^t*b, but we don't need to transpose Omega, since it's a diagonal matrix, and Omega^t = Omega.
 	// c_s: The 'x' that we solve for. (The variance-normalised shape parameter vector, $c_s = [a_1/sigma_{s,1} , ..., a_m-1/sigma_{s,m-1}]^t$.)
 	// We get coefficients ~ N(0, 1), because we're fitting with the rescaled basis. The coefficients are not multiplied with their eigenvalues.
 	const VectorXf c_s = AtOmegaAReg.colPivHouseholderQr().solve(rhs);
