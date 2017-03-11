@@ -102,6 +102,20 @@ inline Eigen::MatrixXf to_matrix(const std::vector<Blendshape>& blendshapes)
 	return blendshapes_as_basis;
 };
 
+/**
+ * @brief Maps an std::vector of coefficients with Eigen::Map, so it can be multiplied
+ * with a blendshapes matrix.
+ *
+ * Note that  the resulting Eigen::Map only lives as long as the data given lives and is in scope.
+ *
+ * @param[in] coefficients Vector of blendshape coefficients.
+ * @return An Eigen::Map pointing to the given coefficients data.
+ */
+inline Eigen::Map<const Eigen::VectorXf> to_vector(const std::vector<float>& coefficients)
+{
+	return Eigen::Map<const Eigen::VectorXf>(coefficients.data(), coefficients.size());
+};
+
 	} /* namespace morphablemodel */
 } /* namespace eos */
 
