@@ -108,10 +108,9 @@ inline std::vector<float> fit_shape_to_landmarks_linear(const morphablemodel::Mo
 	// The mean, with an added homogeneous coordinate (x_1, y_1, z_1, 1, x_2, ...)^t
 	VectorXf v_bar = VectorXf::Ones(4 * num_landmarks);
 	for (int i = 0; i < num_landmarks; ++i) {
-		const cv::Vec4f model_mean(base_face(vertex_ids[i] * 3), base_face(vertex_ids[i] * 3 + 1), base_face(vertex_ids[i] * 3 + 2), 1.0f);
-		v_bar(4 * i) = model_mean[0];
-		v_bar((4 * i) + 1) = model_mean[1];
-		v_bar((4 * i) + 2) = model_mean[2];
+		v_bar(4 * i) = base_face(vertex_ids[i] * 3);
+		v_bar((4 * i) + 1) = base_face(vertex_ids[i] * 3 + 1);
+		v_bar((4 * i) + 2) = base_face(vertex_ids[i] * 3 + 2);
 		//v_bar((4 * i) + 3) = 1; // already 1, stays (homogeneous coordinate)
 	}
 
