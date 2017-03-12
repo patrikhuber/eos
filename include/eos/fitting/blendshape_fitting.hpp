@@ -24,10 +24,9 @@
 
 #include "eos/morphablemodel/Blendshape.hpp"
 
-#include "Eigen/Core" // for nnls.h
+#include "Eigen/Core"
 #include "nnls.h"
 
-#include "Eigen/Core"
 #include "opencv2/core/core.hpp"
 
 #include <vector>
@@ -139,65 +138,53 @@ inline std::vector<float> fit_blendshapes_to_landmarks_nnls(const std::vector<eo
 {
 	assert(landmarks.size() == vertex_ids.size());
 
-	using cv::Mat;
+	using Eigen::VectorXf;
 	using Eigen::MatrixXf;
 
 	const int num_blendshapes = blendshapes.size();
 	const int num_landmarks = static_cast<int>(landmarks.size());
 
 	// Copy all blendshapes into a "basis" matrix with each blendshape being a column:
-	Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> blendshapes_as_basis = morphablemodel::to_matrix(blendshapes);
-	// Above converts to a RowMajor matrix on return - for now, since the core algorithm still uses cv::Mat (and OpenCV stores data in row-major memory order).
-	Mat blendshapes_basis_as_mat = Mat(blendshapes_as_basis.rows(), blendshapes_as_basis.cols(), CV_32FC1, blendshapes_as_basis.data());
+	MatrixXf blendshapes_as_basis = morphablemodel::to_matrix(blendshapes);
 
 	// $\hat{V} \in R^{3N\times m-1}$, subselect the rows of the eigenvector matrix $V$ associated with the $N$ feature points
 	// And we insert a row of zeros after every third row, resulting in matrix $\hat{V}_h \in R^{4N\times m-1}$:
-	Mat V_hat_h = Mat::zeros(4 * num_landmarks, num_blendshapes, CV_32FC1);
+	MatrixXf V_hat_h = MatrixXf::Zero(4 * num_landmarks, num_blendshapes);
 	int row_index = 0;
 	for (int i = 0; i < num_landmarks; ++i) {
-		Mat basis_rows = blendshapes_basis_as_mat.rowRange(vertex_ids[i] * 3, (vertex_ids[i] * 3) + 3);
-		basis_rows.copyTo(V_hat_h.rowRange(row_index, row_index + 3));
+		V_hat_h.block(row_index, 0, 3, V_hat_h.cols()) = blendshapes_as_basis.block(vertex_ids[i] * 3, 0, 3, blendshapes_as_basis.cols());
 		row_index += 4; // replace 3 rows and skip the 4th one, it has all zeros
 	}
 	// Form a block diagonal matrix $P \in R^{3N\times 4N}$ in which the camera matrix C (P_Affine, affine_camera_matrix) is placed on the diagonal:
-	Mat P = Mat::zeros(3 * num_landmarks, 4 * num_landmarks, CV_32FC1);
+	MatrixXf P = MatrixXf::Zero(3 * num_landmarks, 4 * num_landmarks);
 	for (int i = 0; i < num_landmarks; ++i) {
-		Mat submatrix_to_replace = P.colRange(4 * i, (4 * i) + 4).rowRange(3 * i, (3 * i) + 3);
-		affine_camera_matrix.copyTo(submatrix_to_replace);
+		using RowMajorMatrixXf = Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
+		P.block(3 * i, 4 * i, 3, 4) = Eigen::Map<RowMajorMatrixXf>(affine_camera_matrix.ptr<float>(), affine_camera_matrix.rows, affine_camera_matrix.cols);
 	}
-
 	// The landmarks in matrix notation (in homogeneous coordinates), $3N\times 1$
-	Mat y = Mat::ones(3 * num_landmarks, 1, CV_32FC1);
+	VectorXf y = VectorXf::Ones(3 * num_landmarks);
 	for (int i = 0; i < num_landmarks; ++i) {
-		y.at<float>(3 * i, 0) = landmarks[i][0];
-		y.at<float>((3 * i) + 1, 0) = landmarks[i][1];
-		//y.at<float>((3 * i) + 2, 0) = 1; // already 1, stays (homogeneous coordinate)
+		y(3 * i) = landmarks[i][0];
+		y((3 * i) + 1) = landmarks[i][1];
+		//y_((3 * i) + 2) = 1; // already 1, stays (homogeneous coordinate)
 	}
 	// The mean, with an added homogeneous coordinate (x_1, y_1, z_1, 1, x_2, ...)^t
-	Mat v_bar = Mat::ones(4 * num_landmarks, 1, CV_32FC1);
+	VectorXf v_bar = VectorXf::Ones(4 * num_landmarks);
 	for (int i = 0; i < num_landmarks; ++i) {
-		cv::Vec4f model_mean(face_instance(vertex_ids[i]*3), face_instance(vertex_ids[i]*3 + 1), face_instance(vertex_ids[i]*3 + 2), 1.0f);
-		v_bar.at<float>(4 * i, 0) = model_mean[0];
-		v_bar.at<float>((4 * i) + 1, 0) = model_mean[1];
-		v_bar.at<float>((4 * i) + 2, 0) = model_mean[2];
-		//v_bar.at<float>((4 * i) + 3, 0) = 1; // already 1, stays (homogeneous coordinate)
-		// note: now that a Vec4f is returned, we could use copyTo?
+		v_bar(4 * i) = face_instance(vertex_ids[i] * 3);
+		v_bar((4 * i) + 1) = face_instance(vertex_ids[i] * 3 + 1);
+		v_bar((4 * i) + 2) = face_instance(vertex_ids[i] * 3 + 2);
+		//v_bar((4 * i) + 3) = 1; // already 1, stays (homogeneous coordinate)
 	}
 
-	// Bring into standard regularised quadratic form:
-	Mat A = P * V_hat_h; // camera matrix times the basis
-	Mat b = P * v_bar - y; // camera matrix times the mean, minus the landmarks.
-
+	// Bring into standard least squares form:
+	const MatrixXf A = P * V_hat_h; // camera matrix times the basis
+	const MatrixXf b = P * v_bar - y; // camera matrix times the mean, minus the landmarks
 	// Solve using NNLS:
-	using RowMajorMatrixXf = Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
-	Eigen::Map<RowMajorMatrixXf> A_Eigen(A.ptr<float>(), A.rows, A.cols);
-	Eigen::Map<RowMajorMatrixXf> b_Eigen(b.ptr<float>(), b.rows, b.cols);
-
 	Eigen::VectorXf x;
-	bool non_singular = Eigen::NNLS<Eigen::MatrixXf>::solve(A_Eigen, -b_Eigen, x);
-	Mat c_s(x.rows(), x.cols(), CV_32FC1, x.data()); // create an OpenCV Mat header for the Eigen data
+	bool non_singular = Eigen::NNLS<MatrixXf>::solve(A, -b, x);
 
-	return std::vector<float>(c_s);
+	return std::vector<float>(x.data(), x.data() + x.size());
 };
 
 	} /* namespace fitting */
