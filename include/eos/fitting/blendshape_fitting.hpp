@@ -181,10 +181,10 @@ inline std::vector<float> fit_blendshapes_to_landmarks_nnls(const std::vector<eo
 	const MatrixXf A = P * V_hat_h; // camera matrix times the basis
 	const MatrixXf b = P * v_bar - y; // camera matrix times the mean, minus the landmarks
 	// Solve using NNLS:
-	Eigen::VectorXf x;
-	bool non_singular = Eigen::NNLS<MatrixXf>::solve(A, -b, x);
+	VectorXf coefficients;
+	bool non_singular = Eigen::NNLS<MatrixXf>::solve(A, -b, coefficients);
 
-	return std::vector<float>(x.data(), x.data() + x.size());
+	return std::vector<float>(coefficients.data(), coefficients.data() + coefficients.size());
 };
 
 	} /* namespace fitting */
