@@ -81,8 +81,8 @@ PYBIND11_PLUGIN(eos) {
 	 * Bindings for the eos::morphablemodel namespace:
 	 *  - PcaModel
 	 *  - MorphableModel
-	 *  - load_model()
-	 *  - save_model()
+	 *  - load_model(), save_model()
+	 *  - load_pca_model(), save_pca_model()
 	 */
 	py::module morphablemodel_module = eos_module.def_submodule("morphablemodel", "Functionality to represent a Morphable Model, its PCA models, and functions to load models and blendshapes.");
 
@@ -111,6 +111,8 @@ PYBIND11_PLUGIN(eos) {
 
 	morphablemodel_module.def("load_model", &morphablemodel::load_model, "Load a Morphable Model from a cereal::BinaryInputArchive (.bin) from the harddisk.", py::arg("filename"));
 	morphablemodel_module.def("save_model", &morphablemodel::save_model, "Save a Morphable Model as cereal::BinaryOutputArchive.", py::arg("model"), py::arg("filename"));
+	morphablemodel_module.def("load_pca_model", &morphablemodel::load_pca_model, "Load a PCA model from a cereal::BinaryInputArchive (.bin) from the harddisk.", py::arg("filename"));
+	morphablemodel_module.def("save_pca_model", &morphablemodel::save_pca_model, "Save a PCA model as cereal::BinaryOutputArchive.", py::arg("model"), py::arg("filename"));
 
 	/**
 	 *  - Blendshape
