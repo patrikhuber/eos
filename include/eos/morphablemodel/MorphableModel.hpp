@@ -42,7 +42,7 @@
 #include <vector>
 #include <array>
 #include <cstdint>
-#include <iostream>
+#include <fstream>
 
 namespace eos {
 	namespace morphablemodel {

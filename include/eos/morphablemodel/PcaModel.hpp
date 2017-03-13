@@ -35,7 +35,7 @@
 #include <array>
 #include <random>
 #include <cassert>
-#include <iostream>
+#include <fstream>
 
 namespace eos {
 	namespace morphablemodel {
