@@ -57,7 +57,7 @@ public:
 	PcaModel() = default;
 
 	/**
-	 * Construct a PCA model from given mean, normalised PCA basis, eigenvalues
+	 * Construct a PCA model from given mean, orthonormal PCA basis, eigenvalues
 	 * and triangle list.
 	 *
 	 * See the documentation of the member variables for how the data should
