@@ -52,7 +52,7 @@ mkdir build && cd build # creates a build directory next to the 'eos' folder
 cmake -G "<your favourite generator>" ../eos -DCMAKE_INSTALL_PREFIX=../install/
 make && make install # or open the project file and build in an IDE like Visual Studio
 ```
-If some dependencies can't be found, copy `initial_cache.cmake.template` to `initial_cache.cmake`, edit the necessary paths and run `cmake` with `-C ../eos/initial_cache.cmake`.
+If some dependencies can't be found, copy `initial_cache.cmake.template` to `initial_cache.cmake`, edit the necessary paths and run `cmake` with `-C ../eos/initial_cache.cmake`. On Linux, you may also want to set `-DCMAKE_BUILD_TYPE=...` appropriately.
 
 
 ## Sample code
