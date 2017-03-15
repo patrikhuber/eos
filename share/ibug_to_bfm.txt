@@ -1,0 +1,57 @@
+; Mapping from the 68-point ibug annotations to the BFM (2009) (3DMM vertex indices).
+; The numbers in brackets are MPEG-4 facial feature point numbers.
+
+landmarkMappings ; A mapping from input landmarks (ibug, lhs) to output landmarks (SFM, rhs)
+{
+              ; 1 to 8 are the right contour landmarks
+              ; chin bottom (2.1, MPEG point not marked in the BFM)
+              ; 10 to 17 are the left contour landmarks
+    18  38792 ; right eyebrow outer-corner (4.6)
+    20  40087 ; right eyebrow middle, vertical middle (4.4, the MPEG point is on top of the brow though)
+    22  40514 ; right eyebrow inner-corner (4.2)
+    23  41091 ; left eyebrow inner-corner (4.1)
+    25  41511 ; left eyebrow middle (4.3, the MPEG point is on top of the brow though)
+    27  42825 ; left eyebrow outer-corner (4.5)
+    31   8319 ; nose-tip (9.3)
+    34   8334 ; nose-lip junction (9.15)
+    37   2088 ; right eye outer-corner (3.12)
+    40   5959 ; right eye inner-corner (3.8)
+    43  10603 ; left eye inner-corner (3.11)
+    46  14472 ; left eye outer-corner (3.7)
+    49   5006 ; right mouth corner (8.4)
+    52   8344 ; upper lip middle top (8.1)
+    55  11714 ; left mouth corner (8.3)
+    58   8374 ; lower lip middle bottom (8.2)
+;   61        ; right inner corner of the mouth (2.5)
+;   62        ; upper lip right bottom outer (2.7)
+    63   8354 ; upper lip middle bottom (2.2)
+;   64        ; upper lip left bottom outer (2.6)
+;   65        ; left inner corner of the mouth (2.4)
+;   66        ; lower lip left top outer (2.8)
+    67   8366 ; lower lip middle top (2.3)
+;   68        ; lower lip right top outer (2.9)
+}
+
+contour_landmarks
+{
+    right {
+        1
+        2
+        3
+        4
+        5
+        6
+        7
+        8
+    }
+    left {
+        10
+        11
+        12
+        13
+        14
+        15
+        16
+        17
+    }
+}
