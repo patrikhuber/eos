@@ -44,25 +44,29 @@
         <h1>
 <a id="eos-a-lightweight-header-only-3d-morphable-model-fitting-library-in-modern-c1114" class="anchor" href="#eos-a-lightweight-header-only-3d-morphable-model-fitting-library-in-modern-c1114" aria-hidden="true"><span class="octicon octicon-link"></span></a>eos: A lightweight header-only 3D Morphable Model fitting library in modern C++11/14.</h1>
 
-<p><a href="https://github.com/patrikhuber/eos/releases"><img src="http://img.shields.io/github/release/patrikhuber/eos.svg?style=flat-square" alt="GitHub release"></a>
-<a href="https://github.com/patrikhuber/eos/blob/master/LICENSE"><img src="https://img.shields.io/github/license/patrikhuber/eos.svg?style=flat-square" alt="Apache License 2.0"></a></p>
+<p>
+<a href="https://github.com/patrikhuber/eos/releases"><img src="http://img.shields.io/github/release/patrikhuber/eos.svg?style=flat-square" alt="GitHub release"></a>
+<a href="https://github.com/patrikhuber/eos/blob/master/LICENSE"><img src="https://img.shields.io/github/license/patrikhuber/eos.svg?style=flat-square" alt="Apache License 2.0"></a>
+</p>
 
-<p>eos is a tiny 3D Morphable Face Model fitting library that provides just the bare minimum to load a model and perform camera and shape fitting. It's written in modern C++11/14.</p>
+<p>eos is a lightweight 3D Morphable Face Model fitting library that provides basic functionality to use face models, as well as camera and shape fitting functionality. It's written in modern C++11/14.</p>
 
 <p>At the moment, it mainly provides the following functionality:</p>
 
 <ul>
-<li>MorphableModel class to represent a 3DMM (using OpenCVs <code>cv::Mat</code>)</li>
+<li>MorphableModel and PcaModel classes to represent 3DMMs, with basic operations like <code>draw_sample()</code></li>
 <li>Our low-resolution, shape-only 3D Morphable Face Model (<a href="https://github.com/patrikhuber/eos/blob/master/share/sfm_shape_3448.bin">share/sfm_shape_3448.bin</a>)
-<li>Camera pose estimation, implementation of:
+<li>Fast, linear pose, shape and expression fitting, edge and contour fitting:
 <ul>
-<li>the <em>Gold Standard Algorithm</em> for estimating an affine camera matrix, from Multiple View Geometry, Hartley &amp; Zisserman</li>
-<li>a non-linear algorithm that directly estimates the pose angles and camera translation</li>
+<li>Linear scaled orthographic projection camera pose estimation</li>
+<li>Linear shape-to-landmarks fitting, implementation of O. Aldrian &amp; W. Smith, <em>Inverse Rendering of Faces with a 3D Morphable Model</em>, PAMI 2013</li>
+<li>Expression fitting, and 6 linear expression blendshapes: anger, disgust, fear, happiness, sadness, surprise.</li>
+<li>Edge-fitting, heavily inspired by: A. Bas et al., <em>Fitting a 3D Morphable Model to Edges: A Comparison Between Hard and Soft Correspondences</em>, ACCVW 2016</li>
 </ul>
 </li>
-<li>Shape fitting, implementation of the linear shape-to-landmarks fitting of O. Aldrian &amp; W. Smith, <em>Inverse Rendering of Faces with a 3D Morphable Model</em>, PAMI 2013</li>
-<li>Expression fitting, and 6 linear expression blendshapes: anger, disgust, fear, happiness, sadness, surprise.</li>
-<li>Isomap texture extraction to obtain a pose-invariant representation of the face texture.</li>
+<li>Isomap texture extraction to obtain a pose-invariant representation of the face texture</li>
+<li>(<strong>New</strong>): Python bindings for parts of the library, and Matlab bindings for the fitting</li>
+<li><em>(Experimental)</em>: Non-linear fitting cost functions using Ceres for shape, camera, blendshapes and the colour model (needs Ceres to be installed separately)</li>
 </ul>
 
 <h3>
