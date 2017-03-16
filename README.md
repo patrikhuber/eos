@@ -16,10 +16,10 @@ At the moment, it mainly provides the following functionality:
 * MorphableModel and PcaModel classes to represent 3DMMs, with basic operations like `draw_sample()`
 * Our low-resolution, shape-only 3D Morphable Face Model ([share/sfm_shape_3448.bin](https://github.com/patrikhuber/eos/blob/master/share/sfm_shape_3448.bin))
 * Fast, linear pose, shape and expression fitting, edge and contour fitting:
- * Linear scaled orthographic projection camera pose estimation
- * Linear shape-to-landmarks fitting, implementation of O. Aldrian & W. Smith, _Inverse Rendering of Faces with a 3D Morphable Model_, PAMI 2013
- * Expression fitting, and 6 linear expression blendshapes: anger, disgust, fear, happiness, sadness, surprise
- * Edge-fitting, heavily inspired by: A. Bas et al., _Fitting a 3D Morphable Model to Edges: A Comparison Between Hard and Soft Correspondences_, ACCVW 2016
+  * Linear scaled orthographic projection camera pose estimation
+  * Linear shape-to-landmarks fitting, implementation of O. Aldrian & W. Smith, _Inverse Rendering of Faces with a 3D Morphable Model_, PAMI 2013
+  * Expression fitting, and 6 linear expression blendshapes: anger, disgust, fear, happiness, sadness, surprise
+  * Edge-fitting, heavily inspired by: A. Bas et al., _Fitting a 3D Morphable Model to Edges: A Comparison Between Hard and Soft Correspondences_, ACCVW 2016
 * Isomap texture extraction to obtain a pose-invariant representation of the face texture
 * (**New**): Python bindings for parts of the library, and Matlab bindings for the fitting
 * (_Experimental_): Non-linear fitting cost functions using Ceres for shape, camera, blendshapes and the colour model (needs Ceres to be installed separately)
