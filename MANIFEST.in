@@ -9,4 +9,3 @@ recursive-include 3rdparty/nanoflann/include *
 recursive-include 3rdparty/pybind11 *
 recursive-include include *
 recursive-include python *
-
