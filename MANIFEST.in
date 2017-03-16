@@ -1,5 +1,6 @@
-include README.md LICENSE
+include README.md LICENSE setup.cfg.template
 global-include CMakeLists.txt *.cmake
+exclude initial_cache.cmake
 recursive-include 3rdparty/cereal/include *
 recursive-include 3rdparty/eigen/Eigen *
 recursive-include 3rdparty/eigen3-nnls/src *.h
@@ -8,3 +9,4 @@ recursive-include 3rdparty/nanoflann/include *
 recursive-include 3rdparty/pybind11 *
 recursive-include include *
 recursive-include python *
+
