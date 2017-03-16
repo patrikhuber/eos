@@ -30,7 +30,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">eos
-   &#160;<span id="projectnumber">0.7.1</span>
+   &#160;<span id="projectnumber">0.12.1</span>
    </div>
   </td>
  </tr>
@@ -103,13 +103,16 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!--header-->
 <div class="contents">
 
-<p>A class representing a camera viewing frustum. At the moment used as orthographic camera only.  
+<p>A class representing a camera viewing frustum. At the moment only fully tested with orthographic camera.  
  <a href="structeos_1_1fitting_1_1_frustum.html#details">More...</a></p>
 
-<p><code>#include &lt;<a class="el" href="nonlinear__camera__estimation_8hpp_source.html">nonlinear_camera_estimation.hpp</a>&gt;</code></p>
+<p><code>#include &lt;<a class="el" href="_rendering_parameters_8hpp_source.html">RenderingParameters.hpp</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
+<tr class="memitem:a1148ff8df302e9ce4702247dc6b3d410"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1148ff8df302e9ce4702247dc6b3d410"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Frustum</b> (float l, float r, float b, float t)</td></tr>
+<tr class="separator:a1148ff8df302e9ce4702247dc6b3d410"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad2927fb97762ef726696cf6296b5b9d4"><td class="memTemplParams" colspan="2">template&lt;class Archive &gt; </td></tr>
 <tr class="memitem:ad2927fb97762ef726696cf6296b5b9d4"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structeos_1_1fitting_1_1_frustum.html#ad2927fb97762ef726696cf6296b5b9d4">serialize</a> (Archive &amp;archive)</td></tr>
 <tr class="separator:ad2927fb97762ef726696cf6296b5b9d4"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -117,23 +120,17 @@ Public Member Functions</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
 <tr class="memitem:a91187e9a49672711d7f23bd4f4a8c738"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a91187e9a49672711d7f23bd4f4a8c738"></a>
-float&#160;</td><td class="memItemRight" valign="bottom"><b>l</b></td></tr>
+float&#160;</td><td class="memItemRight" valign="bottom"><b>l</b> = -1.0f</td></tr>
 <tr class="separator:a91187e9a49672711d7f23bd4f4a8c738"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4119574b26a62235b9b89365f505ee01"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4119574b26a62235b9b89365f505ee01"></a>
-float&#160;</td><td class="memItemRight" valign="bottom"><b>r</b></td></tr>
+float&#160;</td><td class="memItemRight" valign="bottom"><b>r</b> = 1.0f</td></tr>
 <tr class="separator:a4119574b26a62235b9b89365f505ee01"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad69aaca8f408ad68c13a1b31c694ed26"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad69aaca8f408ad68c13a1b31c694ed26"></a>
-float&#160;</td><td class="memItemRight" valign="bottom"><b>b</b></td></tr>
+float&#160;</td><td class="memItemRight" valign="bottom"><b>b</b> = -1.0f</td></tr>
 <tr class="separator:ad69aaca8f408ad68c13a1b31c694ed26"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6af2a4dd568ec950ce05129071a92e28"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6af2a4dd568ec950ce05129071a92e28"></a>
-float&#160;</td><td class="memItemRight" valign="bottom"><b>t</b></td></tr>
+float&#160;</td><td class="memItemRight" valign="bottom"><b>t</b> = 1.0f</td></tr>
 <tr class="separator:a6af2a4dd568ec950ce05129071a92e28"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa8392bd430abb17ed4c48361974841ad"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa8392bd430abb17ed4c48361974841ad"></a>
-boost::optional&lt; float &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>n</b></td></tr>
-<tr class="separator:aa8392bd430abb17ed4c48361974841ad"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1237827333a45484835ccdb34f8eef0b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1237827333a45484835ccdb34f8eef0b"></a>
-boost::optional&lt; float &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>f</b></td></tr>
-<tr class="separator:a1237827333a45484835ccdb34f8eef0b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="friends"></a>
 Friends</h2></td></tr>
@@ -142,7 +139,7 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>cereal::access</b></
 <tr class="separator:ab2f44cbb59a08132f4c843e5225bba0e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>A class representing a camera viewing frustum. At the moment used as orthographic camera only. </p>
+<div class="textblock"><p>A class representing a camera viewing frustum. At the moment only fully tested with orthographic camera. </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
 <a class="anchor" id="ad2927fb97762ef726696cf6296b5b9d4"></a>
 <div class="memitem">
@@ -170,7 +167,7 @@ template&lt;class Archive &gt; </div>
 <p>Serialises this class using cereal.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">archive</td><td>The archive to serialise to (or to serialise from). </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">ar</td><td>The archive to serialise to (or to serialise from). </td></tr>
   </table>
   </dd>
 </dl>
@@ -178,7 +175,7 @@ template&lt;class Archive &gt; </div>
 </div>
 </div>
 <hr/>The documentation for this struct was generated from the following file:<ul>
-<li>include/eos/fitting/<a class="el" href="nonlinear__camera__estimation_8hpp_source.html">nonlinear_camera_estimation.hpp</a></li>
+<li>include/eos/fitting/<a class="el" href="_rendering_parameters_8hpp_source.html">RenderingParameters.hpp</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

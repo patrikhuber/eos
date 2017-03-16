@@ -30,7 +30,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">eos
-   &#160;<span id="projectnumber">0.7.1</span>
+   &#160;<span id="projectnumber">0.12.1</span>
    </div>
   </td>
  </tr>
@@ -86,46 +86,53 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="title">eos: A lightweight header-only 3D Morphable Face Model fitting library in modern C++11/14. </div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><p><a href="https://github.com/patrikhuber/eos/releases"></a> <a href="https://github.com/patrikhuber/eos/blob/master/LICENSE"></a></p>
-<p>eos is a lightweight 3D Morphable Face Model fitting library that provides just the bare minimum to load a model and perform camera and shape fitting. It's written in modern C++11/14.</p>
+<div class="textblock"><p><a href="https://github.com/patrikhuber/eos/releases"></a> <a href="https://travis-ci.org/patrikhuber/eos"></a> <a href="https://ci.appveyor.com/project/patrikhuber/eos/branch/master"></a> <a href="https://github.com/patrikhuber/eos/blob/master/LICENSE"></a></p>
+<p>eos is a lightweight 3D Morphable Face Model fitting library that provides basic functionality to use face models, as well as camera and shape fitting functionality. It's written in modern C++11/14.</p>
 <p>At the moment, it mainly provides the following functionality:</p>
 <ul>
-<li>MorphableModel class to represent a 3DMM (using OpenCVs <code>cv::Mat</code>)</li>
+<li>MorphableModel and PcaModel classes to represent 3DMMs, with basic operations like <code>draw_sample()</code></li>
 <li>Our low-resolution, shape-only 3D Morphable Face Model (<a href="https://github.com/patrikhuber/eos/blob/master/share/sfm_shape_3448.bin">share/sfm_shape_3448.bin</a>)</li>
-<li>Camera pose estimation, implementation of:<ul>
-<li>the <em>Gold Standard Algorithm</em> for estimating an affine camera matrix, from Multiple View Geometry, Hartley &amp; Zisserman</li>
-<li>a non-linear algorithm that directly estimates the pose angles and camera translation</li>
+<li>Fast, linear pose, shape and expression fitting, edge and contour fitting:<ul>
+<li>Linear scaled orthographic projection camera pose estimation</li>
+<li>Linear shape-to-landmarks fitting, implementation of O. Aldrian &amp; W. Smith, <em>Inverse Rendering of Faces with a 3D Morphable Model</em>, PAMI 2013</li>
+<li>Expression fitting, and 6 linear expression blendshapes: anger, disgust, fear, happiness, sadness, surprise</li>
+<li>Edge-fitting, heavily inspired by: A. Bas et al., <em>Fitting a 3D Morphable Model to Edges: A Comparison Between Hard and Soft Correspondences</em>, ACCVW 2016</li>
 </ul>
 </li>
-<li>Shape fitting, implementation of the linear shape-to-landmarks fitting of O. Aldrian &amp; W. Smith, <em>Inverse Rendering of Faces with a 3D Morphable Model</em>, PAMI 2013</li>
-<li>Expression fitting, and 6 linear expression blendshapes: anger, disgust, fear, happiness, sadness, surprise.</li>
-<li>Isomap texture extraction to obtain a pose-invariant representation of the face texture.</li>
+<li>Isomap texture extraction to obtain a pose-invariant representation of the face texture</li>
+<li>(<b>New</b>): Python bindings for parts of the library, and Matlab bindings for the fitting</li>
+<li>(<em>Experimental</em>): Non-linear fitting cost functions using Ceres for shape, camera, blendshapes and the colour model (needs Ceres to be installed separately)</li>
 </ul>
 <h2>Usage</h2>
 <ul>
-<li>Tested with the following compilers: &gt;=gcc-4.8.4, &gt;=clang-3.5, Visual Studio 2015</li>
+<li>Tested with the following compilers: &gt;=gcc-4.9, &gt;=clang-3.5, Visual Studio 2015</li>
 <li>Needed dependencies for the library: Boost system (&gt;=1.50.0), OpenCV core (&gt;=2.4.3)</li>
 </ul>
 <p>To use the library in your own project, just add the following directories to your include path:</p>
 <ul>
 <li><code>eos/include</code></li>
-<li><code>eos/3rdparty/cereal-1.1.1/include</code></li>
-<li><code>eos/3rdparty/glm-0.9.7.0</code></li>
+<li><code>eos/3rdparty/cereal/include</code></li>
+<li><code>eos/3rdparty/glm</code></li>
+<li><code>eos/3rdparty/nanoflann/include</code></li>
+<li><code>eos/3rdparty/eigen/Eigen</code></li>
+<li><code>eos/3rdparty/eigen3-nnls/src</code></li>
 </ul>
+<p><b>Make sure to clone with <code>--recursive</code> to download the required submodules!</b></p>
 <h3>Build the examples and tests</h3>
 <ul>
-<li>Needed dependencies for the example app: CMake (&gt;=2.8.10), Boost system, filesystem, program_options (&gt;=1.50.0), OpenCV core, imgproc, highgui (&gt;=2.4.3).</li>
+<li>Needed dependencies for the example app: CMake (&gt;=3.1.3), Boost system, filesystem, program_options (&gt;=1.50.0), OpenCV core, imgproc, highgui (&gt;=2.4.3).</li>
 </ul>
 <p>To build:</p>
-<div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;git clone https://github.com/patrikhuber/eos.git</div><div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;mkdir build &amp;&amp; cd build # creates a build directory next to the _eos_ folder</div><div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;cmake -G &quot;&lt;your favourite generator&gt;&quot; ../eos -DCMAKE_INSTALL_PREFIX=../install/</div><div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;make &amp;&amp; make install # or open the project file and build in an IDE like Visual Studio</div></div><!-- fragment --><p> If some dependencies can't be found, copy <code>initial_cache.cmake.template</code> to <code>initial_cache.cmake</code>, edit the necessary paths and run <code>cmake</code> with <code>-C ../eos/initial_cache.cmake</code>.</p>
+<div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;git clone --recursive https://github.com/patrikhuber/eos.git</div><div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;mkdir build &amp;&amp; cd build # creates a build directory next to the &#39;eos&#39; folder</div><div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;cmake -G &quot;&lt;your favourite generator&gt;&quot; ../eos -DCMAKE_INSTALL_PREFIX=../install/</div><div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;make &amp;&amp; make install # or open the project file and build in an IDE like Visual Studio</div></div><!-- fragment --><p> If some dependencies can't be found, copy <code>initial_cache.cmake.template</code> to <code>initial_cache.cmake</code>, edit the necessary paths and run <code>cmake</code> with <code>-C ../eos/initial_cache.cmake</code>. On Linux, you may also want to set <code>-DCMAKE_BUILD_TYPE=...</code> appropriately.</p>
 <h2>Sample code</h2>
 <p>The fit-model example app creates a 3D face from a 2D image.</p>
 <p>After <code>make install</code> or running the <code>INSTALL</code> target, an example image with landmarks can be found in <code>install/bin/data/</code>. The model and the necessary landmarks mapping file are installed to <code>install/share/</code>.</p>
 <p>You can run the example just by running:</p>
 <p><code>fit-model</code></p>
-<p>Or, by manually specifying the face model, landmark-to-vertex mappings, an image and its 2D landmarks:</p>
-<p><code>fit-model -m ../share/sfm_shape_3448.bin -p ../share/ibug2did.txt -i data/image_0010.png -l data/image_0010.pts</code></p>
-<p>The output is an <code>obj</code> file with the shape and a <code>png</code> with the extracted isomap. The estimated pose angles and shape coefficients are available in the code via the API.</p>
+<p>It will load the face model, landmark-to-vertex mappings, blendshapes, and other required files from the <code>../share/</code> directory, and run on the example image. It can be run on other images by giving it a <code>-i</code> parameter for the image and <code>-l</code> for a set of ibug landmarks. The full set of parameters can be viewed by running <code>fit-model --help</code>.</p>
+<p>If you are just getting started, it is recommended to have a look at <code>fit-model-simple</code> too, as it requires much fewer input, and only fits pose and shape, without any blendshapes or edge-fitting. Its full set of arguments is:</p>
+<p><code>fit-model-simple -m ../share/sfm_shape_3448.bin -p ../share/ibug2did.txt -i data/image_0010.png -l data/image_0010.pts</code></p>
+<p>The output in both cases is an <code>obj</code> file with the shape and a <code>png</code> with the extracted isomap. The estimated pose angles and shape coefficients are available in the code via the API.</p>
 <p>See <a href="https://github.com/patrikhuber/eos/blob/master/examples/fit-model.cpp">examples/fit-model.cpp</a> for the full code.</p>
 <h2>The Surrey Face Model</h2>
 <p>The library includes a low-resolution shape-only version of the Surrey Morphable Face Model. It is a PCA model of shape variation built from 3D face scans. It comes with uv-coordinates to perform texture remapping.</p>
@@ -133,6 +140,13 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <img src="https://raw.githubusercontent.com/patrikhuber/eos/gh-pages/images/sfm_shape_3448_mesh.png"  width="20%" alt="Face Model Picture"/>
 </div>
 <p>The full model is available at <a href="http://www.cvssp.org/facemodel">http://www.cvssp.org/facemodel</a>.</p>
+<h2>Python bindings</h2>
+<p>eos includes python bindings for some of its functionality (and more can be added!). An experimental package is on PyPI: Try <code>pip install eos-py</code>. You will still need the data files from this repository. In case of issues, build the bindings manually: Clone the repository and set <code>-DEOS_GENERATE_PYTHON_BINDINGS=on</code> when running <code>cmake</code> (and optionally set <code>PYTHON_EXECUTABLE</code> to point to your python interpreter if it's not found automatically).</p>
+<p>After having obtained the bindings, they can be used like any python module:</p>
+<div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;import eos</div><div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;import numpy as np</div><div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;</div><div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;model = eos.morphablemodel.load_model(&quot;eos/share/sfm_shape_3448.bin&quot;)</div><div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;sample = model.get_shape_model().draw_sample([1.0, -0.5, 0.7])</div><div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;</div><div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;help(eos) # check the documentation</div></div><!-- fragment --><p>See <a href="https://github.com/patrikhuber/eos/blob/master/python/demo.py"><code>demo.py</code></a> for an example on how to run the fitting.</p>
+<h2>Matlab bindings</h2>
+<p><em>Experimental</em>: eos includes Matlab bindings for the <code>fit_shape_and_pose(...)</code> function, which means the fitting can be run from Matlab. Set <code>-DEOS_GENERATE_MATLAB_BINDINGS=on</code> when running <code>cmake</code> to build the required mex-file and run the <code>INSTALL</code> target to install everything. (Set <code>Matlab_ROOT_DIR</code> to point to your Matlab directory if it's not found automatically). More bindings (e.g. the MorphableModel itself) might be added in the future.</p>
+<p>Go to the <code>install/eos/matlab</code> directory and run <a href="https://github.com/patrikhuber/eos/blob/master/matlab/demo.m"><code>demo.m</code></a> to see how to run the fitting. The result is a mesh and rendering parameters (pose).</p>
 <h2>Documentation</h2>
 <p>Doxygen: <a href="http://patrikhuber.github.io/eos/doc/">http://patrikhuber.github.io/eos/doc/</a></p>
 <p>The <a href="https://github.com/patrikhuber/eos/blob/master/examples/fit-model.cpp">fit-model example</a> and the <a href="http://patrikhuber.github.io/eos/doc/namespaces.html">Namespace List</a> in doxygen are a good place to start.</p>

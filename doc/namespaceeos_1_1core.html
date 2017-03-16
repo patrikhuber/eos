@@ -30,7 +30,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">eos
-   &#160;<span id="projectnumber">0.7.1</span>
+   &#160;<span id="projectnumber">0.12.1</span>
    </div>
   </td>
  </tr>
@@ -101,7 +101,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!--header-->
 <div class="contents">
 
-<p>Essential functions and classes to work with 3D face models and landmarks.  
+<p>Essential functions and classes to work with 3D face models, meshes and landmarks.  
 <a href="#details">More...</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
@@ -111,6 +111,9 @@ Classes</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classeos_1_1core_1_1_landmark_mapper.html">LandmarkMapper</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Represents a mapping from one kind of landmarks to a different format (e.g. model vertices).  <a href="classeos_1_1core_1_1_landmark_mapper.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structeos_1_1core_1_1_mesh.html">Mesh</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">This class represents a 3D mesh consisting of vertices, vertex colour information and texture coordinates.  <a href="structeos_1_1core_1_1_mesh.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="typedef-members"></a>
@@ -127,9 +130,15 @@ Functions</h2></td></tr>
 <tr class="memitem:aacf41dc417a1dbfc929c9cc7f2c7feeb"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="namespaceeos_1_1core.html#a6d6a8533690b5860236f55afafa14d2b">LandmarkCollection</a>&lt; T &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceeos_1_1core.html#aacf41dc417a1dbfc929c9cc7f2c7feeb">filter</a> (const <a class="el" href="namespaceeos_1_1core.html#a6d6a8533690b5860236f55afafa14d2b">LandmarkCollection</a>&lt; T &gt; &amp;landmarks, const std::vector&lt; std::string &gt; &amp;filter)</td></tr>
 <tr class="memdesc:aacf41dc417a1dbfc929c9cc7f2c7feeb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Filters the given LandmarkCollection and returns a new LandmarkCollection containing all landmarks whose name matches the one given by <code>filter</code>.  <a href="#aacf41dc417a1dbfc929c9cc7f2c7feeb">More...</a><br /></td></tr>
 <tr class="separator:aacf41dc417a1dbfc929c9cc7f2c7feeb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a14403913138e87afe8ed3c55a207d945"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceeos_1_1core.html#a14403913138e87afe8ed3c55a207d945">write_obj</a> (<a class="el" href="structeos_1_1core_1_1_mesh.html">Mesh</a> mesh, std::string filename)</td></tr>
+<tr class="memdesc:a14403913138e87afe8ed3c55a207d945"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes the given <a class="el" href="structeos_1_1core_1_1_mesh.html" title="This class represents a 3D mesh consisting of vertices, vertex colour information and texture coordin...">Mesh</a> to an obj file that for example can be read by MeshLab.  <a href="#a14403913138e87afe8ed3c55a207d945">More...</a><br /></td></tr>
+<tr class="separator:a14403913138e87afe8ed3c55a207d945"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6c8451c2396a049e207c292f802c4204"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceeos_1_1core.html#a6c8451c2396a049e207c292f802c4204">write_textured_obj</a> (<a class="el" href="structeos_1_1core_1_1_mesh.html">Mesh</a> mesh, std::string filename)</td></tr>
+<tr class="memdesc:a6c8451c2396a049e207c292f802c4204"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes an obj file of the given <a class="el" href="structeos_1_1core_1_1_mesh.html" title="This class represents a 3D mesh consisting of vertices, vertex colour information and texture coordin...">Mesh</a>, including texture coordinates, and an mtl file containing a reference to the isomap.  <a href="#a6c8451c2396a049e207c292f802c4204">More...</a><br /></td></tr>
+<tr class="separator:a6c8451c2396a049e207c292f802c4204"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Essential functions and classes to work with 3D face models and landmarks. </p>
+<div class="textblock"><p>Essential functions and classes to work with 3D face models, meshes and landmarks. </p>
 </div><h2 class="groupheader">Function Documentation</h2>
 <a class="anchor" id="aacf41dc417a1dbfc929c9cc7f2c7feeb"></a>
 <div class="memitem">
@@ -161,11 +170,99 @@ template&lt;class T &gt; </div>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">landmarks</td><td>The input LandmarkCollection to be filtered. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">filter</td><td>A landmark name (identifier) by which the given LandmarkCollection is filtered. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">filter</td><td>A list of landmark names (identifiers) by which the given LandmarkCollection is filtered. </td></tr>
   </table>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>A new, filtered LandmarkCollection. </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a14403913138e87afe8ed3c55a207d945"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void eos::core::write_obj </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structeos_1_1core_1_1_mesh.html">Mesh</a>&#160;</td>
+          <td class="paramname"><em>mesh</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>filename</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Writes the given <a class="el" href="structeos_1_1core_1_1_mesh.html" title="This class represents a 3D mesh consisting of vertices, vertex colour information and texture coordin...">Mesh</a> to an obj file that for example can be read by MeshLab. </p>
+<p>If the mesh contains vertex colour information, it will be written to the obj as well.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">mesh</td><td>The mesh to save as obj. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">filename</td><td>Output filename (including ".obj"). </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="a6c8451c2396a049e207c292f802c4204"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void eos::core::write_textured_obj </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structeos_1_1core_1_1_mesh.html">Mesh</a>&#160;</td>
+          <td class="paramname"><em>mesh</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>filename</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Writes an obj file of the given <a class="el" href="structeos_1_1core_1_1_mesh.html" title="This class represents a 3D mesh consisting of vertices, vertex colour information and texture coordin...">Mesh</a>, including texture coordinates, and an mtl file containing a reference to the isomap. </p>
+<p>The obj will contain texture coordinates for the mesh, and the mtl file will link to a file named &lt;filename&gt;.isomap.png. Note that the texture (isomap) has to be saved separately.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">mesh</td><td>The mesh to save as obj. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">filename</td><td>Output filename, including .obj. </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>

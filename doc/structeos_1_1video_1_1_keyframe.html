@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.11"/>
-<title>eos: eos::render::Mesh Struct Reference</title>
+<title>eos: eos::video::Keyframe Struct Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -30,7 +30,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">eos
-   &#160;<span id="projectnumber">0.7.1</span>
+   &#160;<span id="projectnumber">0.12.1</span>
    </div>
   </td>
  </tr>
@@ -89,51 +89,40 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="namespaceeos.html">eos</a></li><li class="navelem"><a class="el" href="namespaceeos_1_1render.html">render</a></li><li class="navelem"><a class="el" href="structeos_1_1render_1_1_mesh.html">Mesh</a></li>  </ul>
+<li class="navelem"><a class="el" href="namespaceeos.html">eos</a></li><li class="navelem"><a class="el" href="namespaceeos_1_1video.html">video</a></li><li class="navelem"><a class="el" href="structeos_1_1video_1_1_keyframe.html">Keyframe</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
   <div class="summary">
 <a href="#pub-attribs">Public Attributes</a> &#124;
-<a href="structeos_1_1render_1_1_mesh-members.html">List of all members</a>  </div>
+<a href="structeos_1_1video_1_1_keyframe-members.html">List of all members</a>  </div>
   <div class="headertitle">
-<div class="title">eos::render::Mesh Struct Reference</div>  </div>
+<div class="title">eos::video::Keyframe Struct Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
 
-<p>This class represents a 3D mesh consisting of vertices, vertex colour information and texture coordinates.  
- <a href="structeos_1_1render_1_1_mesh.html#details">More...</a></p>
+<p>A keyframe selected by the fitting algorithm.  
+ <a href="structeos_1_1video_1_1_keyframe.html#details">More...</a></p>
 
-<p><code>#include &lt;<a class="el" href="_mesh_8hpp_source.html">Mesh.hpp</a>&gt;</code></p>
+<p><code>#include &lt;<a class="el" href="_keyframe_8hpp_source.html">Keyframe.hpp</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:a305d17e6453f6be320331e00e8c8816e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a305d17e6453f6be320331e00e8c8816e"></a>
-std::vector&lt; cv::Vec4f &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structeos_1_1render_1_1_mesh.html#a305d17e6453f6be320331e00e8c8816e">vertices</a></td></tr>
-<tr class="memdesc:a305d17e6453f6be320331e00e8c8816e"><td class="mdescLeft">&#160;</td><td class="mdescRight">3D vertex positions. <br /></td></tr>
-<tr class="separator:a305d17e6453f6be320331e00e8c8816e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae3b0e946a77b4f434b382b315ea7c24b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae3b0e946a77b4f434b382b315ea7c24b"></a>
-std::vector&lt; cv::Vec3f &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structeos_1_1render_1_1_mesh.html#ae3b0e946a77b4f434b382b315ea7c24b">colors</a></td></tr>
-<tr class="memdesc:ae3b0e946a77b4f434b382b315ea7c24b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Colour information for each vertex. Expected to be in RGB order. <br /></td></tr>
-<tr class="separator:ae3b0e946a77b4f434b382b315ea7c24b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a64fddf0a7200e7f66b0426773542eea4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a64fddf0a7200e7f66b0426773542eea4"></a>
-std::vector&lt; cv::Vec2f &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structeos_1_1render_1_1_mesh.html#a64fddf0a7200e7f66b0426773542eea4">texcoords</a></td></tr>
-<tr class="memdesc:a64fddf0a7200e7f66b0426773542eea4"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classeos_1_1render_1_1_texture.html" title="Represents a texture for rendering. ">Texture</a> coordinates for each vertex. <br /></td></tr>
-<tr class="separator:a64fddf0a7200e7f66b0426773542eea4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab6fb80c460656bf7830a526f0692681b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab6fb80c460656bf7830a526f0692681b"></a>
-std::vector&lt; std::array&lt; int, 3 &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structeos_1_1render_1_1_mesh.html#ab6fb80c460656bf7830a526f0692681b">tvi</a></td></tr>
-<tr class="memdesc:ab6fb80c460656bf7830a526f0692681b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Triangle vertex indices. <br /></td></tr>
-<tr class="separator:ab6fb80c460656bf7830a526f0692681b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a81c47a35a1b0a6a6cb440cfbb67b8c28"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a81c47a35a1b0a6a6cb440cfbb67b8c28"></a>
-std::vector&lt; std::array&lt; int, 3 &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structeos_1_1render_1_1_mesh.html#a81c47a35a1b0a6a6cb440cfbb67b8c28">tci</a></td></tr>
-<tr class="memdesc:a81c47a35a1b0a6a6cb440cfbb67b8c28"><td class="mdescLeft">&#160;</td><td class="mdescRight">Triangle color indices. <br /></td></tr>
-<tr class="separator:a81c47a35a1b0a6a6cb440cfbb67b8c28"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0b90c890a80d713843b0f695690c0c3b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0b90c890a80d713843b0f695690c0c3b"></a>
+float&#160;</td><td class="memItemRight" valign="bottom"><b>score</b></td></tr>
+<tr class="separator:a0b90c890a80d713843b0f695690c0c3b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aefc4e42350915fba5bd4aa3880f922cf"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aefc4e42350915fba5bd4aa3880f922cf"></a>
+cv::Mat&#160;</td><td class="memItemRight" valign="bottom"><b>frame</b></td></tr>
+<tr class="separator:aefc4e42350915fba5bd4aa3880f922cf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5e3dc40bde4d4df494f5df308f3dbed2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5e3dc40bde4d4df494f5df308f3dbed2"></a>
+fitting::FittingResult&#160;</td><td class="memItemRight" valign="bottom"><b>fitting_result</b></td></tr>
+<tr class="separator:a5e3dc40bde4d4df494f5df308f3dbed2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>This class represents a 3D mesh consisting of vertices, vertex colour information and texture coordinates. </p>
-<p>Additionally it stores the indices that specify which vertices to use to generate the triangle mesh out of the vertices. </p>
+<div class="textblock"><p>A keyframe selected by the fitting algorithm. </p>
+<p>Contains the original frame, all necessary fitting parameters, and a score. </p>
 </div><hr/>The documentation for this struct was generated from the following file:<ul>
-<li>include/eos/render/<a class="el" href="_mesh_8hpp_source.html">Mesh.hpp</a></li>
+<li>include/eos/video/<a class="el" href="_keyframe_8hpp_source.html">Keyframe.hpp</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

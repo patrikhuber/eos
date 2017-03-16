@@ -30,7 +30,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">eos
-   &#160;<span id="projectnumber">0.7.1</span>
+   &#160;<span id="projectnumber">0.12.1</span>
    </div>
   </td>
  </tr>
@@ -123,8 +123,8 @@ std::vector&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bott
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Defines which 2D landmarks comprise the right and left face contour. </p>
-<p>This class holds 2D image contour landmark information. More specifically, it defines which 2D landmark IDs correspond to the right contour and which to the left. These definitions are loaded from a file, for example from the "contour_landmarks" part of share/ibug2did.txt.</p>
-<p>Note: Better names could be ContourDefinition or ImageContourLandmarks, to disambiguate 3D and 2D landmarks? </p>
+<p>This class holds 2D image contour landmark information. More specifically, it defines which 2D landmark IDs correspond to the right contour and which to the left. These definitions are loaded from a file, for example from the "contour_landmarks" part of share/ibug_to_sfm.txt.</p>
+<p>Note: Better names could be ContourDefinition or ImageContourLandmarks, to disambiguate 3D and 2D landmarks? Todo: I think this should go into the LandmarkMapper. Isn't it part of ibug_to_sfm.txt already? </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
 <a class="anchor" id="a15bb18f801e64ceaf5e07f73a1374cdb"></a>
 <div class="memitem">
@@ -147,7 +147,7 @@ std::vector&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bott
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Helper method to load contour landmarks from a text file with landmark mappings, like ibug2did.txt.</p>
+<p>Helper method to load contour landmarks from a text file with landmark mappings, like ibug_to_sfm.txt.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">filename</td><td>Filename to a landmark-mapping file. </td></tr>

@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['tci',['tci',['../structeos_1_1render_1_1_mesh.html#a81c47a35a1b0a6a6cb440cfbb67b8c28',1,'eos::render::Mesh']]],
-  ['texcoords',['texcoords',['../structeos_1_1render_1_1_mesh.html#a64fddf0a7200e7f66b0426773542eea4',1,'eos::render::Mesh']]],
-  ['tvi',['tvi',['../structeos_1_1render_1_1_mesh.html#ab6fb80c460656bf7830a526f0692681b',1,'eos::render::Mesh']]]
+  ['tci',['tci',['../structeos_1_1core_1_1_mesh.html#a104fe5a6f32ef5ae9e677be794a05fb6',1,'eos::core::Mesh']]],
+  ['texcoords',['texcoords',['../structeos_1_1core_1_1_mesh.html#a7cfb22510f5449e6199820f79a8f4b0e',1,'eos::core::Mesh']]],
+  ['tvi',['tvi',['../structeos_1_1core_1_1_mesh.html#a694e8011dc6d4647b7b815f23b7847c7',1,'eos::core::Mesh']]]
 ];

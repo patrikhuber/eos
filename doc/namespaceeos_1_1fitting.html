@@ -30,7 +30,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">eos
-   &#160;<span id="projectnumber">0.7.1</span>
+   &#160;<span id="projectnumber">0.12.1</span>
    </div>
   </td>
  </tr>
@@ -110,21 +110,30 @@ Classes</h2></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Defines which 2D landmarks comprise the right and left face contour.  <a href="structeos_1_1fitting_1_1_contour_landmarks.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structeos_1_1fitting_1_1_frustum.html">Frustum</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A class representing a camera viewing frustum. At the moment used as orthographic camera only.  <a href="structeos_1_1fitting_1_1_frustum.html#details">More...</a><br /></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A class representing a camera viewing frustum. At the moment only fully tested with orthographic camera.  <a href="structeos_1_1fitting_1_1_frustum.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structeos_1_1fitting_1_1_image_cost.html">ImageCost</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structeos_1_1fitting_1_1_k_d_tree_vector_of_vectors_adaptor.html">KDTreeVectorOfVectorsAdaptor</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structeos_1_1fitting_1_1_landmark_cost.html">LandmarkCost</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structeos_1_1fitting_1_1_model_contour.html">ModelContour</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Definition of the vertex indices that define the right and left model contour.  <a href="structeos_1_1fitting_1_1_model_contour.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structeos_1_1fitting_1_1_rendering_parameters.html">RenderingParameters</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Represents a set of estimated model parameters (rotation, translation) and camera parameters (viewing frustum).  <a href="structeos_1_1fitting_1_1_rendering_parameters.html#details">More...</a><br /></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structeos_1_1fitting_1_1_prior_cost.html">PriorCost</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classeos_1_1fitting_1_1_rendering_parameters.html">RenderingParameters</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Represents a set of estimated model parameters (rotation, translation) and camera parameters (viewing frustum).  <a href="classeos_1_1fitting_1_1_rendering_parameters.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structeos_1_1fitting_1_1_scaled_ortho_projection_parameters.html">ScaledOrthoProjectionParameters</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="enum-members"></a>
 Enumerations</h2></td></tr>
-<tr class="memitem:a63fce336daef96cde45f61701c4a3cf4"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceeos_1_1fitting.html#a63fce336daef96cde45f61701c4a3cf4">CameraType</a> { <b>Orthographic</b>, 
+<tr class="memitem:a63fce336daef96cde45f61701c4a3cf4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a63fce336daef96cde45f61701c4a3cf4"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>CameraType</b> { <b>Orthographic</b>, 
 <b>Perspective</b>
- }<tr class="memdesc:a63fce336daef96cde45f61701c4a3cf4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Type of a camera (projection).  <a href="namespaceeos_1_1fitting.html#a63fce336daef96cde45f61701c4a3cf4">More...</a><br /></td></tr>
-</td></tr>
+ }</td></tr>
 <tr class="separator:a63fce336daef96cde45f61701c4a3cf4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
@@ -133,68 +142,125 @@ Functions</h2></td></tr>
 <tr class="separator:afce5f7297094056a04ad26785c94bbd8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3e99a34e412f0bb5b2c6568dd37ae413"><td class="memItemLeft" align="right" valign="top">cv::Vec2f&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceeos_1_1fitting.html#a3e99a34e412f0bb5b2c6568dd37ae413">project_affine</a> (cv::Vec4f vertex, cv::Mat affine_camera_matrix, int screen_width, int screen_height)</td></tr>
 <tr class="separator:a3e99a34e412f0bb5b2c6568dd37ae413"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac429313cbc0ed61744f1b0fa4dba672b"><td class="memItemLeft" align="right" valign="top">std::vector&lt; float &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceeos_1_1fitting.html#ac429313cbc0ed61744f1b0fa4dba672b">fit_blendshapes_to_landmarks_linear</a> (std::vector&lt; <a class="el" href="structeos_1_1morphablemodel_1_1_blendshape.html">eos::morphablemodel::Blendshape</a> &gt; blendshapes, cv::Mat face_instance, cv::Mat affine_camera_matrix, std::vector&lt; cv::Vec2f &gt; landmarks, std::vector&lt; int &gt; vertex_ids, float lambda=500.0f)</td></tr>
-<tr class="separator:ac429313cbc0ed61744f1b0fa4dba672b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7ebe099226636d3065db6c8c9c74e303"><td class="memItemLeft" align="right" valign="top">std::vector&lt; float &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceeos_1_1fitting.html#a7ebe099226636d3065db6c8c9c74e303">fit_blendshapes_to_landmarks_linear</a> (const std::vector&lt; <a class="el" href="structeos_1_1morphablemodel_1_1_blendshape.html">eos::morphablemodel::Blendshape</a> &gt; &amp;blendshapes, const Eigen::VectorXf &amp;face_instance, cv::Mat affine_camera_matrix, const std::vector&lt; cv::Vec2f &gt; &amp;landmarks, const std::vector&lt; int &gt; &amp;vertex_ids, float lambda=500.0f)</td></tr>
+<tr class="separator:a7ebe099226636d3065db6c8c9c74e303"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6873672ad897aea2a751bdf7f62ae55f"><td class="memItemLeft" align="right" valign="top">std::vector&lt; float &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceeos_1_1fitting.html#a6873672ad897aea2a751bdf7f62ae55f">fit_blendshapes_to_landmarks_nnls</a> (const std::vector&lt; <a class="el" href="structeos_1_1morphablemodel_1_1_blendshape.html">eos::morphablemodel::Blendshape</a> &gt; &amp;blendshapes, const Eigen::VectorXf &amp;face_instance, cv::Mat affine_camera_matrix, const std::vector&lt; cv::Vec2f &gt; &amp;landmarks, const std::vector&lt; int &gt; &amp;vertex_ids)</td></tr>
+<tr class="separator:a6873672ad897aea2a751bdf7f62ae55f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8cbd14805664180f3eca321aa8be8c0d"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
+<tr class="memitem:a8cbd14805664180f3eca321aa8be8c0d"><td class="memTemplItemLeft" align="right" valign="top">std::array&lt; T, 3 &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceeos_1_1fitting.html#a8cbd14805664180f3eca321aa8be8c0d">get_shape_point</a> (const <a class="el" href="classeos_1_1morphablemodel_1_1_pca_model.html">morphablemodel::PcaModel</a> &amp;shape_model, const std::vector&lt; <a class="el" href="structeos_1_1morphablemodel_1_1_blendshape.html">morphablemodel::Blendshape</a> &gt; &amp;blendshapes, int vertex_id, const T *const shape_coeffs, const T *const blendshape_coeffs)</td></tr>
+<tr class="separator:a8cbd14805664180f3eca321aa8be8c0d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a80cd220776a04f2738b80930c1cc70a7"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
+<tr class="memitem:a80cd220776a04f2738b80930c1cc70a7"><td class="memTemplItemLeft" align="right" valign="top">std::array&lt; T, 3 &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceeos_1_1fitting.html#a80cd220776a04f2738b80930c1cc70a7">get_vertex_colour</a> (const <a class="el" href="classeos_1_1morphablemodel_1_1_pca_model.html">morphablemodel::PcaModel</a> &amp;colour_model, int vertex_id, const T *const colour_coeffs)</td></tr>
+<tr class="separator:a80cd220776a04f2738b80930c1cc70a7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a77547ba3cb9542a7bcdd6421d90e1801"><td class="memItemLeft" align="right" valign="top">std::pair&lt; bool, boost::optional&lt; float &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceeos_1_1fitting.html#a77547ba3cb9542a7bcdd6421d90e1801">ray_triangle_intersect</a> (const glm::vec3 &amp;ray_origin, const glm::vec3 &amp;ray_direction, const glm::vec3 &amp;v0, const glm::vec3 &amp;v1, const glm::vec3 &amp;v2, bool enable_backculling)</td></tr>
+<tr class="memdesc:a77547ba3cb9542a7bcdd6421d90e1801"><td class="mdescLeft">&#160;</td><td class="mdescRight">Computes the intersection of the given ray with the given triangle.  <a href="#a77547ba3cb9542a7bcdd6421d90e1801">More...</a><br /></td></tr>
+<tr class="separator:a77547ba3cb9542a7bcdd6421d90e1801"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa51ab38e4c0c16cd94655c7010f97390"><td class="memItemLeft" align="right" valign="top">std::vector&lt; int &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceeos_1_1fitting.html#aa51ab38e4c0c16cd94655c7010f97390">occluding_boundary_vertices</a> (const <a class="el" href="structeos_1_1core_1_1_mesh.html">core::Mesh</a> &amp;mesh, const <a class="el" href="structeos_1_1morphablemodel_1_1_edge_topology.html">morphablemodel::EdgeTopology</a> &amp;edge_topology, glm::mat4x4 R)</td></tr>
+<tr class="memdesc:aa51ab38e4c0c16cd94655c7010f97390"><td class="mdescLeft">&#160;</td><td class="mdescRight">Computes the vertices that lie on occluding boundaries, given a particular pose.  <a href="#aa51ab38e4c0c16cd94655c7010f97390">More...</a><br /></td></tr>
+<tr class="separator:aa51ab38e4c0c16cd94655c7010f97390"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad9d56e5b0d5a6ba42368ae427c32db9f"><td class="memItemLeft" align="right" valign="top">std::pair&lt; std::vector&lt; cv::Vec2f &gt;, std::vector&lt; int &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceeos_1_1fitting.html#ad9d56e5b0d5a6ba42368ae427c32db9f">find_occluding_edge_correspondences</a> (const <a class="el" href="structeos_1_1core_1_1_mesh.html">core::Mesh</a> &amp;mesh, const <a class="el" href="structeos_1_1morphablemodel_1_1_edge_topology.html">morphablemodel::EdgeTopology</a> &amp;edge_topology, const <a class="el" href="classeos_1_1fitting_1_1_rendering_parameters.html">fitting::RenderingParameters</a> &amp;rendering_parameters, const std::vector&lt; Eigen::Vector2f &gt; &amp;image_edges, float distance_threshold=64.0f)</td></tr>
+<tr class="memdesc:ad9d56e5b0d5a6ba42368ae427c32db9f"><td class="mdescLeft">&#160;</td><td class="mdescRight">For a given list of 2D edge points, find corresponding 3D vertex IDs.  <a href="#ad9d56e5b0d5a6ba42368ae427c32db9f">More...</a><br /></td></tr>
+<tr class="separator:ad9d56e5b0d5a6ba42368ae427c32db9f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6a307eaa4a1a9f2c5e2c33a95a6e261d"><td class="memItemLeft" align="right" valign="top">std::pair&lt; std::vector&lt; std::string &gt;, std::vector&lt; int &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceeos_1_1fitting.html#a6a307eaa4a1a9f2c5e2c33a95a6e261d">select_contour</a> (float yaw_angle, const <a class="el" href="structeos_1_1fitting_1_1_contour_landmarks.html">ContourLandmarks</a> &amp;contour_landmarks, const <a class="el" href="structeos_1_1fitting_1_1_model_contour.html">ModelContour</a> &amp;model_contour)</td></tr>
 <tr class="separator:a6a307eaa4a1a9f2c5e2c33a95a6e261d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ade368ea637ac45c9e344dde326ffe174"><td class="memItemLeft" align="right" valign="top">std::tuple&lt; std::vector&lt; cv::Vec2f &gt;, std::vector&lt; cv::Vec4f &gt;, std::vector&lt; int &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceeos_1_1fitting.html#ade368ea637ac45c9e344dde326ffe174">get_nearest_contour_correspondences</a> (const <a class="el" href="namespaceeos_1_1core.html#a6d6a8533690b5860236f55afafa14d2b">eos::core::LandmarkCollection</a>&lt; cv::Vec2f &gt; &amp;landmarks, const std::vector&lt; std::string &gt; &amp;landmark_contour_identifiers, const std::vector&lt; int &gt; &amp;model_contour_indices, const <a class="el" href="classeos_1_1morphablemodel_1_1_morphable_model.html">morphablemodel::MorphableModel</a> &amp;morphable_model, const glm::mat4x4 &amp;view_model, const glm::mat4x4 &amp;ortho_projection, const glm::vec4 &amp;viewport)</td></tr>
-<tr class="separator:ade368ea637ac45c9e344dde326ffe174"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af8ce6f464c22e42b5f98e96ef7f06ab0"><td class="memItemLeft" align="right" valign="top">std::tuple&lt; std::vector&lt; cv::Vec2f &gt;, std::vector&lt; cv::Vec4f &gt;, std::vector&lt; int &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceeos_1_1fitting.html#af8ce6f464c22e42b5f98e96ef7f06ab0">get_contour_correspondences</a> (const <a class="el" href="namespaceeos_1_1core.html#a6d6a8533690b5860236f55afafa14d2b">eos::core::LandmarkCollection</a>&lt; cv::Vec2f &gt; &amp;landmarks, const <a class="el" href="structeos_1_1fitting_1_1_contour_landmarks.html">ContourLandmarks</a> &amp;contour_landmarks, const <a class="el" href="structeos_1_1fitting_1_1_model_contour.html">ModelContour</a> &amp;model_contour, float yaw_angle, const <a class="el" href="classeos_1_1morphablemodel_1_1_morphable_model.html">morphablemodel::MorphableModel</a> &amp;morphable_model, const glm::mat4x4 &amp;view_model, const glm::mat4x4 &amp;ortho_projection, const glm::vec4 &amp;viewport)</td></tr>
-<tr class="separator:af8ce6f464c22e42b5f98e96ef7f06ab0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5ddb4f44f4576ad148a9edd85d78c1f7"><td class="memItemLeft" align="right" valign="top">cv::Mat&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceeos_1_1fitting.html#a5ddb4f44f4576ad148a9edd85d78c1f7">fit_shape</a> (cv::Mat affine_camera_matrix, <a class="el" href="classeos_1_1morphablemodel_1_1_morphable_model.html">eos::morphablemodel::MorphableModel</a> morphable_model, std::vector&lt; <a class="el" href="structeos_1_1morphablemodel_1_1_blendshape.html">eos::morphablemodel::Blendshape</a> &gt; blendshapes, std::vector&lt; cv::Vec2f &gt; image_points, std::vector&lt; int &gt; vertex_indices, float lambda, boost::optional&lt; int &gt; num_coefficients_to_fit, std::vector&lt; float &gt; &amp;pca_shape_coefficients, std::vector&lt; float &gt; &amp;blendshape_coefficients)</td></tr>
-<tr class="separator:a5ddb4f44f4576ad148a9edd85d78c1f7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae3bcf9f955efce788838cc055b5282b6"><td class="memItemLeft" align="right" valign="top">cv::Mat&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceeos_1_1fitting.html#ae3bcf9f955efce788838cc055b5282b6">fit_shape</a> (cv::Mat affine_camera_matrix, <a class="el" href="classeos_1_1morphablemodel_1_1_morphable_model.html">eos::morphablemodel::MorphableModel</a> morphable_model, std::vector&lt; <a class="el" href="structeos_1_1morphablemodel_1_1_blendshape.html">eos::morphablemodel::Blendshape</a> &gt; blendshapes, std::vector&lt; cv::Vec2f &gt; image_points, std::vector&lt; int &gt; vertex_indices, float lambda=3.0f, boost::optional&lt; int &gt; num_coefficients_to_fit=boost::optional&lt; int &gt;())</td></tr>
-<tr class="separator:ae3bcf9f955efce788838cc055b5282b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae558a318d1d0c1da35d64b7abb209fac"><td class="memItemLeft" align="right" valign="top">std::vector&lt; float &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceeos_1_1fitting.html#ae558a318d1d0c1da35d64b7abb209fac">fit_shape_to_landmarks_linear</a> (<a class="el" href="classeos_1_1morphablemodel_1_1_morphable_model.html">morphablemodel::MorphableModel</a> morphable_model, cv::Mat affine_camera_matrix, std::vector&lt; cv::Vec2f &gt; landmarks, std::vector&lt; int &gt; vertex_ids, cv::Mat base_face=cv::Mat(), float lambda=3.0f, boost::optional&lt; int &gt; num_coefficients_to_fit=boost::optional&lt; int &gt;(), boost::optional&lt; float &gt; detector_standard_deviation=boost::optional&lt; float &gt;(), boost::optional&lt; float &gt; model_standard_deviation=boost::optional&lt; float &gt;())</td></tr>
-<tr class="separator:ae558a318d1d0c1da35d64b7abb209fac"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a03b4bc35b0619e7f4bd0fccbb2d35e2c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceeos_1_1fitting.html#a03b4bc35b0619e7f4bd0fccbb2d35e2c">save_rendering_parameters</a> (<a class="el" href="structeos_1_1fitting_1_1_rendering_parameters.html">RenderingParameters</a> rendering_parameters, std::string filename)</td></tr>
+<tr class="memitem:ade6599a1563d4ea8e1c1f38738d56281"><td class="memItemLeft" align="right" valign="top">std::tuple&lt; std::vector&lt; cv::Vec2f &gt;, std::vector&lt; cv::Vec4f &gt;, std::vector&lt; int &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceeos_1_1fitting.html#ade6599a1563d4ea8e1c1f38738d56281">get_nearest_contour_correspondences</a> (const <a class="el" href="namespaceeos_1_1core.html#a6d6a8533690b5860236f55afafa14d2b">core::LandmarkCollection</a>&lt; cv::Vec2f &gt; &amp;landmarks, const std::vector&lt; std::string &gt; &amp;landmark_contour_identifiers, const std::vector&lt; int &gt; &amp;model_contour_indices, const <a class="el" href="structeos_1_1core_1_1_mesh.html">core::Mesh</a> &amp;mesh, const glm::mat4x4 &amp;view_model, const glm::mat4x4 &amp;ortho_projection, const glm::vec4 &amp;viewport)</td></tr>
+<tr class="separator:ade6599a1563d4ea8e1c1f38738d56281"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa9ba0edd539094a2925b8fce7cfce075"><td class="memItemLeft" align="right" valign="top">std::tuple&lt; std::vector&lt; cv::Vec2f &gt;, std::vector&lt; cv::Vec4f &gt;, std::vector&lt; int &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceeos_1_1fitting.html#aa9ba0edd539094a2925b8fce7cfce075">get_contour_correspondences</a> (const <a class="el" href="namespaceeos_1_1core.html#a6d6a8533690b5860236f55afafa14d2b">core::LandmarkCollection</a>&lt; cv::Vec2f &gt; &amp;landmarks, const <a class="el" href="structeos_1_1fitting_1_1_contour_landmarks.html">ContourLandmarks</a> &amp;contour_landmarks, const <a class="el" href="structeos_1_1fitting_1_1_model_contour.html">ModelContour</a> &amp;model_contour, float yaw_angle, const <a class="el" href="structeos_1_1core_1_1_mesh.html">core::Mesh</a> &amp;mesh, const glm::mat4x4 &amp;view_model, const glm::mat4x4 &amp;ortho_projection, const glm::vec4 &amp;viewport)</td></tr>
+<tr class="separator:aa9ba0edd539094a2925b8fce7cfce075"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4d4819d2972c9c9ccb0f61a620df371c"><td class="memItemLeft" align="right" valign="top">Eigen::VectorXf&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceeos_1_1fitting.html#a4d4819d2972c9c9ccb0f61a620df371c">fit_shape</a> (cv::Mat affine_camera_matrix, const <a class="el" href="classeos_1_1morphablemodel_1_1_morphable_model.html">morphablemodel::MorphableModel</a> &amp;morphable_model, const std::vector&lt; <a class="el" href="structeos_1_1morphablemodel_1_1_blendshape.html">morphablemodel::Blendshape</a> &gt; &amp;blendshapes, const std::vector&lt; cv::Vec2f &gt; &amp;image_points, const std::vector&lt; int &gt; &amp;vertex_indices, float lambda, boost::optional&lt; int &gt; num_coefficients_to_fit, std::vector&lt; float &gt; &amp;pca_shape_coefficients, std::vector&lt; float &gt; &amp;blendshape_coefficients)</td></tr>
+<tr class="separator:a4d4819d2972c9c9ccb0f61a620df371c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a25b7cc97fa10f34f99bb699285adc999"><td class="memItemLeft" align="right" valign="top">Eigen::VectorXf&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceeos_1_1fitting.html#a25b7cc97fa10f34f99bb699285adc999">fit_shape</a> (cv::Mat affine_camera_matrix, const <a class="el" href="classeos_1_1morphablemodel_1_1_morphable_model.html">morphablemodel::MorphableModel</a> &amp;morphable_model, const std::vector&lt; <a class="el" href="structeos_1_1morphablemodel_1_1_blendshape.html">morphablemodel::Blendshape</a> &gt; &amp;blendshapes, const std::vector&lt; cv::Vec2f &gt; &amp;image_points, const std::vector&lt; int &gt; &amp;vertex_indices, float lambda=3.0f, boost::optional&lt; int &gt; num_coefficients_to_fit=boost::optional&lt; int &gt;())</td></tr>
+<tr class="separator:a25b7cc97fa10f34f99bb699285adc999"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a73cb82b9f04cb095e9e763672b358018"><td class="memTemplParams" colspan="2">template&lt;class T &gt; </td></tr>
+<tr class="memitem:a73cb82b9f04cb095e9e763672b358018"><td class="memTemplItemLeft" align="right" valign="top">auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceeos_1_1fitting.html#a73cb82b9f04cb095e9e763672b358018">get_corresponding_pointset</a> (const T &amp;landmarks, const <a class="el" href="classeos_1_1core_1_1_landmark_mapper.html">core::LandmarkMapper</a> &amp;landmark_mapper, const <a class="el" href="classeos_1_1morphablemodel_1_1_morphable_model.html">morphablemodel::MorphableModel</a> &amp;morphable_model)</td></tr>
+<tr class="memdesc:a73cb82b9f04cb095e9e763672b358018"><td class="mdescLeft">&#160;</td><td class="mdescRight">Takes a LandmarkCollection of 2D landmarks and, using the landmark_mapper, finds the corresponding 3D vertex indices and returns them, along with the coordinates of the 3D points.  <a href="#a73cb82b9f04cb095e9e763672b358018">More...</a><br /></td></tr>
+<tr class="separator:a73cb82b9f04cb095e9e763672b358018"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7ca8617e85d5eddca89cba30bb909969"><td class="memTemplParams" colspan="2">template&lt;class T &gt; </td></tr>
+<tr class="memitem:a7ca8617e85d5eddca89cba30bb909969"><td class="memTemplItemLeft" align="right" valign="top">auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceeos_1_1fitting.html#a7ca8617e85d5eddca89cba30bb909969">concat</a> (const std::vector&lt; T &gt; &amp;vec_a, const std::vector&lt; T &gt; &amp;vec_b)</td></tr>
+<tr class="memdesc:a7ca8617e85d5eddca89cba30bb909969"><td class="mdescLeft">&#160;</td><td class="mdescRight">Concatenates two std::vector's of the same type and returns the concatenated vector. The elements of the second vector are appended after the first one.  <a href="#a7ca8617e85d5eddca89cba30bb909969">More...</a><br /></td></tr>
+<tr class="separator:a7ca8617e85d5eddca89cba30bb909969"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a91b671fc0b52edb059b5821e2d6945a2"><td class="memItemLeft" align="right" valign="top">std::pair&lt; <a class="el" href="structeos_1_1core_1_1_mesh.html">core::Mesh</a>, <a class="el" href="classeos_1_1fitting_1_1_rendering_parameters.html">fitting::RenderingParameters</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceeos_1_1fitting.html#a91b671fc0b52edb059b5821e2d6945a2">fit_shape_and_pose</a> (const <a class="el" href="classeos_1_1morphablemodel_1_1_morphable_model.html">morphablemodel::MorphableModel</a> &amp;morphable_model, const std::vector&lt; <a class="el" href="structeos_1_1morphablemodel_1_1_blendshape.html">morphablemodel::Blendshape</a> &gt; &amp;blendshapes, const <a class="el" href="namespaceeos_1_1core.html#a6d6a8533690b5860236f55afafa14d2b">core::LandmarkCollection</a>&lt; cv::Vec2f &gt; &amp;landmarks, const <a class="el" href="classeos_1_1core_1_1_landmark_mapper.html">core::LandmarkMapper</a> &amp;landmark_mapper, int image_width, int image_height, const <a class="el" href="structeos_1_1morphablemodel_1_1_edge_topology.html">morphablemodel::EdgeTopology</a> &amp;edge_topology, const <a class="el" href="structeos_1_1fitting_1_1_contour_landmarks.html">fitting::ContourLandmarks</a> &amp;contour_landmarks, const <a class="el" href="structeos_1_1fitting_1_1_model_contour.html">fitting::ModelContour</a> &amp;model_contour, int num_iterations, boost::optional&lt; int &gt; num_shape_coefficients_to_fit, float lambda, boost::optional&lt; <a class="el" href="classeos_1_1fitting_1_1_rendering_parameters.html">fitting::RenderingParameters</a> &gt; initial_rendering_params, std::vector&lt; float &gt; &amp;pca_shape_coefficients, std::vector&lt; float &gt; &amp;blendshape_coefficients, std::vector&lt; cv::Vec2f &gt; &amp;fitted_image_points)</td></tr>
+<tr class="memdesc:a91b671fc0b52edb059b5821e2d6945a2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fit the pose (camera), shape model, and expression blendshapes to landmarks, in an iterative way.  <a href="#a91b671fc0b52edb059b5821e2d6945a2">More...</a><br /></td></tr>
+<tr class="separator:a91b671fc0b52edb059b5821e2d6945a2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a99752d180f45e3fea5a3e0fdd81aadfb"><td class="memItemLeft" align="right" valign="top">std::pair&lt; <a class="el" href="structeos_1_1core_1_1_mesh.html">core::Mesh</a>, <a class="el" href="classeos_1_1fitting_1_1_rendering_parameters.html">fitting::RenderingParameters</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceeos_1_1fitting.html#a99752d180f45e3fea5a3e0fdd81aadfb">fit_shape_and_pose</a> (const <a class="el" href="classeos_1_1morphablemodel_1_1_morphable_model.html">morphablemodel::MorphableModel</a> &amp;morphable_model, const std::vector&lt; <a class="el" href="structeos_1_1morphablemodel_1_1_blendshape.html">morphablemodel::Blendshape</a> &gt; &amp;blendshapes, const <a class="el" href="namespaceeos_1_1core.html#a6d6a8533690b5860236f55afafa14d2b">core::LandmarkCollection</a>&lt; cv::Vec2f &gt; &amp;landmarks, const <a class="el" href="classeos_1_1core_1_1_landmark_mapper.html">core::LandmarkMapper</a> &amp;landmark_mapper, int image_width, int image_height, const <a class="el" href="structeos_1_1morphablemodel_1_1_edge_topology.html">morphablemodel::EdgeTopology</a> &amp;edge_topology, const <a class="el" href="structeos_1_1fitting_1_1_contour_landmarks.html">fitting::ContourLandmarks</a> &amp;contour_landmarks, const <a class="el" href="structeos_1_1fitting_1_1_model_contour.html">fitting::ModelContour</a> &amp;model_contour, int num_iterations=5, boost::optional&lt; int &gt; num_shape_coefficients_to_fit=boost::none, float lambda=50.0f)</td></tr>
+<tr class="memdesc:a99752d180f45e3fea5a3e0fdd81aadfb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fit the pose (camera), shape model, and expression blendshapes to landmarks, in an iterative way.  <a href="#a99752d180f45e3fea5a3e0fdd81aadfb">More...</a><br /></td></tr>
+<tr class="separator:a99752d180f45e3fea5a3e0fdd81aadfb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3df9361b8735d8e6e9b80a7b1536fbc6"><td class="memItemLeft" align="right" valign="top">std::vector&lt; float &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceeos_1_1fitting.html#a3df9361b8735d8e6e9b80a7b1536fbc6">fit_shape_to_landmarks_linear</a> (const <a class="el" href="classeos_1_1morphablemodel_1_1_morphable_model.html">morphablemodel::MorphableModel</a> &amp;morphable_model, cv::Mat affine_camera_matrix, const std::vector&lt; cv::Vec2f &gt; &amp;landmarks, const std::vector&lt; int &gt; &amp;vertex_ids, Eigen::VectorXf base_face=Eigen::VectorXf(), float lambda=3.0f, boost::optional&lt; int &gt; num_coefficients_to_fit=boost::optional&lt; int &gt;(), boost::optional&lt; float &gt; detector_standard_deviation=boost::optional&lt; float &gt;(), boost::optional&lt; float &gt; model_standard_deviation=boost::optional&lt; float &gt;())</td></tr>
+<tr class="separator:a3df9361b8735d8e6e9b80a7b1536fbc6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9f55324bfa740c6b5061518535506084"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classeos_1_1fitting_1_1_rendering_parameters.html">RenderingParameters</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceeos_1_1fitting.html#a9f55324bfa740c6b5061518535506084">estimate_orthographic_camera</a> (std::vector&lt; cv::Vec2f &gt; image_points, std::vector&lt; cv::Vec4f &gt; model_points, int width, int height)</td></tr>
+<tr class="memdesc:a9f55324bfa740c6b5061518535506084"><td class="mdescLeft">&#160;</td><td class="mdescRight">This algorithm estimates the rotation angles and translation of the model, as well as the viewing frustum of the camera, given a set of corresponding 2D-3D points.  <a href="#a9f55324bfa740c6b5061518535506084">More...</a><br /></td></tr>
+<tr class="separator:a9f55324bfa740c6b5061518535506084"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:affa32c85b4c084377509e7e651c3b3a2"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structeos_1_1fitting_1_1_scaled_ortho_projection_parameters.html">ScaledOrthoProjectionParameters</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceeos_1_1fitting.html#affa32c85b4c084377509e7e651c3b3a2">estimate_orthographic_projection_linear</a> (std::vector&lt; cv::Vec2f &gt; image_points, std::vector&lt; cv::Vec4f &gt; model_points, bool is_viewport_upsidedown, boost::optional&lt; int &gt; viewport_height=boost::none)</td></tr>
+<tr class="separator:affa32c85b4c084377509e7e651c3b3a2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a03b4bc35b0619e7f4bd0fccbb2d35e2c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceeos_1_1fitting.html#a03b4bc35b0619e7f4bd0fccbb2d35e2c">save_rendering_parameters</a> (<a class="el" href="classeos_1_1fitting_1_1_rendering_parameters.html">RenderingParameters</a> rendering_parameters, std::string filename)</td></tr>
 <tr class="separator:a03b4bc35b0619e7f4bd0fccbb2d35e2c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4e713b5555396806a9b26817184eacd0"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4e713b5555396806a9b26817184eacd0"></a>
+glm::vec4&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceeos_1_1fitting.html#a4e713b5555396806a9b26817184eacd0">get_opencv_viewport</a> (int width, int height)</td></tr>
+<tr class="memdesc:a4e713b5555396806a9b26817184eacd0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a glm/OpenGL compatible viewport vector that flips y and has the origin on the top-left, like in OpenCV. <br /></td></tr>
+<tr class="separator:a4e713b5555396806a9b26817184eacd0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a93f7464a6c6dee7b3885638014ec009a"><td class="memItemLeft" align="right" valign="top">cv::Mat&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceeos_1_1fitting.html#a93f7464a6c6dee7b3885638014ec009a">to_mat</a> (const glm::mat4x4 &amp;glm_matrix)</td></tr>
 <tr class="memdesc:a93f7464a6c6dee7b3885638014ec009a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Converts a glm::mat4x4 to a cv::Mat.  <a href="#a93f7464a6c6dee7b3885638014ec009a">More...</a><br /></td></tr>
 <tr class="separator:a93f7464a6c6dee7b3885638014ec009a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a198aa8a0c4d90a51bb1b422cfc6a87c4"><td class="memItemLeft" align="right" valign="top">glm::mat4x4&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceeos_1_1fitting.html#a198aa8a0c4d90a51bb1b422cfc6a87c4">get_4x4_modelview_matrix</a> (<a class="el" href="structeos_1_1fitting_1_1_rendering_parameters.html">fitting::RenderingParameters</a> params)</td></tr>
-<tr class="memdesc:a198aa8a0c4d90a51bb1b422cfc6a87c4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a 4x4 model-view matrix from given fitting parameters.  <a href="#a198aa8a0c4d90a51bb1b422cfc6a87c4">More...</a><br /></td></tr>
-<tr class="separator:a198aa8a0c4d90a51bb1b422cfc6a87c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abebc061912b7ef0b180536b467e8dc6f"><td class="memItemLeft" align="right" valign="top">cv::Mat&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceeos_1_1fitting.html#abebc061912b7ef0b180536b467e8dc6f">get_3x4_affine_camera_matrix</a> (<a class="el" href="structeos_1_1fitting_1_1_rendering_parameters.html">fitting::RenderingParameters</a> params, int width, int height)</td></tr>
-<tr class="memdesc:abebc061912b7ef0b180536b467e8dc6f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a 3x4 affine camera matrix from given fitting parameters. The matrix transforms points directly from model-space to screen-space.  <a href="#abebc061912b7ef0b180536b467e8dc6f">More...</a><br /></td></tr>
-<tr class="separator:abebc061912b7ef0b180536b467e8dc6f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4e713b5555396806a9b26817184eacd0"><td class="memItemLeft" align="right" valign="top">glm::vec4&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceeos_1_1fitting.html#a4e713b5555396806a9b26817184eacd0">get_opencv_viewport</a> (int width, int height)</td></tr>
-<tr class="memdesc:a4e713b5555396806a9b26817184eacd0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a glm/OpenGL compatible viewport vector that flips y and has the origin on the top-left, like in OpenCV.  <a href="#a4e713b5555396806a9b26817184eacd0">More...</a><br /></td></tr>
-<tr class="separator:a4e713b5555396806a9b26817184eacd0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9f55324bfa740c6b5061518535506084"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structeos_1_1fitting_1_1_rendering_parameters.html">RenderingParameters</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceeos_1_1fitting.html#a9f55324bfa740c6b5061518535506084">estimate_orthographic_camera</a> (std::vector&lt; cv::Vec2f &gt; image_points, std::vector&lt; cv::Vec4f &gt; model_points, int width, int height)</td></tr>
-<tr class="memdesc:a9f55324bfa740c6b5061518535506084"><td class="mdescLeft">&#160;</td><td class="mdescRight">This algorithm estimates the rotation angles and translation of the model, as well as the viewing frustum of the camera, given a set of corresponding 2D-3D points.  <a href="#a9f55324bfa740c6b5061518535506084">More...</a><br /></td></tr>
-<tr class="separator:a9f55324bfa740c6b5061518535506084"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a36fd2a81f17bae5d9e2d04e36ac0a2bc"><td class="memItemLeft" align="right" valign="top">cv::Mat&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceeos_1_1fitting.html#a36fd2a81f17bae5d9e2d04e36ac0a2bc">get_3x4_affine_camera_matrix</a> (<a class="el" href="classeos_1_1fitting_1_1_rendering_parameters.html">RenderingParameters</a> params, int width, int height)</td></tr>
+<tr class="memdesc:a36fd2a81f17bae5d9e2d04e36ac0a2bc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a 3x4 affine camera matrix from given fitting parameters. The matrix transforms points directly from model-space to screen-space.  <a href="#a36fd2a81f17bae5d9e2d04e36ac0a2bc">More...</a><br /></td></tr>
+<tr class="separator:a36fd2a81f17bae5d9e2d04e36ac0a2bc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Pose and shape fitting of a 3D Morphable Model. </p>
-</div><h2 class="groupheader">Enumeration Type Documentation</h2>
-<a class="anchor" id="a63fce336daef96cde45f61701c4a3cf4"></a>
+</div><h2 class="groupheader">Function Documentation</h2>
+<a class="anchor" id="a7ca8617e85d5eddca89cba30bb909969"></a>
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class T &gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">enum <a class="el" href="namespaceeos_1_1fitting.html#a63fce336daef96cde45f61701c4a3cf4">eos::fitting::CameraType</a></td>
+          <td class="memname">auto eos::fitting::concat </td>
+          <td>(</td>
+          <td class="paramtype">const std::vector&lt; T &gt; &amp;&#160;</td>
+          <td class="paramname"><em>vec_a</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::vector&lt; T &gt; &amp;&#160;</td>
+          <td class="paramname"><em>vec_b</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
         </tr>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">strong</span></span>  </td>
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
 
-<p>Type of a camera (projection). </p>
-<p>Currently either orthographic or perspective. Used in <a class="el" href="structeos_1_1fitting_1_1_rendering_parameters.html" title="Represents a set of estimated model parameters (rotation, translation) and camera parameters (viewing...">RenderingParameters</a>. </p>
+<p>Concatenates two std::vector's of the same type and returns the concatenated vector. The elements of the second vector are appended after the first one. </p>
+<p>Note: Move to detail namespace? It's used for the contour fitting, but doesn't really belong here.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">vec_a</td><td>First vector. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">vec_b</td><td>Second vector. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The concatenated vector. </dd></dl>
 
 </div>
 </div>
-<h2 class="groupheader">Function Documentation</h2>
 <a class="anchor" id="afce5f7297094056a04ad26785c94bbd8"></a>
 <div class="memitem">
 <div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
       <table class="memname">
         <tr>
           <td class="memname">cv::Mat eos::fitting::estimate_affine_camera </td>
@@ -214,10 +280,15 @@ Functions</h2></td></tr>
           <td></td><td></td>
         </tr>
       </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
 </div><div class="memdoc">
 <p>The Gold Standard Algorithm for estimating an affine camera matrix from world to image correspondences. See Algorithm 7.2 in Multiple View Geometry, Hartley &amp; Zisserman, 2nd Edition, 2003.</p>
 <p>Requires &gt;= 4 corresponding points.</p>
-<p>The estimated camera matrix works together with <a class="el" href="namespaceeos_1_1render.html#a1adc532475d45d16f7b0c0eddf1bc7cb">render::render_affine(Mesh, cv::Mat, int, int, bool)</a> to for example render the model or extract texture from the image.</p>
+<p>The estimated camera matrix works together with render::render_affine(Mesh, cv::Mat, int, int, bool) to for example render the model or extract texture from the image.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">image_points</td><td>A list of 2D image points. </td></tr>
@@ -232,9 +303,12 @@ Functions</h2></td></tr>
 <a class="anchor" id="a9f55324bfa740c6b5061518535506084"></a>
 <div class="memitem">
 <div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="structeos_1_1fitting_1_1_rendering_parameters.html">RenderingParameters</a> eos::fitting::estimate_orthographic_camera </td>
+          <td class="memname"><a class="el" href="classeos_1_1fitting_1_1_rendering_parameters.html">RenderingParameters</a> eos::fitting::estimate_orthographic_camera </td>
           <td>(</td>
           <td class="paramtype">std::vector&lt; cv::Vec2f &gt;&#160;</td>
           <td class="paramname"><em>image_points</em>, </td>
@@ -263,6 +337,11 @@ Functions</h2></td></tr>
           <td></td><td></td>
         </tr>
       </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
 </div><div class="memdoc">
 
 <p>This algorithm estimates the rotation angles and translation of the model, as well as the viewing frustum of the camera, given a set of corresponding 2D-3D points. </p>
@@ -271,6 +350,7 @@ Functions</h2></td></tr>
 <p>Eigen's LM implementation requires at least 6 data points, so we require &gt;= 6 corresponding points.</p>
 <p>Notes/improvements: The algorithm works reliable as it is, however, it could be improved with the following:</p><ul>
 <li>A better initial guess (see e.g. Prince)</li>
+<li>We could add a parameter to pass an initial guess</li>
 <li>Using the analytic derivatives instead of Eigen::NumericalDiff - they're easy to calculate.</li>
 </ul>
 <dl class="params"><dt>Parameters</dt><dd>
@@ -286,7 +366,135 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="ac429313cbc0ed61744f1b0fa4dba672b"></a>
+<a class="anchor" id="affa32c85b4c084377509e7e651c3b3a2"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structeos_1_1fitting_1_1_scaled_ortho_projection_parameters.html">ScaledOrthoProjectionParameters</a> eos::fitting::estimate_orthographic_projection_linear </td>
+          <td>(</td>
+          <td class="paramtype">std::vector&lt; cv::Vec2f &gt;&#160;</td>
+          <td class="paramname"><em>image_points</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::vector&lt; cv::Vec4f &gt;&#160;</td>
+          <td class="paramname"><em>model_points</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>is_viewport_upsidedown</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">boost::optional&lt; int &gt;&#160;</td>
+          <td class="paramname"><em>viewport_height</em> = <code>boost::none</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Estimates the parameters of a scaled orthographic projection.</p>
+<p>Given a set of 2D-3D correspondences, this algorithm estimates rotation, translation (in x and y) and a scaling parameters of the scaled orthographic projection model using a closed-form solution. It does so by first computing an affine camera matrix using algorithm [1], and then finds the closest orthonormal matrix to the estimated affine transform using SVD. This algorithm follows the original implementation <a href="https://github.com/waps101/3DMM_edges/blob/master/utils/POS.m">2</a> of William Smith, University of York.</p>
+<p>Requires &gt;= 4 corresponding points.</p>
+<p>[1]: Gold Standard Algorithm for estimating an affine camera matrix from world to image correspondences, Algorithm 7.2 in Multiple View Geometry, Hartley &amp; Zisserman, 2nd Edition, 2003.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">image_points</td><td>A list of 2D image points. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">model_points</td><td>Corresponding points of a 3D model. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">is_viewport_upsidedown</td><td>Flag to set whether the viewport of the image points is upside-down (e.g. as in OpenCV). </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">viewport_height</td><td>Height of the viewport of the image points (needs to be given if is_viewport_upsidedown == true). </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Rotation, translation and scaling of the estimated scaled orthographic projection. </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="ad9d56e5b0d5a6ba42368ae427c32db9f"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::pair&lt;std::vector&lt;cv::Vec2f&gt;, std::vector&lt;int&gt; &gt; eos::fitting::find_occluding_edge_correspondences </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structeos_1_1core_1_1_mesh.html">core::Mesh</a> &amp;&#160;</td>
+          <td class="paramname"><em>mesh</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="structeos_1_1morphablemodel_1_1_edge_topology.html">morphablemodel::EdgeTopology</a> &amp;&#160;</td>
+          <td class="paramname"><em>edge_topology</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="classeos_1_1fitting_1_1_rendering_parameters.html">fitting::RenderingParameters</a> &amp;&#160;</td>
+          <td class="paramname"><em>rendering_parameters</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::vector&lt; Eigen::Vector2f &gt; &amp;&#160;</td>
+          <td class="paramname"><em>image_edges</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float&#160;</td>
+          <td class="paramname"><em>distance_threshold</em> = <code>64.0f</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>For a given list of 2D edge points, find corresponding 3D vertex IDs. </p>
+<p>This algorithm first computes the 3D mesh's occluding boundary vertices under the given pose. Then, for each 2D image edge point given, it searches for the closest 3D edge vertex (projected to 2D). Correspondences lying further away than <code>distance_threshold</code> (times a scale-factor) are discarded. It returns a list of the remaining image edge points and their corresponding 3D vertex ID.</p>
+<p>The given <code>rendering_parameters</code> camery_type must be CameraType::Orthographic.</p>
+<p>The units of <code>distance_threshold</code> are somewhat complicated. The function uses squared distances, and the <code>distance_threshold</code> is further multiplied with a face-size and image resolution dependent scale factor. It's reasonable to use correspondences that are 10 to 15 pixels away on a 1280x720 image with s=0.93. This would be a distance_threshold of around 200. 64 might be a conservative default.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">mesh</td><td>The 3D mesh. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">edge_topology</td><td>The mesh's edge topology (used for fast computation). </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">rendering_parameters</td><td>Rendering (pose) parameters of the mesh. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">image_edges</td><td>A list of points that are edges. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">distance_threshold</td><td>All correspondences below this threshold. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>A pair consisting of the used image edge points and their associated 3D vertex index. </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a7ebe099226636d3065db6c8c9c74e303"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -296,13 +504,13 @@ Functions</h2></td></tr>
         <tr>
           <td class="memname">std::vector&lt;float&gt; eos::fitting::fit_blendshapes_to_landmarks_linear </td>
           <td>(</td>
-          <td class="paramtype">std::vector&lt; <a class="el" href="structeos_1_1morphablemodel_1_1_blendshape.html">eos::morphablemodel::Blendshape</a> &gt;&#160;</td>
+          <td class="paramtype">const std::vector&lt; <a class="el" href="structeos_1_1morphablemodel_1_1_blendshape.html">eos::morphablemodel::Blendshape</a> &gt; &amp;&#160;</td>
           <td class="paramname"><em>blendshapes</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">cv::Mat&#160;</td>
+          <td class="paramtype">const Eigen::VectorXf &amp;&#160;</td>
           <td class="paramname"><em>face_instance</em>, </td>
         </tr>
         <tr>
@@ -314,13 +522,13 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">std::vector&lt; cv::Vec2f &gt;&#160;</td>
+          <td class="paramtype">const std::vector&lt; cv::Vec2f &gt; &amp;&#160;</td>
           <td class="paramname"><em>landmarks</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">std::vector&lt; int &gt;&#160;</td>
+          <td class="paramtype">const std::vector&lt; int &gt; &amp;&#160;</td>
           <td class="paramname"><em>vertex_ids</em>, </td>
         </tr>
         <tr>
@@ -341,7 +549,7 @@ Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Fits blendshape coefficients to given 2D landmarks, given a current face shape instance. It's a linear, closed-form solution fitting algorithm, with regularisation (constraining the L2-norm of the coefficients).</p>
+<p>Fits blendshape coefficients to given 2D landmarks, given a current face shape instance. It's a linear, closed-form solution fitting algorithm, with regularisation (constraining the L2-norm of the coefficients). However, there is no constraint on the coefficients, so negative coefficients are allowed, which, with linear blendshapes (offsets), will most likely not be desired. Thus, prefer the function fit_blendshapes_to_landmarks_nnls(std::vector&lt;eos::morphablemodel::Blendshape&gt;, cv::Mat, cv::Mat, std::vector&lt;cv::Vec2f&gt;, std::vector&lt;int&gt;).</p>
 <p>This algorithm is very similar to the shape fitting in fit_shape_to_landmarks_linear. Instead of the PCA basis, the blendshapes are used, and instead of the mean, a current face instance is used to do the fitting from.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -358,12 +566,80 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a5ddb4f44f4576ad148a9edd85d78c1f7"></a>
+<a class="anchor" id="a6873672ad897aea2a751bdf7f62ae55f"></a>
 <div class="memitem">
 <div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">cv::Mat eos::fitting::fit_shape </td>
+          <td class="memname">std::vector&lt;float&gt; eos::fitting::fit_blendshapes_to_landmarks_nnls </td>
+          <td>(</td>
+          <td class="paramtype">const std::vector&lt; <a class="el" href="structeos_1_1morphablemodel_1_1_blendshape.html">eos::morphablemodel::Blendshape</a> &gt; &amp;&#160;</td>
+          <td class="paramname"><em>blendshapes</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const Eigen::VectorXf &amp;&#160;</td>
+          <td class="paramname"><em>face_instance</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">cv::Mat&#160;</td>
+          <td class="paramname"><em>affine_camera_matrix</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::vector&lt; cv::Vec2f &gt; &amp;&#160;</td>
+          <td class="paramname"><em>landmarks</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::vector&lt; int &gt; &amp;&#160;</td>
+          <td class="paramname"><em>vertex_ids</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Fits blendshape coefficients to given 2D landmarks, given a current face shape instance. Uses non-negative least-squares (NNLS) to solve for the coefficients. The NNLS algorithm used doesn't support any regularisation.</p>
+<p>This algorithm is very similar to the shape fitting in fit_shape_to_landmarks_linear. Instead of the PCA basis, the blendshapes are used, and instead of the mean, a current face instance is used to do the fitting from.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">blendshapes</td><td>A vector with blendshapes to estimate the coefficients for. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">face_instance</td><td>A shape instance from which the blendshape coefficients should be estimated (i.e. the current mesh without expressions, e.g. estimated from a previous PCA-model fitting). A 3m x 1 matrix. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">affine_camera_matrix</td><td>A 3x4 affine camera matrix from model to screen-space (should probably be of type CV_32FC1 as all our calculations are done with float). </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">landmarks</td><td>2D landmarks from an image to fit the blendshapes to. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">vertex_ids</td><td>The vertex ids in the model that correspond to the 2D points. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The estimated blendshape-coefficients. </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a4d4819d2972c9c9ccb0f61a620df371c"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">Eigen::VectorXf eos::fitting::fit_shape </td>
           <td>(</td>
           <td class="paramtype">cv::Mat&#160;</td>
           <td class="paramname"><em>affine_camera_matrix</em>, </td>
@@ -371,25 +647,25 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classeos_1_1morphablemodel_1_1_morphable_model.html">eos::morphablemodel::MorphableModel</a>&#160;</td>
+          <td class="paramtype">const <a class="el" href="classeos_1_1morphablemodel_1_1_morphable_model.html">morphablemodel::MorphableModel</a> &amp;&#160;</td>
           <td class="paramname"><em>morphable_model</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">std::vector&lt; <a class="el" href="structeos_1_1morphablemodel_1_1_blendshape.html">eos::morphablemodel::Blendshape</a> &gt;&#160;</td>
+          <td class="paramtype">const std::vector&lt; <a class="el" href="structeos_1_1morphablemodel_1_1_blendshape.html">morphablemodel::Blendshape</a> &gt; &amp;&#160;</td>
           <td class="paramname"><em>blendshapes</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">std::vector&lt; cv::Vec2f &gt;&#160;</td>
+          <td class="paramtype">const std::vector&lt; cv::Vec2f &gt; &amp;&#160;</td>
           <td class="paramname"><em>image_points</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">std::vector&lt; int &gt;&#160;</td>
+          <td class="paramtype">const std::vector&lt; int &gt; &amp;&#160;</td>
           <td class="paramname"><em>vertex_indices</em>, </td>
         </tr>
         <tr>
@@ -422,6 +698,11 @@ Functions</h2></td></tr>
           <td></td><td></td>
         </tr>
       </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
 </div><div class="memdoc">
 <p>Convenience function that fits the shape model and expression blendshapes to landmarks. Makes the fitted PCA shape and blendshape coefficients accessible via the out parameters <code>pca_shape_coefficients</code> and <code>blendshape_coefficients</code>. It iterates PCA-shape and blendshape fitting until convergence (usually it converges within 5 to 10 iterations).</p>
 <p>See fit_shape_model(cv::Mat, eos::morphablemodel::MorphableModel, std::vector&lt;eos::morphablemodel::Blendshape&gt;, std::vector&lt;cv::Vec2f&gt;, std::vector&lt;int&gt;, float lambda) for a simpler overload that just returns the shape instance.</p>
@@ -443,12 +724,15 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="ae3bcf9f955efce788838cc055b5282b6"></a>
+<a class="anchor" id="a25b7cc97fa10f34f99bb699285adc999"></a>
 <div class="memitem">
 <div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">cv::Mat eos::fitting::fit_shape </td>
+          <td class="memname">Eigen::VectorXf eos::fitting::fit_shape </td>
           <td>(</td>
           <td class="paramtype">cv::Mat&#160;</td>
           <td class="paramname"><em>affine_camera_matrix</em>, </td>
@@ -456,25 +740,25 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classeos_1_1morphablemodel_1_1_morphable_model.html">eos::morphablemodel::MorphableModel</a>&#160;</td>
+          <td class="paramtype">const <a class="el" href="classeos_1_1morphablemodel_1_1_morphable_model.html">morphablemodel::MorphableModel</a> &amp;&#160;</td>
           <td class="paramname"><em>morphable_model</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">std::vector&lt; <a class="el" href="structeos_1_1morphablemodel_1_1_blendshape.html">eos::morphablemodel::Blendshape</a> &gt;&#160;</td>
+          <td class="paramtype">const std::vector&lt; <a class="el" href="structeos_1_1morphablemodel_1_1_blendshape.html">morphablemodel::Blendshape</a> &gt; &amp;&#160;</td>
           <td class="paramname"><em>blendshapes</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">std::vector&lt; cv::Vec2f &gt;&#160;</td>
+          <td class="paramtype">const std::vector&lt; cv::Vec2f &gt; &amp;&#160;</td>
           <td class="paramname"><em>image_points</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">std::vector&lt; int &gt;&#160;</td>
+          <td class="paramtype">const std::vector&lt; int &gt; &amp;&#160;</td>
           <td class="paramname"><em>vertex_indices</em>, </td>
         </tr>
         <tr>
@@ -495,6 +779,11 @@ Functions</h2></td></tr>
           <td></td><td></td>
         </tr>
       </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
 </div><div class="memdoc">
 <p>Convenience function that fits the shape model and expression blendshapes to landmarks. It iterates PCA-shape and blendshape fitting until convergence (usually it converges within 5 to 10 iterations).</p>
 <dl class="params"><dt>Parameters</dt><dd>
@@ -513,7 +802,272 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="ae558a318d1d0c1da35d64b7abb209fac"></a>
+<a class="anchor" id="a91b671fc0b52edb059b5821e2d6945a2"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::pair&lt;<a class="el" href="structeos_1_1core_1_1_mesh.html">core::Mesh</a>, <a class="el" href="classeos_1_1fitting_1_1_rendering_parameters.html">fitting::RenderingParameters</a>&gt; eos::fitting::fit_shape_and_pose </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classeos_1_1morphablemodel_1_1_morphable_model.html">morphablemodel::MorphableModel</a> &amp;&#160;</td>
+          <td class="paramname"><em>morphable_model</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::vector&lt; <a class="el" href="structeos_1_1morphablemodel_1_1_blendshape.html">morphablemodel::Blendshape</a> &gt; &amp;&#160;</td>
+          <td class="paramname"><em>blendshapes</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="namespaceeos_1_1core.html#a6d6a8533690b5860236f55afafa14d2b">core::LandmarkCollection</a>&lt; cv::Vec2f &gt; &amp;&#160;</td>
+          <td class="paramname"><em>landmarks</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="classeos_1_1core_1_1_landmark_mapper.html">core::LandmarkMapper</a> &amp;&#160;</td>
+          <td class="paramname"><em>landmark_mapper</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>image_width</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>image_height</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="structeos_1_1morphablemodel_1_1_edge_topology.html">morphablemodel::EdgeTopology</a> &amp;&#160;</td>
+          <td class="paramname"><em>edge_topology</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="structeos_1_1fitting_1_1_contour_landmarks.html">fitting::ContourLandmarks</a> &amp;&#160;</td>
+          <td class="paramname"><em>contour_landmarks</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="structeos_1_1fitting_1_1_model_contour.html">fitting::ModelContour</a> &amp;&#160;</td>
+          <td class="paramname"><em>model_contour</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>num_iterations</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">boost::optional&lt; int &gt;&#160;</td>
+          <td class="paramname"><em>num_shape_coefficients_to_fit</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float&#160;</td>
+          <td class="paramname"><em>lambda</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">boost::optional&lt; <a class="el" href="classeos_1_1fitting_1_1_rendering_parameters.html">fitting::RenderingParameters</a> &gt;&#160;</td>
+          <td class="paramname"><em>initial_rendering_params</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::vector&lt; float &gt; &amp;&#160;</td>
+          <td class="paramname"><em>pca_shape_coefficients</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::vector&lt; float &gt; &amp;&#160;</td>
+          <td class="paramname"><em>blendshape_coefficients</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::vector&lt; cv::Vec2f &gt; &amp;&#160;</td>
+          <td class="paramname"><em>fitted_image_points</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Fit the pose (camera), shape model, and expression blendshapes to landmarks, in an iterative way. </p>
+<p>Convenience function that fits pose (camera), the shape model, and expression blendshapes to landmarks, in an iterative (alternating) way. It fits both sides of the face contour as well.</p>
+<p>If <code>pca_shape_coefficients</code> and/or <code>blendshape_coefficients</code> are given, they are used as starting values in the fitting. When the function returns, they contain the coefficients from the last iteration.</p>
+<p>Use render::Mesh <a class="el" href="namespaceeos_1_1fitting.html#a99752d180f45e3fea5a3e0fdd81aadfb" title="Fit the pose (camera), shape model, and expression blendshapes to landmarks, in an iterative way...">fit_shape_and_pose(const morphablemodel::MorphableModel&amp;, const std::vector&lt;morphablemodel::Blendshape&gt;&amp;, const core::LandmarkCollection&lt;cv::Vec2f&gt;&amp;, const core::LandmarkMapper&amp;, int, int, const morphablemodel::EdgeTopology&amp;, const fitting::ContourLandmarks&amp;, const fitting::ModelContour&amp;, int, boost::optional&lt;int&gt;, float)</a>. for a simpler overload with reasonable defaults and no optional output.</p>
+<p><code>num_iterations:</code> Results are good for even a single iteration. For single-image fitting and for full convergence of all parameters, it can take up to 300 iterations. In tracking, particularly if initialising with the previous frame, it works well with as low as 1 to 5 iterations. <code>edge_topology</code> is used for the occluding-edge face contour fitting. <code>contour_landmarks</code> and <code>model_contour</code> are used to fit the front-facing contour.</p>
+<p>Todo: Add a convergence criterion.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">morphable_model</td><td>The 3D Morphable Model used for the shape fitting. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">blendshapes</td><td>A vector of blendshapes that are being fit to the landmarks in addition to the PCA model. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">landmarks</td><td>2D landmarks from an image to fit the model to. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">landmark_mapper</td><td>Mapping info from the 2D landmark points to 3D vertex indices. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">image_width</td><td>Width of the input image (needed for the camera model). </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">image_height</td><td>Height of the input image (needed for the camera model). </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">edge_topology</td><td>Precomputed edge topology of the 3D model, needed for fast edge-lookup. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">contour_landmarks</td><td>2D image contour ids of left or right side (for example for ibug landmarks). </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">model_contour</td><td>The model contour indices that should be considered to find the closest corresponding 3D vertex. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">num_iterations</td><td>Number of iterations that the different fitting parts will be alternated for. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">num_shape_coefficients_to_fit</td><td>How many shape-coefficients to fit (all others will stay 0). Should be bigger than zero, or boost::none to fit all coefficients. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">lambda</td><td>Regularisation parameter of the PCA shape fitting. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">initial_rendering_params</td><td>Currently ignored (not used). </td></tr>
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">pca_shape_coefficients</td><td>If given, will be used as initial PCA shape coefficients to start the fitting. Will contain the final estimated coefficients. </td></tr>
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">blendshape_coefficients</td><td>If given, will be used as initial expression blendshape coefficients to start the fitting. Will contain the final estimated coefficients. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">fitted_image_points</td><td>Debug parameter: Returns all the 2D points that have been used for the fitting. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The fitted model shape instance and the final pose. </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a99752d180f45e3fea5a3e0fdd81aadfb"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::pair&lt;<a class="el" href="structeos_1_1core_1_1_mesh.html">core::Mesh</a>, <a class="el" href="classeos_1_1fitting_1_1_rendering_parameters.html">fitting::RenderingParameters</a>&gt; eos::fitting::fit_shape_and_pose </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classeos_1_1morphablemodel_1_1_morphable_model.html">morphablemodel::MorphableModel</a> &amp;&#160;</td>
+          <td class="paramname"><em>morphable_model</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::vector&lt; <a class="el" href="structeos_1_1morphablemodel_1_1_blendshape.html">morphablemodel::Blendshape</a> &gt; &amp;&#160;</td>
+          <td class="paramname"><em>blendshapes</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="namespaceeos_1_1core.html#a6d6a8533690b5860236f55afafa14d2b">core::LandmarkCollection</a>&lt; cv::Vec2f &gt; &amp;&#160;</td>
+          <td class="paramname"><em>landmarks</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="classeos_1_1core_1_1_landmark_mapper.html">core::LandmarkMapper</a> &amp;&#160;</td>
+          <td class="paramname"><em>landmark_mapper</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>image_width</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>image_height</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="structeos_1_1morphablemodel_1_1_edge_topology.html">morphablemodel::EdgeTopology</a> &amp;&#160;</td>
+          <td class="paramname"><em>edge_topology</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="structeos_1_1fitting_1_1_contour_landmarks.html">fitting::ContourLandmarks</a> &amp;&#160;</td>
+          <td class="paramname"><em>contour_landmarks</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="structeos_1_1fitting_1_1_model_contour.html">fitting::ModelContour</a> &amp;&#160;</td>
+          <td class="paramname"><em>model_contour</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>num_iterations</em> = <code>5</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">boost::optional&lt; int &gt;&#160;</td>
+          <td class="paramname"><em>num_shape_coefficients_to_fit</em> = <code>boost::none</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float&#160;</td>
+          <td class="paramname"><em>lambda</em> = <code>50.0f</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Fit the pose (camera), shape model, and expression blendshapes to landmarks, in an iterative way. </p>
+<p>Convenience function that fits pose (camera), the shape model, and expression blendshapes to landmarks, in an iterative (alternating) way. It fits both sides of the face contour as well.</p>
+<p>If you want to access the values of shape or blendshape coefficients, or want to set starting values for them, use the following overload to this function: std::pair&lt;render::Mesh, fitting::RenderingParameters&gt; <a class="el" href="namespaceeos_1_1fitting.html#a91b671fc0b52edb059b5821e2d6945a2" title="Fit the pose (camera), shape model, and expression blendshapes to landmarks, in an iterative way...">fit_shape_and_pose(const morphablemodel::MorphableModel&amp;, const std::vector&lt;morphablemodel::Blendshape&gt;&amp;, const core::LandmarkCollection&lt;cv::Vec2f&gt;&amp;, const core::LandmarkMapper&amp;, int, int, const morphablemodel::EdgeTopology&amp;, const fitting::ContourLandmarks&amp;, const fitting::ModelContour&amp;, int, boost::optional&lt;int&gt;, float, boost::optional&lt;fitting::RenderingParameters&gt;, std::vector&lt;float&gt;&amp;, std::vector&lt;float&gt;&amp;, std::vector&lt;cv::Vec2f&gt;&amp;)</a></p>
+<p>Todo: Add a convergence criterion.</p>
+<p><code>num_iterations:</code> Results are good for even a single iteration. For single-image fitting and for full convergence of all parameters, it can take up to 300 iterations. In tracking, particularly if initialising with the previous frame, it works well with as low as 1 to 5 iterations. <code>edge_topology</code> is used for the occluding-edge face contour fitting. <code>contour_landmarks</code> and <code>model_contour</code> are used to fit the front-facing contour.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">morphable_model</td><td>The 3D Morphable Model used for the shape fitting. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">blendshapes</td><td>A vector of blendshapes that are being fit to the landmarks in addition to the PCA model. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">landmarks</td><td>2D landmarks from an image to fit the model to. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">landmark_mapper</td><td>Mapping info from the 2D landmark points to 3D vertex indices. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">image_width</td><td>Width of the input image (needed for the camera model). </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">image_height</td><td>Height of the input image (needed for the camera model). </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">edge_topology</td><td>Precomputed edge topology of the 3D model, needed for fast edge-lookup. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">contour_landmarks</td><td>2D image contour ids of left or right side (for example for ibug landmarks). </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">model_contour</td><td>The model contour indices that should be considered to find the closest corresponding 3D vertex. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">num_iterations</td><td>Number of iterations that the different fitting parts will be alternated for. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">num_shape_coefficients_to_fit</td><td>How many shape-coefficients to fit (all others will stay 0). Should be bigger than zero, or boost::none to fit all coefficients. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">lambda</td><td>Regularisation parameter of the PCA shape fitting. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The fitted model shape instance and the final pose. </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a3df9361b8735d8e6e9b80a7b1536fbc6"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -523,7 +1077,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="memname">std::vector&lt;float&gt; eos::fitting::fit_shape_to_landmarks_linear </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classeos_1_1morphablemodel_1_1_morphable_model.html">morphablemodel::MorphableModel</a>&#160;</td>
+          <td class="paramtype">const <a class="el" href="classeos_1_1morphablemodel_1_1_morphable_model.html">morphablemodel::MorphableModel</a> &amp;&#160;</td>
           <td class="paramname"><em>morphable_model</em>, </td>
         </tr>
         <tr>
@@ -535,20 +1089,20 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">std::vector&lt; cv::Vec2f &gt;&#160;</td>
+          <td class="paramtype">const std::vector&lt; cv::Vec2f &gt; &amp;&#160;</td>
           <td class="paramname"><em>landmarks</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">std::vector&lt; int &gt;&#160;</td>
+          <td class="paramtype">const std::vector&lt; int &gt; &amp;&#160;</td>
           <td class="paramname"><em>vertex_ids</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">cv::Mat&#160;</td>
-          <td class="paramname"><em>base_face</em> = <code>cv::Mat()</code>, </td>
+          <td class="paramtype">Eigen::VectorXf&#160;</td>
+          <td class="paramname"><em>base_face</em> = <code>Eigen::VectorXf()</code>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -607,14 +1161,17 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="abebc061912b7ef0b180536b467e8dc6f"></a>
+<a class="anchor" id="a36fd2a81f17bae5d9e2d04e36ac0a2bc"></a>
 <div class="memitem">
 <div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
       <table class="memname">
         <tr>
           <td class="memname">cv::Mat eos::fitting::get_3x4_affine_camera_matrix </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="structeos_1_1fitting_1_1_rendering_parameters.html">fitting::RenderingParameters</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="classeos_1_1fitting_1_1_rendering_parameters.html">RenderingParameters</a>&#160;</td>
           <td class="paramname"><em>params</em>, </td>
         </tr>
         <tr>
@@ -635,40 +1192,29 @@ Functions</h2></td></tr>
           <td></td><td></td>
         </tr>
       </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
 </div><div class="memdoc">
 
 <p>Creates a 3x4 affine camera matrix from given fitting parameters. The matrix transforms points directly from model-space to screen-space. </p>
-<p>This function is mainly used since the linear shape fitting <a class="el" href="namespaceeos_1_1fitting.html#ae558a318d1d0c1da35d64b7abb209fac">fitting::fit_shape_to_landmarks_linear</a> expects one of these 3x4 affine camera matrices, as well as <a class="el" href="namespaceeos_1_1render.html#aafa8c960c3b6eb080da1536cc3634577">render::extract_texture</a>. </p>
+<p>This function is mainly used since the linear shape fitting <a class="el" href="namespaceeos_1_1fitting.html#a3df9361b8735d8e6e9b80a7b1536fbc6">fitting::fit_shape_to_landmarks_linear</a> expects one of these 3x4 affine camera matrices, as well as <a class="el" href="namespaceeos_1_1render.html#a52f42375da9f1e5a035fbeb45fe8d541">render::extract_texture</a>. </p>
 
 </div>
 </div>
-<a class="anchor" id="a198aa8a0c4d90a51bb1b422cfc6a87c4"></a>
+<a class="anchor" id="aa9ba0edd539094a2925b8fce7cfce075"></a>
 <div class="memitem">
 <div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">glm::mat4x4 eos::fitting::get_4x4_modelview_matrix </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="structeos_1_1fitting_1_1_rendering_parameters.html">fitting::RenderingParameters</a>&#160;</td>
-          <td class="paramname"><em>params</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Creates a 4x4 model-view matrix from given fitting parameters. </p>
-<p>Together with the <a class="el" href="structeos_1_1fitting_1_1_frustum.html" title="A class representing a camera viewing frustum. At the moment used as orthographic camera only...">Frustum</a> information, this describes the full orthographic rendering parameters of the OpenGL pipeline. Example:</p>
-<div class="fragment"><div class="line">fitting::OrthographicRenderingParameters rendering_params = ...;</div><div class="line">glm::mat4x4 view_model = <a class="code" href="namespaceeos_1_1fitting.html#a198aa8a0c4d90a51bb1b422cfc6a87c4">get_4x4_modelview_matrix</a>(rendering_params);</div><div class="line">glm::mat4x4 ortho_projection = glm::ortho(rendering_params.frustum.l, rendering_params.frustum.r, rendering_params.frustum.b, rendering_params.frustum.t);</div><div class="line">glm::vec4 viewport(0, image.rows, image.cols, -image.rows); <span class="comment">// flips y, origin top-left, like in OpenCV</span></div><div class="line"></div><div class="line"><span class="comment">// project a point from 3D to 2D:</span></div><div class="line">glm::vec3 point_3d = ...; <span class="comment">// from a mesh for example</span></div><div class="line">glm::vec3 point_2d = glm::project(point_3d, view_model, ortho_projection, viewport);</div></div><!-- fragment --> 
-</div>
-</div>
-<a class="anchor" id="af8ce6f464c22e42b5f98e96ef7f06ab0"></a>
-<div class="memitem">
-<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
       <table class="memname">
         <tr>
           <td class="memname">std::tuple&lt;std::vector&lt;cv::Vec2f&gt;, std::vector&lt;cv::Vec4f&gt;, std::vector&lt;int&gt; &gt; eos::fitting::get_contour_correspondences </td>
           <td>(</td>
-          <td class="paramtype">const <a class="el" href="namespaceeos_1_1core.html#a6d6a8533690b5860236f55afafa14d2b">eos::core::LandmarkCollection</a>&lt; cv::Vec2f &gt; &amp;&#160;</td>
+          <td class="paramtype">const <a class="el" href="namespaceeos_1_1core.html#a6d6a8533690b5860236f55afafa14d2b">core::LandmarkCollection</a>&lt; cv::Vec2f &gt; &amp;&#160;</td>
           <td class="paramname"><em>landmarks</em>, </td>
         </tr>
         <tr>
@@ -692,8 +1238,8 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const <a class="el" href="classeos_1_1morphablemodel_1_1_morphable_model.html">morphablemodel::MorphableModel</a> &amp;&#160;</td>
-          <td class="paramname"><em>morphable_model</em>, </td>
+          <td class="paramtype">const <a class="el" href="structeos_1_1core_1_1_mesh.html">core::Mesh</a> &amp;&#160;</td>
+          <td class="paramname"><em>mesh</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -719,6 +1265,11 @@ Functions</h2></td></tr>
           <td></td><td></td>
         </tr>
       </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
 </div><div class="memdoc">
 <p>Given a set of 2D image landmarks, finds the closest (in a L2 sense) 3D vertex from a list of vertices pre-defined in <code>model_contour</code>. <code>landmarks</code> can contain all landmarks, and the function will sub-select the relevant contour landmarks with the help of the given <code>contour_landmarks</code>. This function choses the front-facing contour and only fits this contour to the 3D model, since these correspondences are approximately static and do not move with changing pose-angle.</p>
 <p>It's the main contour fitting function that calls all other functions.</p>
@@ -728,8 +1279,8 @@ Functions</h2></td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">landmarks</td><td>All image landmarks. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">contour_landmarks</td><td>2D image contour ids of left or right side (for example for ibug landmarks). </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">model_contour</td><td>The model contour indices that should be considered to find the closest corresponding 3D vertex. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">yaw_angle</td><td>Yaw angle of the current fitting. The front-facing contour will be chosen depending on this yaw angle. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">morphable_model</td><td>A Morphable Model whose mean is used. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">yaw_angle</td><td>Yaw angle of the current fitting, in degrees. The front-facing contour will be chosen depending on this yaw angle. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">mesh</td><td>The mesh that's used to find the nearest contour points. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">view_model</td><td>Model-view matrix of the current fitting to project the 3D model vertices to 2D. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">ortho_projection</td><td>Projection matrix to project the 3D model vertices to 2D. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">viewport</td><td>Current viewport to use. </td></tr>
@@ -740,14 +1291,77 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="ade368ea637ac45c9e344dde326ffe174"></a>
+<a class="anchor" id="a73cb82b9f04cb095e9e763672b358018"></a>
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class T &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">auto eos::fitting::get_corresponding_pointset </td>
+          <td>(</td>
+          <td class="paramtype">const T &amp;&#160;</td>
+          <td class="paramname"><em>landmarks</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="classeos_1_1core_1_1_landmark_mapper.html">core::LandmarkMapper</a> &amp;&#160;</td>
+          <td class="paramname"><em>landmark_mapper</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="classeos_1_1morphablemodel_1_1_morphable_model.html">morphablemodel::MorphableModel</a> &amp;&#160;</td>
+          <td class="paramname"><em>morphable_model</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Takes a LandmarkCollection of 2D landmarks and, using the landmark_mapper, finds the corresponding 3D vertex indices and returns them, along with the coordinates of the 3D points. </p>
+<p>The function only returns points which the landmark mapper was able to convert, and skips all points for which there is no mapping. Thus, the number of returned points might be smaller than the number of input points. All three output vectors have the same size and contain the points in the same order. <code>landmarks</code> can be an <a class="el" href="namespaceeos_1_1core.html#a6d6a8533690b5860236f55afafa14d2b" title="A trivial collection of landmarks that belong together. ">eos::core::LandmarkCollection&lt;cv::Vec2f&gt;</a> or an rcr::LandmarkCollection&lt;cv::Vec2f&gt;.</p>
+<p>Notes:</p><ul>
+<li>Split into two functions, one which maps from 2D LMs to vtx_idx and returns a reduced vec of 2D LMs. And then the other one to go from vtx_idx to a vector&lt;Vec4f&gt;.</li>
+<li>Place in a potentially more appropriate header (shape-fitting?).</li>
+<li>Could move to detail namespace or forward-declare.</li>
+<li><code>landmarks</code> has to be a collection of LMs, with size(), [] and Vec2f ::coordinates.</li>
+</ul>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">landmarks</td><td>A LandmarkCollection of 2D landmarks. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">landmark_mapper</td><td>A mapper which maps the 2D landmark identifiers to 3D model vertex indices. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">morphable_model</td><td>Model to get the 3D point coordinates from. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>A tuple of [image_points, model_points, vertex_indices]. </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="ade6599a1563d4ea8e1c1f38738d56281"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
       <table class="memname">
         <tr>
           <td class="memname">std::tuple&lt; std::vector&lt; cv::Vec2f &gt;, std::vector&lt; cv::Vec4f &gt;, std::vector&lt; int &gt; &gt; eos::fitting::get_nearest_contour_correspondences </td>
           <td>(</td>
-          <td class="paramtype">const <a class="el" href="namespaceeos_1_1core.html#a6d6a8533690b5860236f55afafa14d2b">eos::core::LandmarkCollection</a>&lt; cv::Vec2f &gt; &amp;&#160;</td>
+          <td class="paramtype">const <a class="el" href="namespaceeos_1_1core.html#a6d6a8533690b5860236f55afafa14d2b">core::LandmarkCollection</a>&lt; cv::Vec2f &gt; &amp;&#160;</td>
           <td class="paramname"><em>landmarks</em>, </td>
         </tr>
         <tr>
@@ -765,8 +1379,8 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const <a class="el" href="classeos_1_1morphablemodel_1_1_morphable_model.html">morphablemodel::MorphableModel</a> &amp;&#160;</td>
-          <td class="paramname"><em>morphable_model</em>, </td>
+          <td class="paramtype">const <a class="el" href="structeos_1_1core_1_1_mesh.html">core::Mesh</a> &amp;&#160;</td>
+          <td class="paramname"><em>mesh</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -792,15 +1406,20 @@ Functions</h2></td></tr>
           <td></td><td></td>
         </tr>
       </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
 </div><div class="memdoc">
 <p>Given a set of 2D image landmarks, finds the closest (in a L2 sense) 3D vertex from a list of vertices pre-defined in <code>model_contour</code>. Assumes to be given contour correspondences of the front-facing contour.</p>
-<p>Note: Maybe rename to find_nearest_contour_points, to highlight that there is (potentially a lot) computational cost involved? Note: Does ortho_projection have to be specifically orthographic? Otherwise, if it works with perspective too, rename to just "projection". More notes: Actually, only return the vertex id, not the point? Same with get_corresponding_pointset? Because then it's much easier to use the current shape estimate instead of the mean! But this function needs to project. So... it should take a Mesh actually? But creating a Mesh is a lot of computation? When we want to use the non-mean, then we need to use draw_sample() anyway? So overhead of Mesh is only if we use the mean? Maybe two overloads? Note: Uses the mean to calculate.</p>
+<p>Note: Maybe rename to find_nearest_contour_points, to highlight that there is (potentially a lot) computational cost involved? Note: Does ortho_projection have to be specifically orthographic? Otherwise, if it works with perspective too, rename to just "projection". Note: Actually, only return the vertex id, not the model point as well? Same with get_corresponding_pointset?</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">landmarks</td><td>All image landmarks. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">landmark_contour_identifiers</td><td>2D image contour ids of left or right side (for example for ibug landmarks). </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">model_contour_indices</td><td>The model contour indices that should be considered to find the closest corresponding 3D vertex. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">morphable_model</td><td>The Morphable Model whose shape (coefficients) are estimated. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">mesh</td><td>The mesh that's projected to find the nearest contour vertex. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">view_model</td><td>Model-view matrix of the current fitting to project the 3D model vertices to 2D. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">ortho_projection</td><td>Projection matrix to project the 3D model vertices to 2D. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">viewport</td><td>Current viewport to use. </td></tr>
@@ -811,21 +1430,41 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a4e713b5555396806a9b26817184eacd0"></a>
+<a class="anchor" id="a8cbd14805664180f3eca321aa8be8c0d"></a>
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;typename T &gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">glm::vec4 eos::fitting::get_opencv_viewport </td>
+          <td class="memname">std::array&lt; T, 3 &gt; eos::fitting::get_shape_point </td>
           <td>(</td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>width</em>, </td>
+          <td class="paramtype">const <a class="el" href="classeos_1_1morphablemodel_1_1_pca_model.html">morphablemodel::PcaModel</a> &amp;&#160;</td>
+          <td class="paramname"><em>shape_model</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::vector&lt; <a class="el" href="structeos_1_1morphablemodel_1_1_blendshape.html">morphablemodel::Blendshape</a> &gt; &amp;&#160;</td>
+          <td class="paramname"><em>blendshapes</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>height</em>&#160;</td>
+          <td class="paramname"><em>vertex_id</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const T *const&#160;</td>
+          <td class="paramname"><em>shape_coeffs</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const T *const&#160;</td>
+          <td class="paramname"><em>blendshape_coeffs</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -834,9 +1473,114 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Returns the 3D position of a single point of the 3D shape generated by the parameters given.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">shape_model</td><td>A PCA 3D shape model. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">blendshapes</td><td>A set of 3D blendshapes. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">vertex_id</td><td>Vertex id of the 3D model that should be projected. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">shape_coeffs</td><td>A set of PCA shape coefficients used to generate the point. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">blendshape_coeffs</td><td>A set of blendshape coefficients used to generate the point. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The 3D point. </dd></dl>
 
-<p>Returns a glm/OpenGL compatible viewport vector that flips y and has the origin on the top-left, like in OpenCV. </p>
-<p>Note: Move to detail namespace / not used at the moment. </p>
+</div>
+</div>
+<a class="anchor" id="a80cd220776a04f2738b80930c1cc70a7"></a>
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename T &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">std::array&lt; T, 3 &gt; eos::fitting::get_vertex_colour </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classeos_1_1morphablemodel_1_1_pca_model.html">morphablemodel::PcaModel</a> &amp;&#160;</td>
+          <td class="paramname"><em>color_model</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>vertex_id</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const T *const&#160;</td>
+          <td class="paramname"><em>color_coeffs</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Returns the colour value of a single point of the 3D model generated by the parameters given.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">color_model</td><td>A PCA 3D colour (albedo) model. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">vertex_id</td><td>Vertex id of the 3D model whose colour is to be returned. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">color_coeffs</td><td>A set of PCA colour coefficients. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The colour. As RGB? In [0, 1]? </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="aa51ab38e4c0c16cd94655c7010f97390"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt;int&gt; eos::fitting::occluding_boundary_vertices </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structeos_1_1core_1_1_mesh.html">core::Mesh</a> &amp;&#160;</td>
+          <td class="paramname"><em>mesh</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="structeos_1_1morphablemodel_1_1_edge_topology.html">morphablemodel::EdgeTopology</a> &amp;&#160;</td>
+          <td class="paramname"><em>edge_topology</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">glm::mat4x4&#160;</td>
+          <td class="paramname"><em>R</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Computes the vertices that lie on occluding boundaries, given a particular pose. </p>
+<p>This algorithm computes the edges that lie on occluding boundaries of the mesh. It performs a visibility text of each vertex, and returns a list of the (unique) vertices that make the boundary edges. An edge is defined as the line whose two adjacent faces normals flip the sign.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">mesh</td><td>The mesh to use. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">edge_topology</td><td>The edge topology of the given mesh. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">R</td><td>The rotation (pose) under which the occluding boundaries should be computed. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>A vector with unique vertex id's making up the edges. </dd></dl>
 
 </div>
 </div>
@@ -898,14 +1642,92 @@ Functions</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="a77547ba3cb9542a7bcdd6421d90e1801"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::pair&lt;bool, boost::optional&lt;float&gt; &gt; eos::fitting::ray_triangle_intersect </td>
+          <td>(</td>
+          <td class="paramtype">const glm::vec3 &amp;&#160;</td>
+          <td class="paramname"><em>ray_origin</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const glm::vec3 &amp;&#160;</td>
+          <td class="paramname"><em>ray_direction</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const glm::vec3 &amp;&#160;</td>
+          <td class="paramname"><em>v0</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const glm::vec3 &amp;&#160;</td>
+          <td class="paramname"><em>v1</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const glm::vec3 &amp;&#160;</td>
+          <td class="paramname"><em>v2</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>enable_backculling</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Computes the intersection of the given ray with the given triangle. </p>
+<p>Uses the Möller-Trumbore algorithm algorithm "Fast Minimum Storage
+Ray/Triangle Intersection". Independent implementation, inspired by: <a href="http://www.scratchapixel.com/lessons/3d-basic-rendering/ray-tracing-rendering-a-triangle/moller-trumbore-ray-triangle-intersection">http://www.scratchapixel.com/lessons/3d-basic-rendering/ray-tracing-rendering-a-triangle/moller-trumbore-ray-triangle-intersection</a> The default eps (1e-6f) is from the paper. When culling is on, rays intersecting triangles from the back will be discarded - otherwise, the triangles normal direction w.r.t. the ray direction is just ignored.</p>
+<p>Note: The use of optional might turn out as a performance problem, as this function is called loads of time - how costly is it to construct a boost::none optional?</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">ray_origin</td><td>Ray origin. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">ray_direction</td><td>Ray direction. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">v0</td><td>First vertex of a triangle. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">v1</td><td>Second vertex of a triangle. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">v2</td><td>Third vertex of a triangle. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">enable_backculling</td><td>When culling is on, rays intersecting triangles from the back will be discarded. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Whether the ray intersects the triangle, and if yes, including the distance. </dd></dl>
+
+</div>
+</div>
 <a class="anchor" id="a03b4bc35b0619e7f4bd0fccbb2d35e2c"></a>
 <div class="memitem">
 <div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
       <table class="memname">
         <tr>
           <td class="memname">void eos::fitting::save_rendering_parameters </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="structeos_1_1fitting_1_1_rendering_parameters.html">RenderingParameters</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="classeos_1_1fitting_1_1_rendering_parameters.html">RenderingParameters</a>&#160;</td>
           <td class="paramname"><em>rendering_parameters</em>, </td>
         </tr>
         <tr>
@@ -920,11 +1742,16 @@ Functions</h2></td></tr>
           <td></td><td></td>
         </tr>
       </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
 </div><div class="memdoc">
 <p>Saves the rendering parameters for an image to a json file.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">rendering_parameters</td><td>An instance of class <a class="el" href="structeos_1_1fitting_1_1_rendering_parameters.html" title="Represents a set of estimated model parameters (rotation, translation) and camera parameters (viewing...">RenderingParameters</a>. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">rendering_parameters</td><td>An instance of class <a class="el" href="classeos_1_1fitting_1_1_rendering_parameters.html" title="Represents a set of estimated model parameters (rotation, translation) and camera parameters (viewing...">RenderingParameters</a>. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">filename</td><td>The file to write. </td></tr>
   </table>
   </dd>
@@ -967,11 +1794,12 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Takes a set of 2D and 3D contour landmarks and a yaw angle and returns two vectors with either the right or the left 2D and 3D contour indices. This function does not establish correspondence between the 2D and 3D landmarks, it just selects the front-facing contour. The two returned vectors can thus have different size. Correspondence can be established using <a class="el" href="namespaceeos_1_1fitting.html#ade368ea637ac45c9e344dde326ffe174">get_nearest_contour_correspondences()</a>.</p>
+<p>Takes a set of 2D and 3D contour landmarks and a yaw angle and returns two vectors with either the right or the left 2D and 3D contour indices. This function does not establish correspondence between the 2D and 3D landmarks, it just selects the front-facing contour. The two returned vectors can thus have different size. Correspondence can be established using <a class="el" href="namespaceeos_1_1fitting.html#ade6599a1563d4ea8e1c1f38738d56281">get_nearest_contour_correspondences()</a>.</p>
+<p>If the yaw angle is between +-7.5°, both contours will be selected.</p>
 <p>Note: Maybe rename to find_nearest_contour_points, to highlight that there is (potentially a lot) computational cost involved?</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">yaw_angle</td><td>yaw angle in degrees. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">yaw_angle</td><td>Yaw angle in degrees. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">contour_landmarks</td><td>2D image contour ids of left or right side (for example for ibug landmarks). </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">model_contour</td><td>The model contour indices that should be used/considered to find the closest corresponding 3D vertex. </td></tr>
   </table>
@@ -984,6 +1812,9 @@ Functions</h2></td></tr>
 <a class="anchor" id="a93f7464a6c6dee7b3885638014ec009a"></a>
 <div class="memitem">
 <div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
       <table class="memname">
         <tr>
           <td class="memname">cv::Mat eos::fitting::to_mat </td>
@@ -993,10 +1824,15 @@ Functions</h2></td></tr>
           <td></td>
         </tr>
       </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
 </div><div class="memdoc">
 
 <p>Converts a glm::mat4x4 to a cv::Mat. </p>
-<p>Note: move to render namespace </p>
+<p>Note: I think the last use of this function is below in <a class="el" href="namespaceeos_1_1fitting.html#a36fd2a81f17bae5d9e2d04e36ac0a2bc" title="Creates a 3x4 affine camera matrix from given fitting parameters. The matrix transforms points direct...">get_3x4_affine_camera_matrix()</a>. </p>
 
 </div>
 </div>

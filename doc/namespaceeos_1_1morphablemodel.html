@@ -30,7 +30,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">eos
-   &#160;<span id="projectnumber">0.7.1</span>
+   &#160;<span id="projectnumber">0.12.1</span>
    </div>
   </td>
  </tr>
@@ -100,13 +100,16 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!--header-->
 <div class="contents">
 
-<p>Functionality to represent a Morphable Model, containing it's PCA models and loading functions.  
+<p>Functionality to represent a Morphable Model, its PCA models, and functions to load models and blendshapes.  
 <a href="#details">More...</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
 Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structeos_1_1morphablemodel_1_1_blendshape.html">Blendshape</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A class representing a 3D blendshape.  <a href="structeos_1_1morphablemodel_1_1_blendshape.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structeos_1_1morphablemodel_1_1_edge_topology.html">EdgeTopology</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A struct containing a 3D shape model's edge topology.  <a href="structeos_1_1morphablemodel_1_1_edge_topology.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classeos_1_1morphablemodel_1_1_morphable_model.html">MorphableModel</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A class representing a 3D Morphable Model, consisting of a shape- and colour (albedo) PCA model.  <a href="classeos_1_1morphablemodel_1_1_morphable_model.html#details">More...</a><br /></td></tr>
@@ -119,27 +122,42 @@ Classes</h2></td></tr>
 Functions</h2></td></tr>
 <tr class="memitem:a408184d7cae7e40c5c8e76c2bc114811"><td class="memItemLeft" align="right" valign="top">std::vector&lt; <a class="el" href="structeos_1_1morphablemodel_1_1_blendshape.html">Blendshape</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceeos_1_1morphablemodel.html#a408184d7cae7e40c5c8e76c2bc114811">load_blendshapes</a> (std::string filename)</td></tr>
 <tr class="separator:a408184d7cae7e40c5c8e76c2bc114811"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a141d454c166ae194688eb12417de4109"><td class="memItemLeft" align="right" valign="top">Eigen::MatrixXf&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceeos_1_1morphablemodel.html#a141d454c166ae194688eb12417de4109">to_matrix</a> (const std::vector&lt; <a class="el" href="structeos_1_1morphablemodel_1_1_blendshape.html">Blendshape</a> &gt; &amp;blendshapes)</td></tr>
+<tr class="memdesc:a141d454c166ae194688eb12417de4109"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copies the blendshapes into a matrix, with each column being a blendshape.  <a href="#a141d454c166ae194688eb12417de4109">More...</a><br /></td></tr>
+<tr class="separator:a141d454c166ae194688eb12417de4109"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6c224e315efc828128fb51cc646ec4ed"><td class="memItemLeft" align="right" valign="top">Eigen::Map&lt; const Eigen::VectorXf &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceeos_1_1morphablemodel.html#a6c224e315efc828128fb51cc646ec4ed">to_vector</a> (const std::vector&lt; float &gt; &amp;coefficients)</td></tr>
+<tr class="memdesc:a6c224e315efc828128fb51cc646ec4ed"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maps an std::vector of coefficients with Eigen::Map, so it can be multiplied with a blendshapes matrix.  <a href="#a6c224e315efc828128fb51cc646ec4ed">More...</a><br /></td></tr>
+<tr class="separator:a6c224e315efc828128fb51cc646ec4ed"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2578fc03dbaa1809873578f17991e278"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceeos_1_1morphablemodel.html#a2578fc03dbaa1809873578f17991e278">save_coefficients</a> (std::vector&lt; float &gt; coefficients, std::string filename)</td></tr>
 <tr class="separator:a2578fc03dbaa1809873578f17991e278"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afa73fdf5b394458b7e21639ae50d074c"><td class="memItemLeft" align="right" valign="top">std::vector&lt; cv::Vec2f &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceeos_1_1morphablemodel.html#afa73fdf5b394458b7e21639ae50d074c">load_isomap</a> (boost::filesystem::path isomap_file)</td></tr>
-<tr class="separator:afa73fdf5b394458b7e21639ae50d074c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a242124318b55a2b487fcf57681463387"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceeos_1_1morphablemodel.html#a242124318b55a2b487fcf57681463387">save_edge_topology</a> (<a class="el" href="structeos_1_1morphablemodel_1_1_edge_topology.html">EdgeTopology</a> edge_topology, std::string filename)</td></tr>
+<tr class="separator:a242124318b55a2b487fcf57681463387"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a47fd10a2c1106891082144961ff51b9c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structeos_1_1morphablemodel_1_1_edge_topology.html">EdgeTopology</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceeos_1_1morphablemodel.html#a47fd10a2c1106891082144961ff51b9c">load_edge_topology</a> (std::string filename)</td></tr>
+<tr class="separator:a47fd10a2c1106891082144961ff51b9c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0d81a35762a490b92e2f88307e28aec1"><td class="memItemLeft" align="right" valign="top">std::vector&lt; std::array&lt; double, 2 &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceeos_1_1morphablemodel.html#a0d81a35762a490b92e2f88307e28aec1">load_isomap</a> (boost::filesystem::path isomap_file)</td></tr>
+<tr class="separator:a0d81a35762a490b92e2f88307e28aec1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0d607b8838d70cd8ec41cb4bfe116f58"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classeos_1_1morphablemodel_1_1_morphable_model.html">MorphableModel</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceeos_1_1morphablemodel.html#a0d607b8838d70cd8ec41cb4bfe116f58">load_scm_model</a> (boost::filesystem::path model_filename, boost::filesystem::path isomap_file=boost::filesystem::path())</td></tr>
 <tr class="separator:a0d607b8838d70cd8ec41cb4bfe116f58"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8d6e6d23f777bf6d8b54b12106a8eac5"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structeos_1_1core_1_1_mesh.html">core::Mesh</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceeos_1_1morphablemodel.html#a8d6e6d23f777bf6d8b54b12106a8eac5">sample_to_mesh</a> (const Eigen::VectorXf &amp;shape_instance, const Eigen::VectorXf &amp;color_instance, const std::vector&lt; std::array&lt; int, 3 &gt;&gt; &amp;tvi, const std::vector&lt; std::array&lt; int, 3 &gt;&gt; &amp;tci, const std::vector&lt; std::array&lt; double, 2 &gt;&gt; &amp;texture_coordinates=std::vector&lt; std::array&lt; double, 2 &gt;&gt;())</td></tr>
+<tr class="separator:a8d6e6d23f777bf6d8b54b12106a8eac5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0da6e35ec49f1ebdf55f9596540cf8f8"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classeos_1_1morphablemodel_1_1_morphable_model.html">MorphableModel</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceeos_1_1morphablemodel.html#a0da6e35ec49f1ebdf55f9596540cf8f8">load_model</a> (std::string filename)</td></tr>
 <tr class="separator:a0da6e35ec49f1ebdf55f9596540cf8f8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aad09e0fd0788cb7fea41ed799c653e71"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceeos_1_1morphablemodel.html#aad09e0fd0788cb7fea41ed799c653e71">save_model</a> (<a class="el" href="classeos_1_1morphablemodel_1_1_morphable_model.html">MorphableModel</a> model, std::string filename)</td></tr>
 <tr class="separator:aad09e0fd0788cb7fea41ed799c653e71"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a31a2b98e73170ae558f6c50e76524817"><td class="memItemLeft" align="right" valign="top">cv::Mat&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceeos_1_1morphablemodel.html#a31a2b98e73170ae558f6c50e76524817">normalise_pca_basis</a> (cv::Mat unnormalised_basis, cv::Mat eigenvalues)</td></tr>
-<tr class="separator:a31a2b98e73170ae558f6c50e76524817"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a90682d9e8a88243a1113b5a6c149799e"><td class="memItemLeft" align="right" valign="top">cv::Mat&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceeos_1_1morphablemodel.html#a90682d9e8a88243a1113b5a6c149799e">unnormalise_pca_basis</a> (cv::Mat normalised_basis, cv::Mat eigenvalues)</td></tr>
-<tr class="separator:a90682d9e8a88243a1113b5a6c149799e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aea789890a319e237798ed49868bc6f59"><td class="memItemLeft" align="right" valign="top">Eigen::MatrixXf&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceeos_1_1morphablemodel.html#aea789890a319e237798ed49868bc6f59">rescale_pca_basis</a> (const Eigen::MatrixXf &amp;orthonormal_basis, const Eigen::VectorXf &amp;eigenvalues)</td></tr>
+<tr class="separator:aea789890a319e237798ed49868bc6f59"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1f083c97c0131ea2f0d596f86dc66e54"><td class="memItemLeft" align="right" valign="top">Eigen::MatrixXf&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceeos_1_1morphablemodel.html#a1f083c97c0131ea2f0d596f86dc66e54">normalise_pca_basis</a> (const Eigen::MatrixXf &amp;rescaled_basis, const Eigen::VectorXf &amp;eigenvalues)</td></tr>
+<tr class="separator:a1f083c97c0131ea2f0d596f86dc66e54"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Functionality to represent a Morphable Model, containing it's PCA models and loading functions. </p>
+<div class="textblock"><p>Functionality to represent a Morphable Model, its PCA models, and functions to load models and blendshapes. </p>
 </div><h2 class="groupheader">Function Documentation</h2>
 <a class="anchor" id="a408184d7cae7e40c5c8e76c2bc114811"></a>
 <div class="memitem">
 <div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
       <table class="memname">
         <tr>
           <td class="memname">std::vector&lt;<a class="el" href="structeos_1_1morphablemodel_1_1_blendshape.html">Blendshape</a>&gt; eos::morphablemodel::load_blendshapes </td>
@@ -149,6 +167,11 @@ Functions</h2></td></tr>
           <td></td>
         </tr>
       </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
 </div><div class="memdoc">
 <p>Helper method to load a file with blendshapes from a cereal::BinaryInputArchive from the harddisk.</p>
 <dl class="params"><dt>Parameters</dt><dd>
@@ -167,18 +190,64 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="afa73fdf5b394458b7e21639ae50d074c"></a>
+<a class="anchor" id="a47fd10a2c1106891082144961ff51b9c"></a>
 <div class="memitem">
 <div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">std::vector&lt; cv::Vec2f &gt; eos::morphablemodel::load_isomap </td>
+          <td class="memname"><a class="el" href="structeos_1_1morphablemodel_1_1_edge_topology.html">EdgeTopology</a> eos::morphablemodel::load_edge_topology </td>
           <td>(</td>
-          <td class="paramtype">boost::filesystem::path&#160;</td>
-          <td class="paramname"><em>isomapFile</em></td><td>)</td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>filename</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Load a 3DMM edge topology file from a json file.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">filename</td><td>The file to load the edge topology from. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>A struct containing the edge topology. </dd></dl>
+<dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">std::runtime_error</td><td>if unable to open the given file for writing. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="a0d81a35762a490b92e2f88307e28aec1"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt; std::array&lt; double, 2 &gt; &gt; eos::morphablemodel::load_isomap </td>
+          <td>(</td>
+          <td class="paramtype">boost::filesystem::path&#160;</td>
+          <td class="paramname"><em>isomap_file</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
 </div><div class="memdoc">
 <p>Load a set of 2D texture coordinates pre-generated by the isomap algorithm. After loading, we rescale the coordinates to [0, 1] x [0, 1].</p>
 <dl class="params"><dt>Parameters</dt><dd>
@@ -200,6 +269,9 @@ Functions</h2></td></tr>
 <a class="anchor" id="a0da6e35ec49f1ebdf55f9596540cf8f8"></a>
 <div class="memitem">
 <div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
       <table class="memname">
         <tr>
           <td class="memname"><a class="el" href="classeos_1_1morphablemodel_1_1_morphable_model.html">MorphableModel</a> eos::morphablemodel::load_model </td>
@@ -209,6 +281,11 @@ Functions</h2></td></tr>
           <td></td>
         </tr>
       </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
 </div><div class="memdoc">
 <p>Helper method to load a Morphable Model from a cereal::BinaryInputArchive from the harddisk.</p>
 <dl class="params"><dt>Parameters</dt><dd>
@@ -230,6 +307,9 @@ Functions</h2></td></tr>
 <a class="anchor" id="a0d607b8838d70cd8ec41cb4bfe116f58"></a>
 <div class="memitem">
 <div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
       <table class="memname">
         <tr>
           <td class="memname"><a class="el" href="classeos_1_1morphablemodel_1_1_morphable_model.html">MorphableModel</a> eos::morphablemodel::load_scm_model </td>
@@ -249,11 +329,16 @@ Functions</h2></td></tr>
           <td></td><td></td>
         </tr>
       </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
 </div><div class="memdoc">
 <p>Load a shape or color model from a .scm file containing a Morphable Model in the Surrey format. CVSSP's software internally trains and stores the model in this custom binary format and this class provides means to load them.</p>
 <p>Note on multi-resolution models: The landmarks to vertex-id mapping is always the same. The lowest resolution model has all the landmarks defined and for the higher resolutions, the mesh is divided from that on. Note: For new landmarks we add, this might not be the case if we add them in the highest resolution model, so take care!</p>
 <ul>
-<li>The pcaBasis matrix stored in the file and loaded is the orthogonal PCA basis, i.e. it is not normalised by the eigenvalues.</li>
+<li>The PCA basis matrix stored in the file and loaded is the orthogonal PCA basis, i.e. it is not normalised by the eigenvalues.</li>
 </ul>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -272,7 +357,7 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a31a2b98e73170ae558f6c50e76524817"></a>
+<a class="anchor" id="a1f083c97c0131ea2f0d596f86dc66e54"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -280,15 +365,15 @@ Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">cv::Mat eos::morphablemodel::normalise_pca_basis </td>
+          <td class="memname">Eigen::MatrixXf eos::morphablemodel::normalise_pca_basis </td>
           <td>(</td>
-          <td class="paramtype">cv::Mat&#160;</td>
-          <td class="paramname"><em>unnormalised_basis</em>, </td>
+          <td class="paramtype">const Eigen::MatrixXf &amp;&#160;</td>
+          <td class="paramname"><em>rescaled_basis</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">cv::Mat&#160;</td>
+          <td class="paramtype">const Eigen::VectorXf &amp;&#160;</td>
           <td class="paramname"><em>eigenvalues</em>&#160;</td>
         </tr>
         <tr>
@@ -303,21 +388,132 @@ Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Takes an unnormalised PCA basis matrix (a matrix consisting of the eigenvectors and normalises it, i.e. multiplies each eigenvector by the square root of its corresponding eigenvalue.</p>
+<p>Takes a rescaled PCA basis matrix and scales it back to an orthonormal basis matrix by multiplying each eigenvector by 1 over the square root of its corresponding eigenvalue.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">unnormalised_basis</td><td>An unnormalised PCA basis matrix. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">rescaled_basis</td><td>A rescaled PCA basis matrix. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">eigenvalues</td><td>A row or column vector of eigenvalues. </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>The normalised PCA basis matrix. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>The orthonormal PCA basis matrix. </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="aea789890a319e237798ed49868bc6f59"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">Eigen::MatrixXf eos::morphablemodel::rescale_pca_basis </td>
+          <td>(</td>
+          <td class="paramtype">const Eigen::MatrixXf &amp;&#160;</td>
+          <td class="paramname"><em>orthonormal_basis</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const Eigen::VectorXf &amp;&#160;</td>
+          <td class="paramname"><em>eigenvalues</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Takes an orthonormal PCA basis matrix (a matrix consisting of the eigenvectors) and rescales it, i.e. multiplies each eigenvector by the square root of its corresponding eigenvalue.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">orthonormal_basis</td><td>An orthonormal_basis PCA basis matrix. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">eigenvalues</td><td>A row or column vector of eigenvalues. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The rescaled PCA basis matrix. </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a8d6e6d23f777bf6d8b54b12106a8eac5"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structeos_1_1core_1_1_mesh.html">core::Mesh</a> eos::morphablemodel::sample_to_mesh </td>
+          <td>(</td>
+          <td class="paramtype">const Eigen::VectorXf &amp;&#160;</td>
+          <td class="paramname"><em>shape_instance</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const Eigen::VectorXf &amp;&#160;</td>
+          <td class="paramname"><em>color_instance</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::vector&lt; std::array&lt; int, 3 &gt;&gt; &amp;&#160;</td>
+          <td class="paramname"><em>tvi</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::vector&lt; std::array&lt; int, 3 &gt;&gt; &amp;&#160;</td>
+          <td class="paramname"><em>tci</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::vector&lt; std::array&lt; double, 2 &gt;&gt; &amp;&#160;</td>
+          <td class="paramname"><em>texture_coordinates</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Helper function that creates a Mesh from given shape and colour PCA instances. Needs the vertex index lists as well to assemble the mesh - and optional texture coordinates.</p>
+<p>If <code>color</code> is empty, it will create a mesh without vertex colouring.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">shape_instance</td><td>PCA shape model instance. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">color_instance</td><td>PCA colour model instance. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">tvi</td><td>Triangle vertex indices. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">tci</td><td>Triangle colour indices (usually identical to the vertex indices). </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">texture_coordinates</td><td>Optional texture coordinates for each vertex. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>A mesh created from given parameters. </dd></dl>
 
 </div>
 </div>
 <a class="anchor" id="a2578fc03dbaa1809873578f17991e278"></a>
 <div class="memitem">
 <div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
       <table class="memname">
         <tr>
           <td class="memname">void eos::morphablemodel::save_coefficients </td>
@@ -337,6 +533,11 @@ Functions</h2></td></tr>
           <td></td><td></td>
         </tr>
       </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
 </div><div class="memdoc">
 <p>Saves coefficients (for example PCA shape coefficients) to a json file.</p>
 <dl class="params"><dt>Parameters</dt><dd>
@@ -355,9 +556,60 @@ Functions</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="a242124318b55a2b487fcf57681463387"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void eos::morphablemodel::save_edge_topology </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structeos_1_1morphablemodel_1_1_edge_topology.html">EdgeTopology</a>&#160;</td>
+          <td class="paramname"><em>edge_topology</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::string&#160;</td>
+          <td class="paramname"><em>filename</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Saves a 3DMM edge topology file to a json file.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">edge_topology</td><td>A model's edge topology. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">filename</td><td>The file to write. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">std::runtime_error</td><td>if unable to open the given file for writing. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a class="anchor" id="aad09e0fd0788cb7fea41ed799c653e71"></a>
 <div class="memitem">
 <div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
       <table class="memname">
         <tr>
           <td class="memname">void eos::morphablemodel::save_model </td>
@@ -377,8 +629,13 @@ Functions</h2></td></tr>
           <td></td><td></td>
         </tr>
       </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
 </div><div class="memdoc">
-<p>Helper method to save a Morphable Model to the harddrive as cereal::BinaryInputArchive.</p>
+<p>Helper method to save a Morphable Model to the harddrive as cereal::BinaryOutputArchive.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">model</td><td>The model to be saved. </td></tr>
@@ -389,7 +646,7 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a90682d9e8a88243a1113b5a6c149799e"></a>
+<a class="anchor" id="a141d454c166ae194688eb12417de4109"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -397,21 +654,11 @@ Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">cv::Mat eos::morphablemodel::unnormalise_pca_basis </td>
+          <td class="memname">Eigen::MatrixXf eos::morphablemodel::to_matrix </td>
           <td>(</td>
-          <td class="paramtype">cv::Mat&#160;</td>
-          <td class="paramname"><em>normalised_basis</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
+          <td class="paramtype">const std::vector&lt; <a class="el" href="structeos_1_1morphablemodel_1_1_blendshape.html">Blendshape</a> &gt; &amp;&#160;</td>
+          <td class="paramname"><em>blendshapes</em></td><td>)</td>
           <td></td>
-          <td class="paramtype">cv::Mat&#160;</td>
-          <td class="paramname"><em>eigenvalues</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
         </tr>
       </table>
   </td>
@@ -420,15 +667,49 @@ Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Takes a normalised PCA basis matrix (a matrix consisting of the eigenvectors and denormalises it, i.e. multiplies each eigenvector by 1 over the square root of its corresponding eigenvalue.</p>
+
+<p>Copies the blendshapes into a matrix, with each column being a blendshape. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">normalised_basis</td><td>A normalised PCA basis matrix. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">eigenvalues</td><td>A row or column vector of eigenvalues. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">blendshapes</td><td>Vector of blendshapes. </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>The unnormalised PCA basis matrix. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>The resulting matrix. </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a6c224e315efc828128fb51cc646ec4ed"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">Eigen::Map&lt;const Eigen::VectorXf&gt; eos::morphablemodel::to_vector </td>
+          <td>(</td>
+          <td class="paramtype">const std::vector&lt; float &gt; &amp;&#160;</td>
+          <td class="paramname"><em>coefficients</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Maps an std::vector of coefficients with Eigen::Map, so it can be multiplied with a blendshapes matrix. </p>
+<p>Note that the resulting Eigen::Map only lives as long as the data given lives and is in scope.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">coefficients</td><td>Vector of blendshape coefficients. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>An Eigen::Map pointing to the given coefficients data. </dd></dl>
 
 </div>
 </div>

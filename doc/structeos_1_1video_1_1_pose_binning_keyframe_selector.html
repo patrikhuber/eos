@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.11"/>
-<title>eos: Member List</title>
+<title>eos: eos::video::PoseBinningKeyframeSelector Struct Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -30,7 +30,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">eos
-   &#160;<span id="projectnumber">0.7.1</span>
+   &#160;<span id="projectnumber">0.12.1</span>
    </div>
   </td>
  </tr>
@@ -89,23 +89,43 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="namespaceeos.html">eos</a></li><li class="navelem"><a class="el" href="namespaceeos_1_1render.html">render</a></li><li class="navelem"><a class="el" href="structeos_1_1render_1_1_mesh.html">Mesh</a></li>  </ul>
+<li class="navelem"><a class="el" href="namespaceeos.html">eos</a></li><li class="navelem"><a class="el" href="namespaceeos_1_1video.html">video</a></li><li class="navelem"><a class="el" href="structeos_1_1video_1_1_pose_binning_keyframe_selector.html">PoseBinningKeyframeSelector</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
+  <div class="summary">
+<a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="structeos_1_1video_1_1_pose_binning_keyframe_selector-members.html">List of all members</a>  </div>
   <div class="headertitle">
-<div class="title">eos::render::Mesh Member List</div>  </div>
+<div class="title">eos::video::PoseBinningKeyframeSelector Struct Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
 
-<p>This is the complete list of members for <a class="el" href="structeos_1_1render_1_1_mesh.html">eos::render::Mesh</a>, including all inherited members.</p>
-<table class="directory">
-  <tr class="even"><td class="entry"><a class="el" href="structeos_1_1render_1_1_mesh.html#ae3b0e946a77b4f434b382b315ea7c24b">colors</a></td><td class="entry"><a class="el" href="structeos_1_1render_1_1_mesh.html">eos::render::Mesh</a></td><td class="entry"></td></tr>
-  <tr><td class="entry"><a class="el" href="structeos_1_1render_1_1_mesh.html#a81c47a35a1b0a6a6cb440cfbb67b8c28">tci</a></td><td class="entry"><a class="el" href="structeos_1_1render_1_1_mesh.html">eos::render::Mesh</a></td><td class="entry"></td></tr>
-  <tr class="even"><td class="entry"><a class="el" href="structeos_1_1render_1_1_mesh.html#a64fddf0a7200e7f66b0426773542eea4">texcoords</a></td><td class="entry"><a class="el" href="structeos_1_1render_1_1_mesh.html">eos::render::Mesh</a></td><td class="entry"></td></tr>
-  <tr><td class="entry"><a class="el" href="structeos_1_1render_1_1_mesh.html#ab6fb80c460656bf7830a526f0692681b">tvi</a></td><td class="entry"><a class="el" href="structeos_1_1render_1_1_mesh.html">eos::render::Mesh</a></td><td class="entry"></td></tr>
-  <tr class="even"><td class="entry"><a class="el" href="structeos_1_1render_1_1_mesh.html#a305d17e6453f6be320331e00e8c8816e">vertices</a></td><td class="entry"><a class="el" href="structeos_1_1render_1_1_mesh.html">eos::render::Mesh</a></td><td class="entry"></td></tr>
-</table></div><!-- contents -->
+<p>A keyframe selection that selects keyframes according to yaw pose and score.  
+ <a href="structeos_1_1video_1_1_pose_binning_keyframe_selector.html#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="_keyframe_8hpp_source.html">Keyframe.hpp</a>&gt;</code></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
+Public Member Functions</h2></td></tr>
+<tr class="memitem:af379bbac8fff055b2f750a2c3c1ce15c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af379bbac8fff055b2f750a2c3c1ce15c"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>PoseBinningKeyframeSelector</b> (int frames_per_bin=2)</td></tr>
+<tr class="separator:af379bbac8fff055b2f750a2c3c1ce15c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9c91d78ba5cf8310514b85deadd392ab"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9c91d78ba5cf8310514b85deadd392ab"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>try_add</b> (float frame_score, cv::Mat image, const fitting::FittingResult &amp;fitting_result)</td></tr>
+<tr class="separator:a9c91d78ba5cf8310514b85deadd392ab"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae94b5c8f6194682bb22fec3126be3a8b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae94b5c8f6194682bb22fec3126be3a8b"></a>
+std::vector&lt; <a class="el" href="structeos_1_1video_1_1_keyframe.html">Keyframe</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>get_keyframes</b> () const </td></tr>
+<tr class="separator:ae94b5c8f6194682bb22fec3126be3a8b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>A keyframe selection that selects keyframes according to yaw pose and score. </p>
+<p>Separates the +-90° yaw pose range into 20° intervals (i.e. 90 to 70, ..., -10 to 10, ...), and puts frames into each bin, until full. Replaces keyframes with better frames if the score is higher than that of current keyframes.</p>
+<p>The yaw pose bins are currently hard-coded (9 bins, 20° intervals). </p>
+</div><hr/>The documentation for this struct was generated from the following file:<ul>
+<li>include/eos/video/<a class="el" href="_keyframe_8hpp_source.html">Keyframe.hpp</a></li>
+</ul>
+</div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
 Generated by &#160;<a href="http://www.doxygen.org/index.html">

@@ -30,7 +30,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">eos
-   &#160;<span id="projectnumber">0.7.1</span>
+   &#160;<span id="projectnumber">0.12.1</span>
    </div>
   </td>
  </tr>
@@ -109,30 +109,35 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:ab2e45689de5f00a6109ecf00b0625d2f"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classeos_1_1morphablemodel_1_1_pca_model.html#ab2e45689de5f00a6109ecf00b0625d2f">PcaModel</a> (cv::Mat mean, cv::Mat pca_basis, cv::Mat eigenvalues, std::vector&lt; std::array&lt; int, 3 &gt;&gt; triangle_list)</td></tr>
-<tr class="separator:ab2e45689de5f00a6109ecf00b0625d2f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afdd615895bb980181bcd166bed62d7ad"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classeos_1_1morphablemodel_1_1_pca_model.html#afdd615895bb980181bcd166bed62d7ad">PcaModel</a> (Eigen::VectorXf mean, Eigen::MatrixXf orthonormal_pca_basis, Eigen::VectorXf eigenvalues, std::vector&lt; std::array&lt; int, 3 &gt;&gt; triangle_list)</td></tr>
+<tr class="separator:afdd615895bb980181bcd166bed62d7ad"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a309148e123fc5fecd3cf10513f75b657"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classeos_1_1morphablemodel_1_1_pca_model.html#a309148e123fc5fecd3cf10513f75b657">get_num_principal_components</a> () const </td></tr>
 <tr class="separator:a309148e123fc5fecd3cf10513f75b657"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acdf68d929079eab57ab4990c468a9e0d"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classeos_1_1morphablemodel_1_1_pca_model.html#acdf68d929079eab57ab4990c468a9e0d">get_data_dimension</a> () const </td></tr>
 <tr class="separator:acdf68d929079eab57ab4990c468a9e0d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aab14825974f9512ba3b7b88afd2521b3"><td class="memItemLeft" align="right" valign="top">std::vector&lt; std::array&lt; int, 3 &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classeos_1_1morphablemodel_1_1_pca_model.html#aab14825974f9512ba3b7b88afd2521b3">get_triangle_list</a> () const </td></tr>
 <tr class="separator:aab14825974f9512ba3b7b88afd2521b3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af05c96c2a5d3936503b961a9b4238495"><td class="memItemLeft" align="right" valign="top">cv::Mat&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classeos_1_1morphablemodel_1_1_pca_model.html#af05c96c2a5d3936503b961a9b4238495">get_mean</a> () const </td></tr>
-<tr class="separator:af05c96c2a5d3936503b961a9b4238495"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1820ad4e0b9719884811188f3c932592"><td class="memItemLeft" align="right" valign="top">cv::Vec4f&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classeos_1_1morphablemodel_1_1_pca_model.html#a1820ad4e0b9719884811188f3c932592">get_mean_at_point</a> (int vertex_index) const </td></tr>
-<tr class="separator:a1820ad4e0b9719884811188f3c932592"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8dfc5fa04f9853f2e06b971b90415538"><td class="memItemLeft" align="right" valign="top">cv::Mat&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classeos_1_1morphablemodel_1_1_pca_model.html#a8dfc5fa04f9853f2e06b971b90415538">draw_sample</a> (float sigma=1.0f)</td></tr>
-<tr class="separator:a8dfc5fa04f9853f2e06b971b90415538"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1ec80573ada0d7ff6ce4e937944edeb2"><td class="memItemLeft" align="right" valign="top">cv::Mat&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classeos_1_1morphablemodel_1_1_pca_model.html#a1ec80573ada0d7ff6ce4e937944edeb2">draw_sample</a> (std::vector&lt; float &gt; coefficients) const </td></tr>
-<tr class="separator:a1ec80573ada0d7ff6ce4e937944edeb2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af0597eb2cf01c98e397773740f3a8258"><td class="memItemLeft" align="right" valign="top">cv::Mat&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classeos_1_1morphablemodel_1_1_pca_model.html#af0597eb2cf01c98e397773740f3a8258">get_normalised_pca_basis</a> () const </td></tr>
-<tr class="separator:af0597eb2cf01c98e397773740f3a8258"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a66e4ef89182a98845a8a6804047f2b77"><td class="memItemLeft" align="right" valign="top">cv::Mat&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classeos_1_1morphablemodel_1_1_pca_model.html#a66e4ef89182a98845a8a6804047f2b77">get_normalised_pca_basis</a> (int vertex_id) const </td></tr>
-<tr class="separator:a66e4ef89182a98845a8a6804047f2b77"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8d0f31b08aca934b7cf86dd92a1abbe2"><td class="memItemLeft" align="right" valign="top">cv::Mat&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classeos_1_1morphablemodel_1_1_pca_model.html#a8d0f31b08aca934b7cf86dd92a1abbe2">get_unnormalised_pca_basis</a> () const </td></tr>
-<tr class="separator:a8d0f31b08aca934b7cf86dd92a1abbe2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a059f3e3f68307fd97b3e4aa38e4b6d34"><td class="memItemLeft" align="right" valign="top">cv::Mat&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classeos_1_1morphablemodel_1_1_pca_model.html#a059f3e3f68307fd97b3e4aa38e4b6d34">get_unnormalised_pca_basis</a> (int vertex_id) const </td></tr>
-<tr class="separator:a059f3e3f68307fd97b3e4aa38e4b6d34"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9b29431649dd4e62a0cc156ce964d1f5"><td class="memItemLeft" align="right" valign="top">const Eigen::VectorXf &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classeos_1_1morphablemodel_1_1_pca_model.html#a9b29431649dd4e62a0cc156ce964d1f5">get_mean</a> () const </td></tr>
+<tr class="separator:a9b29431649dd4e62a0cc156ce964d1f5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aeae1de65120964ac5ec40797c1442def"><td class="memItemLeft" align="right" valign="top">Eigen::Vector3f&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classeos_1_1morphablemodel_1_1_pca_model.html#aeae1de65120964ac5ec40797c1442def">get_mean_at_point</a> (int vertex_index) const </td></tr>
+<tr class="separator:aeae1de65120964ac5ec40797c1442def"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ace8a235ca2ca9e7426f1560d90cda3aa"><td class="memTemplParams" colspan="2">template&lt;class RNG &gt; </td></tr>
+<tr class="memitem:ace8a235ca2ca9e7426f1560d90cda3aa"><td class="memTemplItemLeft" align="right" valign="top">Eigen::VectorXf&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classeos_1_1morphablemodel_1_1_pca_model.html#ace8a235ca2ca9e7426f1560d90cda3aa">draw_sample</a> (RNG &amp;engine, float sigma=1.0f) const </td></tr>
+<tr class="separator:ace8a235ca2ca9e7426f1560d90cda3aa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adab400f7a6ce6f32368332d1dc2f386e"><td class="memItemLeft" align="right" valign="top">Eigen::VectorXf&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classeos_1_1morphablemodel_1_1_pca_model.html#adab400f7a6ce6f32368332d1dc2f386e">draw_sample</a> (std::vector&lt; float &gt; coefficients) const </td></tr>
+<tr class="separator:adab400f7a6ce6f32368332d1dc2f386e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac9bf780b2b19f5e61f80ce9cfbf38fb3"><td class="memItemLeft" align="right" valign="top">Eigen::VectorXf&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classeos_1_1morphablemodel_1_1_pca_model.html#ac9bf780b2b19f5e61f80ce9cfbf38fb3">draw_sample</a> (std::vector&lt; double &gt; coefficients) const </td></tr>
+<tr class="separator:ac9bf780b2b19f5e61f80ce9cfbf38fb3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4ea2e7a95034918158202e0a6b2675b6"><td class="memItemLeft" align="right" valign="top">const Eigen::MatrixXf &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classeos_1_1morphablemodel_1_1_pca_model.html#a4ea2e7a95034918158202e0a6b2675b6">get_rescaled_pca_basis</a> () const </td></tr>
+<tr class="separator:a4ea2e7a95034918158202e0a6b2675b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad3302a13f83aaa8eb802af04f54e7b75"><td class="memItemLeft" align="right" valign="top">Eigen::MatrixXf&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classeos_1_1morphablemodel_1_1_pca_model.html#ad3302a13f83aaa8eb802af04f54e7b75">get_rescaled_pca_basis_at_point</a> (int vertex_id) const </td></tr>
+<tr class="separator:ad3302a13f83aaa8eb802af04f54e7b75"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acbdd4bc18d5bb116ad9ab458aedd01a1"><td class="memItemLeft" align="right" valign="top">const Eigen::MatrixXf &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classeos_1_1morphablemodel_1_1_pca_model.html#acbdd4bc18d5bb116ad9ab458aedd01a1">get_orthonormal_pca_basis</a> () const </td></tr>
+<tr class="separator:acbdd4bc18d5bb116ad9ab458aedd01a1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6e2abfb65f4ee5007942493424ff2002"><td class="memItemLeft" align="right" valign="top">Eigen::MatrixXf&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classeos_1_1morphablemodel_1_1_pca_model.html#a6e2abfb65f4ee5007942493424ff2002">get_orthonormal_pca_basis_at_point</a> (int vertex_id) const </td></tr>
+<tr class="separator:a6e2abfb65f4ee5007942493424ff2002"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9448b9b2b719e0125469b569a867dcf1"><td class="memItemLeft" align="right" valign="top">const Eigen::VectorXf &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classeos_1_1morphablemodel_1_1_pca_model.html#a9448b9b2b719e0125469b569a867dcf1">get_eigenvalues</a> () const </td></tr>
+<tr class="separator:a9448b9b2b719e0125469b569a867dcf1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8315679e0893b1bcde4f9a9aa08a137d"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classeos_1_1morphablemodel_1_1_pca_model.html#a8315679e0893b1bcde4f9a9aa08a137d">get_eigenvalue</a> (int index) const </td></tr>
 <tr class="separator:a8315679e0893b1bcde4f9a9aa08a137d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
@@ -146,12 +151,12 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>cereal::access</b></
 <div class="textblock"><p>This class represents a PCA-model that consists of: </p>
 <ul>
 <li>a mean vector (y x z)</li>
-<li>a PCA basis matrix (unnormalised and normalised)</li>
+<li>a PCA basis matrix (orthonormal and rescaled)</li>
 <li>a PCA variance vector.</li>
 </ul>
-<p>It also contains a list of triangles to built a mesh as well as a mapping from landmark points to the corresponding vertex-id in the mesh. It is able to return instances of the model as meshes. </p>
+<p>It also contains a list of triangles to built a mesh as well as a mapping from landmark points to the corresponding vertex-id in the mesh. </p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a class="anchor" id="ab2e45689de5f00a6109ecf00b0625d2f"></a>
+<a class="anchor" id="afdd615895bb980181bcd166bed62d7ad"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -161,19 +166,19 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>cereal::access</b></
         <tr>
           <td class="memname">eos::morphablemodel::PcaModel::PcaModel </td>
           <td>(</td>
-          <td class="paramtype">cv::Mat&#160;</td>
+          <td class="paramtype">Eigen::VectorXf&#160;</td>
           <td class="paramname"><em>mean</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">cv::Mat&#160;</td>
-          <td class="paramname"><em>pca_basis</em>, </td>
+          <td class="paramtype">Eigen::MatrixXf&#160;</td>
+          <td class="paramname"><em>orthonormal_pca_basis</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">cv::Mat&#160;</td>
+          <td class="paramtype">Eigen::VectorXf&#160;</td>
           <td class="paramname"><em>eigenvalues</em>, </td>
         </tr>
         <tr>
@@ -199,7 +204,7 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>cereal::access</b></
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">mean</td><td>The mean used to build the PCA model. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">pca_basis</td><td>The PCA basis (eigenvectors), normalised (multiplied by the eigenvalues). </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">orthonormal_pca_basis</td><td>An orthonormal PCA basis (eigenvectors). </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">eigenvalues</td><td>The eigenvalues used to build the PCA model. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">triangle_list</td><td>An index list of how to assemble the mesh. </td></tr>
   </table>
@@ -209,19 +214,31 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>cereal::access</b></
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a class="anchor" id="a8dfc5fa04f9853f2e06b971b90415538"></a>
+<a class="anchor" id="ace8a235ca2ca9e7426f1560d90cda3aa"></a>
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class RNG &gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">cv::Mat eos::morphablemodel::PcaModel::draw_sample </td>
+          <td class="memname">Eigen::VectorXf eos::morphablemodel::PcaModel::draw_sample </td>
           <td>(</td>
-          <td class="paramtype">float&#160;</td>
-          <td class="paramname"><em>sigma</em> = <code>1.0f</code></td><td>)</td>
+          <td class="paramtype">RNG &amp;&#160;</td>
+          <td class="paramname"><em>engine</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype">float&#160;</td>
+          <td class="paramname"><em>sigma</em> = <code>1.0f</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td> const</td>
         </tr>
       </table>
   </td>
@@ -233,6 +250,7 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>cereal::access</b></
 <p>Draws a random sample from the model, where the coefficients are drawn from a standard normal (or with the given standard deviation).</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">engine</td><td>Random number engine used to draw random coefficients. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">sigma</td><td>The standard deviation. </td></tr>
   </table>
   </dd>
@@ -241,7 +259,7 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>cereal::access</b></
 
 </div>
 </div>
-<a class="anchor" id="a1ec80573ada0d7ff6ce4e937944edeb2"></a>
+<a class="anchor" id="adab400f7a6ce6f32368332d1dc2f386e"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -249,7 +267,7 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>cereal::access</b></
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">cv::Mat eos::morphablemodel::PcaModel::draw_sample </td>
+          <td class="memname">Eigen::VectorXf eos::morphablemodel::PcaModel::draw_sample </td>
           <td>(</td>
           <td class="paramtype">std::vector&lt; float &gt;&#160;</td>
           <td class="paramname"><em>coefficients</em></td><td>)</td>
@@ -262,6 +280,40 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>cereal::access</b></
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Returns a sample from the model with the given PCA coefficients. The given coefficients should follow a standard normal distribution, i.e. not be "normalised" with their eigenvalues/variances.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">coefficients</td><td>The PCA coefficients used to generate the sample. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>A model instance with given coefficients. </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="ac9bf780b2b19f5e61f80ce9cfbf38fb3"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">Eigen::VectorXf eos::morphablemodel::PcaModel::draw_sample </td>
+          <td>(</td>
+          <td class="paramtype">std::vector&lt; double &gt;&#160;</td>
+          <td class="paramname"><em>coefficients</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p></p>
 <p>Returns a sample from the model with the given PCA coefficients. The given coefficients should follow a standard normal distribution, i.e. not be "normalised" with their eigenvalues/variances.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -320,7 +372,7 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>cereal::access</b></
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Returns an eigenvalue.</p>
+<p>Returns a specific eigenvalue.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">index</td><td>The index of the eigenvalue to return. </td></tr>
@@ -331,7 +383,7 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>cereal::access</b></
 
 </div>
 </div>
-<a class="anchor" id="af05c96c2a5d3936503b961a9b4238495"></a>
+<a class="anchor" id="a9448b9b2b719e0125469b569a867dcf1"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -339,7 +391,32 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>cereal::access</b></
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">cv::Mat eos::morphablemodel::PcaModel::get_mean </td>
+          <td class="memname">const Eigen::VectorXf&amp; eos::morphablemodel::PcaModel::get_eigenvalues </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Returns the models eigenvalues.</p>
+<dl class="section return"><dt>Returns</dt><dd>The eigenvalues. </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a9b29431649dd4e62a0cc156ce964d1f5"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const Eigen::VectorXf&amp; eos::morphablemodel::PcaModel::get_mean </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -356,7 +433,7 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>cereal::access</b></
 
 </div>
 </div>
-<a class="anchor" id="a1820ad4e0b9719884811188f3c932592"></a>
+<a class="anchor" id="aeae1de65120964ac5ec40797c1442def"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -364,7 +441,7 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>cereal::access</b></
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">cv::Vec4f eos::morphablemodel::PcaModel::get_mean_at_point </td>
+          <td class="memname">Eigen::Vector3f eos::morphablemodel::PcaModel::get_mean_at_point </td>
           <td>(</td>
           <td class="paramtype">int&#160;</td>
           <td class="paramname"><em>vertex_index</em></td><td>)</td>
@@ -384,65 +461,7 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>cereal::access</b></
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>A homogeneous vector containing the values at the given vertex index. </dd></dl>
-
-</div>
-</div>
-<a class="anchor" id="af0597eb2cf01c98e397773740f3a8258"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">cv::Mat eos::morphablemodel::PcaModel::get_normalised_pca_basis </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-<p>Returns the PCA basis matrix, i.e. the eigenvectors. Each column of the matrix is an eigenvector. The returned basis is normalised, i.e. every eigenvector is normalised by multiplying it with the square root of its eigenvalue.</p>
-<p>Returns a clone of the matrix so that the original cannot be modified. TODO: No, don't return a clone.</p>
-<dl class="section return"><dt>Returns</dt><dd>Returns the normalised PCA basis matrix. </dd></dl>
-
-</div>
-</div>
-<a class="anchor" id="a66e4ef89182a98845a8a6804047f2b77"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">cv::Mat eos::morphablemodel::PcaModel::get_normalised_pca_basis </td>
-          <td>(</td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>vertex_id</em></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-<p>Returns the PCA basis for a particular vertex. The returned basis is normalised, i.e. every eigenvector is normalised by multiplying it with the square root of its eigenvalue.</p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">vertex_id</td><td>A vertex index. Make sure it is valid. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>A Mat that points to the rows in the original basis. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>A 3-dimensional vector containing the values at the given vertex index. </dd></dl>
 
 </div>
 </div>
@@ -471,6 +490,123 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>cereal::access</b></
 
 </div>
 </div>
+<a class="anchor" id="acbdd4bc18d5bb116ad9ab458aedd01a1"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const Eigen::MatrixXf&amp; eos::morphablemodel::PcaModel::get_orthonormal_pca_basis </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Returns the PCA basis matrix, i.e. the eigenvectors. Each column of the matrix is an eigenvector. The returned basis is orthonormal, i.e. the eigenvectors are not scaled by their respective eigenvalues.</p>
+<dl class="section return"><dt>Returns</dt><dd>Returns the orthonormal PCA basis matrix. </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a6e2abfb65f4ee5007942493424ff2002"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">Eigen::MatrixXf eos::morphablemodel::PcaModel::get_orthonormal_pca_basis_at_point </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>vertex_id</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Returns the PCA basis for a particular vertex, from the orthonormal basis.</p>
+<p>Note: The function does not return the i-th basis vector - it returns all basis vectors, but only the block that is relevant for the vertex <code>vertex_id</code>.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">vertex_id</td><td>A vertex index. Make sure it is valid. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>A matrix that points to the rows in the original basis. </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a4ea2e7a95034918158202e0a6b2675b6"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const Eigen::MatrixXf&amp; eos::morphablemodel::PcaModel::get_rescaled_pca_basis </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Returns the PCA basis matrix, i.e. the eigenvectors. Each column of the matrix is an eigenvector. The returned basis is rescaled, i.e. every eigenvector is rescaled by multiplying it with the square root of its eigenvalue.</p>
+<dl class="section return"><dt>Returns</dt><dd>Returns the rescaled PCA basis matrix. </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="ad3302a13f83aaa8eb802af04f54e7b75"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">Eigen::MatrixXf eos::morphablemodel::PcaModel::get_rescaled_pca_basis_at_point </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>vertex_id</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Returns the PCA basis for a particular vertex, from the rescaled basis.</p>
+<p>Note: The function does not return the i-th basis vector - it returns all basis vectors, but only the block that is relevant for the vertex <code>vertex_id</code>.</p>
+<p>Todo: Can we return a const &amp; view that points into the original data?</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">vertex_id</td><td>A vertex index. Make sure it is valid. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>A 1x3? 3x1? matrix that points to the rows in the original basis. </dd></dl>
+
+</div>
+</div>
 <a class="anchor" id="aab14825974f9512ba3b7b88afd2521b3"></a>
 <div class="memitem">
 <div class="memproto">
@@ -493,64 +629,6 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>cereal::access</b></
 </div><div class="memdoc">
 <p>Returns a list of triangles on how to assemble the vertices into a mesh.</p>
 <dl class="section return"><dt>Returns</dt><dd>The list of triangles to build a mesh. </dd></dl>
-
-</div>
-</div>
-<a class="anchor" id="a8d0f31b08aca934b7cf86dd92a1abbe2"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">cv::Mat eos::morphablemodel::PcaModel::get_unnormalised_pca_basis </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-<p>Returns the PCA basis matrix, i.e. the eigenvectors. Each column of the matrix is an eigenvector. The returned basis is unnormalised, i.e. not scaled by their eigenvalues.</p>
-<p>Returns a clone of the matrix so that the original cannot be modified. TODO: No, don't return a clone.</p>
-<dl class="section return"><dt>Returns</dt><dd>Returns the unnormalised PCA basis matrix. </dd></dl>
-
-</div>
-</div>
-<a class="anchor" id="a059f3e3f68307fd97b3e4aa38e4b6d34"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">cv::Mat eos::morphablemodel::PcaModel::get_unnormalised_pca_basis </td>
-          <td>(</td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>vertex_id</em></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-<p>Returns the PCA basis for a particular vertex. The returned basis is unnormalised, i.e. not scaled by their eigenvalues.</p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">vertex_id</td><td>A vertex index. Make sure it is valid. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>A Mat that points to the rows in the original basis. </dd></dl>
 
 </div>
 </div>
