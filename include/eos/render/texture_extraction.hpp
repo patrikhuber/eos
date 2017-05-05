@@ -216,9 +216,9 @@ inline cv::Mat extract_texture(core::Mesh mesh, cv::Mat affine_camera_matrix, cv
 			res = Mat(affine_camera_matrix * Mat(vec));
 			src_tri[2] = Vec2f(res[0], res[1]);
 
-			dst_tri[0] = cv::Point2f(isomap.cols*mesh.texcoords[triangle_indices[0]][0], isomap.rows*mesh.texcoords[triangle_indices[0]][1] - 1.0f);
-			dst_tri[1] = cv::Point2f(isomap.cols*mesh.texcoords[triangle_indices[1]][0], isomap.rows*mesh.texcoords[triangle_indices[1]][1] - 1.0f);
-			dst_tri[2] = cv::Point2f(isomap.cols*mesh.texcoords[triangle_indices[2]][0], isomap.rows*mesh.texcoords[triangle_indices[2]][1] - 1.0f);
+			dst_tri[0] = cv::Point2f((isomap.cols - 1)*mesh.texcoords[triangle_indices[0]][0], (isomap.rows - 1)*mesh.texcoords[triangle_indices[0]][1]);
+			dst_tri[1] = cv::Point2f((isomap.cols - 1)*mesh.texcoords[triangle_indices[1]][0], (isomap.rows - 1)*mesh.texcoords[triangle_indices[1]][1]);
+			dst_tri[2] = cv::Point2f((isomap.cols - 1)*mesh.texcoords[triangle_indices[2]][0], (isomap.rows - 1)*mesh.texcoords[triangle_indices[2]][1]);
 
 			// We now have the source triangles in the image and the source triangle in the isomap
 			// We use the inverse/ backward mapping approach, so we want to find the corresponding texel (texture-pixel) for each pixel in the isomap
@@ -345,10 +345,11 @@ inline cv::Mat extract_texture(core::Mesh mesh, cv::Mat affine_camera_matrix, cv
 	}
 
 	// Workaround for the black line in the isomap (see GitHub issue #4):
-	if (mesh.texcoords.size() <= 3448)
+/*	if (mesh.texcoords.size() <= 3448)
 	{
 		isomap = detail::interpolate_black_line(isomap);
 	}
+*/
 
 	return isomap;
 };
