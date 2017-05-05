@@ -62,6 +62,11 @@ struct Blendshape
 };
 
 /**
+ * Shorthand notation for an std::vector<Blendshape>.
+ */
+using Blendshapes = std::vector<Blendshape>;
+
+/**
  * Helper method to load a file with blendshapes from
  * a cereal::BinaryInputArchive from the harddisk.
  *
