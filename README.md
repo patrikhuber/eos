@@ -24,6 +24,8 @@ At the moment, it mainly provides the following functionality:
 * (**New**): Python bindings for parts of the library, and Matlab bindings for the fitting
 * (_Experimental_): Non-linear fitting cost functions using Ceres for shape, camera, blendshapes and the colour model (needs Ceres to be installed separately)
 
+An experimental model viewer to visualise 3D Morphable Models and blendshapes is available [here](https://github.com/patrikhuber/eos-model-viewer).
+
 ## Usage
 
 * Tested with the following compilers: >=gcc-4.9, >=clang-3.5, Visual Studio 2015
