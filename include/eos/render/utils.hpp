@@ -121,7 +121,7 @@ inline cv::Vec3f calculate_face_normal(const cv::Vec3f& v0, const cv::Vec3f& v1,
  * @param[in] v2 Third vertex.
  * @return The unit-length normal of the given triangle.
  */
-glm::vec3 compute_face_normal(const glm::vec3& v0, const glm::vec3& v1, const glm::vec3& v2)
+inline glm::vec3 compute_face_normal(const glm::vec3& v0, const glm::vec3& v1, const glm::vec3& v2)
 {
 	glm::vec3 n = glm::cross(v1 - v0, v2 - v0); // v0-to-v1 x v0-to-v2
 	n = glm::normalize(n);
