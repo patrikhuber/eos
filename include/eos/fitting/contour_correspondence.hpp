@@ -235,7 +235,7 @@ inline std::tuple<std::vector<cv::Vec2f>, std::vector<cv::Vec4f>, std::vector<in
  * @param[in] model_contour The model contour indices that should be used/considered to find the closest corresponding 3D vertex.
  * @return A pair with two vectors containing the selected 2D image contour landmark ids and the 3D model contour indices.
  */
-std::pair<std::vector<std::string>, std::vector<int>> select_contour(float yaw_angle, const ContourLandmarks& contour_landmarks, const ModelContour& model_contour)
+inline std::pair<std::vector<std::string>, std::vector<int>> select_contour(float yaw_angle, const ContourLandmarks& contour_landmarks, const ModelContour& model_contour)
 {
 	using std::begin;
 	using std::end;
