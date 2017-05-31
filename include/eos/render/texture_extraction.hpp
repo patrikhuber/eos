@@ -216,9 +216,9 @@ inline cv::Mat extract_texture(core::Mesh mesh, cv::Mat affine_camera_matrix, cv
 			res = Mat(affine_camera_matrix * Mat(vec));
 			src_tri[2] = Vec2f(res[0], res[1]);
 
-			dst_tri[0] = cv::Point2f((isomap.cols - 1)*mesh.texcoords[triangle_indices[0]][0], (isomap.rows - 1)*mesh.texcoords[triangle_indices[0]][1]);
-			dst_tri[1] = cv::Point2f((isomap.cols - 1)*mesh.texcoords[triangle_indices[1]][0], (isomap.rows - 1)*mesh.texcoords[triangle_indices[1]][1]);
-			dst_tri[2] = cv::Point2f((isomap.cols - 1)*mesh.texcoords[triangle_indices[2]][0], (isomap.rows - 1)*mesh.texcoords[triangle_indices[2]][1]);
+			dst_tri[0] = cv::Point2f((isomap.cols - 0.5)*mesh.texcoords[triangle_indices[0]][0], (isomap.rows - 0.5)*mesh.texcoords[triangle_indices[0]][1]);
+			dst_tri[1] = cv::Point2f((isomap.cols - 0.5)*mesh.texcoords[triangle_indices[1]][0], (isomap.rows - 0.5)*mesh.texcoords[triangle_indices[1]][1]);
+			dst_tri[2] = cv::Point2f((isomap.cols - 0.5)*mesh.texcoords[triangle_indices[2]][0], (isomap.rows - 0.5)*mesh.texcoords[triangle_indices[2]][1]);
 
 			// We now have the source triangles in the image and the source triangle in the isomap
 			// We use the inverse/ backward mapping approach, so we want to find the corresponding texel (texture-pixel) for each pixel in the isomap
@@ -308,14 +308,17 @@ inline cv::Mat extract_texture(core::Mesh mesh, cv::Mat affine_camera_matrix, cv
 							distance_upper_right /= sum_distances;
 
 							// set color depending on distance from next 4 texels
-							for (int color = 0; color < 3; ++color) {
-								float color_upper_left = image.at<Vec3b>(floor(src_texel[1]), floor(src_texel[0]))[color] * distance_upper_left;
-								float color_upper_right = image.at<Vec3b>(floor(src_texel[1]), ceil(src_texel[0]))[color] * distance_upper_right;
-								float color_lower_left = image.at<Vec3b>(ceil(src_texel[1]), floor(src_texel[0]))[color] * distance_lower_left;
-								float color_lower_right = image.at<Vec3b>(ceil(src_texel[1]), ceil(src_texel[0]))[color] * distance_lower_right;
+							Vec3f color_upper_left = image.at<Vec3b>(floor(src_texel[1]), floor(src_texel[0])) * distance_upper_left;
+							Vec3f color_upper_right = image.at<Vec3b>(floor(src_texel[1]), ceil(src_texel[0])) * distance_upper_right;
+							Vec3f color_lower_left = image.at<Vec3b>(ceil(src_texel[1]), floor(src_texel[0])) * distance_lower_left;
+							Vec3f color_lower_right = image.at<Vec3b>(ceil(src_texel[1]), ceil(src_texel[0])) * distance_lower_right;
 
-								isomap.at<Vec3b>(y, x)[color] = color_upper_left + color_upper_right + color_lower_left + color_lower_right;
-							}
+							//isomap.at<Vec3b>(y, x)[color] = color_upper_left + color_upper_right + color_lower_left + color_lower_right;
+							isomap.at<cv::Vec4b>(y, x)[0] = static_cast<uchar>(glm::clamp(color_upper_left[0] + color_upper_right[0] + color_lower_left[0] + color_lower_right[0],0.f,255.0f));
+							isomap.at<cv::Vec4b>(y, x)[1] = static_cast<uchar>(glm::clamp(color_upper_left[1] + color_upper_right[1] + color_lower_left[1] + color_lower_right[1],0.f,255.0f));
+							isomap.at<cv::Vec4b>(y, x)[2] = static_cast<uchar>(glm::clamp(color_upper_left[2] + color_upper_right[2] + color_lower_left[2] + color_lower_right[2],0.f,255.0f));
+							isomap.at<cv::Vec4b>(y, x)[3] = static_cast<uchar>(alpha_value); // pixel is visible
+
 						}
 						// NearestNeighbour mapping: set color of pixel to color of nearest texel
 						else if (mapping_type == TextureInterpolation::NearestNeighbour) {
