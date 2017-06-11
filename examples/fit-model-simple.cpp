@@ -25,6 +25,8 @@
 #include "eos/render/utils.hpp"
 #include "eos/render/texture_extraction.hpp"
 
+#include "Eigen/Core"
+
 #include "opencv2/core/core.hpp"
 #include "opencv2/highgui/highgui.hpp"
 
@@ -41,9 +43,8 @@ namespace fs = boost::filesystem;
 using eos::core::Landmark;
 using eos::core::LandmarkCollection;
 using cv::Mat;
-using cv::Vec2f;
-using cv::Vec3f;
-using cv::Vec4f;
+using Eigen::Vector2f;
+using Eigen::Vector4f;
 using std::cout;
 using std::endl;
 using std::vector;
@@ -56,12 +57,12 @@ using std::string;
  * @param[in] filename Path to a .pts file.
  * @return An ordered vector with the 68 ibug landmarks.
  */
-LandmarkCollection<cv::Vec2f> read_pts_landmarks(std::string filename)
+LandmarkCollection<Eigen::Vector2f> read_pts_landmarks(std::string filename)
 {
 	using std::getline;
-	using cv::Vec2f;
+	using core::Point2f;
 	using std::string;
-	LandmarkCollection<Vec2f> landmarks;
+	LandmarkCollection<Point2f> landmarks;
 	landmarks.reserve(68);
 
 	std::ifstream file(filename);
@@ -83,7 +84,7 @@ LandmarkCollection<cv::Vec2f> read_pts_landmarks(std::string filename)
 		}
 		std::stringstream lineStream(line);
 
-		Landmark<Vec2f> landmark;
+		Landmark<Point2f> landmark;
 		landmark.name = std::to_string(ibugId);
 		if (!(lineStream >> landmark.coordinates[0] >> landmark.coordinates[1])) {
 			throw std::runtime_error(string("Landmark format error while parsing the line: " + line));
@@ -145,7 +146,7 @@ int main(int argc, char *argv[])
 
 	// Load the image, landmarks, LandmarkMapper and the Morphable Model:
 	Mat image = cv::imread(imagefile.string());
-	LandmarkCollection<cv::Vec2f> landmarks;
+	LandmarkCollection<core::Point2f> landmarks;
 	try {
 		landmarks = read_pts_landmarks(landmarksfile.string());
 	}
@@ -170,9 +171,9 @@ int main(int argc, char *argv[])
 	}
 
 	// These will be the final 2D and 3D points used for the fitting:
-	vector<Vec4f> model_points; // the points in the 3D shape model
+	vector<Vector4f> model_points; // the points in the 3D shape model
 	vector<int> vertex_indices; // their vertex indices
-	vector<Vec2f> image_points; // the corresponding 2D landmark points
+	vector<Vector2f> image_points; // the corresponding 2D landmark points
 
 	// Sub-select all the landmarks which we have a mapping for (i.e. that are defined in the 3DMM):
 	for (int i = 0; i < landmarks.size(); ++i) {
@@ -182,7 +183,7 @@ int main(int argc, char *argv[])
 		}
 		int vertex_idx = std::stoi(converted_name.get());
 		auto vertex = morphable_model.get_shape_model().get_mean_at_point(vertex_idx);
-		model_points.emplace_back(Vec4f(vertex.x(), vertex.y(), vertex.z(), 1.0f));
+		model_points.emplace_back(Vector4f(vertex.x(), vertex.y(), vertex.z(), 1.0f));
 		vertex_indices.emplace_back(vertex_idx);
 		image_points.emplace_back(landmarks[i].coordinates);
 	}
