@@ -209,11 +209,6 @@ inline std::tuple<std::vector<Eigen::Vector2f>, std::vector<Eigen::Vector4f>, st
 	std::vector<std::string> landmark_contour_identifiers;
 	std::tie(landmark_contour_identifiers, model_contour_indices) = select_contour(yaw_angle, contour_landmarks, model_contour);
 
-	// These are the additional contour-correspondences we're going to find and then use:
-	std::vector<cv::Vec4f> model_points_contour; // the points in the 3D shape model
-	std::vector<int> vertex_indices_contour; // their vertex indices
-	std::vector<cv::Vec2f> image_points_contour; // the corresponding 2D landmark points
-	
 	// For each 2D contour landmark, get the corresponding 3D vertex point and vertex id:
 	// Note/Todo: Loop here instead of calling this function where we have no idea what it's doing? What does its documentation say?
 	return get_nearest_contour_correspondences(landmarks, landmark_contour_identifiers, model_contour_indices, mesh, view_model, ortho_projection, viewport);
