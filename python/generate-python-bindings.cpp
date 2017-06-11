@@ -35,6 +35,8 @@
 #include "pybind11/stl.h"
 #include "pybind11/eigen.h"
 #include "pybind11_glm.hpp"
+
+#include "Eigen/Core"
 #include "pybind11_opencv.hpp"
 
 #include <iostream>
@@ -176,7 +178,7 @@ PYBIND11_PLUGIN(eos) {
 		.def("get_projection", &fitting::RenderingParameters::get_projection, "Returns the 4x4 projection matrix.")
 		;
 
-	fitting_module.def("estimate_orthographic_projection_linear", [](std::vector<cv::Vec2f> image_points, std::vector<cv::Vec4f> model_points, bool is_viewport_upsidedown, int viewport_height) {
+	fitting_module.def("estimate_orthographic_projection_linear", [](std::vector<Eigen::Vector2f> image_points, std::vector<Eigen::Vector4f> model_points, bool is_viewport_upsidedown, int viewport_height) {
 			const boost::optional<int> viewport_height_opt = viewport_height == 0 ? boost::none : boost::optional<int>(viewport_height);
 			return fitting::estimate_orthographic_projection_linear(image_points, model_points, is_viewport_upsidedown, viewport_height_opt);
 		}, "This algorithm estimates the parameters of a scaled orthographic projection, given a set of corresponding 2D-3D points.", py::arg("image_points"), py::arg("model_points"), py::arg("is_viewport_upsidedown"), py::arg("viewport_height") = 0)
@@ -194,13 +196,13 @@ PYBIND11_PLUGIN(eos) {
 			assert(landmarks.size() == landmark_ids.size());
 			std::vector<float> pca_coeffs;
 			std::vector<float> blendshape_coeffs;
-			std::vector<cv::Vec2f> fitted_image_points;
+			std::vector<Eigen::Vector2f> fitted_image_points;
 			// We can change this to std::optional as soon as we switch to VS2017 and pybind supports std::optional
 			const boost::optional<int> num_shape_coefficients_opt = num_shape_coefficients_to_fit == -1 ? boost::none : boost::optional<int>(num_shape_coefficients_to_fit);
-			core::LandmarkCollection<cv::Vec2f> landmark_collection;
+			core::LandmarkCollection<core::Point2f> landmark_collection;
 			for (int i = 0; i < landmarks.size(); ++i)
 			{
-				landmark_collection.push_back(core::Landmark<cv::Vec2f>{ landmark_ids[i], cv::Vec2f(landmarks[i].x, landmarks[i].y) });
+				landmark_collection.push_back(core::Landmark<core::Point2f>{ landmark_ids[i], core::Point2f(landmarks[i].x, landmarks[i].y) });
 			}
 			auto result = fitting::fit_shape_and_pose(morphable_model, blendshapes, landmark_collection, landmark_mapper, image_width, image_height, edge_topology, contour_landmarks, model_contour, num_iterations, num_shape_coefficients_opt, lambda, boost::none, pca_coeffs, blendshape_coeffs, fitted_image_points);
 			return std::make_tuple(result.first, result.second, pca_coeffs, blendshape_coeffs);
