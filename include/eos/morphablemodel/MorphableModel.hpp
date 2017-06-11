@@ -26,7 +26,6 @@
 
 #include "eos/core/Mesh.hpp"
 
-#include "eos/morphablemodel/io/mat_cerealisation.hpp"
 #include "cereal/cereal.hpp"
 #include "cereal/access.hpp"
 #include "cereal/types/vector.hpp"
