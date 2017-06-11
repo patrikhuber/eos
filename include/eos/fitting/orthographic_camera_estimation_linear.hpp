@@ -24,7 +24,8 @@
 
 #include "glm/mat3x3.hpp"
 
-#include "opencv2/core/core.hpp"
+#include "opencv2/core/core.hpp" // Remove eventually
+#include "Eigen/Core"
 
 #include "boost/optional.hpp"
 
@@ -67,7 +68,7 @@ struct ScaledOrthoProjectionParameters {
  * @param[in] viewport_height Height of the viewport of the image points (needs to be given if is_viewport_upsidedown == true).
  * @return Rotation, translation and scaling of the estimated scaled orthographic projection.
  */
-inline ScaledOrthoProjectionParameters estimate_orthographic_projection_linear(std::vector<cv::Vec2f> image_points, std::vector<cv::Vec4f> model_points, bool is_viewport_upsidedown, boost::optional<int> viewport_height = boost::none)
+inline ScaledOrthoProjectionParameters estimate_orthographic_projection_linear(std::vector<Eigen::Vector2f> image_points, std::vector<Eigen::Vector4f> model_points, bool is_viewport_upsidedown, boost::optional<int> viewport_height = boost::none)
 {
 	using cv::Mat;
 	assert(image_points.size() == model_points.size());
@@ -91,7 +92,8 @@ inline ScaledOrthoProjectionParameters estimate_orthographic_projection_linear(s
 	int row_index = 0;
 	for (int i = 0; i < model_points.size(); ++i)
 	{
-		Mat p = Mat(model_points[i]).t();
+		cv::Vec4f tmp(model_points[i][0], model_points[i][1], model_points[i][2], model_points[i][3]); // Temp, remove! Switch to Eigen.
+		Mat p = Mat(tmp).t();
 		p.copyTo(A.row(row_index++).colRange(0, 4)); // even row - copy to left side (first row is row 0)
 		p.copyTo(A.row(row_index++).colRange(4, 8)); // odd row - copy to right side
 	} // 4th coord (homogeneous) is already 1

@@ -26,6 +26,8 @@
 #include <vector>
 #include <algorithm>
 
+#include "Eigen/Core"
+
 namespace eos {
 	namespace core {
 
@@ -44,6 +46,11 @@ struct Landmark
  * @brief A trivial collection of landmarks that belong together.
  */
 template<class LandmarkType> using LandmarkCollection = std::vector<Landmark<LandmarkType>>;
+
+/**
+ * @brief Alias for the 2D landmark point type.
+ */
+using Point2f = Eigen::Vector2f;
 
 /**
  * @brief Filters the given LandmarkCollection and returns a new LandmarkCollection

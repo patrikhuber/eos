@@ -56,12 +56,12 @@ using std::string;
  * @param[in] filename Path to a .pts file.
  * @return An ordered vector with the 68 ibug landmarks.
  */
-LandmarkCollection<cv::Vec2f> read_pts_landmarks(std::string filename)
+LandmarkCollection<core::Point2f> read_pts_landmarks(std::string filename)
 {
 	using std::getline;
-	using cv::Vec2f;
+	using core::Point2f;
 	using std::string;
-	LandmarkCollection<Vec2f> landmarks;
+	LandmarkCollection<Point2f> landmarks;
 	landmarks.reserve(68);
 
 	std::ifstream file(filename);
@@ -83,7 +83,7 @@ LandmarkCollection<cv::Vec2f> read_pts_landmarks(std::string filename)
 		}
 		std::stringstream lineStream(line);
 
-		Landmark<Vec2f> landmark;
+		Landmark<Point2f> landmark;
 		landmark.name = std::to_string(ibugId);
 		if (!(lineStream >> landmark.coordinates[0] >> landmark.coordinates[1])) {
 			throw std::runtime_error(string("Landmark format error while parsing the line: " + line));
@@ -179,7 +179,7 @@ int main(int argc, char *argv[])
 
 	// Load the image, landmarks, LandmarkMapper and the Morphable Model:
 	Mat image = cv::imread(imagefile.string());
-	LandmarkCollection<cv::Vec2f> landmarks;
+	LandmarkCollection<core::Point2f> landmarks;
 	try {
 		landmarks = read_pts_landmarks(landmarksfile.string());
 	}

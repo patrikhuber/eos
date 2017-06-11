@@ -34,9 +34,7 @@
 #include "glm/vec4.hpp"
 #include "glm/mat4x4.hpp"
 
-#include "Eigen/Dense" // Need only Vector2f actually.
-
-#include "opencv2/core/core.hpp"
+#include "Eigen/Core"
 
 #include "boost/optional.hpp"
 
@@ -337,7 +335,7 @@ struct KDTreeVectorOfVectorsAdaptor
  * @param[in] distance_threshold All correspondences below this threshold.
  * @return A pair consisting of the used image edge points and their associated 3D vertex index.
  */
-inline std::pair<std::vector<cv::Vec2f>, std::vector<int>> find_occluding_edge_correspondences(const core::Mesh& mesh, const morphablemodel::EdgeTopology& edge_topology, const fitting::RenderingParameters& rendering_parameters, const std::vector<Eigen::Vector2f>& image_edges, float distance_threshold = 64.0f)
+inline std::pair<std::vector<Eigen::Vector2f>, std::vector<int>> find_occluding_edge_correspondences(const core::Mesh& mesh, const morphablemodel::EdgeTopology& edge_topology, const fitting::RenderingParameters& rendering_parameters, const std::vector<Eigen::Vector2f>& image_edges, float distance_threshold = 64.0f)
 {
 	assert(rendering_parameters.get_camera_type() == fitting::CameraType::Orthographic);
 	using std::vector;
@@ -376,17 +374,17 @@ inline std::pair<std::vector<cv::Vec2f>, std::vector<int>> find_occluding_edge_c
 
 	// Filter and store the image (edge) points with their corresponding vertex id:
 	vector<int> vertex_indices;
-	vector<cv::Vec2f> image_points;
+	vector<Vector2f> image_points;
 	assert(occluding_vertices.size() == idx_d.size());
 	for (int i = 0; i < occluding_vertices.size(); ++i)
 	{
 		auto ortho_scale = rendering_parameters.get_screen_width() / rendering_parameters.get_frustum().r; // This might be a bit of a hack - we recover the "real" scaling from the SOP estimate
 		if (idx_d[i].second <= distance_threshold * ortho_scale) // I think multiplying by the scale is good here and gives us invariance w.r.t. the image resolution and face size.
 		{
-			auto edge_point = image_edges[idx_d[i].first];
+			const auto edge_point = image_edges[idx_d[i].first];
 			// Store the found 2D edge point, and the associated vertex id:
 			vertex_indices.push_back(occluding_vertices[i]);
-			image_points.push_back(cv::Vec2f(edge_point[0], edge_point[1]));
+			image_points.push_back(edge_point);
 		}
 	}
 	return { image_points, vertex_indices };

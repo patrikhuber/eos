@@ -31,6 +31,7 @@
 #include "glm/gtc/matrix_transform.hpp"
 
 #include "opencv2/core/core.hpp"
+#include "Eigen/Core"
 
 #include "boost/property_tree/ptree.hpp"
 #include "boost/property_tree/info_parser.hpp"
@@ -47,7 +48,7 @@ namespace eos {
 struct ModelContour;
 struct ContourLandmarks;
 std::pair<std::vector<std::string>, std::vector<int>> select_contour(float yaw_angle, const ContourLandmarks& contour_landmarks, const ModelContour& model_contour);
-std::tuple<std::vector<cv::Vec2f>, std::vector<cv::Vec4f>, std::vector<int>> get_nearest_contour_correspondences(const core::LandmarkCollection<cv::Vec2f>& landmarks, const std::vector<std::string>& landmark_contour_identifiers, const std::vector<int>& model_contour_indices, const core::Mesh& mesh, const glm::mat4x4& view_model, const glm::mat4x4& ortho_projection, const glm::vec4& viewport);
+std::tuple<std::vector<Eigen::Vector2f>, std::vector<Eigen::Vector4f>, std::vector<int>> get_nearest_contour_correspondences(const core::LandmarkCollection<core::Point2f>& landmarks, const std::vector<std::string>& landmark_contour_identifiers, const std::vector<int>& model_contour_indices, const core::Mesh& mesh, const glm::mat4x4& view_model, const glm::mat4x4& ortho_projection, const glm::vec4& viewport);
 
 
 /**
@@ -201,7 +202,7 @@ struct ContourLandmarks
  * @param[in] viewport Current viewport to use.
  * @return A tuple with the 2D contour landmark points, the corresponding points in the 3D shape model and their vertex indices.
  */
-inline std::tuple<std::vector<cv::Vec2f>, std::vector<cv::Vec4f>, std::vector<int>> get_contour_correspondences(const core::LandmarkCollection<cv::Vec2f>& landmarks, const ContourLandmarks& contour_landmarks, const ModelContour& model_contour, float yaw_angle, const core::Mesh& mesh, const glm::mat4x4& view_model, const glm::mat4x4& ortho_projection, const glm::vec4& viewport)
+inline std::tuple<std::vector<Eigen::Vector2f>, std::vector<Eigen::Vector4f>, std::vector<int>> get_contour_correspondences(const core::LandmarkCollection<core::Point2f>& landmarks, const ContourLandmarks& contour_landmarks, const ModelContour& model_contour, float yaw_angle, const core::Mesh& mesh, const glm::mat4x4& view_model, const glm::mat4x4& ortho_projection, const glm::vec4& viewport)
 {
 	// Select which side of the contour we'll use:
 	std::vector<int> model_contour_indices;
@@ -273,12 +274,12 @@ inline std::pair<std::vector<std::string>, std::vector<int>> select_contour(floa
  * @param[in] viewport Current viewport to use.
  * @return A tuple with the 2D contour landmark points, the corresponding points in the 3D shape model and their vertex indices.
  */
-inline std::tuple<std::vector<cv::Vec2f>, std::vector<cv::Vec4f>, std::vector<int>> get_nearest_contour_correspondences(const core::LandmarkCollection<cv::Vec2f>& landmarks, const std::vector<std::string>& landmark_contour_identifiers, const std::vector<int>& model_contour_indices, const core::Mesh& mesh, const glm::mat4x4& view_model, const glm::mat4x4& ortho_projection, const glm::vec4& viewport)
+inline std::tuple<std::vector<Eigen::Vector2f>, std::vector<Eigen::Vector4f>, std::vector<int>> get_nearest_contour_correspondences(const core::LandmarkCollection<core::Point2f>& landmarks, const std::vector<std::string>& landmark_contour_identifiers, const std::vector<int>& model_contour_indices, const core::Mesh& mesh, const glm::mat4x4& view_model, const glm::mat4x4& ortho_projection, const glm::vec4& viewport)
 {
 	// These are the additional contour-correspondences we're going to find and then use!
-	std::vector<cv::Vec4f> model_points_cnt; // the points in the 3D shape model
+	std::vector<Eigen::Vector4f> model_points_cnt; // the points in the 3D shape model
 	std::vector<int> vertex_indices_cnt; // their vertex indices
-	std::vector<cv::Vec2f> image_points_cnt; // the corresponding 2D landmark points
+	std::vector<Eigen::Vector2f> image_points_cnt; // the corresponding 2D landmark points
 
 	// For each 2D-CNT-LM, find the closest 3DMM-CNT-LM and add to correspondences:
 	// Note: If we were to do this for all 3DMM vertices, then ray-casting (i.e. glm::unproject) would be quicker to find the closest vertex)
@@ -288,16 +289,16 @@ inline std::tuple<std::vector<cv::Vec2f>, std::vector<cv::Vec4f>, std::vector<in
 		// (Note: Alternatively, we could filter landmarks beforehand and then just loop over landmarks => means one less function param here. Separate filtering from actual algorithm.)
 		auto result = std::find_if(begin(landmarks), end(landmarks), [&ibug_idx](auto&& e) { return e.name == ibug_idx; }); // => this can go outside the loop
 		// TODO Check for ::end!!! if it's not found!
-		cv::Vec2f screen_point_2d_contour_landmark = result->coordinates;
+		auto screen_point_2d_contour_landmark = result->coordinates;
 
 		std::vector<float> distances_2d;
 		for (auto&& model_contour_vertex_idx : model_contour_indices) // we could actually pre-project them, i.e. only project them once, not for each landmark newly...
 		{
 			auto vertex = mesh.vertices[model_contour_vertex_idx];
 			glm::vec3 proj = glm::project(glm::vec3(vertex), view_model, ortho_projection, viewport);
-			cv::Vec2f screen_point_model_contour(proj.x, proj.y);
+			Eigen::Vector2f screen_point_model_contour(proj.x, proj.y);
 
-			double dist = cv::norm(screen_point_model_contour, screen_point_2d_contour_landmark, cv::NORM_L2);
+			const double dist = (screen_point_model_contour - screen_point_2d_contour_landmark).norm();
 			distances_2d.emplace_back(dist);
 		}
 		auto min_ele = std::min_element(begin(distances_2d), end(distances_2d));
@@ -305,7 +306,7 @@ inline std::tuple<std::vector<cv::Vec2f>, std::vector<cv::Vec4f>, std::vector<in
 		auto min_ele_idx = std::distance(begin(distances_2d), min_ele);
 		auto the_3dmm_vertex_id_that_is_closest = model_contour_indices[min_ele_idx];
 
-		cv::Vec4f vertex(mesh.vertices[the_3dmm_vertex_id_that_is_closest].x, mesh.vertices[the_3dmm_vertex_id_that_is_closest].y, mesh.vertices[the_3dmm_vertex_id_that_is_closest].z, mesh.vertices[the_3dmm_vertex_id_that_is_closest].w);
+		Eigen::Vector4f vertex(mesh.vertices[the_3dmm_vertex_id_that_is_closest].x, mesh.vertices[the_3dmm_vertex_id_that_is_closest].y, mesh.vertices[the_3dmm_vertex_id_that_is_closest].z, mesh.vertices[the_3dmm_vertex_id_that_is_closest].w);
 		model_points_cnt.emplace_back(vertex);
 		vertex_indices_cnt.emplace_back(the_3dmm_vertex_id_that_is_closest);
 		image_points_cnt.emplace_back(screen_point_2d_contour_landmark);
