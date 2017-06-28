@@ -83,8 +83,8 @@ PYBIND11_PLUGIN(eos) {
 	 * Bindings for the eos::morphablemodel namespace:
 	 *  - PcaModel
 	 *  - MorphableModel
-	 *  - load_model()
-	 *  - save_model()
+	 *  - load_model(), save_model()
+	 *  - load_pca_model(), save_pca_model()
 	 */
 	py::module morphablemodel_module = eos_module.def_submodule("morphablemodel", "Functionality to represent a Morphable Model, its PCA models, and functions to load models and blendshapes.");
 
@@ -109,10 +109,13 @@ PYBIND11_PLUGIN(eos) {
 		.def("get_mean", &morphablemodel::MorphableModel::get_mean, "Returns the mean of the shape- and colour model as a Mesh.")
 		.def("draw_sample", (core::Mesh(morphablemodel::MorphableModel::*)(std::vector<float>, std::vector<float>) const)&morphablemodel::MorphableModel::draw_sample, "Returns a sample from the model with the given shape- and colour PCA coefficients.", py::arg("shape_coefficients"), py::arg("color_coefficients"))
 		.def("has_color_model", &morphablemodel::MorphableModel::has_color_model, "Returns true if this Morphable Model contains a colour model, and false if it is a shape-only model.")
+		.def("get_texture_coordinates", &morphablemodel::MorphableModel::get_texture_coordinates, "Returns the texture coordinates for all the vertices in the model.")
 		;
 
 	morphablemodel_module.def("load_model", &morphablemodel::load_model, "Load a Morphable Model from a cereal::BinaryInputArchive (.bin) from the harddisk.", py::arg("filename"));
 	morphablemodel_module.def("save_model", &morphablemodel::save_model, "Save a Morphable Model as cereal::BinaryOutputArchive.", py::arg("model"), py::arg("filename"));
+	morphablemodel_module.def("load_pca_model", &morphablemodel::load_pca_model, "Load a PCA model from a cereal::BinaryInputArchive (.bin) from the harddisk.", py::arg("filename"));
+	morphablemodel_module.def("save_pca_model", &morphablemodel::save_pca_model, "Save a PCA model as cereal::BinaryOutputArchive.", py::arg("model"), py::arg("filename"));
 
 	/**
 	 *  - Blendshape

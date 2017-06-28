@@ -26,6 +26,7 @@
 #include "cereal/access.hpp"
 #include "cereal/types/array.hpp"
 #include "cereal/types/vector.hpp"
+#include "cereal/archives/binary.hpp"
 
 #include "Eigen/Core"
 
@@ -34,6 +35,7 @@
 #include <array>
 #include <random>
 #include <cassert>
+#include <fstream>
 
 namespace eos {
 	namespace morphablemodel {
@@ -57,7 +59,7 @@ public:
 	PcaModel() = default;
 
 	/**
-	 * Construct a PCA model from given mean, normalised PCA basis, eigenvalues
+	 * Construct a PCA model from given mean, orthonormal PCA basis, eigenvalues
 	 * and triangle list.
 	 *
 	 * See the documentation of the member variables for how the data should
@@ -292,6 +294,45 @@ private:
 	};
 };
 
+/**
+ * Helper method to load a PCA model from
+ * a cereal::BinaryInputArchive from the harddisk.
+ *
+ * Usually, morphablemodel::load_model(std::string) should be used to directly
+ * load a MorphableModel. This function can be useful when it is necessary to just
+ * load a PCA model.
+ *
+ * @param[in] filename Filename to a model.
+ * @return The loaded PCA model.
+ * @throw std::runtime_error When the file given in \c filename fails to be opened (most likely because the file doesn't exist).
+ */
+inline PcaModel load_pca_model(std::string filename)
+{
+	PcaModel model;
+
+	std::ifstream file(filename, std::ios::binary);
+	if (file.fail()) {
+		throw std::runtime_error("Error opening given file: " + filename);
+	}
+	cereal::BinaryInputArchive input_archive(file);
+	input_archive(model);
+
+	return model;
+};
+
+/**
+ * Helper method to save a PCA model to the
+ * harddrive as cereal::BinaryOutputArchive.
+ *
+ * @param[in] model The model to be saved.
+ * @param[in] filename Filename for the model.
+ */
+inline void save_pca_model(PcaModel model, std::string filename)
+{
+	std::ofstream file(filename, std::ios::binary);
+	cereal::BinaryOutputArchive output_archive(file);
+	output_archive(model);
+};
 
 /**
  * Takes an orthonormal PCA basis matrix (a matrix consisting

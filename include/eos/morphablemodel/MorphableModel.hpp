@@ -26,8 +26,10 @@
 
 #include "eos/core/Mesh.hpp"
 
+#include "eos/morphablemodel/io/eigen_cerealisation.hpp"
 #include "cereal/cereal.hpp"
 #include "cereal/access.hpp"
+#include "cereal/types/array.hpp"
 #include "cereal/types/vector.hpp"
 #include "cereal/archives/binary.hpp"
 
@@ -40,6 +42,7 @@
 #include <vector>
 #include <array>
 #include <cstdint>
+#include <fstream>
 
 namespace eos {
 	namespace morphablemodel {
