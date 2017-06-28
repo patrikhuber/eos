@@ -30,6 +30,7 @@
 #include "glm/vec3.hpp"
 #include "glm/vec4.hpp"
 
+#include "Eigen/Core"
 #include "opencv2/core/core.hpp"
 
 #include <utility>
@@ -53,7 +54,7 @@ namespace eos {
  * @param[in] do_backface_culling Whether the renderer should perform backface culling.
  * @return A pair with the colourbuffer as its first element and the depthbuffer as the second element.
  */
-inline std::pair<cv::Mat, cv::Mat> render_affine(const core::Mesh& mesh, cv::Mat affine_camera_matrix, int viewport_width, int viewport_height, bool do_backface_culling = true)
+inline std::pair<cv::Mat, cv::Mat> render_affine(const core::Mesh& mesh, Eigen::Matrix<float, 3, 4> affine_camera_matrix, int viewport_width, int viewport_height, bool do_backface_culling = true)
 {
 	assert(mesh.vertices.size() == mesh.colors.size() || mesh.colors.empty()); // The number of vertices has to be equal for both shape and colour, or, alternatively, it has to be a shape-only model.
 	//assert(mesh.vertices.size() == mesh.texcoords.size() || mesh.texcoords.empty()); // same for the texcoords
@@ -64,13 +65,13 @@ inline std::pair<cv::Mat, cv::Mat> render_affine(const core::Mesh& mesh, cv::Mat
 	Mat colourbuffer = Mat::zeros(viewport_height, viewport_width, CV_8UC4);
 	Mat depthbuffer = std::numeric_limits<float>::max() * Mat::ones(viewport_height, viewport_width, CV_64FC1);
 
-	Mat affine_with_z = detail::calculate_affine_z_direction(affine_camera_matrix);
+	Eigen::Matrix<float, 4, 4> affine_with_z = detail::calculate_affine_z_direction(affine_camera_matrix);
 
 	vector<detail::Vertex<float>> projected_vertices;
 	projected_vertices.reserve(mesh.vertices.size());
 	for (int i = 0; i < mesh.vertices.size(); ++i) {
-		Mat vertex_screen_coords = affine_with_z * Mat(cv::Vec4f(mesh.vertices[i].x, mesh.vertices[i].y, mesh.vertices[i].z, mesh.vertices[i].w));
-		glm::tvec4<float> vertex_screen_coords_glm(vertex_screen_coords.at<float>(0), vertex_screen_coords.at<float>(1), vertex_screen_coords.at<float>(2), vertex_screen_coords.at<float>(3));
+		Eigen::Vector4f vertex_screen_coords = affine_with_z * Eigen::Vector4f(mesh.vertices[i].x, mesh.vertices[i].y, mesh.vertices[i].z, mesh.vertices[i].w);
+		glm::tvec4<float> vertex_screen_coords_glm(vertex_screen_coords(0), vertex_screen_coords(1), vertex_screen_coords(2), vertex_screen_coords(3));
 		glm::tvec3<float> vertex_colour;
 		if (mesh.colors.empty()) {
 			vertex_colour = glm::tvec3<float>(0.5f, 0.5f, 0.5f);

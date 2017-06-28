@@ -41,9 +41,6 @@ namespace fs = boost::filesystem;
 using eos::core::Landmark;
 using eos::core::LandmarkCollection;
 using cv::Mat;
-using cv::Vec2f;
-using cv::Vec3f;
-using cv::Vec4f;
 using std::cout;
 using std::endl;
 using std::vector;
@@ -217,15 +214,15 @@ int main(int argc, char *argv[])
 	// Fit the model, get back a mesh and the pose:
 	core::Mesh mesh;
 	fitting::RenderingParameters rendering_params;
-	std::tie(mesh, rendering_params) = fitting::fit_shape_and_pose(morphable_model, blendshapes, landmarks, landmark_mapper, image.cols, image.rows, edge_topology, ibug_contour, model_contour, 50, boost::none, 30.0f);
+	std::tie(mesh, rendering_params) = fitting::fit_shape_and_pose(morphable_model, blendshapes, landmarks, landmark_mapper, image.cols, image.rows, edge_topology, ibug_contour, model_contour, 5, boost::none, 30.0f);
 
 	// The 3D head pose can be recovered as follows:
 	float yaw_angle = glm::degrees(glm::yaw(rendering_params.get_rotation()));
 	// and similarly for pitch and roll.
 
 	// Extract the texture from the image using given mesh and camera parameters:
-	Mat affine_from_ortho = fitting::get_3x4_affine_camera_matrix(rendering_params, image.cols, image.rows);
-	Mat isomap = render::extract_texture(mesh, affine_from_ortho, image);
+	Eigen::Matrix<float, 3, 4> affine_from_ortho = fitting::get_3x4_affine_camera_matrix(rendering_params, image.cols, image.rows);
+	Mat isomap = render::extract_texture(mesh, affine_from_ortho, image, true);
 
 	// Draw the fitted mesh as wireframe, and save the image:
 	draw_wireframe(outimg, mesh, rendering_params.get_modelview(), rendering_params.get_projection(), fitting::get_opencv_viewport(image.cols, image.rows));

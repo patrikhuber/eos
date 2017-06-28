@@ -57,7 +57,7 @@ namespace eos {
  * @param[in] model_standard_deviation The standard deviation of the 3D vertex points in the 3D model, projected to 2D (so the value is in pixels).
  * @return The estimated shape-coefficients (alphas).
  */
-inline std::vector<float> fit_shape_to_landmarks_linear(const morphablemodel::MorphableModel& morphable_model, cv::Mat affine_camera_matrix, const std::vector<Eigen::Vector2f>& landmarks, const std::vector<int>& vertex_ids, Eigen::VectorXf base_face=Eigen::VectorXf(), float lambda=3.0f, boost::optional<int> num_coefficients_to_fit=boost::optional<int>(), boost::optional<float> detector_standard_deviation=boost::optional<float>(), boost::optional<float> model_standard_deviation=boost::optional<float>())
+inline std::vector<float> fit_shape_to_landmarks_linear(const morphablemodel::MorphableModel& morphable_model, Eigen::Matrix<float, 3, 4> affine_camera_matrix, const std::vector<Eigen::Vector2f>& landmarks, const std::vector<int>& vertex_ids, Eigen::VectorXf base_face=Eigen::VectorXf(), float lambda=3.0f, boost::optional<int> num_coefficients_to_fit=boost::optional<int>(), boost::optional<float> detector_standard_deviation=boost::optional<float>(), boost::optional<float> model_standard_deviation=boost::optional<float>())
 {
 	assert(landmarks.size() == vertex_ids.size());
 
@@ -84,8 +84,7 @@ inline std::vector<float> fit_shape_to_landmarks_linear(const morphablemodel::Mo
 	// Form a block diagonal matrix $P \in R^{3N\times 4N}$ in which the camera matrix C (P_Affine, affine_camera_matrix) is placed on the diagonal:
 	MatrixXf P = MatrixXf::Zero(3 * num_landmarks, 4 * num_landmarks);
 	for (int i = 0; i < num_landmarks; ++i) {
-		using RowMajorMatrixXf = Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
-		P.block(3 * i, 4 * i, 3, 4) = Eigen::Map<RowMajorMatrixXf>(affine_camera_matrix.ptr<float>(), affine_camera_matrix.rows, affine_camera_matrix.cols);
+		P.block(3 * i, 4 * i, 3, 4) = affine_camera_matrix;
 	}
 	// The variances: Add the 2D and 3D standard deviations.
 	// If the user doesn't provide them, we choose the following:

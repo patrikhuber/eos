@@ -197,7 +197,7 @@ int main(int argc, char *argv[])
 	// and similarly for pitch and roll.
 
 	// Estimate the shape coefficients by fitting the shape to the landmarks:
-	Mat affine_from_ortho = fitting::get_3x4_affine_camera_matrix(rendering_params, image.cols, image.rows);
+	Eigen::Matrix<float, 3, 4> affine_from_ortho = fitting::get_3x4_affine_camera_matrix(rendering_params, image.cols, image.rows);
 	vector<float> fitted_coeffs = fitting::fit_shape_to_landmarks_linear(morphable_model, affine_from_ortho, image_points, vertex_indices);
 
 	// Obtain the full mesh with the estimated coefficients:

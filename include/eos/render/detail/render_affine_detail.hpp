@@ -26,6 +26,8 @@
 
 #include "glm/vec3.hpp"
 
+#include "Eigen/Core"
+#include "Eigen/Geometry"
 #include "opencv2/core/core.hpp"
 
 /**
@@ -48,27 +50,24 @@ namespace eos {
  * @param[in] affine_camera_matrix A 3x4 affine camera matrix.
  * @return The matrix with a third row inserted.
  */
-inline cv::Mat calculate_affine_z_direction(cv::Mat affine_camera_matrix)
+inline Eigen::Matrix<float, 4, 4> calculate_affine_z_direction(Eigen::Matrix<float, 3, 4> affine_camera_matrix)
 {
-	using cv::Mat;
 	// Take the cross product of row 0 with row 1 to get the direction perpendicular to the viewing plane (= the viewing direction).
 	// Todo: We should check if we look/project into the right direction - the sign could be wrong?
-	Mat affine_cam_z_rotation = affine_camera_matrix.row(0).colRange(0, 3).cross(affine_camera_matrix.row(1).colRange(0, 3));
-	affine_cam_z_rotation /= cv::norm(affine_cam_z_rotation, cv::NORM_L2);
+	Eigen::Vector4f affine_cam_z_rotation = affine_camera_matrix.row(0).transpose().cross3(affine_camera_matrix.row(1).transpose());
+	affine_cam_z_rotation.normalize(); // The 4th component is zero, so it does not influence the normalisation.
 
 	// The 4x4 affine camera matrix
-	Mat affine_cam_4x4 = Mat::zeros(4, 4, CV_32FC1);
-
-	// Replace the third row with the camera-direction (z)
-	Mat third_row_rotation_part = affine_cam_4x4.row(2).colRange(0, 3);
-	affine_cam_z_rotation.copyTo(third_row_rotation_part); // Set first 3 components. 4th component stays 0.
+	Eigen::Matrix<float, 4, 4> affine_cam_4x4 = Eigen::Matrix<float, 4, 4>::Zero();
 
 	// Copy the first 2 rows from the input matrix
-	Mat first_two_rows_of_4x4 = affine_cam_4x4.rowRange(0, 2);
-	affine_camera_matrix.rowRange(0, 2).copyTo(first_two_rows_of_4x4);
+	affine_cam_4x4.block<2, 4>(0, 0) = affine_camera_matrix.block<2, 4>(0, 0);
+
+	// Replace the third row with the camera-direction (z)
+	affine_cam_4x4.block<1, 3>(2, 0) = affine_cam_z_rotation.head<3>().transpose(); // Set first 3 components. 4th component stays 0.
 
 	// The 4th row is (0, 0, 0, 1):
-	affine_cam_4x4.at<float>(3, 3) = 1.0f;
+	affine_cam_4x4(3, 3) = 1.0f;
 
 	return affine_cam_4x4;
 };

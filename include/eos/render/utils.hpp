@@ -27,6 +27,8 @@
 #include "glm/vec3.hpp"
 #include "glm/geometric.hpp"
 
+#include "Eigen/Core"
+
 #include "opencv2/core/core.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 
@@ -103,11 +105,17 @@ glm::tvec2<T, P> clip_to_screen_space(const T clip_coord_x, const T clip_coord_y
  * @param[in] v2 Third vertex.
  * @return The unit-length normal of the given triangle.
  */
-inline cv::Vec3f calculate_face_normal(const cv::Vec3f& v0, const cv::Vec3f& v1, const cv::Vec3f& v2)
+inline Eigen::Vector3f calculate_face_normal(const Eigen::Vector3f& v0, const Eigen::Vector3f& v1, const Eigen::Vector3f& v2)
 {
-	cv::Vec3f n = (v1 - v0).cross(v2 - v0); // v0-to-v1 x v0-to-v2
-	n /= cv::norm(n);
-	return n;
+	Eigen::Vector3f n = (v1 - v0).cross(v2 - v0); // v0-to-v1 x v0-to-v2
+	return n.normalized();
+};
+
+// Todo: Doxygen. Actually this is the overload that's probably most used?
+inline Eigen::Vector3f calculate_face_normal(const Eigen::Vector4f& v0, const Eigen::Vector4f& v1, const Eigen::Vector4f& v2)
+{
+	Eigen::Vector4f n = (v1 - v0).cross3(v2 - v0); // v0-to-v1 x v0-to-v2
+	return n.head<3>().normalized();
 };
 
 /**

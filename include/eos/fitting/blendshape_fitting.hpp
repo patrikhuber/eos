@@ -128,7 +128,7 @@ inline std::vector<float> fit_blendshapes_to_landmarks_linear(const std::vector<
  * @param[in] vertex_ids The vertex ids in the model that correspond to the 2D points.
  * @return The estimated blendshape-coefficients.
  */
-inline std::vector<float> fit_blendshapes_to_landmarks_nnls(const std::vector<eos::morphablemodel::Blendshape>& blendshapes, const Eigen::VectorXf& face_instance, cv::Mat affine_camera_matrix, const std::vector<core::Point2f>& landmarks, const std::vector<int>& vertex_ids)
+inline std::vector<float> fit_blendshapes_to_landmarks_nnls(const std::vector<eos::morphablemodel::Blendshape>& blendshapes, const Eigen::VectorXf& face_instance, Eigen::Matrix<float, 3, 4> affine_camera_matrix, const std::vector<core::Point2f>& landmarks, const std::vector<int>& vertex_ids)
 {
 	assert(landmarks.size() == vertex_ids.size());
 
@@ -152,8 +152,7 @@ inline std::vector<float> fit_blendshapes_to_landmarks_nnls(const std::vector<eo
 	// Form a block diagonal matrix $P \in R^{3N\times 4N}$ in which the camera matrix C (P_Affine, affine_camera_matrix) is placed on the diagonal:
 	MatrixXf P = MatrixXf::Zero(3 * num_landmarks, 4 * num_landmarks);
 	for (int i = 0; i < num_landmarks; ++i) {
-		using RowMajorMatrixXf = Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
-		P.block(3 * i, 4 * i, 3, 4) = Eigen::Map<RowMajorMatrixXf>(affine_camera_matrix.ptr<float>(), affine_camera_matrix.rows, affine_camera_matrix.cols);
+		P.block(3 * i, 4 * i, 3, 4) = affine_camera_matrix;
 	}
 	// The landmarks in matrix notation (in homogeneous coordinates), $3N\times 1$
 	VectorXf y = VectorXf::Ones(3 * num_landmarks);

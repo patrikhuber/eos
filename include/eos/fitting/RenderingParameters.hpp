@@ -32,6 +32,8 @@
 #include "cereal/cereal.hpp"
 #include "cereal/archives/json.hpp"
 
+#include "Eigen/Core"
+
 #include "opencv2/core/core.hpp"
 
 #include "boost/optional.hpp"
@@ -246,20 +248,23 @@ inline glm::vec4 get_opencv_viewport(int width, int height)
 };
 
 /**
- * @brief Converts a glm::mat4x4 to a cv::Mat.
+ * @brief Converts a glm::mat4x4 to an Eigen::Matrix<float, 4, 4>.
  *
  * Note: I think the last use of this function is below in
  * get_3x4_affine_camera_matrix().
  */
-inline cv::Mat to_mat(const glm::mat4x4& glm_matrix)
+inline Eigen::Matrix<float, 4, 4> to_eigen(const glm::mat4x4& glm_matrix)
 {
-	// glm stores its matrices in col-major order in memory, OpenCV in row-major order.
-	// Hence we transpose the glm matrix to flip the memory layout, and then point OpenCV
-	// to that location.
-	auto glm_matrix_t = glm::transpose(glm_matrix);
-	cv::Mat opencv_mat(4, 4, CV_32FC1, &glm_matrix_t[0]);
-	// we need to clone because the underlying data of the original goes out of scope
-	return opencv_mat.clone();
+	// glm stores its matrices in col-major order in memory, Eigen too.
+	//using MatrixXf4x4 = Eigen::Matrix<float, 4, 4>;
+	//Eigen::Map<MatrixXf4x4> eigen_map(&glm_matrix[0][0]); // doesn't work, why do we get a const*?
+	Eigen::Matrix<float, 4, 4> eigen_matrix;
+	for (int r = 0; r < 4; ++r) {
+		for (int c = 0; c < 4; ++c) {
+			eigen_matrix(r, c) = glm_matrix[c][r]; // Not checked, but should be correct?
+		}
+	}
+	return eigen_matrix;
 };
 
 /**
@@ -269,25 +274,29 @@ inline cv::Mat to_mat(const glm::mat4x4& glm_matrix)
  * This function is mainly used since the linear shape fitting fitting::fit_shape_to_landmarks_linear
  * expects one of these 3x4 affine camera matrices, as well as render::extract_texture.
  */
-inline cv::Mat get_3x4_affine_camera_matrix(RenderingParameters params, int width, int height)
+inline Eigen::Matrix<float, 3, 4> get_3x4_affine_camera_matrix(RenderingParameters params, int width, int height)
 {
-	auto view_model = to_mat(params.get_modelview());
-	auto ortho_projection = to_mat(params.get_projection());
-	cv::Mat mvp = ortho_projection * view_model;
+	const auto view_model = to_eigen(params.get_modelview());
+	const auto ortho_projection = to_eigen(params.get_projection());
+	using MatrixXf3x4 = Eigen::Matrix<float, 3, 4>;
+	using Eigen::Matrix4f;
+	const Matrix4f mvp = ortho_projection * view_model;
 
 	glm::vec4 viewport(0, height, width, -height); // flips y, origin top-left, like in OpenCV
 	// equivalent to what glm::project's viewport does, but we don't change z and w:
-	cv::Mat viewport_mat = (cv::Mat_<float>(4, 4) << viewport[2] / 2.0f, 0.0f,       0.0f, viewport[2] / 2.0f + viewport[0],
-												     0.0f,               viewport[3] / 2.0f, 0.0f, viewport[3] / 2.0f + viewport[1],
-													 0.0f,               0.0f,               1.0f, 0.0f,
-													 0.0f,               0.0f,               0.0f, 1.0f);
+	Eigen::Matrix4f viewport_mat;
+	viewport_mat << viewport[2] / 2.0f, 0.0f, 0.0f, viewport[2] / 2.0f + viewport[0],
+                    0.0f,               viewport[3] / 2.0f, 0.0f, viewport[3] / 2.0f + viewport[1], 
+                    0.0f,               0.0f,               1.0f, 0.0f,
+                    0.0f,               0.0f,               0.0f, 1.0f;
 
-	cv::Mat full_projection_4x4 = viewport_mat * mvp;
-	cv::Mat full_projection_3x4 = full_projection_4x4.rowRange(0, 3); // we take the first 3 rows, but then set the last one to [0 0 0 1]
-	full_projection_3x4.at<float>(2, 0) = 0.0f;
-	full_projection_3x4.at<float>(2, 1) = 0.0f;
-	full_projection_3x4.at<float>(2, 2) = 0.0f;
-	full_projection_3x4.at<float>(2, 3) = 1.0f;
+	const Matrix4f full_projection_4x4 = viewport_mat * mvp;
+	MatrixXf3x4 full_projection_3x4 = full_projection_4x4.block<3, 4>(0, 0); // we take the first 3 rows, but then set the last one to [0 0 0 1]
+	// Use .block, possibly with the static template arguments!
+	full_projection_3x4(2, 0) = 0.0f;
+	full_projection_3x4(2, 1) = 0.0f;
+	full_projection_3x4(2, 2) = 0.0f;
+	full_projection_3x4(2, 3) = 1.0f;
 
 	return full_projection_3x4;
 };

@@ -66,7 +66,7 @@ namespace eos {
  * @param[out] blendshape_coefficients Output parameter that will contain the resulting blendshape coefficients.
  * @return The fitted model shape instance.
  */
-inline Eigen::VectorXf fit_shape(cv::Mat affine_camera_matrix, const morphablemodel::MorphableModel& morphable_model, const std::vector<morphablemodel::Blendshape>& blendshapes, const std::vector<Eigen::Vector2f>& image_points, const std::vector<int>& vertex_indices, float lambda, boost::optional<int> num_coefficients_to_fit, std::vector<float>& pca_shape_coefficients, std::vector<float>& blendshape_coefficients)
+inline Eigen::VectorXf fit_shape(Eigen::Matrix<float, 3, 4> affine_camera_matrix, const morphablemodel::MorphableModel& morphable_model, const std::vector<morphablemodel::Blendshape>& blendshapes, const std::vector<Eigen::Vector2f>& image_points, const std::vector<int>& vertex_indices, float lambda, boost::optional<int> num_coefficients_to_fit, std::vector<float>& pca_shape_coefficients, std::vector<float>& blendshape_coefficients)
 {
 	using Eigen::VectorXf;
 	using Eigen::MatrixXf;
@@ -114,7 +114,7 @@ inline Eigen::VectorXf fit_shape(cv::Mat affine_camera_matrix, const morphablemo
  * @param[in] num_coefficients_to_fit How many shape-coefficients to fit (all others will stay 0). Should be bigger than zero, or boost::none to fit all coefficients.
  * @return The fitted model shape instance.
  */
-inline Eigen::VectorXf fit_shape(cv::Mat affine_camera_matrix, const morphablemodel::MorphableModel& morphable_model, const std::vector<morphablemodel::Blendshape>& blendshapes, const std::vector<Eigen::Vector2f>& image_points, const std::vector<int>& vertex_indices, float lambda = 3.0f, boost::optional<int> num_coefficients_to_fit = boost::optional<int>())
+inline Eigen::VectorXf fit_shape(Eigen::Matrix<float ,3, 4> affine_camera_matrix, const morphablemodel::MorphableModel& morphable_model, const std::vector<morphablemodel::Blendshape>& blendshapes, const std::vector<Eigen::Vector2f>& image_points, const std::vector<int>& vertex_indices, float lambda = 3.0f, boost::optional<int> num_coefficients_to_fit = boost::optional<int>())
 {
 	std::vector<float> unused;
 	return fit_shape(affine_camera_matrix, morphable_model, blendshapes, image_points, vertex_indices, lambda, num_coefficients_to_fit, unused, unused);
@@ -294,7 +294,7 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(co
 	current_pose = fitting::estimate_orthographic_projection_linear(image_points, model_points, true, image_height);
 	fitting::RenderingParameters rendering_params(current_pose, image_width, image_height);
 
-	cv::Mat affine_from_ortho = fitting::get_3x4_affine_camera_matrix(rendering_params, image_width, image_height);
+	Eigen::Matrix<float, 3, 4> affine_from_ortho = fitting::get_3x4_affine_camera_matrix(rendering_params, image_width, image_height);
 	blendshape_coefficients = fitting::fit_blendshapes_to_landmarks_nnls(blendshapes, current_pca_shape, affine_from_ortho, image_points, vertex_indices);
 
 	// Mesh with same PCA coeffs as before, but new expression fit (this is relevant if no initial blendshape coeffs have been given):
@@ -346,7 +346,7 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(co
 		current_pose = fitting::estimate_orthographic_projection_linear(image_points, model_points, true, image_height);
 		rendering_params = fitting::RenderingParameters(current_pose, image_width, image_height);
 
-		cv::Mat affine_from_ortho = fitting::get_3x4_affine_camera_matrix(rendering_params, image_width, image_height);
+		Eigen::Matrix<float, 3, 4> affine_from_ortho = fitting::get_3x4_affine_camera_matrix(rendering_params, image_width, image_height);
 
 		// Estimate the PCA shape coefficients with the current blendshape coefficients:
 		VectorXf mean_plus_blendshapes = morphable_model.get_shape_model().get_mean() + blendshapes_as_basis * Eigen::Map<const Eigen::VectorXf>(blendshape_coefficients.data(), blendshape_coefficients.size());

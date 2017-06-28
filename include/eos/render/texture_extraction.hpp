@@ -36,6 +36,8 @@
 #include "glm/vec3.hpp"
 #include "glm/vec4.hpp"
 
+#include "Eigen/Core"
+
 #include "opencv2/core/core.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 
@@ -58,7 +60,7 @@ enum class TextureInterpolation {
 };
 
 // Forward declarations:
-cv::Mat extract_texture(core::Mesh mesh, cv::Mat affine_camera_matrix, cv::Mat image, cv::Mat depthbuffer, bool compute_view_angle, TextureInterpolation mapping_type, int isomap_resolution);
+cv::Mat extract_texture(core::Mesh mesh, Eigen::Matrix<float, 3, 4> affine_camera_matrix, cv::Mat image, cv::Mat depthbuffer, bool compute_view_angle, TextureInterpolation mapping_type, int isomap_resolution);
 namespace detail { cv::Mat interpolate_black_line(cv::Mat isomap); }
 
 /**
@@ -83,7 +85,7 @@ namespace detail { cv::Mat interpolate_black_line(cv::Mat isomap); }
  * @param[in] isomap_resolution The resolution of the generated isomap. Defaults to 512x512.
  * @return The extracted texture as isomap (texture map).
  */
-inline cv::Mat extract_texture(const core::Mesh& mesh, cv::Mat affine_camera_matrix, cv::Mat image, bool compute_view_angle = false, TextureInterpolation mapping_type = TextureInterpolation::NearestNeighbour, int isomap_resolution = 512)
+inline cv::Mat extract_texture(const core::Mesh& mesh, Eigen::Matrix<float, 3, 4> affine_camera_matrix, cv::Mat image, bool compute_view_angle = false, TextureInterpolation mapping_type = TextureInterpolation::NearestNeighbour, int isomap_resolution = 512)
 {
 	// Render the model to get a depth buffer:
 	cv::Mat depthbuffer;
@@ -114,7 +116,7 @@ inline cv::Mat extract_texture(const core::Mesh& mesh, cv::Mat affine_camera_mat
  * @param[in] isomap_resolution The resolution of the generated isomap. Defaults to 512x512.
  * @return The extracted texture as isomap (texture map).
  */
-inline cv::Mat extract_texture(core::Mesh mesh, cv::Mat affine_camera_matrix, cv::Mat image, cv::Mat depthbuffer, bool compute_view_angle = false, TextureInterpolation mapping_type = TextureInterpolation::NearestNeighbour, int isomap_resolution = 512)
+inline cv::Mat extract_texture(core::Mesh mesh, Eigen::Matrix<float, 3, 4> affine_camera_matrix, cv::Mat image, cv::Mat depthbuffer, bool compute_view_angle = false, TextureInterpolation mapping_type = TextureInterpolation::NearestNeighbour, int isomap_resolution = 512)
 {
 	assert(mesh.vertices.size() == mesh.texcoords.size());
 	assert(image.type() == CV_8UC3); // the other cases are not yet supported
@@ -122,14 +124,15 @@ inline cv::Mat extract_texture(core::Mesh mesh, cv::Mat affine_camera_matrix, cv
 	using cv::Mat;
 	using cv::Vec2f;
 	using cv::Vec3f;
-	using cv::Vec4f;
+	using Eigen::Vector3f;
+	using Eigen::Vector4f;
 	using cv::Vec3b;
 	using std::min;
 	using std::max;
 	using std::floor;
 	using std::ceil;
 
-	affine_camera_matrix = detail::calculate_affine_z_direction(affine_camera_matrix);
+	Eigen::Matrix<float, 4, 4> affine_camera_matrix_with_z = detail::calculate_affine_z_direction(affine_camera_matrix);
 
 	Mat isomap = Mat::zeros(isomap_resolution, isomap_resolution, CV_8UC4);
 	// #Todo: We should handle gray images, but output a 4-channel isomap nevertheless I think.
@@ -138,7 +141,7 @@ inline cv::Mat extract_texture(core::Mesh mesh, cv::Mat affine_camera_matrix, cv
 	for (const auto& triangle_indices : mesh.tvi) {
 
 		// Note: If there's a performance problem, there's no need to capture the whole mesh - we could capture only the three required vertices with their texcoords.
-		auto extract_triangle = [&mesh, &affine_camera_matrix, &triangle_indices, &depthbuffer, &isomap, &mapping_type, &image, &compute_view_angle]() {
+		auto extract_triangle = [&mesh, &affine_camera_matrix_with_z, &triangle_indices, &depthbuffer, &isomap, &mapping_type, &image, &compute_view_angle]() {
 
 			// Find out if the current triangle is visible:
 			// We do a second rendering-pass here. We use the depth-buffer of the final image, and then, here,
@@ -150,14 +153,14 @@ inline cv::Mat extract_texture(core::Mesh mesh, cv::Mat affine_camera_matrix, cv
 			// - Use render(), or as in render(...), transfer the vertices once, not in a loop over all triangles (vertices are getting transformed multiple times)
 			// - We transform them later (below) a second time. Only do it once.
 
-			cv::Vec4f v0_as_Vec4f(mesh.vertices[triangle_indices[0]].x, mesh.vertices[triangle_indices[0]].y, mesh.vertices[triangle_indices[0]].z, mesh.vertices[triangle_indices[0]].w);
-			cv::Vec4f v1_as_Vec4f(mesh.vertices[triangle_indices[1]].x, mesh.vertices[triangle_indices[1]].y, mesh.vertices[triangle_indices[1]].z, mesh.vertices[triangle_indices[1]].w);
-			cv::Vec4f v2_as_Vec4f(mesh.vertices[triangle_indices[2]].x, mesh.vertices[triangle_indices[2]].y, mesh.vertices[triangle_indices[2]].z, mesh.vertices[triangle_indices[2]].w);
+			Vector4f v0_as_Vector4f(mesh.vertices[triangle_indices[0]].x, mesh.vertices[triangle_indices[0]].y, mesh.vertices[triangle_indices[0]].z, mesh.vertices[triangle_indices[0]].w);
+			Vector4f v1_as_Vector4f(mesh.vertices[triangle_indices[1]].x, mesh.vertices[triangle_indices[1]].y, mesh.vertices[triangle_indices[1]].z, mesh.vertices[triangle_indices[1]].w);
+			Vector4f v2_as_Vector4f(mesh.vertices[triangle_indices[2]].x, mesh.vertices[triangle_indices[2]].y, mesh.vertices[triangle_indices[2]].z, mesh.vertices[triangle_indices[2]].w);
 
 			// Project the triangle vertices to screen coordinates, and use the depthbuffer to check whether the triangle is visible:
-			const Vec4f v0 = Mat(affine_camera_matrix * Mat(v0_as_Vec4f));
-			const Vec4f v1 = Mat(affine_camera_matrix * Mat(v1_as_Vec4f));
-			const Vec4f v2 = Mat(affine_camera_matrix * Mat(v2_as_Vec4f));
+			const Vector4f v0 = affine_camera_matrix_with_z * v0_as_Vector4f;
+			const Vector4f v1 = affine_camera_matrix_with_z * v1_as_Vector4f;
+			const Vector4f v2 = affine_camera_matrix_with_z * v2_as_Vector4f;
 
 			if (!detail::is_triangle_visible(glm::tvec4<float>(v0[0], v0[1], v0[2], v0[3]), glm::tvec4<float>(v1[0], v1[1], v1[2], v1[3]), glm::tvec4<float>(v2[0], v2[1], v2[2], v2[3]), depthbuffer))
 			{
@@ -170,10 +173,10 @@ inline cv::Mat extract_texture(core::Mesh mesh, cv::Mat affine_camera_matrix, cv
 			{
 				// Calculate how well visible the current triangle is:
 				// (in essence, the dot product of the viewing direction (0, 0, 1) and the face normal)
-				const Vec3f face_normal = calculate_face_normal(Vec3f(Mat(v0_as_Vec4f).rowRange(0, 3)), Vec3f(Mat(v1_as_Vec4f).rowRange(0, 3)), Vec3f(Mat(v2_as_Vec4f).rowRange(0, 3)));
+				const Vector3f face_normal = calculate_face_normal(v0_as_Vector4f, v1_as_Vector4f, v2_as_Vector4f);
 				// Transform the normal to "screen" (kind of "eye") space using the upper 3x3 part of the affine camera matrix (=the translation can be ignored):
-				Vec3f face_normal_transformed = Mat(affine_camera_matrix.rowRange(0, 3).colRange(0, 3) * Mat(face_normal));
-				face_normal_transformed /= cv::norm(face_normal_transformed, cv::NORM_L2); // normalise to unit length
+				Vector3f face_normal_transformed = affine_camera_matrix_with_z.block<3, 3>(0, 0) * face_normal;
+				face_normal_transformed.normalize(); // normalise to unit length
 				// Implementation notes regarding the affine camera matrix and the sign:
 				// If the matrix given were the model_view matrix, the sign would be correct.
 				// However, affine_camera_matrix includes glm::ortho, which includes a z-flip.
@@ -204,16 +207,16 @@ inline cv::Mat extract_texture(core::Mesh mesh, cv::Mat affine_camera_matrix, cv
 			cv::Point2f src_tri[3];
 			cv::Point2f dst_tri[3];
 
-			Vec4f vec(mesh.vertices[triangle_indices[0]][0], mesh.vertices[triangle_indices[0]][1], mesh.vertices[triangle_indices[0]][2], 1.0f);
-			Vec4f res = Mat(affine_camera_matrix * Mat(vec));
+			Vector4f vec(mesh.vertices[triangle_indices[0]][0], mesh.vertices[triangle_indices[0]][1], mesh.vertices[triangle_indices[0]][2], 1.0f);
+			Vector4f res = affine_camera_matrix_with_z * vec;
 			src_tri[0] = Vec2f(res[0], res[1]);
 
-			vec = Vec4f(mesh.vertices[triangle_indices[1]][0], mesh.vertices[triangle_indices[1]][1], mesh.vertices[triangle_indices[1]][2], 1.0f);
-			res = Mat(affine_camera_matrix * Mat(vec));
+			vec = Vector4f(mesh.vertices[triangle_indices[1]][0], mesh.vertices[triangle_indices[1]][1], mesh.vertices[triangle_indices[1]][2], 1.0f);
+			res = affine_camera_matrix_with_z * vec;
 			src_tri[1] = Vec2f(res[0], res[1]);
 
-			vec = Vec4f(mesh.vertices[triangle_indices[2]][0], mesh.vertices[triangle_indices[2]][1], mesh.vertices[triangle_indices[2]][2], 1.0f);
-			res = Mat(affine_camera_matrix * Mat(vec));
+			vec = Vector4f(mesh.vertices[triangle_indices[2]][0], mesh.vertices[triangle_indices[2]][1], mesh.vertices[triangle_indices[2]][2], 1.0f);
+			res = affine_camera_matrix_with_z * vec;
 			src_tri[2] = Vec2f(res[0], res[1]);
 
 			dst_tri[0] = cv::Point2f((isomap.cols - 0.5)*mesh.texcoords[triangle_indices[0]][0], (isomap.rows - 0.5)*mesh.texcoords[triangle_indices[0]][1]);
@@ -224,7 +227,7 @@ inline cv::Mat extract_texture(core::Mesh mesh, cv::Mat affine_camera_matrix, cv
 			// We use the inverse/ backward mapping approach, so we want to find the corresponding texel (texture-pixel) for each pixel in the isomap
 
 			// Get the inverse Affine Transform from original image: from dst (pixel in isomap) to src (in image)
-			Mat warp_mat_org_inv = cv::getAffineTransform(dst_tri, src_tri);
+			Mat warp_mat_org_inv = cv::getAffineTransform(dst_tri, src_tri); // I think I can copy the code to this into the repo temporarily, if it's not too complicated...
 			warp_mat_org_inv.convertTo(warp_mat_org_inv, CV_32FC1);
 
 			// We now loop over all pixels in the triangle and select, depending on the mapping type, the corresponding texel(s) in the source image

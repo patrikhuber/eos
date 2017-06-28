@@ -216,7 +216,7 @@ PYBIND11_PLUGIN(eos) {
 	py::module render_module = eos_module.def_submodule("render", "3D mesh and texture extraction functionality.");
         
 	render_module.def("extract_texture", [](const core::Mesh& mesh, const fitting::RenderingParameters& rendering_params, cv::Mat image, bool compute_view_angle, int isomap_resolution) {
-		cv::Mat affine_from_ortho = fitting::get_3x4_affine_camera_matrix(rendering_params, image.cols, image.rows);
+		Eigen::Matrix<float, 3, 4> affine_from_ortho = fitting::get_3x4_affine_camera_matrix(rendering_params, image.cols, image.rows);
 		return render::extract_texture(mesh, affine_from_ortho, image, compute_view_angle, render::TextureInterpolation::NearestNeighbour, isomap_resolution);
 	}, "Extracts the texture of the face from the given image and stores it as isomap (a rectangular texture map).", py::arg("mesh"), py::arg("rendering_params"), py::arg("image"), py::arg("compute_view_angle") = false, py::arg("isomap_resolution") = 512);
 
