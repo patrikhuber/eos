@@ -28,6 +28,7 @@
 
 #include <array>
 #include <cstdint>
+#include <stdexcept>
 
 namespace eos {
 	namespace core {
@@ -47,7 +48,11 @@ inline cv::Mat to_mat(const Image4u& image)
 
 inline Image3u from_mat(const cv::Mat& image)
 {
-	// assert image is 3CU8
+	if (image.type() != CV_8UC3)
+	{
+		throw std::runtime_error("Can only convert a CV_8UC3 cv::Mat to an eos::core::Image3u.");
+	}
+
 	Image3u converted(image.rows, image.cols);
 	for (int r=0; r < image.rows; ++r) {
 		for (int c = 0; c < image.cols; ++c) {
