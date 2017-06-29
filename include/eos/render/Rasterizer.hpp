@@ -22,6 +22,7 @@
 #ifndef RASTERIZER_HPP_
 #define RASTERIZER_HPP_
 
+#include "eos/render/Rect.hpp"
 #include "eos/render/detail/Vertex.hpp"
 #include "eos/render/utils.hpp" // for Texture
 
@@ -66,7 +67,7 @@ public:
                          const detail::Vertex<T, P>& point_c, const boost::optional<Texture>& texture)
     {
         // We already calculated this in the culling/clipping stage. Maybe we should save/cache it after all.
-        cv::Rect boundingBox = detail::calculate_clipped_bounding_box(
+        Rect<int> boundingBox = detail::calculate_clipped_bounding_box(
             glm::tvec2<T, P>(point_a.position.x, point_a.position.y),
             glm::tvec2<T, P>(point_b.position.x, point_b.position.y),
             glm::tvec2<T, P>(point_c.position.x, point_c.position.y), viewport_width, viewport_height);

@@ -23,6 +23,7 @@
 #define RENDER_AFFINE_HPP_
 
 #include "eos/core/Mesh.hpp"
+#include "eos/render/Rect.hpp"
 #include "eos/render/detail/render_detail.hpp"
 #include "eos/render/detail/render_affine_detail.hpp"
 
@@ -92,7 +93,7 @@ inline std::pair<cv::Mat, cv::Mat> render_affine(const core::Mesh& mesh, Eigen::
 
 		// Get the bounding box of the triangle:
 		// take care: What do we do if all 3 vertices are not visible. Seems to work on a test case.
-		cv::Rect bounding_box = detail::calculate_clipped_bounding_box(glm::tvec2<float>(projected_vertices[tri_indices[0]].position), glm::tvec2<float>(projected_vertices[tri_indices[1]].position), glm::tvec2<float>(projected_vertices[tri_indices[2]].position), viewport_width, viewport_height);
+		Rect<int> bounding_box = detail::calculate_clipped_bounding_box(glm::tvec2<float>(projected_vertices[tri_indices[0]].position), glm::tvec2<float>(projected_vertices[tri_indices[1]].position), glm::tvec2<float>(projected_vertices[tri_indices[2]].position), viewport_width, viewport_height);
 		auto min_x = bounding_box.x;
 		auto max_x = bounding_box.x + bounding_box.width;
 		auto min_y = bounding_box.y;

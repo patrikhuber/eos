@@ -22,6 +22,7 @@
 #ifndef TEXTURE_EXTRACTION_DETAIL_HPP_
 #define TEXTURE_EXTRACTION_DETAIL_HPP_
 
+#include "eos/core/Rect.hpp"
 #include "eos/render/detail/render_detail.hpp"
 
 #include "glm/vec2.hpp"
@@ -102,7 +103,7 @@ inline bool is_triangle_visible(const glm::tvec4<float>& v0, const glm::tvec4<fl
 	if (!detail::are_vertices_ccw_in_screen_space(glm::tvec2<float>(v0), glm::tvec2<float>(v1), glm::tvec2<float>(v2)))
 		return false;
 
-	cv::Rect bbox = detail::calculate_clipped_bounding_box(glm::tvec2<float>(v0), glm::tvec2<float>(v1), glm::tvec2<float>(v2), viewport_width, viewport_height);
+	Rect<int> bbox = detail::calculate_clipped_bounding_box(glm::tvec2<float>(v0), glm::tvec2<float>(v1), glm::tvec2<float>(v2), viewport_width, viewport_height);
 	int minX = bbox.x;
 	int maxX = bbox.x + bbox.width;
 	int minY = bbox.y;
