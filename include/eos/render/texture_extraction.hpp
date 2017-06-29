@@ -22,6 +22,7 @@
 #ifndef TEXTURE_EXTRACTION_HPP_
 #define TEXTURE_EXTRACTION_HPP_
 
+#include "eos/core/Image.hpp"
 #include "eos/core/Mesh.hpp"
 #include "eos/render/detail/texture_extraction_detail.hpp"
 #include "eos/render/render_affine.hpp"
@@ -60,7 +61,7 @@ enum class TextureInterpolation {
 };
 
 // Forward declarations:
-cv::Mat extract_texture(core::Mesh mesh, Eigen::Matrix<float, 3, 4> affine_camera_matrix, cv::Mat image, cv::Mat depthbuffer, bool compute_view_angle, TextureInterpolation mapping_type, int isomap_resolution);
+core::Image4u extract_texture(const core::Mesh& mesh, Eigen::Matrix<float, 3, 4> affine_camera_matrix, const core::Image3u& image, cv::Mat depthbuffer, bool compute_view_angle, TextureInterpolation mapping_type, int isomap_resolution);
 namespace detail { cv::Mat interpolate_black_line(cv::Mat isomap); }
 
 /**
@@ -85,7 +86,7 @@ namespace detail { cv::Mat interpolate_black_line(cv::Mat isomap); }
  * @param[in] isomap_resolution The resolution of the generated isomap. Defaults to 512x512.
  * @return The extracted texture as isomap (texture map).
  */
-inline cv::Mat extract_texture(const core::Mesh& mesh, Eigen::Matrix<float, 3, 4> affine_camera_matrix, cv::Mat image, bool compute_view_angle = false, TextureInterpolation mapping_type = TextureInterpolation::NearestNeighbour, int isomap_resolution = 512)
+inline core::Image4u extract_texture(const core::Mesh& mesh, Eigen::Matrix<float, 3, 4> affine_camera_matrix, const core::Image3u& image, bool compute_view_angle = false, TextureInterpolation mapping_type = TextureInterpolation::NearestNeighbour, int isomap_resolution = 512)
 {
 	// Render the model to get a depth buffer:
 	cv::Mat depthbuffer;
@@ -116,10 +117,9 @@ inline cv::Mat extract_texture(const core::Mesh& mesh, Eigen::Matrix<float, 3, 4
  * @param[in] isomap_resolution The resolution of the generated isomap. Defaults to 512x512.
  * @return The extracted texture as isomap (texture map).
  */
-inline cv::Mat extract_texture(core::Mesh mesh, Eigen::Matrix<float, 3, 4> affine_camera_matrix, cv::Mat image, cv::Mat depthbuffer, bool compute_view_angle = false, TextureInterpolation mapping_type = TextureInterpolation::NearestNeighbour, int isomap_resolution = 512)
+inline core::Image4u extract_texture(const core::Mesh& mesh, Eigen::Matrix<float, 3, 4> affine_camera_matrix, const core::Image3u& image, cv::Mat depthbuffer, bool compute_view_angle = false, TextureInterpolation mapping_type = TextureInterpolation::NearestNeighbour, int isomap_resolution = 512)
 {
 	assert(mesh.vertices.size() == mesh.texcoords.size());
-	assert(image.type() == CV_8UC3); // the other cases are not yet supported
 
 	using cv::Mat;
 	using cv::Vec2f;
@@ -134,8 +134,8 @@ inline cv::Mat extract_texture(core::Mesh mesh, Eigen::Matrix<float, 3, 4> affin
 
 	Eigen::Matrix<float, 4, 4> affine_camera_matrix_with_z = detail::calculate_affine_z_direction(affine_camera_matrix);
 
-	Mat isomap = Mat::zeros(isomap_resolution, isomap_resolution, CV_8UC4);
-	// #Todo: We should handle gray images, but output a 4-channel isomap nevertheless I think.
+	// Todo: We should handle gray images, but output a 4-channel isomap nevertheless I think.
+	core::Image4u isomap(isomap_resolution, isomap_resolution); // We should initialise with zeros. Incidentially, the current Image4u c'tor does that.
 
 	std::vector<std::future<void>> results;
 	for (const auto& triangle_indices : mesh.tvi) {
@@ -258,7 +258,7 @@ inline cv::Mat extract_texture(core::Mesh mesh, Eigen::Matrix<float, 3, 4> affin
 							float min_b = min(min(src_texel_upper_left[1], src_texel_upper_right[1]), min(src_texel_lower_left[1], src_texel_lower_right[1]));
 							float max_b = max(max(src_texel_upper_left[1], src_texel_upper_right[1]), max(src_texel_lower_left[1], src_texel_lower_right[1]));
 
-							cv::Vec3i color;
+							Eigen::Vector3i color; // std::uint8_t actually.
 							int num_texels = 0;
 
 							// loop over square in which quadrangle out of the four corners of pixel is
@@ -270,7 +270,7 @@ inline cv::Mat extract_texture(core::Mesh mesh, Eigen::Matrix<float, 3, 4> affin
 									if (detail::is_point_in_triangle(cv::Point2f(a, b), src_texel_upper_left, src_texel_lower_left, src_texel_upper_right) || detail::is_point_in_triangle(cv::Point2f(a, b), src_texel_lower_left, src_texel_upper_right, src_texel_lower_right)) {
 										if (a < image.cols && b < image.rows) { // check if texel is in image
 											num_texels++;
-											color += image.at<Vec3b>(b, a);
+											color += Eigen::Vector3i(image(b, a)[0], image(b, a)[1], image(b, a)[2]);
 										}
 									}
 								}
@@ -283,10 +283,12 @@ inline cv::Mat extract_texture(core::Mesh mesh, Eigen::Matrix<float, 3, 4> affin
 								Vec2f src_texel = Mat(warp_mat_org_inv * Mat(homogenous_dst_coord));
 
 								if ((cvRound(src_texel[1]) < image.rows) && cvRound(src_texel[0]) < image.cols) {
-									color = image.at<Vec3b>(cvRound(src_texel[1]), cvRound(src_texel[0]));
+									const int y = cvRound(src_texel[1]);
+									const int x = cvRound(src_texel[0]);
+									color = Eigen::Vector3i(image(y, x)[0], image(y, x)[1], image(y, x)[2]);
 								}
 							}
-							isomap.at<Vec3b>(y, x) = color;
+							isomap(y, x) = { static_cast<std::uint8_t>(color[0]), static_cast<std::uint8_t>(color[1]), static_cast<std::uint8_t>(color[2]), static_cast<std::uint8_t>(alpha_value) };
 						}
 						// Bilinear mapping: calculate pixel color depending on the four neighbouring texels
 						else if (mapping_type == TextureInterpolation::Bilinear) {
@@ -311,17 +313,18 @@ inline cv::Mat extract_texture(core::Mesh mesh, Eigen::Matrix<float, 3, 4> affin
 							distance_upper_right /= sum_distances;
 
 							// set color depending on distance from next 4 texels
-							Vec3f color_upper_left = image.at<Vec3b>(floor(src_texel[1]), floor(src_texel[0])) * distance_upper_left;
-							Vec3f color_upper_right = image.at<Vec3b>(floor(src_texel[1]), ceil(src_texel[0])) * distance_upper_right;
-							Vec3f color_lower_left = image.at<Vec3b>(ceil(src_texel[1]), floor(src_texel[0])) * distance_lower_left;
-							Vec3f color_lower_right = image.at<Vec3b>(ceil(src_texel[1]), ceil(src_texel[0])) * distance_lower_right;
+							// (we map the data from std::array<uint8_t, 3> to an Eigen::Map, then cast that to float to multiply with the float-scalar distance.)
+							// (this is untested!)
+							Eigen::Vector3f color_upper_left = Eigen::Map<const Eigen::Matrix<std::uint8_t, 1, 3>>(image(floor(src_texel[1]), floor(src_texel[0])).data(), 3).cast<float>() * distance_upper_left;
+							Eigen::Vector3f color_upper_right = Eigen::Map<const Eigen::Matrix<std::uint8_t, 1, 3>>(image(floor(src_texel[1]), ceil(src_texel[0])).data(), 3).cast<float>() * distance_upper_right;
+							Eigen::Vector3f color_lower_left = Eigen::Map<const Eigen::Matrix<std::uint8_t, 1, 3>>(image(ceil(src_texel[1]), floor(src_texel[0])).data(), 3).cast<float>() * distance_lower_left;
+							Eigen::Vector3f color_lower_right = Eigen::Map<const Eigen::Matrix<std::uint8_t, 1, 3>>(image(ceil(src_texel[1]), ceil(src_texel[0])).data(), 3).cast<float>() * distance_lower_right;
 
-							//isomap.at<Vec3b>(y, x)[color] = color_upper_left + color_upper_right + color_lower_left + color_lower_right;
-							isomap.at<cv::Vec4b>(y, x)[0] = static_cast<uchar>(glm::clamp(color_upper_left[0] + color_upper_right[0] + color_lower_left[0] + color_lower_right[0],0.f,255.0f));
-							isomap.at<cv::Vec4b>(y, x)[1] = static_cast<uchar>(glm::clamp(color_upper_left[1] + color_upper_right[1] + color_lower_left[1] + color_lower_right[1],0.f,255.0f));
-							isomap.at<cv::Vec4b>(y, x)[2] = static_cast<uchar>(glm::clamp(color_upper_left[2] + color_upper_right[2] + color_lower_left[2] + color_lower_right[2],0.f,255.0f));
-							isomap.at<cv::Vec4b>(y, x)[3] = static_cast<uchar>(alpha_value); // pixel is visible
-
+							//isomap(y, x)[color] = color_upper_left + color_upper_right + color_lower_left + color_lower_right;
+							isomap(y, x)[0] = static_cast<std::uint8_t>(glm::clamp(color_upper_left[0] + color_upper_right[0] + color_lower_left[0] + color_lower_right[0], 0.f, 255.0f));
+							isomap(y, x)[1] = static_cast<std::uint8_t>(glm::clamp(color_upper_left[1] + color_upper_right[1] + color_lower_left[1] + color_lower_right[1], 0.f, 255.0f));
+							isomap(y, x)[2] = static_cast<std::uint8_t>(glm::clamp(color_upper_left[2] + color_upper_right[2] + color_lower_left[2] + color_lower_right[2], 0.f, 255.0f));
+							isomap(y, x)[3] = static_cast<std::uint8_t>(alpha_value); // pixel is visible
 						}
 						// NearestNeighbour mapping: set color of pixel to color of nearest texel
 						else if (mapping_type == TextureInterpolation::NearestNeighbour) {
@@ -332,11 +335,10 @@ inline cv::Mat extract_texture(core::Mesh mesh, Eigen::Matrix<float, 3, 4> affin
 
 							if ((cvRound(src_texel[1]) < image.rows) && (cvRound(src_texel[0]) < image.cols) && cvRound(src_texel[0]) > 0 && cvRound(src_texel[1]) > 0)
 							{
-								cv::Vec4b isomap_pixel;
-								isomap.at<cv::Vec4b>(y, x)[0] = image.at<Vec3b>(cvRound(src_texel[1]), cvRound(src_texel[0]))[0];
-								isomap.at<cv::Vec4b>(y, x)[1] = image.at<Vec3b>(cvRound(src_texel[1]), cvRound(src_texel[0]))[1];
-								isomap.at<cv::Vec4b>(y, x)[2] = image.at<Vec3b>(cvRound(src_texel[1]), cvRound(src_texel[0]))[2];
-								isomap.at<cv::Vec4b>(y, x)[3] = static_cast<uchar>(alpha_value); // pixel is visible
+								isomap(y, x)[0] = image(cvRound(src_texel[1]), cvRound(src_texel[0]))[0];
+								isomap(y, x)[1] = image(cvRound(src_texel[1]), cvRound(src_texel[0]))[1];
+								isomap(y, x)[2] = image(cvRound(src_texel[1]), cvRound(src_texel[0]))[2];
+								isomap(y, x)[3] = static_cast<uchar>(alpha_value); // pixel is visible
 							}
 						}
 					}
@@ -356,7 +358,6 @@ inline cv::Mat extract_texture(core::Mesh mesh, Eigen::Matrix<float, 3, 4> affin
 		isomap = detail::interpolate_black_line(isomap);
 	}
 */
-
 	return isomap;
 };
 

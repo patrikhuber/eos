@@ -71,6 +71,7 @@ set(eigen3_nnls_INCLUDE_DIR "${eos_3RDPARTY_DIR}/eigen3-nnls/src")
 set(HEADERS
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/core/Landmark.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/core/LandmarkMapper.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/core/Image.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/core/Mesh.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/morphablemodel/PcaModel.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/morphablemodel/MorphableModel.hpp
