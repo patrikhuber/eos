@@ -194,7 +194,7 @@ PYBIND11_PLUGIN(eos) {
 		.def_static("load", &fitting::ModelContour::load, "Helper method to load a ModelContour from a json file from the hard drive.", py::arg("filename"))
 		;
 	
-	fitting_module.def("fit_shape_and_pose", [](const morphablemodel::MorphableModel& morphable_model, const std::vector<morphablemodel::Blendshape>& blendshapes, const std::vector<glm::vec2>& landmarks, const std::vector<std::string>& landmark_ids, const core::LandmarkMapper& landmark_mapper, int image_width, int image_height, const morphablemodel::EdgeTopology& edge_topology, const fitting::ContourLandmarks& contour_landmarks, const fitting::ModelContour& model_contour, int num_iterations, int num_shape_coefficients_to_fit, float lambda) {
+	fitting_module.def("fit_shape_and_pose", [](const morphablemodel::MorphableModel& morphable_model, const std::vector<morphablemodel::Blendshape>& blendshapes, const std::vector<Eigen::Vector2f>& landmarks, const std::vector<std::string>& landmark_ids, const core::LandmarkMapper& landmark_mapper, int image_width, int image_height, const morphablemodel::EdgeTopology& edge_topology, const fitting::ContourLandmarks& contour_landmarks, const fitting::ModelContour& model_contour, int num_iterations, int num_shape_coefficients_to_fit, float lambda) {
 			assert(landmarks.size() == landmark_ids.size());
 			std::vector<float> pca_coeffs;
 			std::vector<float> blendshape_coeffs;
@@ -204,7 +204,7 @@ PYBIND11_PLUGIN(eos) {
 			core::LandmarkCollection<core::Point2f> landmark_collection;
 			for (int i = 0; i < landmarks.size(); ++i)
 			{
-				landmark_collection.push_back(core::Landmark<core::Point2f>{ landmark_ids[i], core::Point2f(landmarks[i].x, landmarks[i].y) });
+				landmark_collection.push_back(core::Landmark<core::Point2f>{ landmark_ids[i], core::Point2f(landmarks[i][0], landmarks[i][1]) });
 			}
 			auto result = fitting::fit_shape_and_pose(morphable_model, blendshapes, landmark_collection, landmark_mapper, image_width, image_height, edge_topology, contour_landmarks, model_contour, num_iterations, num_shape_coefficients_opt, lambda, boost::none, pca_coeffs, blendshape_coeffs, fitted_image_points);
 			return std::make_tuple(result.first, result.second, pca_coeffs, blendshape_coeffs);
