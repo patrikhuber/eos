@@ -19,6 +19,8 @@
  */
 #include "eos/core/Landmark.hpp"
 #include "eos/core/LandmarkMapper.hpp"
+#include "eos/core/Image.hpp"
+#include "eos/core/Image_opencv_interop.hpp"
 #include "eos/fitting/orthographic_camera_estimation_linear.hpp"
 #include "eos/fitting/RenderingParameters.hpp"
 #include "eos/fitting/linear_shape_fitting.hpp"
@@ -204,7 +206,7 @@ int main(int argc, char *argv[])
 	core::Mesh mesh = morphable_model.draw_sample(fitted_coeffs, vector<float>());
 
 	// Extract the texture from the image using given mesh and camera parameters:
-	Mat isomap = render::extract_texture(mesh, affine_from_ortho, image);
+	core::Image4u isomap = render::extract_texture(mesh, affine_from_ortho, core::from_mat(image));
 
 	// Save the mesh as textured obj:
 	outputfile += fs::path(".obj");
@@ -212,7 +214,7 @@ int main(int argc, char *argv[])
 
 	// And save the isomap:
 	outputfile.replace_extension(".isomap.png");
-	cv::imwrite(outputfile.string(), isomap);
+	cv::imwrite(outputfile.string(), core::to_mat(isomap));
 
 	cout << "Finished fitting and wrote result mesh and isomap to files with basename " << outputfile.stem().stem() << "." << endl;
 
