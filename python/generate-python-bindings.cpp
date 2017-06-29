@@ -30,8 +30,6 @@
 #include "eos/fitting/RenderingParameters.hpp"
 #include "eos/render/texture_extraction.hpp"
 
-#include "opencv2/core/core.hpp"
-
 #include "pybind11/pybind11.h"
 #include "pybind11/stl.h"
 #include "pybind11/eigen.h"
