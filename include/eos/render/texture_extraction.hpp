@@ -61,7 +61,7 @@ enum class TextureInterpolation {
 };
 
 // Forward declarations:
-core::Image4u extract_texture(const core::Mesh& mesh, Eigen::Matrix<float, 3, 4> affine_camera_matrix, const core::Image3u& image, cv::Mat depthbuffer, bool compute_view_angle, TextureInterpolation mapping_type, int isomap_resolution);
+core::Image4u extract_texture(const core::Mesh& mesh, Eigen::Matrix<float, 3, 4> affine_camera_matrix, const core::Image3u& image, const core::Image1d& depthbuffer, bool compute_view_angle, TextureInterpolation mapping_type, int isomap_resolution);
 namespace detail { cv::Mat interpolate_black_line(cv::Mat isomap); }
 
 /**
@@ -89,7 +89,7 @@ namespace detail { cv::Mat interpolate_black_line(cv::Mat isomap); }
 inline core::Image4u extract_texture(const core::Mesh& mesh, Eigen::Matrix<float, 3, 4> affine_camera_matrix, const core::Image3u& image, bool compute_view_angle = false, TextureInterpolation mapping_type = TextureInterpolation::NearestNeighbour, int isomap_resolution = 512)
 {
 	// Render the model to get a depth buffer:
-	cv::Mat depthbuffer;
+	core::Image1d depthbuffer;
 	std::tie(std::ignore, depthbuffer) = render::render_affine(mesh, affine_camera_matrix, image.cols, image.rows);
 	// Note: There's potential for optimisation here - we don't need to do everything that is done in render_affine to just get the depthbuffer.
 
@@ -117,7 +117,7 @@ inline core::Image4u extract_texture(const core::Mesh& mesh, Eigen::Matrix<float
  * @param[in] isomap_resolution The resolution of the generated isomap. Defaults to 512x512.
  * @return The extracted texture as isomap (texture map).
  */
-inline core::Image4u extract_texture(const core::Mesh& mesh, Eigen::Matrix<float, 3, 4> affine_camera_matrix, const core::Image3u& image, cv::Mat depthbuffer, bool compute_view_angle = false, TextureInterpolation mapping_type = TextureInterpolation::NearestNeighbour, int isomap_resolution = 512)
+inline core::Image4u extract_texture(const core::Mesh& mesh, Eigen::Matrix<float, 3, 4> affine_camera_matrix, const core::Image3u& image, const core::Image1d& depthbuffer, bool compute_view_angle = false, TextureInterpolation mapping_type = TextureInterpolation::NearestNeighbour, int isomap_resolution = 512)
 {
 	assert(mesh.vertices.size() == mesh.texcoords.size());
 

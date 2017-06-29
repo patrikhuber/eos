@@ -23,6 +23,7 @@
 #define RENDER_AFFINE_HPP_
 
 #include "eos/core/Mesh.hpp"
+#include "eos/core/Image.hpp"
 #include "eos/render/Rect.hpp"
 #include "eos/render/detail/render_detail.hpp"
 #include "eos/render/detail/render_affine_detail.hpp"
@@ -55,16 +56,20 @@ namespace eos {
  * @param[in] do_backface_culling Whether the renderer should perform backface culling.
  * @return A pair with the colourbuffer as its first element and the depthbuffer as the second element.
  */
-inline std::pair<cv::Mat, cv::Mat> render_affine(const core::Mesh& mesh, Eigen::Matrix<float, 3, 4> affine_camera_matrix, int viewport_width, int viewport_height, bool do_backface_culling = true)
+inline std::pair<core::Image4u, core::Image1d> render_affine(const core::Mesh& mesh, Eigen::Matrix<float, 3, 4> affine_camera_matrix, int viewport_width, int viewport_height, bool do_backface_culling = true)
 {
 	assert(mesh.vertices.size() == mesh.colors.size() || mesh.colors.empty()); // The number of vertices has to be equal for both shape and colour, or, alternatively, it has to be a shape-only model.
 	//assert(mesh.vertices.size() == mesh.texcoords.size() || mesh.texcoords.empty()); // same for the texcoords
 
-	using cv::Mat;
+	using eos::core::Image1d;
+	using eos::core::Image4u;
 	using std::vector;
 
-	Mat colourbuffer = Mat::zeros(viewport_height, viewport_width, CV_8UC4);
-	Mat depthbuffer = std::numeric_limits<float>::max() * Mat::ones(viewport_height, viewport_width, CV_64FC1);
+	//Mat colourbuffer = Mat::zeros(viewport_height, viewport_width, CV_8UC4);
+	//Mat depthbuffer = std::numeric_limits<float>::max() * Mat::ones(viewport_height, viewport_width, CV_64FC1);
+	Image4u colourbuffer(viewport_height, viewport_width); // Note: auto-initialised to zeros. If we change the Image class, take care of that!
+	Image1d depthbuffer(viewport_height, viewport_width);
+	std::for_each(std::begin(depthbuffer.data), std::end(depthbuffer.data), [](auto& element) { element = std::numeric_limits<double>::max(); });
 
 	Eigen::Matrix<float, 4, 4> affine_with_z = detail::calculate_affine_z_direction(affine_camera_matrix);
 

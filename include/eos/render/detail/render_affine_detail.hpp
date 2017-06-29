@@ -22,6 +22,7 @@
 #ifndef RENDER_AFFINE_DETAIL_HPP_
 #define RENDER_AFFINE_DETAIL_HPP_
 
+#include "eos/core/Image.hpp"
 #include "eos/render/detail/render_detail.hpp"
 
 #include "glm/vec3.hpp"
@@ -92,7 +93,7 @@ inline Eigen::Matrix<float, 4, 4> calculate_affine_z_direction(Eigen::Matrix<flo
  * @param[in] colourbuffer The colour buffer to draw into.
  * @param[in] depthbuffer The depth buffer to draw into and use for the depth test.
  */
-inline void raster_triangle_affine(TriangleToRasterize triangle, cv::Mat colourbuffer, cv::Mat depthbuffer)
+inline void raster_triangle_affine(TriangleToRasterize triangle, core::Image4u& colourbuffer, core::Image1d& depthbuffer)
 {
 	for (int yi = triangle.min_y; yi <= triangle.max_y; ++yi)
 	{
@@ -118,7 +119,7 @@ inline void raster_triangle_affine(TriangleToRasterize triangle, cv::Mat colourb
 				const int pixel_index_col = xi;
 
 				const double z_affine = alpha*static_cast<double>(triangle.v0.position[2]) + beta*static_cast<double>(triangle.v1.position[2]) + gamma*static_cast<double>(triangle.v2.position[2]);
-				if (z_affine < depthbuffer.at<double>(pixel_index_row, pixel_index_col))
+				if (z_affine < depthbuffer(pixel_index_row, pixel_index_col))
 				{
 					// attributes interpolation
 					// pixel_color is in RGB, v.color are RGB
@@ -130,11 +131,11 @@ inline void raster_triangle_affine(TriangleToRasterize triangle, cv::Mat colourb
 					const unsigned char blue = static_cast<unsigned char>(255.0f * std::min(pixel_color[2], 1.0f));
 
 					// update buffers
-					colourbuffer.at<cv::Vec4b>(pixel_index_row, pixel_index_col)[0] = blue;
-					colourbuffer.at<cv::Vec4b>(pixel_index_row, pixel_index_col)[1] = green;
-					colourbuffer.at<cv::Vec4b>(pixel_index_row, pixel_index_col)[2] = red;
-					colourbuffer.at<cv::Vec4b>(pixel_index_row, pixel_index_col)[3] = 255; // alpha channel
-					depthbuffer.at<double>(pixel_index_row, pixel_index_col) = z_affine;
+					colourbuffer(pixel_index_row, pixel_index_col)[0] = blue;
+					colourbuffer(pixel_index_row, pixel_index_col)[1] = green;
+					colourbuffer(pixel_index_row, pixel_index_col)[2] = red;
+					colourbuffer(pixel_index_row, pixel_index_col)[3] = 255; // alpha channel
+					depthbuffer(pixel_index_row, pixel_index_col) = z_affine;
 				}
 			}
 		}
