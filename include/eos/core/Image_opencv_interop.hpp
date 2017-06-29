@@ -26,6 +26,9 @@
 
 #include "opencv2/core/core.hpp"
 
+#include <array>
+#include <cstdint>
+
 namespace eos {
 	namespace core {
 
@@ -40,6 +43,18 @@ inline cv::Mat to_mat(const Image4u& image)
 		}
 	}
 	return opencv_matrix;
+};
+
+inline Image3u from_mat(const cv::Mat& image)
+{
+	// assert image is 3CU8
+	Image3u converted(image.rows, image.cols);
+	for (int r=0; r < image.rows; ++r) {
+		for (int c = 0; c < image.cols; ++c) {
+			converted(r, c) = std::array<std::uint8_t, 3>{image.at<cv::Vec3b>(r, c)[0], image.at<cv::Vec3b>(r, c)[1], image.at<cv::Vec3b>(r, c)[2]};
+		}
+	}
+	return converted;
 };
 
 	} /* namespace core */

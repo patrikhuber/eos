@@ -223,7 +223,7 @@ int main(int argc, char *argv[])
 
 	// Extract the texture from the image using given mesh and camera parameters:
 	Eigen::Matrix<float, 3, 4> affine_from_ortho = fitting::get_3x4_affine_camera_matrix(rendering_params, image.cols, image.rows);
-	core::Image4u isomap = render::extract_texture(mesh, affine_from_ortho, image, true);
+	core::Image4u isomap = render::extract_texture(mesh, affine_from_ortho, core::from_mat(image), true);
 
 	// Draw the fitted mesh as wireframe, and save the image:
 	draw_wireframe(outimg, mesh, rendering_params.get_modelview(), rendering_params.get_projection(), fitting::get_opencv_viewport(image.cols, image.rows));
