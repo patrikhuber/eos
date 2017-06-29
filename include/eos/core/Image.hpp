@@ -22,8 +22,6 @@
 #ifndef IMAGE_HPP_
 #define IMAGE_HPP_
 
-#include "opencv2/core/core.hpp" // temp for to_mat
-
 #include <vector>
 #include <array>
 #include <cstdint>
@@ -117,20 +115,6 @@ public:
 // Note: The num_channels number needs to be repeated, not so nice.
 using Image3u = Image<std::array<std::uint8_t, 3>, 3>;
 using Image4u = Image<std::array<std::uint8_t, 4>, 4>;
-
-// Temporary - will remove or move to separate opencv interop header.
-// We can support different types by making this a template and constexpr if? :-)
-inline cv::Mat to_mat(const Image4u& image)
-{
-	cv::Mat opencv_matrix(image.rows, image.cols, CV_8UC4);
-	for (int c = 0; c < image.cols; ++c) { // size_t
-		for (int r = 0; r < image.cols; ++r) {
-			//auto vals = image(r, c);
-			opencv_matrix.at<cv::Vec4b>(r, c) = cv::Vec4b(image(r, c)[0], image(r, c)[1], image(r, c)[2], image(r, c)[3]);
-		}
-	}
-	return opencv_matrix;
-}
 
 	} /* namespace core */
 } /* namespace eos */

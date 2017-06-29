@@ -72,6 +72,7 @@ set(HEADERS
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/core/Landmark.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/core/LandmarkMapper.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/core/Image.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/core/Image_opencv_interop.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/core/Mesh.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/morphablemodel/PcaModel.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/morphablemodel/MorphableModel.hpp
