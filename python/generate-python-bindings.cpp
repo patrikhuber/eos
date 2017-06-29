@@ -39,7 +39,6 @@
 #include "pybind11_Image.hpp"
 
 #include "Eigen/Core"
-#include "pybind11_opencv.hpp"
 
 #include <iostream>
 #include <stdexcept>
