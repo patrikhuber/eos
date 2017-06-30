@@ -22,8 +22,8 @@
 #ifndef TEXTURE_EXTRACTION_DETAIL_HPP_
 #define TEXTURE_EXTRACTION_DETAIL_HPP_
 
-#include "eos/core/Rect.hpp"
 #include "eos/core/Image.hpp"
+#include "eos/render/Rect.hpp"
 #include "eos/render/detail/render_detail.hpp"
 
 #include "glm/vec2.hpp"
