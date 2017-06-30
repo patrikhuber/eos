@@ -46,6 +46,8 @@
 #include <cassert>
 #include <future>
 #include <vector>
+#include <array>
+#include <cstddef>
 
 namespace eos {
 	namespace render {
@@ -62,7 +64,7 @@ enum class TextureInterpolation {
 
 // Forward declarations:
 core::Image4u extract_texture(const core::Mesh& mesh, Eigen::Matrix<float, 3, 4> affine_camera_matrix, const core::Image3u& image, const core::Image1d& depthbuffer, bool compute_view_angle, TextureInterpolation mapping_type, int isomap_resolution);
-namespace detail { cv::Mat interpolate_black_line(cv::Mat isomap); }
+namespace detail { core::Image4u interpolate_black_line(core::Image4u& isomap); }
 
 /**
  * Extracts the texture of the face from the given image
@@ -505,16 +507,19 @@ namespace detail {
 // manifest themselves as black lines in the final isomap. This function
 // just fills these missing values by interpolating between two neighbouring
 // pixels. See GitHub issue #4.
-inline cv::Mat interpolate_black_line(cv::Mat isomap)
+inline core::Image4u interpolate_black_line(core::Image4u& isomap)
 {
-	assert(isomap.type() == CV_8UC4);
 	// Replace the vertical black line ("missing data"):
+	using RGBAType = Eigen::Matrix<std::uint8_t, 1, 4>;
+	using Eigen::Map;
 	int col = isomap.cols / 2;
 	for (int row = 0; row < isomap.rows; ++row)
 	{
-		if (isomap.at<cv::Vec4b>(row, col) == cv::Vec4b(0, 0, 0, 0))
+		if (isomap(row, col) == std::array<std::uint8_t, 4>{ 0, 0, 0, 0 })
 		{
-			isomap.at<cv::Vec4b>(row, col) = isomap.at<cv::Vec4b>(row, col - 1) * 0.5f + isomap.at<cv::Vec4b>(row, col + 1) * 0.5f;
+			Eigen::Vector4f pixel_val = Map<const RGBAType>(isomap(row, col - 1).data(), 4).cast<float>() * 0.5f + Map<const RGBAType>(isomap(row, col + 1).data(), 4).cast<float>() * 0.5f;
+			isomap(row, col) = { static_cast<std::uint8_t>(pixel_val[0]), static_cast<std::uint8_t>(pixel_val[1]), static_cast<std::uint8_t>(pixel_val[2]), static_cast<std::uint8_t>(pixel_val[3]) };
+			
 		}
 	}
 
@@ -525,9 +530,10 @@ inline cv::Mat interpolate_black_line(cv::Mat isomap)
 		int r = 362;
 		for (int c = 206; c <= 306; ++c)
 		{
-			if (isomap.at<cv::Vec4b>(r, c) == cv::Vec4b(0, 0, 0, 0))
+			if (isomap(r, c) == std::array<std::uint8_t, 4>{ 0, 0, 0, 0 })
 			{
-				isomap.at<cv::Vec4b>(r, c) = isomap.at<cv::Vec4b>(r - 1, c) * 0.5f + isomap.at<cv::Vec4b>(r + 1, c) * 0.5f;
+				Eigen::Vector4f pixel_val = Map<const RGBAType>(isomap(r - 1, c).data(), 4).cast<float>() * 0.5f + Map<const RGBAType>(isomap(r + 1, c).data(), 4).cast<float>() * 0.5f;
+				isomap(r, c) = { static_cast<std::uint8_t>(pixel_val[0]), static_cast<std::uint8_t>(pixel_val[1]), static_cast<std::uint8_t>(pixel_val[2]), static_cast<std::uint8_t>(pixel_val[3]) };
 			}
 		}
 	}
@@ -536,17 +542,19 @@ inline cv::Mat interpolate_black_line(cv::Mat isomap)
 		int r = 724;
 		for (int c = 437; c <= 587; ++c)
 		{
-			if (isomap.at<cv::Vec4b>(r, c) == cv::Vec4b(0, 0, 0, 0))
+			if (isomap(r, c) == std::array<std::uint8_t, 4>{ 0, 0, 0, 0 })
 			{
-				isomap.at<cv::Vec4b>(r, c) = isomap.at<cv::Vec4b>(r - 1, c) * 0.5f + isomap.at<cv::Vec4b>(r + 1, c) * 0.5f;
+				Eigen::Vector4f pixel_val = Map<const RGBAType>(isomap(r - 1, c).data(), 4).cast<float>() * 0.5f + Map<const RGBAType>(isomap(r + 1, c).data(), 4).cast<float>() * 0.5f;
+				isomap(r, c) = { static_cast<std::uint8_t>(pixel_val[0]), static_cast<std::uint8_t>(pixel_val[1]), static_cast<std::uint8_t>(pixel_val[2]), static_cast<std::uint8_t>(pixel_val[3]) };
 			}
 		}
 		r = 725;
 		for (int c = 411; c <= 613; ++c)
 		{
-			if (isomap.at<cv::Vec4b>(r, c) == cv::Vec4b(0, 0, 0, 0))
+			if (isomap(r, c) == std::array<std::uint8_t, 4>{ 0, 0, 0, 0 })
 			{
-				isomap.at<cv::Vec4b>(r, c) = isomap.at<cv::Vec4b>(r - 1, c) * 0.5f + isomap.at<cv::Vec4b>(r + 1, c) * 0.5f;
+				Eigen::Vector4f pixel_val = Map<const RGBAType>(isomap(r - 1, c).data(), 4).cast<float>() * 0.5f + Map<const RGBAType>(isomap(r + 1, c).data(), 4).cast<float>() * 0.5f;
+				isomap(r, c) = { static_cast<std::uint8_t>(pixel_val[0]), static_cast<std::uint8_t>(pixel_val[1]), static_cast<std::uint8_t>(pixel_val[2]), static_cast<std::uint8_t>(pixel_val[3]) };
 			}
 		}
 	}
