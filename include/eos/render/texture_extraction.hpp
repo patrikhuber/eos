@@ -40,7 +40,6 @@
 #include "Eigen/Core"
 
 #include "opencv2/core/core.hpp"
-#include "opencv2/imgproc/imgproc.hpp"
 
 #include <tuple>
 #include <cassert>
@@ -51,6 +50,52 @@
 
 namespace eos {
 	namespace render {
+
+/* This function is copied from OpenCV,	originally under BSD licence.
+ * imgwarp.cpp from OpenCV-3.2.0.
+ *
+ * Calculates coefficients of affine transformation
+ * which maps (xi,yi) to (ui,vi), (i=1,2,3):
+ *
+ * ui = c00*xi + c01*yi + c02
+ *
+ * vi = c10*xi + c11*yi + c12
+ *
+ * Coefficients are calculated by solving linear system:
+ * / x0 y0  1  0  0  0 \ /c00\ /u0\
+ * | x1 y1  1  0  0  0 | |c01| |u1|
+ * | x2 y2  1  0  0  0 | |c02| |u2|
+ * |  0  0  0 x0 y0  1 | |c10| |v0|
+ * |  0  0  0 x1 y1  1 | |c11| |v1|
+ * \  0  0  0 x2 y2  1 / |c12| |v2|
+ *
+ * where:
+ *   cij - matrix coefficients
+ */
+cv::Mat getAffineTransform( const cv::Point2f src[], const cv::Point2f dst[] )
+{
+	using cv::Mat;
+	Mat M(2, 3, CV_64F);
+	Mat X(6, 1, CV_64F, M.ptr());
+    double a[6*6], b[6];
+    Mat A(6, 6, CV_64F, a), B(6, 1, CV_64F, b);
+
+    for( int i = 0; i < 3; i++ )
+    {
+        int j = i*12;
+        int k = i*12+6;
+        a[j] = a[k+3] = src[i].x;
+        a[j+1] = a[k+4] = src[i].y;
+        a[j+2] = a[k+5] = 1;
+        a[j+3] = a[j+4] = a[j+5] = 0;
+        a[k] = a[k+1] = a[k+2] = 0;
+        b[i*2] = dst[i].x;
+        b[i*2+1] = dst[i].y;
+    }
+
+    cv::solve( A, B, X );
+    return M;
+};
 
 /**
  * The interpolation types that can be used to map the
@@ -229,7 +274,7 @@ inline core::Image4u extract_texture(const core::Mesh& mesh, Eigen::Matrix<float
 			// We use the inverse/ backward mapping approach, so we want to find the corresponding texel (texture-pixel) for each pixel in the isomap
 
 			// Get the inverse Affine Transform from original image: from dst (pixel in isomap) to src (in image)
-			Mat warp_mat_org_inv = cv::getAffineTransform(dst_tri, src_tri); // I think I can copy the code to this into the repo temporarily, if it's not too complicated...
+			Mat warp_mat_org_inv = render::getAffineTransform(dst_tri, src_tri); // I think I can copy the code to this into the repo temporarily, if it's not too complicated...
 			warp_mat_org_inv.convertTo(warp_mat_org_inv, CV_32FC1);
 
 			// We now loop over all pixels in the triangle and select, depending on the mapping type, the corresponding texel(s) in the source image
