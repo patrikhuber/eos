@@ -73,7 +73,7 @@ namespace eos {
  *   cij - matrix coefficients
  */
 // Note: The original functions used doubles.
-Eigen::Matrix<float, 2, 3> getAffineTransform(const std::array<Eigen::Vector2f, 3>& src, const std::array<Eigen::Vector2f, 3>& dst)
+Eigen::Matrix<float, 2, 3> get_affine_transform(const std::array<Eigen::Vector2f, 3>& src, const std::array<Eigen::Vector2f, 3>& dst)
 {
 	using Eigen::Matrix;
 	assert(src.size() == dst.size() && src.size() == 3);
@@ -275,7 +275,7 @@ inline core::Image4u extract_texture(const core::Mesh& mesh, Eigen::Matrix<float
 			// We use the inverse/ backward mapping approach, so we want to find the corresponding texel (texture-pixel) for each pixel in the isomap
 
 			// Get the inverse Affine Transform from original image: from dst (pixel in isomap) to src (in image)
-			Eigen::Matrix<float, 2, 3> warp_mat_org_inv = render::getAffineTransform(dst_tri, src_tri); // I think I can copy the code to this into the repo temporarily, if it's not too complicated...
+			Eigen::Matrix<float, 2, 3> warp_mat_org_inv = get_affine_transform(dst_tri, src_tri);
 
 			// We now loop over all pixels in the triangle and select, depending on the mapping type, the corresponding texel(s) in the source image
 			for (int x = min(dst_tri[0][0], min(dst_tri[1][0], dst_tri[2][0])); x < max(dst_tri[0][0], max(dst_tri[1][0], dst_tri[2][0])); ++x) {
