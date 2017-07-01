@@ -153,7 +153,7 @@ inline core::Image4u extract_texture(const core::Mesh& mesh, Eigen::Matrix<float
  * and stores it as isomap (a rectangular texture map).
  * This function can be used if a depth buffer has already been computed.
  * To just run the texture extraction, see the overload
- * extract_texture(Mesh, cv::Mat, cv::Mat, TextureInterpolation, int).
+ * extract_texture(Mesh, cv::Mat, cv::Mat, TextureInterpolation, int). // Todo: I think this signature needs updating.
  *
  * It might be wise to remove this overload as it can get quite confusing
  * with the zbuffer. Obviously the depthbuffer given should have been created
