@@ -29,6 +29,8 @@
 #include "glm/vec2.hpp"
 #include "glm/vec4.hpp"
 
+#include "Eigen/Core"
+
 #include "opencv2/core/core.hpp"
 
 /**
@@ -55,6 +57,39 @@ inline bool is_point_in_triangle(cv::Point2f point, cv::Point2f triV0, cv::Point
 	cv::Point2f v0 = triV2 - triV0;
 	cv::Point2f v1 = triV1 - triV0;
 	cv::Point2f v2 = point - triV0;
+
+	// Compute dot products
+	float dot00 = v0.dot(v0);
+	float dot01 = v0.dot(v1);
+	float dot02 = v0.dot(v2);
+	float dot11 = v1.dot(v1);
+	float dot12 = v1.dot(v2);
+
+	// Compute barycentric coordinates
+	float invDenom = 1 / (dot00 * dot11 - dot01 * dot01);
+	float u = (dot11 * dot02 - dot01 * dot12) * invDenom;
+	float v = (dot00 * dot12 - dot01 * dot02) * invDenom;
+
+	// Check if point is in triangle
+	return (u >= 0) && (v >= 0) && (u + v < 1);
+};
+
+/**
+ * Computes whether the given point is inside (or on the border of) the triangle
+ * formed out of the given three vertices.
+ *
+ * @param[in] point The point to check.
+ * @param[in] triV0 First vertex.
+ * @param[in] triV1 Second vertex.
+ * @param[in] triV2 Third vertex.
+ * @return Whether the point is inside the triangle.
+ */
+inline bool is_point_in_triangle(Eigen::Vector2f point, Eigen::Vector2f triV0, Eigen::Vector2f triV1, Eigen::Vector2f triV2) {
+	// See http://www.blackpawn.com/texts/pointinpoly/
+	// Compute vectors
+	Eigen::Vector2f v0 = triV2 - triV0;
+	Eigen::Vector2f v1 = triV1 - triV0;
+	Eigen::Vector2f v2 = point - triV0;
 
 	// Compute dot products
 	float dot00 = v0.dot(v0);
