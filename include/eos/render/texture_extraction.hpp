@@ -28,8 +28,8 @@
 #include "eos/render/render_affine.hpp"
 #include "eos/render/detail/render_detail.hpp"
 #include "eos/render/utils.hpp" // for clip_to_screen_space()
-#include "eos/render/Rasterizer.hpp"
-#include "eos/render/FragmentShader.hpp"
+//#include "eos/render/Rasterizer.hpp"
+//#include "eos/render/FragmentShader.hpp"
 #include "eos/fitting/closest_edge_fitting.hpp" // for ray_triangle_intersect()
 
 #include "glm/mat4x4.hpp"
