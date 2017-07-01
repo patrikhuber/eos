@@ -53,7 +53,7 @@ public:
 		this->d = d;
 	}
 
-	plane(const cv::Vec3f& normal, float d = 0.0f)
+	plane(const glm::vec3& normal, float d = 0.0f)
 	{
 		this->a = normal[0];
 		this->b = normal[1];
@@ -61,32 +61,19 @@ public:
 		this->d = d;
 	}
 
-	plane(const cv::Vec3f& point, const cv::Vec3f& normal)
+	plane(const glm::vec3& point, const glm::vec3& normal)
 	{
 		a = normal[0];
 		b = normal[1];
 		c = normal[2];
-		d = -(point.dot(normal));
-	}
-
-	plane(const cv::Vec3f& point1, const cv::Vec3f& point2, const cv::Vec3f& point3)
-	{
-		cv::Vec3f v1 = point2 - point1;
-		cv::Vec3f v2 = point3 - point1;
-		cv::Vec3f normal = (v1.cross(v2));
-		normal /= cv::norm(normal, cv::NORM_L2);
-
-		a = normal[0];
-		b = normal[1];
-		c = normal[2];
-		d = -(point1.dot(normal));
+		d = -glm::dot(point, normal);
 	}
 
 	template<typename T, glm::precision P = glm::defaultp>
 	plane(const glm::tvec3<T, P>& point1, const glm::tvec3<T, P>& point2, const glm::tvec3<T, P>& point3)
 	{
-		glm::tvec3<T, P> v1 = point2 - point1;
-		glm::tvec3<T, P> v2 = point3 - point1;
+		const glm::tvec3<T, P> v1 = point2 - point1;
+		const glm::tvec3<T, P> v2 = point3 - point1;
 		glm::tvec3<T, P> normal = glm::cross(v1, v2);
 		normal = glm::normalize(normal);
 
@@ -105,12 +92,12 @@ public:
 		c /= length;
 	}
 
-	float getSignedDistanceFromPoint(const cv::Vec3f& point) const
+	float getSignedDistanceFromPoint(const glm::vec3& point) const
 	{
 		return a*point[0] + b*point[1] + c*point[2] + d;
 	}
 
-	float getSignedDistanceFromPoint(const cv::Vec4f& point) const
+	float getSignedDistanceFromPoint(const glm::vec4& point) const
 	{
 		return a*point[0] + b*point[1] + c*point[2] + d;
 	}
@@ -396,7 +383,8 @@ inline cv::Vec3f tex2d_linear(const cv::Vec2f& imageTexCoord, unsigned char mipm
 inline boost::optional<TriangleToRasterize> process_prospective_tri(Vertex<float> v0, Vertex<float> v1, Vertex<float> v2, int viewport_width, int viewport_height, bool enable_backface_culling)
 {
 	using cv::Vec2f;
-	using cv::Vec3f;
+	using glm::vec3;
+
 	TriangleToRasterize t;
 	t.v0 = v0;	// no memcopy I think. the transformed vertices don't get copied and exist only once. They are a local variable in runVertexProcessor(), the ref is passed here, and if we need to rasterize it, it gets push_back'ed (=copied?) to trianglesToRasterize. Perfect I think. TODO: Not anymore, no ref here
 	t.v1 = v1;
@@ -447,15 +435,15 @@ inline boost::optional<TriangleToRasterize> process_prospective_tri(Vertex<float
 
 	// Which of these is for texturing, mipmapping, what for perspective?
 	// for partial derivatives computation
-	t.alphaPlane = plane(Vec3f(t.v0.position[0], t.v0.position[1], t.v0.texcoords[0] * t.one_over_z0),
-		Vec3f(t.v1.position[0], t.v1.position[1], t.v1.texcoords[0] * t.one_over_z1),
-		Vec3f(t.v2.position[0], t.v2.position[1], t.v2.texcoords[0] * t.one_over_z2));
-	t.betaPlane = plane(Vec3f(t.v0.position[0], t.v0.position[1], t.v0.texcoords[1] * t.one_over_z0),
-		Vec3f(t.v1.position[0], t.v1.position[1], t.v1.texcoords[1] * t.one_over_z1),
-		Vec3f(t.v2.position[0], t.v2.position[1], t.v2.texcoords[1] * t.one_over_z2));
-	t.gammaPlane = plane(Vec3f(t.v0.position[0], t.v0.position[1], t.one_over_z0),
-		Vec3f(t.v1.position[0], t.v1.position[1], t.one_over_z1),
-		Vec3f(t.v2.position[0], t.v2.position[1], t.one_over_z2));
+	t.alphaPlane = plane(vec3(t.v0.position[0], t.v0.position[1], t.v0.texcoords[0] * t.one_over_z0),
+		vec3(t.v1.position[0], t.v1.position[1], t.v1.texcoords[0] * t.one_over_z1),
+		vec3(t.v2.position[0], t.v2.position[1], t.v2.texcoords[0] * t.one_over_z2));
+	t.betaPlane = plane(vec3(t.v0.position[0], t.v0.position[1], t.v0.texcoords[1] * t.one_over_z0),
+		vec3(t.v1.position[0], t.v1.position[1], t.v1.texcoords[1] * t.one_over_z1),
+		vec3(t.v2.position[0], t.v2.position[1], t.v2.texcoords[1] * t.one_over_z2));
+	t.gammaPlane = plane(vec3(t.v0.position[0], t.v0.position[1], t.one_over_z0),
+		vec3(t.v1.position[0], t.v1.position[1], t.one_over_z1),
+		vec3(t.v2.position[0], t.v2.position[1], t.one_over_z2));
 	t.one_over_alpha_c = 1.0f / t.alphaPlane.c;
 	t.one_over_beta_c = 1.0f / t.betaPlane.c;
 	t.one_over_gamma_c = 1.0f / t.gammaPlane.c;
