@@ -39,8 +39,6 @@
 
 #include "Eigen/Core"
 
-#include "opencv2/core/core.hpp"
-
 #include <tuple>
 #include <cassert>
 #include <future>
