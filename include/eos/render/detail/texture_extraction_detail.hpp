@@ -31,8 +31,6 @@
 
 #include "Eigen/Core"
 
-#include "opencv2/core/core.hpp"
-
 /**
  * Implementations of internal functions, not part of the
  * API we expose and not meant to be used by a user.
