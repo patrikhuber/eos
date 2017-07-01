@@ -428,9 +428,10 @@ namespace v2 {
  * @param[in] isomap_resolution The resolution of the generated isomap. Defaults to 512x512.
  * @return The extracted texture as isomap (texture map).
  */
-cv::Mat extract_texture(const core::Mesh& mesh, glm::mat4x4 view_model_matrix, glm::mat4x4 projection_matrix,
-                        glm::vec4 /*viewport, not needed at the moment */, cv::Mat image,
-                        bool /* compute_view_angle, unused atm */, int isomap_resolution = 512)
+//cv::Mat extract_texture(const core::Mesh& mesh, glm::mat4x4 view_model_matrix, glm::mat4x4 projection_matrix,
+//                        glm::vec4 /*viewport, not needed at the moment */, cv::Mat image,
+//                        bool /* compute_view_angle, unused atm */, int isomap_resolution = 512)
+/*
 {
     using detail::divide_by_w;
     using glm::vec2;
@@ -509,38 +510,42 @@ cv::Mat extract_texture(const core::Mesh& mesh, glm::mat4x4 view_model_matrix, g
             // definitely need to correct this. Probably here.
             // It looks like it is 1-2 pixels off. Definitely a bit more than 1.
             detail::Vertex<double> pa{
-                vec4(mesh.texcoords[tvi[0]][0] * tex_width, mesh.texcoords[tvi[0]][1] * tex_height,
-                     wnd_coords[tvi[0]].z /* z_ndc */, wnd_coords[tvi[0]].w /* 1/w_clip */),
-                vec3(/* empty */),
+                vec4(mesh.texcoords[tvi[0]][0] * tex_width,
+					 mesh.texcoords[tvi[0]][1] * tex_height,
+                     wnd_coords[tvi[0]].z, // z_ndc
+					 wnd_coords[tvi[0]].w), // 1/w_clip
+                vec3(), // empty
                 vec2(
                     wnd_coords[tvi[0]].x / image.cols,
-                    /* maybe 1 - ... ? */ wnd_coords[tvi[0]].y /
-                        image
-                            .rows /* wndcoords of the projected/rendered model triangle (in the input img). Normalised to 0,1. */)};
+                    wnd_coords[tvi[0]].y / image.rows // (maybe '1 - wndcoords...'?) wndcoords of the projected/rendered model triangle (in the input img). Normalised to 0,1.
+					)};
             detail::Vertex<double> pb{
-                vec4(mesh.texcoords[tvi[1]][0] * tex_width, mesh.texcoords[tvi[1]][1] * tex_height,
-                     wnd_coords[tvi[1]].z /* z_ndc */, wnd_coords[tvi[1]].w /* 1/w_clip */),
-                vec3(/* empty */),
+                vec4(mesh.texcoords[tvi[1]][0] * tex_width,
+				mesh.texcoords[tvi[1]][1] * tex_height,
+                wnd_coords[tvi[1]].z, // z_ndc
+				wnd_coords[tvi[1]].w), // 1/w_clip
+                vec3(), // empty
                 vec2(
                     wnd_coords[tvi[1]].x / image.cols,
-                    /* maybe 1 - ... ? */ wnd_coords[tvi[1]].y /
-                        image
-                            .rows /* wndcoords of the projected/rendered model triangle (in the input img). Normalised to 0,1. */)};
+                    wnd_coords[tvi[1]].y / image.rows // (maybe '1 - wndcoords...'?) wndcoords of the projected/rendered model triangle (in the input img). Normalised to 0,1.
+					)};
             detail::Vertex<double> pc{
-                vec4(mesh.texcoords[tvi[2]][0] * tex_width, mesh.texcoords[tvi[2]][1] * tex_height,
-                     wnd_coords[tvi[2]].z /* z_ndc */, wnd_coords[tvi[2]].w /* 1/w_clip */),
-                vec3(/* empty */),
+                vec4(mesh.texcoords[tvi[2]][0] * tex_width,
+				mesh.texcoords[tvi[2]][1] * tex_height,
+                wnd_coords[tvi[2]].z, // z_ndc 
+				wnd_coords[tvi[2]].w), // 1/w_clip
+                vec3(), // empty
                 vec2(
                     wnd_coords[tvi[2]].x / image.cols,
-                    /* maybe 1 - ... ? */ wnd_coords[tvi[2]].y /
-                        image
-                            .rows /* wndcoords of the projected/rendered model triangle (in the input img). Normalised to 0,1. */)};
+                    wnd_coords[tvi[2]].y / image.rows // (maybe '1 - wndcoords...'?) wndcoords of the projected/rendered model triangle (in the input img). Normalised to 0,1.
+					)};
             extraction_rasterizer.raster_triangle(pa, pb, pc, image_to_extract_from_as_tex);
         }
     }
 
     return extraction_rasterizer.colorbuffer;
 };
+*/
 
 } /* namespace v2 */
 
