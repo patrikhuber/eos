@@ -290,15 +290,15 @@ inline core::Image4u extract_texture(const core::Mesh& mesh, Eigen::Matrix<float
 						if (mapping_type == TextureInterpolation::Area) {
 
 							// calculate positions of 4 corners of pixel in image (src)
-							Vector3f homogenous_dst_upper_left(x - 0.5f, y - 0.5f, 1.0f);
-							Vector3f homogenous_dst_upper_right(x + 0.5f, y - 0.5f, 1.0f);
-							Vector3f homogenous_dst_lower_left(x - 0.5f, y + 0.5f, 1.0f);
-							Vector3f homogenous_dst_lower_right(x + 0.5f, y + 0.5f, 1.0f);
+							const Vector3f homogenous_dst_upper_left(x - 0.5f, y - 0.5f, 1.0f);
+							const Vector3f homogenous_dst_upper_right(x + 0.5f, y - 0.5f, 1.0f);
+							const Vector3f homogenous_dst_lower_left(x - 0.5f, y + 0.5f, 1.0f);
+							const Vector3f homogenous_dst_lower_right(x + 0.5f, y + 0.5f, 1.0f);
 
-							Vector2f src_texel_upper_left = warp_mat_org_inv * homogenous_dst_upper_left;
-							Vector2f src_texel_upper_right = warp_mat_org_inv * homogenous_dst_upper_right;
-							Vector2f src_texel_lower_left = warp_mat_org_inv * homogenous_dst_lower_left;
-							Vector2f src_texel_lower_right = warp_mat_org_inv * homogenous_dst_lower_right;
+							const Vector2f src_texel_upper_left = warp_mat_org_inv * homogenous_dst_upper_left;
+							const Vector2f src_texel_upper_right = warp_mat_org_inv * homogenous_dst_upper_right;
+							const Vector2f src_texel_lower_left = warp_mat_org_inv * homogenous_dst_lower_left;
+							const Vector2f src_texel_lower_right = warp_mat_org_inv * homogenous_dst_lower_right;
 
 							float min_a = min(min(src_texel_upper_left[0], src_texel_upper_right[0]), min(src_texel_lower_left[0], src_texel_lower_right[0]));
 							float max_a = max(max(src_texel_upper_left[0], src_texel_upper_right[0]), max(src_texel_lower_left[0], src_texel_lower_right[0]));
@@ -341,8 +341,8 @@ inline core::Image4u extract_texture(const core::Mesh& mesh, Eigen::Matrix<float
 						else if (mapping_type == TextureInterpolation::Bilinear) {
 
 							// calculate corresponding position of dst_coord pixel center in image (src)
-							Vector3f homogenous_dst_coord(x, y, 1.0f);
-							Vector2f src_texel = warp_mat_org_inv * homogenous_dst_coord;
+							const Vector3f homogenous_dst_coord(x, y, 1.0f);
+							const Vector2f src_texel = warp_mat_org_inv * homogenous_dst_coord;
 
 							// calculate euclidean distances to next 4 texels
 							using std::sqrt;
@@ -353,7 +353,7 @@ inline core::Image4u extract_texture(const core::Mesh& mesh, Eigen::Matrix<float
 							float distance_lower_right = sqrt(pow(src_texel[0] - ceil(src_texel[0]), 2) + pow(src_texel[1] - ceil(src_texel[1]), 2));
 
 							// normalise distances that the sum of all distances is 1
-							float sum_distances = distance_lower_left + distance_lower_right + distance_upper_left + distance_upper_right;
+							const float sum_distances = distance_lower_left + distance_lower_right + distance_upper_left + distance_upper_right;
 							distance_lower_left /= sum_distances;
 							distance_lower_right /= sum_distances;
 							distance_upper_left /= sum_distances;
@@ -362,10 +362,10 @@ inline core::Image4u extract_texture(const core::Mesh& mesh, Eigen::Matrix<float
 							// set color depending on distance from next 4 texels
 							// (we map the data from std::array<uint8_t, 3> to an Eigen::Map, then cast that to float to multiply with the float-scalar distance.)
 							// (this is untested!)
-							Vector3f color_upper_left = Eigen::Map<const Eigen::Matrix<std::uint8_t, 1, 3>>(image(floor(src_texel[1]), floor(src_texel[0])).data(), 3).cast<float>() * distance_upper_left;
-							Vector3f color_upper_right = Eigen::Map<const Eigen::Matrix<std::uint8_t, 1, 3>>(image(floor(src_texel[1]), ceil(src_texel[0])).data(), 3).cast<float>() * distance_upper_right;
-							Vector3f color_lower_left = Eigen::Map<const Eigen::Matrix<std::uint8_t, 1, 3>>(image(ceil(src_texel[1]), floor(src_texel[0])).data(), 3).cast<float>() * distance_lower_left;
-							Vector3f color_lower_right = Eigen::Map<const Eigen::Matrix<std::uint8_t, 1, 3>>(image(ceil(src_texel[1]), ceil(src_texel[0])).data(), 3).cast<float>() * distance_lower_right;
+							const Vector3f color_upper_left = Eigen::Map<const Eigen::Matrix<std::uint8_t, 1, 3>>(image(floor(src_texel[1]), floor(src_texel[0])).data(), 3).cast<float>() * distance_upper_left;
+							const Vector3f color_upper_right = Eigen::Map<const Eigen::Matrix<std::uint8_t, 1, 3>>(image(floor(src_texel[1]), ceil(src_texel[0])).data(), 3).cast<float>() * distance_upper_right;
+							const Vector3f color_lower_left = Eigen::Map<const Eigen::Matrix<std::uint8_t, 1, 3>>(image(ceil(src_texel[1]), floor(src_texel[0])).data(), 3).cast<float>() * distance_lower_left;
+							const Vector3f color_lower_right = Eigen::Map<const Eigen::Matrix<std::uint8_t, 1, 3>>(image(ceil(src_texel[1]), ceil(src_texel[0])).data(), 3).cast<float>() * distance_lower_right;
 
 							//isomap(y, x)[color] = color_upper_left + color_upper_right + color_lower_left + color_lower_right;
 							isomap(y, x)[0] = static_cast<std::uint8_t>(glm::clamp(color_upper_left[0] + color_upper_right[0] + color_lower_left[0] + color_lower_right[0], 0.f, 255.0f));
