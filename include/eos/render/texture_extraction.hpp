@@ -72,29 +72,33 @@ namespace eos {
  * where:
  *   cij - matrix coefficients
  */
-cv::Mat getAffineTransform( const cv::Point2f src[], const cv::Point2f dst[] )
+// Note: The original functions used doubles.
+Eigen::Matrix<float, 2, 3> getAffineTransform(const std::array<Eigen::Vector2f, 3>& src, const std::array<Eigen::Vector2f, 3>& dst)
 {
-	using cv::Mat;
-	Mat M(2, 3, CV_64F);
-	Mat X(6, 1, CV_64F, M.ptr());
-    double a[6*6], b[6];
-    Mat A(6, 6, CV_64F, a), B(6, 1, CV_64F, b);
+	using Eigen::Matrix;
+	assert(src.size() == dst.size() && src.size() == 3);
+	
+	Matrix<float, 6, 6> A;
+	Matrix<float, 6, 1> B; // change to 'b'
 
     for( int i = 0; i < 3; i++ )
     {
-        int j = i*12;
-        int k = i*12+6;
-        a[j] = a[k+3] = src[i].x;
-        a[j+1] = a[k+4] = src[i].y;
-        a[j+2] = a[k+5] = 1;
-        a[j+3] = a[j+4] = a[j+5] = 0;
-        a[k] = a[k+1] = a[k+2] = 0;
-        b[i*2] = dst[i].x;
-        b[i*2+1] = dst[i].y;
+		A.block<1, 2>(2 * i, 0) = src[i]; // the odd rows
+		A.block<1, 2>((2 * i) + 1, 3) = src[i]; // even rows
+		A(2 * i, 2) = 1.0f;
+		A((2 * i) + 1, 5) = 1.0f;
+		A.block<1, 3>(2 * i, 3).setZero();
+		A.block<1, 3>((2 * i) + 1, 0).setZero();
+		B.segment<2>(2 * i) = dst[i];
     }
 
-    cv::solve( A, B, X );
-    return M;
+	Matrix<float, 6, 1> X = A.colPivHouseholderQr().solve(B); // Include the QR module?
+
+	Matrix<float, 2, 3> transform_matrix;
+	transform_matrix.block<1, 3>(0, 0) = X.segment<3>(0);
+	transform_matrix.block<1, 3>(1, 0) = X.segment<3>(3);
+
+	return transform_matrix;
 };
 
 /**
@@ -168,12 +172,9 @@ inline core::Image4u extract_texture(const core::Mesh& mesh, Eigen::Matrix<float
 {
 	assert(mesh.vertices.size() == mesh.texcoords.size());
 
-	using cv::Mat;
-	using cv::Vec2f;
-	using cv::Vec3f;
+	using Eigen::Vector2f;
 	using Eigen::Vector3f;
 	using Eigen::Vector4f;
-	using cv::Vec3b;
 	using std::min;
 	using std::max;
 	using std::floor;
@@ -251,36 +252,35 @@ inline core::Image4u extract_texture(const core::Mesh& mesh, Eigen::Matrix<float
 			}
 
 			// Todo: Documentation
-			cv::Point2f src_tri[3];
-			cv::Point2f dst_tri[3];
+			std::array<Vector2f, 3> src_tri;
+			std::array<Vector2f, 3> dst_tri;
 
 			Vector4f vec(mesh.vertices[triangle_indices[0]][0], mesh.vertices[triangle_indices[0]][1], mesh.vertices[triangle_indices[0]][2], 1.0f);
 			Vector4f res = affine_camera_matrix_with_z * vec;
-			src_tri[0] = Vec2f(res[0], res[1]);
+			src_tri[0] = Vector2f(res[0], res[1]);
 
 			vec = Vector4f(mesh.vertices[triangle_indices[1]][0], mesh.vertices[triangle_indices[1]][1], mesh.vertices[triangle_indices[1]][2], 1.0f);
 			res = affine_camera_matrix_with_z * vec;
-			src_tri[1] = Vec2f(res[0], res[1]);
+			src_tri[1] = Vector2f(res[0], res[1]);
 
 			vec = Vector4f(mesh.vertices[triangle_indices[2]][0], mesh.vertices[triangle_indices[2]][1], mesh.vertices[triangle_indices[2]][2], 1.0f);
 			res = affine_camera_matrix_with_z * vec;
-			src_tri[2] = Vec2f(res[0], res[1]);
+			src_tri[2] = Vector2f(res[0], res[1]);
 
-			dst_tri[0] = cv::Point2f((isomap.cols - 0.5)*mesh.texcoords[triangle_indices[0]][0], (isomap.rows - 0.5)*mesh.texcoords[triangle_indices[0]][1]);
-			dst_tri[1] = cv::Point2f((isomap.cols - 0.5)*mesh.texcoords[triangle_indices[1]][0], (isomap.rows - 0.5)*mesh.texcoords[triangle_indices[1]][1]);
-			dst_tri[2] = cv::Point2f((isomap.cols - 0.5)*mesh.texcoords[triangle_indices[2]][0], (isomap.rows - 0.5)*mesh.texcoords[triangle_indices[2]][1]);
+			dst_tri[0] = Vector2f((isomap.cols - 0.5)*mesh.texcoords[triangle_indices[0]][0], (isomap.rows - 0.5)*mesh.texcoords[triangle_indices[0]][1]);
+			dst_tri[1] = Vector2f((isomap.cols - 0.5)*mesh.texcoords[triangle_indices[1]][0], (isomap.rows - 0.5)*mesh.texcoords[triangle_indices[1]][1]);
+			dst_tri[2] = Vector2f((isomap.cols - 0.5)*mesh.texcoords[triangle_indices[2]][0], (isomap.rows - 0.5)*mesh.texcoords[triangle_indices[2]][1]);
 
 			// We now have the source triangles in the image and the source triangle in the isomap
 			// We use the inverse/ backward mapping approach, so we want to find the corresponding texel (texture-pixel) for each pixel in the isomap
 
 			// Get the inverse Affine Transform from original image: from dst (pixel in isomap) to src (in image)
-			Mat warp_mat_org_inv = render::getAffineTransform(dst_tri, src_tri); // I think I can copy the code to this into the repo temporarily, if it's not too complicated...
-			warp_mat_org_inv.convertTo(warp_mat_org_inv, CV_32FC1);
+			Eigen::Matrix<float, 2, 3> warp_mat_org_inv = render::getAffineTransform(dst_tri, src_tri); // I think I can copy the code to this into the repo temporarily, if it's not too complicated...
 
 			// We now loop over all pixels in the triangle and select, depending on the mapping type, the corresponding texel(s) in the source image
-			for (int x = min(dst_tri[0].x, min(dst_tri[1].x, dst_tri[2].x)); x < max(dst_tri[0].x, max(dst_tri[1].x, dst_tri[2].x)); ++x) {
-				for (int y = min(dst_tri[0].y, min(dst_tri[1].y, dst_tri[2].y)); y < max(dst_tri[0].y, max(dst_tri[1].y, dst_tri[2].y)); ++y) {
-					if (detail::is_point_in_triangle(cv::Point2f(x, y), dst_tri[0], dst_tri[1], dst_tri[2])) {
+			for (int x = min(dst_tri[0][0], min(dst_tri[1][0], dst_tri[2][0])); x < max(dst_tri[0][0], max(dst_tri[1][0], dst_tri[2][0])); ++x) {
+				for (int y = min(dst_tri[0][1], min(dst_tri[1][1], dst_tri[2][1])); y < max(dst_tri[0][1], max(dst_tri[1][1], dst_tri[2][1])); ++y) {
+					if (detail::is_point_in_triangle(Vector2f(x, y), dst_tri[0], dst_tri[1], dst_tri[2])) {
 
 						// As the coordinates of the transformed pixel in the image will most likely not lie on a texel, we have to choose how to
 						// calculate the pixel colors depending on the next texels
@@ -290,15 +290,15 @@ inline core::Image4u extract_texture(const core::Mesh& mesh, Eigen::Matrix<float
 						if (mapping_type == TextureInterpolation::Area) {
 
 							// calculate positions of 4 corners of pixel in image (src)
-							Vec3f homogenous_dst_upper_left(x - 0.5f, y - 0.5f, 1.0f);
-							Vec3f homogenous_dst_upper_right(x + 0.5f, y - 0.5f, 1.0f);
-							Vec3f homogenous_dst_lower_left(x - 0.5f, y + 0.5f, 1.0f);
-							Vec3f homogenous_dst_lower_right(x + 0.5f, y + 0.5f, 1.0f);
+							Vector3f homogenous_dst_upper_left(x - 0.5f, y - 0.5f, 1.0f);
+							Vector3f homogenous_dst_upper_right(x + 0.5f, y - 0.5f, 1.0f);
+							Vector3f homogenous_dst_lower_left(x - 0.5f, y + 0.5f, 1.0f);
+							Vector3f homogenous_dst_lower_right(x + 0.5f, y + 0.5f, 1.0f);
 
-							Vec2f src_texel_upper_left = Mat(warp_mat_org_inv * Mat(homogenous_dst_upper_left));
-							Vec2f src_texel_upper_right = Mat(warp_mat_org_inv * Mat(homogenous_dst_upper_right));
-							Vec2f src_texel_lower_left = Mat(warp_mat_org_inv * Mat(homogenous_dst_lower_left));
-							Vec2f src_texel_lower_right = Mat(warp_mat_org_inv * Mat(homogenous_dst_lower_right));
+							Vector2f src_texel_upper_left = warp_mat_org_inv * homogenous_dst_upper_left;
+							Vector2f src_texel_upper_right = warp_mat_org_inv * homogenous_dst_upper_right;
+							Vector2f src_texel_lower_left = warp_mat_org_inv * homogenous_dst_lower_left;
+							Vector2f src_texel_lower_right = warp_mat_org_inv * homogenous_dst_lower_right;
 
 							float min_a = min(min(src_texel_upper_left[0], src_texel_upper_right[0]), min(src_texel_lower_left[0], src_texel_lower_right[0]));
 							float max_a = max(max(src_texel_upper_left[0], src_texel_upper_right[0]), max(src_texel_lower_left[0], src_texel_lower_right[0]));
@@ -314,7 +314,7 @@ inline core::Image4u extract_texture(const core::Mesh& mesh, Eigen::Matrix<float
 								for (int b = ceil(min_b); b <= floor(max_b); ++b)
 								{
 									// check if texel is in quadrangle
-									if (detail::is_point_in_triangle(cv::Point2f(a, b), src_texel_upper_left, src_texel_lower_left, src_texel_upper_right) || detail::is_point_in_triangle(cv::Point2f(a, b), src_texel_lower_left, src_texel_upper_right, src_texel_lower_right)) {
+									if (detail::is_point_in_triangle(Vector2f(a, b), src_texel_upper_left, src_texel_lower_left, src_texel_upper_right) || detail::is_point_in_triangle(Vector2f(a, b), src_texel_lower_left, src_texel_upper_right, src_texel_lower_right)) {
 										if (a < image.cols && b < image.rows) { // check if texel is in image
 											num_texels++;
 											color += Eigen::Vector3i(image(b, a)[0], image(b, a)[1], image(b, a)[2]);
@@ -326,8 +326,8 @@ inline core::Image4u extract_texture(const core::Mesh& mesh, Eigen::Matrix<float
 								color = color / num_texels;
 							else { // if no corresponding texel found, nearest neighbour interpolation
 								// calculate corresponding position of dst_coord pixel center in image (src)
-								Vec3f homogenous_dst_coord = Vec3f(x, y, 1.0f);
-								Vec2f src_texel = Mat(warp_mat_org_inv * Mat(homogenous_dst_coord));
+								Vector3f homogenous_dst_coord(x, y, 1.0f);
+								Vector2f src_texel = warp_mat_org_inv * homogenous_dst_coord;
 
 								if ((cvRound(src_texel[1]) < image.rows) && cvRound(src_texel[0]) < image.cols) {
 									const int y = cvRound(src_texel[1]);
@@ -341,8 +341,8 @@ inline core::Image4u extract_texture(const core::Mesh& mesh, Eigen::Matrix<float
 						else if (mapping_type == TextureInterpolation::Bilinear) {
 
 							// calculate corresponding position of dst_coord pixel center in image (src)
-							Vec3f homogenous_dst_coord(x, y, 1.0f);
-							Vec2f src_texel = Mat(warp_mat_org_inv * Mat(homogenous_dst_coord));
+							Vector3f homogenous_dst_coord(x, y, 1.0f);
+							Vector2f src_texel = warp_mat_org_inv * homogenous_dst_coord;
 
 							// calculate euclidean distances to next 4 texels
 							using std::sqrt;
@@ -362,10 +362,10 @@ inline core::Image4u extract_texture(const core::Mesh& mesh, Eigen::Matrix<float
 							// set color depending on distance from next 4 texels
 							// (we map the data from std::array<uint8_t, 3> to an Eigen::Map, then cast that to float to multiply with the float-scalar distance.)
 							// (this is untested!)
-							Eigen::Vector3f color_upper_left = Eigen::Map<const Eigen::Matrix<std::uint8_t, 1, 3>>(image(floor(src_texel[1]), floor(src_texel[0])).data(), 3).cast<float>() * distance_upper_left;
-							Eigen::Vector3f color_upper_right = Eigen::Map<const Eigen::Matrix<std::uint8_t, 1, 3>>(image(floor(src_texel[1]), ceil(src_texel[0])).data(), 3).cast<float>() * distance_upper_right;
-							Eigen::Vector3f color_lower_left = Eigen::Map<const Eigen::Matrix<std::uint8_t, 1, 3>>(image(ceil(src_texel[1]), floor(src_texel[0])).data(), 3).cast<float>() * distance_lower_left;
-							Eigen::Vector3f color_lower_right = Eigen::Map<const Eigen::Matrix<std::uint8_t, 1, 3>>(image(ceil(src_texel[1]), ceil(src_texel[0])).data(), 3).cast<float>() * distance_lower_right;
+							Vector3f color_upper_left = Eigen::Map<const Eigen::Matrix<std::uint8_t, 1, 3>>(image(floor(src_texel[1]), floor(src_texel[0])).data(), 3).cast<float>() * distance_upper_left;
+							Vector3f color_upper_right = Eigen::Map<const Eigen::Matrix<std::uint8_t, 1, 3>>(image(floor(src_texel[1]), ceil(src_texel[0])).data(), 3).cast<float>() * distance_upper_right;
+							Vector3f color_lower_left = Eigen::Map<const Eigen::Matrix<std::uint8_t, 1, 3>>(image(ceil(src_texel[1]), floor(src_texel[0])).data(), 3).cast<float>() * distance_lower_left;
+							Vector3f color_lower_right = Eigen::Map<const Eigen::Matrix<std::uint8_t, 1, 3>>(image(ceil(src_texel[1]), ceil(src_texel[0])).data(), 3).cast<float>() * distance_lower_right;
 
 							//isomap(y, x)[color] = color_upper_left + color_upper_right + color_lower_left + color_lower_right;
 							isomap(y, x)[0] = static_cast<std::uint8_t>(glm::clamp(color_upper_left[0] + color_upper_right[0] + color_lower_left[0] + color_lower_right[0], 0.f, 255.0f));
@@ -377,8 +377,8 @@ inline core::Image4u extract_texture(const core::Mesh& mesh, Eigen::Matrix<float
 						else if (mapping_type == TextureInterpolation::NearestNeighbour) {
 
 							// calculate corresponding position of dst_coord pixel center in image (src)
-							const Mat homogenous_dst_coord(Vec3f(x, y, 1.0f));
-							const Vec2f src_texel = Mat(warp_mat_org_inv * homogenous_dst_coord);
+							const Vector3f homogenous_dst_coord(x, y, 1.0f);
+							const Vector2f src_texel = warp_mat_org_inv * homogenous_dst_coord;
 
 							if ((cvRound(src_texel[1]) < image.rows) && (cvRound(src_texel[0]) < image.cols) && cvRound(src_texel[0]) > 0 && cvRound(src_texel[1]) > 0)
 							{
