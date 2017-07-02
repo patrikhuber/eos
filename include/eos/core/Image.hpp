@@ -25,6 +25,7 @@
 #include <vector>
 #include <array>
 #include <cstdint>
+#include <cassert>
 
 namespace eos {
 	namespace core {
