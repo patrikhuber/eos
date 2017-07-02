@@ -29,8 +29,6 @@
 
 #include "Eigen/Core"
 
-#include "opencv2/core/core.hpp"
-
 namespace eos {
 	namespace render {
 
