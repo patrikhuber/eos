@@ -52,12 +52,12 @@ namespace eos {
  * @param[in] screen_height Height of the screen or window.
  * @return A vector with x and y coordinates transformed to screen space.
  */
-inline cv::Vec2f clip_to_screen_space(const cv::Vec2f& clip_coordinates, int screen_width, int screen_height)
+inline glm::vec2 clip_to_screen_space(const glm::vec2& clip_coordinates, int screen_width, int screen_height)
 {
 	// Window transform:
 	const float x_ss = (clip_coordinates[0] + 1.0f) * (screen_width / 2.0f);
 	const float y_ss = screen_height - (clip_coordinates[1] + 1.0f) * (screen_height / 2.0f); // also flip y; Qt: Origin top-left. OpenGL: bottom-left.
-	return cv::Vec2f(x_ss, y_ss);
+	return glm::vec2(x_ss, y_ss);
 	/* Note: What we do here is equivalent to
 	   x_w = (x *  vW/2) + vW/2;
 	   However, Shirley says we should do:

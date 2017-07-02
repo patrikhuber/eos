@@ -281,16 +281,16 @@ inline float clamp(float x, float a, float b)
 	return std::max(std::min(x, b), a);
 };
 
-inline cv::Vec2f texcoord_wrap(const cv::Vec2f& texcoords)
+inline glm::vec2 texcoord_wrap(const glm::vec2& texcoords)
 {
-	return cv::Vec2f(texcoords[0] - (int)texcoords[0], texcoords[1] - (int)texcoords[1]);
+	return glm::vec2(texcoords[0] - (int)texcoords[0], texcoords[1] - (int)texcoords[1]);
 };
 
 // forward decls
-cv::Vec3f tex2d_linear_mipmap_linear(const cv::Vec2f& texcoords, const Texture& texture, float dudx, float dudy, float dvdx, float dvdy);
-cv::Vec3f tex2d_linear(const cv::Vec2f& imageTexCoord, unsigned char mipmapIndex, const Texture& texture);
+glm::vec3 tex2d_linear_mipmap_linear(const glm::vec2& texcoords, const Texture& texture, float dudx, float dudy, float dvdx, float dvdy);
+glm::vec3 tex2d_linear(const glm::vec2& imageTexCoord, unsigned char mipmapIndex, const Texture& texture);
 
-inline cv::Vec3f tex2d(const cv::Vec2f& texcoords, const Texture& texture, float dudx, float dudy, float dvdx, float dvdy)
+inline glm::vec3 tex2d(const glm::vec2& texcoords, const Texture& texture, float dudx, float dudy, float dvdx, float dvdy)
 {
 	return (1.0f / 255.0f) * tex2d_linear_mipmap_linear(texcoords, texture, dudx, dudy, dvdx, dvdy);
 };
@@ -299,28 +299,28 @@ template<typename T, glm::precision P = glm::defaultp>
 glm::tvec3<T, P> tex2d(const glm::tvec2<T, P>& texcoords, const Texture& texture, float dudx, float dudy, float dvdx, float dvdy)
 {
 	// Todo: Change everything to GLM.
-	cv::Vec3f ret = (1.0f / 255.0f) * tex2d_linear_mipmap_linear(cv::Vec2f(texcoords[0], texcoords[1]), texture, dudx, dudy, dvdx, dvdy);
+	glm::vec3 ret = (1.0f / 255.0f) * tex2d_linear_mipmap_linear(glm::vec2(texcoords[0], texcoords[1]), texture, dudx, dudy, dvdx, dvdy);
 	return glm::tvec3<T, P>(ret[0], ret[1], ret[2]);
 };
 
-inline cv::Vec3f tex2d_linear_mipmap_linear(const cv::Vec2f& texcoords, const Texture& texture, float dudx, float dudy, float dvdx, float dvdy)
+inline glm::vec3 tex2d_linear_mipmap_linear(const glm::vec2& texcoords, const Texture& texture, float dudx, float dudy, float dvdx, float dvdy)
 {
-	using cv::Vec2f;
+	using glm::vec2;
 	float px = std::sqrt(std::pow(dudx, 2) + std::pow(dvdx, 2));
 	float py = std::sqrt(std::pow(dudy, 2) + std::pow(dvdy, 2));
 	float lambda = std::log(std::max(px, py)) / CV_LOG2;
 	unsigned char mipmapIndex1 = detail::clamp((int)lambda, 0.0f, std::max(texture.widthLog, texture.heightLog) - 1);
 	unsigned char mipmapIndex2 = mipmapIndex1 + 1;
 
-	Vec2f imageTexCoord = detail::texcoord_wrap(texcoords);
-	Vec2f imageTexCoord1 = imageTexCoord;
+	vec2 imageTexCoord = detail::texcoord_wrap(texcoords);
+	vec2 imageTexCoord1 = imageTexCoord;
 	imageTexCoord1[0] *= texture.mipmaps[mipmapIndex1].cols;
 	imageTexCoord1[1] *= texture.mipmaps[mipmapIndex1].rows;
-	Vec2f imageTexCoord2 = imageTexCoord;
+	vec2 imageTexCoord2 = imageTexCoord;
 	imageTexCoord2[0] *= texture.mipmaps[mipmapIndex2].cols;
 	imageTexCoord2[1] *= texture.mipmaps[mipmapIndex2].rows;
 
-	cv::Vec3f color, color1, color2;
+	glm::vec3 color, color1, color2;
 	color1 = tex2d_linear(imageTexCoord1, mipmapIndex1, texture);
 	color2 = tex2d_linear(imageTexCoord2, mipmapIndex2, texture);
 	float lambdaFrac = std::max(lambda, 0.0f);
@@ -330,7 +330,7 @@ inline cv::Vec3f tex2d_linear_mipmap_linear(const cv::Vec2f& texcoords, const Te
 	return color;
 };
 
-inline cv::Vec3f tex2d_linear(const cv::Vec2f& imageTexCoord, unsigned char mipmap_index, const Texture& texture)
+inline glm::vec3 tex2d_linear(const glm::vec2& imageTexCoord, unsigned char mipmap_index, const Texture& texture)
 {
 	int x = (int)imageTexCoord[0];
 	int y = (int)imageTexCoord[1];
@@ -342,7 +342,7 @@ inline cv::Vec3f tex2d_linear(const cv::Vec2f& imageTexCoord, unsigned char mipm
 	float b = alpha * oneMinusBeta;
 	float c = oneMinusAlpha * beta;
 	float d = alpha * beta;
-	cv::Vec3f color;
+	glm::vec3 color;
 
 	using cv::Vec4b;
 	//int pixelIndex;
@@ -384,7 +384,7 @@ inline cv::Vec3f tex2d_linear(const cv::Vec2f& imageTexCoord, unsigned char mipm
 // Note: Maybe a bit outdated "todo" above.
 inline boost::optional<TriangleToRasterize> process_prospective_tri(Vertex<float> v0, Vertex<float> v1, Vertex<float> v2, int viewport_width, int viewport_height, bool enable_backface_culling)
 {
-	using cv::Vec2f;
+	using glm::vec2;
 	using glm::vec3;
 
 	TriangleToRasterize t;
@@ -410,13 +410,13 @@ inline boost::optional<TriangleToRasterize> process_prospective_tri(Vertex<float
 	   and do it for all triangles at once? See 'windowTransform' in:
 	   https://github.com/elador/FeatureDetection/blob/964f0b2107ce73ef2f06dc829e5084be421de5a5/libRender/src/render/RenderDevice.cpp)
 	*/
-	Vec2f v0_screen = eos::render::clip_to_screen_space(Vec2f(t.v0.position[0], t.v0.position[1]), viewport_width, viewport_height);
+	vec2 v0_screen = clip_to_screen_space(vec2(t.v0.position[0], t.v0.position[1]), viewport_width, viewport_height);
 	t.v0.position[0] = v0_screen[0];
 	t.v0.position[1] = v0_screen[1];
-	Vec2f v1_screen = clip_to_screen_space(Vec2f(t.v1.position[0], t.v1.position[1]), viewport_width, viewport_height);
+	vec2 v1_screen = clip_to_screen_space(vec2(t.v1.position[0], t.v1.position[1]), viewport_width, viewport_height);
 	t.v1.position[0] = v1_screen[0];
 	t.v1.position[1] = v1_screen[1];
-	Vec2f v2_screen = clip_to_screen_space(Vec2f(t.v2.position[0], t.v2.position[1]), viewport_width, viewport_height);
+	vec2 v2_screen = clip_to_screen_space(vec2(t.v2.position[0], t.v2.position[1]), viewport_width, viewport_height);
 	t.v2.position[0] = v2_screen[0];
 	t.v2.position[1] = v2_screen[1];
 
@@ -462,8 +462,6 @@ inline boost::optional<TriangleToRasterize> process_prospective_tri(Vertex<float
 
 inline void raster_triangle(TriangleToRasterize triangle, cv::Mat colourbuffer, cv::Mat depthbuffer, boost::optional<Texture> texture, bool enable_far_clipping)
 {
-	using cv::Vec2f;
-	using cv::Vec3f;
 	for (int yi = triangle.min_y; yi <= triangle.max_y; ++yi)
 	{
 		for (int xi = triangle.min_x; xi <= triangle.max_x; ++xi)
