@@ -29,7 +29,6 @@
 
 #include "Eigen/Core"
 #include "Eigen/Geometry"
-#include "opencv2/core/core.hpp"
 
 /**
  * Implementations of internal functions, not part of the

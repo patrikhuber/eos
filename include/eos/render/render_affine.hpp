@@ -33,7 +33,6 @@
 #include "glm/vec4.hpp"
 
 #include "Eigen/Core"
-#include "opencv2/core/core.hpp"
 
 #include <utility>
 
