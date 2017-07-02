@@ -45,6 +45,7 @@
 #include <vector>
 #include <array>
 #include <cstddef>
+#include <cmath>
 
 namespace eos {
 	namespace render {
@@ -177,6 +178,7 @@ inline core::Image4u extract_texture(const core::Mesh& mesh, Eigen::Matrix<float
 	using std::max;
 	using std::floor;
 	using std::ceil;
+	using std::round;
 
 	Eigen::Matrix<float, 4, 4> affine_camera_matrix_with_z = detail::calculate_affine_z_direction(affine_camera_matrix);
 
@@ -327,9 +329,9 @@ inline core::Image4u extract_texture(const core::Mesh& mesh, Eigen::Matrix<float
 								Vector3f homogenous_dst_coord(x, y, 1.0f);
 								Vector2f src_texel = warp_mat_org_inv * homogenous_dst_coord;
 
-								if ((cvRound(src_texel[1]) < image.rows) && cvRound(src_texel[0]) < image.cols) {
-									const int y = cvRound(src_texel[1]);
-									const int x = cvRound(src_texel[0]);
+								if ((round(src_texel[1]) < image.rows) && round(src_texel[0]) < image.cols) {
+									const int y = round(src_texel[1]);
+									const int x = round(src_texel[0]);
 									color = Eigen::Vector3i(image(y, x)[0], image(y, x)[1], image(y, x)[2]);
 								}
 							}
@@ -378,12 +380,12 @@ inline core::Image4u extract_texture(const core::Mesh& mesh, Eigen::Matrix<float
 							const Vector3f homogenous_dst_coord(x, y, 1.0f);
 							const Vector2f src_texel = warp_mat_org_inv * homogenous_dst_coord;
 
-							if ((cvRound(src_texel[1]) < image.rows) && (cvRound(src_texel[0]) < image.cols) && cvRound(src_texel[0]) > 0 && cvRound(src_texel[1]) > 0)
+							if ((round(src_texel[1]) < image.rows) && (round(src_texel[0]) < image.cols) && round(src_texel[0]) > 0 && round(src_texel[1]) > 0)
 							{
-								isomap(y, x)[0] = image(cvRound(src_texel[1]), cvRound(src_texel[0]))[0];
-								isomap(y, x)[1] = image(cvRound(src_texel[1]), cvRound(src_texel[0]))[1];
-								isomap(y, x)[2] = image(cvRound(src_texel[1]), cvRound(src_texel[0]))[2];
-								isomap(y, x)[3] = static_cast<uchar>(alpha_value); // pixel is visible
+								isomap(y, x)[0] = image(round(src_texel[1]), round(src_texel[0]))[0];
+								isomap(y, x)[1] = image(round(src_texel[1]), round(src_texel[0]))[1];
+								isomap(y, x)[2] = image(round(src_texel[1]), round(src_texel[0]))[2];
+								isomap(y, x)[3] = static_cast<std::uint8_t>(alpha_value); // pixel is visible
 							}
 						}
 					}
