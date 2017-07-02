@@ -220,7 +220,7 @@ inline core::Image4u extract_texture(const core::Mesh& mesh, Eigen::Matrix<float
 			{
 				// Calculate how well visible the current triangle is:
 				// (in essence, the dot product of the viewing direction (0, 0, 1) and the face normal)
-				const Vector3f face_normal = calculate_face_normal(v0_as_Vector4f, v1_as_Vector4f, v2_as_Vector4f);
+				const Vector3f face_normal = compute_face_normal(v0_as_Vector4f, v1_as_Vector4f, v2_as_Vector4f);
 				// Transform the normal to "screen" (kind of "eye") space using the upper 3x3 part of the affine camera matrix (=the translation can be ignored):
 				Vector3f face_normal_transformed = affine_camera_matrix_with_z.block<3, 3>(0, 0) * face_normal;
 				face_normal_transformed.normalize(); // normalise to unit length
