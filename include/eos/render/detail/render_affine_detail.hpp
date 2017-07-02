@@ -23,7 +23,8 @@
 #define RENDER_AFFINE_DETAIL_HPP_
 
 #include "eos/core/Image.hpp"
-#include "eos/render/detail/render_detail.hpp"
+#include "eos/render/detail/TriangleToRasterize.hpp"
+#include "eos/render/detail/render_detail_utils.hpp"
 
 #include "glm/vec3.hpp"
 

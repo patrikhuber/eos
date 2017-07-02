@@ -24,16 +24,15 @@
 
 #include "eos/core/Image.hpp"
 #include "eos/render/Rect.hpp"
-#include "eos/render/utils.hpp"
 #include "eos/render/Texture.hpp"
+#include "eos/render/utils.hpp"
 #include "eos/render/detail/Vertex.hpp"
 #include "eos/render/detail/TriangleToRasterize.hpp"
+#include "eos/render/detail/render_detail_utils.hpp"
+#include "eos/render/detail/texturing.hpp"
 
-#include "glm/glm.hpp" // tvec2, glm::precision, tvec3, tvec4, normalize, dot, cross
-
-#include "Eigen/Core"
-
-#include "opencv2/core/core.hpp"
+#include "glm/vec2.hpp"
+#include "glm/vec3.hpp"
 
 #include "boost/optional.hpp"
 

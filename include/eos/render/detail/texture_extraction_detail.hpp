@@ -24,7 +24,7 @@
 
 #include "eos/core/Image.hpp"
 #include "eos/render/Rect.hpp"
-#include "eos/render/detail/render_detail.hpp"
+#include "eos/render/detail/render_detail_utils.hpp"
 
 #include "glm/vec2.hpp"
 #include "glm/vec4.hpp"

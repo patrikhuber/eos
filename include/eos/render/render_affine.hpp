@@ -25,8 +25,8 @@
 #include "eos/core/Mesh.hpp"
 #include "eos/core/Image.hpp"
 #include "eos/render/Rect.hpp"
-#include "eos/render/detail/render_detail.hpp"
 #include "eos/render/detail/render_affine_detail.hpp"
+#include "eos/render/detail/render_detail_utils.hpp"
 
 #include "glm/vec2.hpp"
 #include "glm/vec3.hpp"
