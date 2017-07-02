@@ -89,22 +89,16 @@ inline ScaledOrthoProjectionParameters estimate_orthographic_projection_linear(s
 	}
 
 	Matrix<float, Eigen::Dynamic, 8> A = Matrix<float, Eigen::Dynamic, 8>::Zero(2 * num_correspondences, 8);
-	int row_index = 0;
 	for (int i = 0; i < model_points.size(); ++i)
 	{
-		A.block<1, 4>(row_index, 0) = model_points[i]; // even row - copy to left side (first row is row 0)
-		row_index++;
-		A.block<1, 4>(row_index, 4) = model_points[i]; // odd row - copy to right side
-		row_index++;
+		A.block<1, 4>(2 * i, 0) = model_points[i]; // even row - copy to left side (first row is row 0)
+		A.block<1, 4>((2 * i) + 1, 4) = model_points[i]; // odd row - copy to right side
 	} // 4th coord (homogeneous) is already 1
 
 	Matrix<float, Eigen::Dynamic, 1> b(2 * num_correspondences, 1);
-	row_index = 0;
 	for (int i = 0; i < image_points.size(); ++i)
 	{
-		b.segment<2>(row_index) = image_points[i];
-		row_index++;
-		row_index++;
+		b.segment<2>(2 * i) = image_points[i];
 	}
 
 	// The original implementation used SVD here to solve the linear system, but
