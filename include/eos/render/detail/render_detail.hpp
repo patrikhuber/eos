@@ -28,6 +28,8 @@
 
 #include "glm/glm.hpp" // tvec2, glm::precision, tvec3, tvec4, normalize, dot, cross
 
+#include "Eigen/Core"
+
 #include "opencv2/core/core.hpp"
 
 #include "boost/optional.hpp"
