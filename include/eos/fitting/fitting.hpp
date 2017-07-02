@@ -35,7 +35,6 @@
 #include "eos/fitting/closest_edge_fitting.hpp"
 #include "eos/fitting/RenderingParameters.hpp"
 
-#include "opencv2/core/core.hpp" // Remove eventually? cv::norm and affine_camera_matrix.
 #include "Eigen/Core"
 
 #include <cassert>
@@ -92,7 +91,8 @@ inline Eigen::VectorXf fit_shape(Eigen::Matrix<float, 3, 4> affine_camera_matrix
 		current_blendshape_coeffs = fitting::fit_blendshapes_to_landmarks_nnls(blendshapes, pca_model_shape, affine_camera_matrix, image_points, vertex_indices);
 
 		combined_shape = pca_model_shape + blendshapes_as_basis * Eigen::Map<const Eigen::VectorXf>(current_blendshape_coeffs.data(), current_blendshape_coeffs.size()); // Todo/Note: Could move outside the loop, not needed in here actually
-	} while (std::abs(cv::norm(current_pca_coeffs) - cv::norm(last_pca_coeffs)) >= 0.01 || std::abs(cv::norm(current_blendshape_coeffs) - cv::norm(last_blendshape_coeffs)) >= 0.01);
+		
+	} while (std::abs(Eigen::Map<const VectorXf>(current_pca_coeffs.data(), current_pca_coeffs.size()).norm() - Eigen::Map<const VectorXf>(last_pca_coeffs.data(), last_pca_coeffs.size()).norm()) >= 0.01 || std::abs(Eigen::Map<const VectorXf>(current_blendshape_coeffs.data(), current_blendshape_coeffs.size()).norm() - Eigen::Map<const VectorXf>(last_blendshape_coeffs.data(), last_blendshape_coeffs.size()).norm()) >= 0.01);
 	
 	pca_shape_coefficients = current_pca_coeffs;
 	blendshape_coefficients = current_blendshape_coeffs;
@@ -135,6 +135,7 @@ inline Eigen::VectorXf fit_shape(Eigen::Matrix<float ,3, 4> affine_camera_matrix
  * - Place in a potentially more appropriate header (shape-fitting?).
  * - Could move to detail namespace or forward-declare.
  * - \c landmarks has to be a collection of LMs, with size(), [] and Vec2f ::coordinates.
+ * - Probably model_points would better be a Vector3f and not in homogeneous coordinates?
  *
  * @param[in] landmarks A LandmarkCollection of 2D landmarks.
  * @param[in] landmark_mapper A mapper which maps the 2D landmark identifiers to 3D model vertex indices.
@@ -144,15 +145,14 @@ inline Eigen::VectorXf fit_shape(Eigen::Matrix<float ,3, 4> affine_camera_matrix
 template<class T>
 inline auto get_corresponding_pointset(const T& landmarks, const core::LandmarkMapper& landmark_mapper, const morphablemodel::MorphableModel& morphable_model)
 {
-	using cv::Mat;
 	using std::vector;
-	using cv::Vec2f;
-	using cv::Vec4f;
+	using Eigen::Vector2f;
+	using Eigen::Vector4f;
 
 	// These will be the final 2D and 3D points used for the fitting:
-	vector<Vec4f> model_points; // the points in the 3D shape model
+	vector<Vector4f> model_points; // the points in the 3D shape model
 	vector<int> vertex_indices; // their vertex indices
-	vector<Vec2f> image_points; // the corresponding 2D landmark points
+	vector<Vector2f> image_points; // the corresponding 2D landmark points
 
 	// Sub-select all the landmarks which we have a mapping for (i.e. that are defined in the 3DMM):
 	for (int i = 0; i < landmarks.size(); ++i) {
@@ -162,7 +162,7 @@ inline auto get_corresponding_pointset(const T& landmarks, const core::LandmarkM
 		}
 		int vertex_idx = std::stoi(converted_name.get());
 		auto vertex = morphable_model.get_shape_model().get_mean_at_point(vertex_idx);
-		model_points.emplace_back(Vec4f(vertex.x(), vertex.y(), vertex.z(), 1.0f));
+		model_points.emplace_back(Vector4f(vertex.x(), vertex.y(), vertex.z(), 1.0f));
 		vertex_indices.emplace_back(vertex_idx);
 		image_points.emplace_back(landmarks[i].coordinates);
 	}
