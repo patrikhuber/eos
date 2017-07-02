@@ -26,11 +26,10 @@
 #include "eos/core/Mesh.hpp"
 #include "eos/render/detail/texture_extraction_detail.hpp"
 #include "eos/render/render_affine.hpp"
-#include "eos/render/detail/render_detail.hpp"
-#include "eos/render/utils.hpp" // for clip_to_screen_space()
+//#include "eos/render/utils.hpp" // for clip_to_screen_space() in v2::
 //#include "eos/render/Rasterizer.hpp"
 //#include "eos/render/FragmentShader.hpp"
-#include "eos/fitting/closest_edge_fitting.hpp" // for ray_triangle_intersect()
+#include "eos/fitting/closest_edge_fitting.hpp" // for ray_triangle_intersect(). Move to eos/render/raycasting.hpp?
 
 #include "glm/mat4x4.hpp"
 #include "glm/vec2.hpp"
