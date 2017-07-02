@@ -93,6 +93,7 @@ set(HEADERS
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/ceres_nonlinear.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/RenderingParameters.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/utils.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/draw_utils.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/render.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/render_affine.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/detail/render_detail.hpp
@@ -103,6 +104,7 @@ set(HEADERS
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/VertexShader.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/Rasterizer.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/FragmentShader.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/Texture.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/detail/Vertex.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/video/Keyframe.hpp
 )
