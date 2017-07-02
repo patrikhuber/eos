@@ -28,8 +28,6 @@
 #include "Eigen/QR"
 #include "nnls.h"
 
-#include "opencv2/core/core.hpp" // Remove eventually. Still needed for affine_camera_matrix.
-
 #include <vector>
 #include <cassert>
 
@@ -56,7 +54,7 @@ namespace eos {
  * @param[in] lambda A regularisation parameter, constraining the L2-norm of the coefficients.
  * @return The estimated blendshape-coefficients.
  */
-inline std::vector<float> fit_blendshapes_to_landmarks_linear(const std::vector<eos::morphablemodel::Blendshape>& blendshapes, const Eigen::VectorXf& face_instance, cv::Mat affine_camera_matrix, const std::vector<cv::Vec2f>& landmarks, const std::vector<int>& vertex_ids, float lambda=500.0f)
+inline std::vector<float> fit_blendshapes_to_landmarks_linear(const std::vector<eos::morphablemodel::Blendshape>& blendshapes, const Eigen::VectorXf& face_instance, Eigen::Matrix<float, 3, 4> affine_camera_matrix, const std::vector<Eigen::Vector2f>& landmarks, const std::vector<int>& vertex_ids, float lambda=500.0f)
 {
 	assert(landmarks.size() == vertex_ids.size());
 
@@ -80,8 +78,7 @@ inline std::vector<float> fit_blendshapes_to_landmarks_linear(const std::vector<
 	// Form a block diagonal matrix $P \in R^{3N\times 4N}$ in which the camera matrix C (P_Affine, affine_camera_matrix) is placed on the diagonal:
 	MatrixXf P = MatrixXf::Zero(3 * num_landmarks, 4 * num_landmarks);
 	for (int i = 0; i < num_landmarks; ++i) {
-		using RowMajorMatrixXf = Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
-		P.block(3 * i, 4 * i, 3, 4) = Eigen::Map<RowMajorMatrixXf>(affine_camera_matrix.ptr<float>(), affine_camera_matrix.rows, affine_camera_matrix.cols);
+		P.block(3 * i, 4 * i, 3, 4) = affine_camera_matrix; // Todo: I think we can do .block<3, 4>(...)
 	}
 
 	// The landmarks in matrix notation (in homogeneous coordinates), $3N\times 1$
