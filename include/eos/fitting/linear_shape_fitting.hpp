@@ -24,9 +24,8 @@
 
 #include "eos/morphablemodel/MorphableModel.hpp"
 
-#include "Eigen/QR" // and Core for Vector2f
-
-#include "opencv2/core/core.hpp" // Remove eventually? Seems just for affine_camera_matrix now.
+#include "Eigen/Core"
+#include "Eigen/QR"
 
 #include "boost/optional.hpp"
 
