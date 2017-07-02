@@ -34,8 +34,6 @@
 
 #include "Eigen/Core"
 
-#include "opencv2/core/core.hpp"
-
 #include "boost/optional.hpp"
 
 #include <string>
