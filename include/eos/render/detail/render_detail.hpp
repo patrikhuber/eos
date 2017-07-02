@@ -22,6 +22,7 @@
 #ifndef RENDER_DETAIL_HPP_
 #define RENDER_DETAIL_HPP_
 
+#include "eos/core/Image.hpp"
 #include "eos/render/Rect.hpp"
 #include "eos/render/utils.hpp"
 #include "eos/render/detail/Vertex.hpp"
@@ -460,7 +461,7 @@ inline boost::optional<TriangleToRasterize> process_prospective_tri(Vertex<float
 	return boost::optional<TriangleToRasterize>(t);
 };
 
-inline void raster_triangle(TriangleToRasterize triangle, cv::Mat colourbuffer, cv::Mat depthbuffer, boost::optional<Texture> texture, bool enable_far_clipping)
+inline void raster_triangle(TriangleToRasterize triangle, core::Image4u& colorbuffer, core::Image1d& depthbuffer, boost::optional<Texture> texture, bool enable_far_clipping)
 {
 	for (int yi = triangle.min_y; yi <= triangle.max_y; ++yi)
 	{
@@ -497,7 +498,7 @@ inline void raster_triangle(TriangleToRasterize triangle, cv::Mat colourbuffer, 
 				}
 				// The '<= 1.0' clips against the far-plane in NDC. We clip against the near-plane earlier.
 				//if (z_affine < depthbuffer.at<double>(pixelIndexRow, pixelIndexCol)/* && z_affine <= 1.0*/) // what to do in ortho case without n/f "squashing"? should we always squash? or a flag?
-				if (z_affine < depthbuffer.at<double>(pixel_index_row, pixel_index_col) && draw)
+				if (z_affine < depthbuffer(pixel_index_row, pixel_index_col) && draw)
 				{
 					// perspective-correct barycentric weights
 					double d = alpha*triangle.one_over_z0 + beta*triangle.one_over_z1 + gamma*triangle.one_over_z2;
@@ -548,11 +549,11 @@ inline void raster_triangle(TriangleToRasterize triangle, cv::Mat colourbuffer, 
 					const unsigned char blue = static_cast<unsigned char>(255.0f * std::min(pixel_color[2], 1.0f));
 
 					// update buffers
-					colourbuffer.at<cv::Vec4b>(pixel_index_row, pixel_index_col)[0] = blue;
-					colourbuffer.at<cv::Vec4b>(pixel_index_row, pixel_index_col)[1] = green;
-					colourbuffer.at<cv::Vec4b>(pixel_index_row, pixel_index_col)[2] = red;
-					colourbuffer.at<cv::Vec4b>(pixel_index_row, pixel_index_col)[3] = 255; // alpha channel
-					depthbuffer.at<double>(pixel_index_row, pixel_index_col) = z_affine;
+					colorbuffer(pixel_index_row, pixel_index_col)[0] = blue;
+					colorbuffer(pixel_index_row, pixel_index_col)[1] = green;
+					colorbuffer(pixel_index_row, pixel_index_col)[2] = red;
+					colorbuffer(pixel_index_row, pixel_index_col)[3] = 255; // alpha channel
+					depthbuffer(pixel_index_row, pixel_index_col) = z_affine;
 				}
 			}
 		}

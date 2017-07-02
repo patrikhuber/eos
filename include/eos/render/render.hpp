@@ -22,6 +22,7 @@
 #ifndef RENDER_HPP_
 #define RENDER_HPP_
 
+#include "eos/core/Image.hpp"
 #include "eos/core/Mesh.hpp"
 
 #include "eos/render/detail/render_detail.hpp"
@@ -124,7 +125,7 @@ namespace eos {
  * @param[in] enable_far_clipping Whether vertices should be clipped against the far plane.
  * @return A pair with the colourbuffer as its first element and the depthbuffer as the second element.
  */
-inline std::pair<cv::Mat, cv::Mat> render(core::Mesh mesh, glm::tmat4x4<float> model_view_matrix, glm::tmat4x4<float> projection_matrix, int viewport_width, int viewport_height, const boost::optional<Texture>& texture = boost::none, bool enable_backface_culling = false, bool enable_near_clipping = true, bool enable_far_clipping = true)
+inline std::pair<core::Image4u, core::Image1d> render(core::Mesh mesh, glm::tmat4x4<float> model_view_matrix, glm::tmat4x4<float> projection_matrix, int viewport_width, int viewport_height, const boost::optional<Texture>& texture = boost::none, bool enable_backface_culling = false, bool enable_near_clipping = true, bool enable_far_clipping = true)
 {
 	// Some internal documentation / old todos or notes:
 	// maybe change and pass depthBuffer as an optional arg (&?), because usually we never need it outside the renderer. Or maybe even a getDepthBuffer().
@@ -136,11 +137,11 @@ inline std::pair<cv::Mat, cv::Mat> render(core::Mesh mesh, glm::tmat4x4<float> m
 	assert(mesh.vertices.size() == mesh.texcoords.size() || mesh.texcoords.empty()); // same for the texcoords
 	// another assert: If cv::Mat texture != empty, then we need texcoords?
 
-	using cv::Mat;
 	using std::vector;
 
-	Mat colourbuffer = Mat::zeros(viewport_height, viewport_width, CV_8UC4); // make sure it's CV_8UC4?
-	Mat depthbuffer = std::numeric_limits<float>::max() * Mat::ones(viewport_height, viewport_width, CV_64FC1);
+	core::Image4u colorbuffer(viewport_height, viewport_width); // Make sure it's initialised with zeros - the current Image4u c'tor does it.
+	core::Image1d depthbuffer(viewport_height, viewport_width);
+	std::for_each(std::begin(depthbuffer.data), std::end(depthbuffer.data), [](auto& element) { element = std::numeric_limits<double>::max(); });
 
 	// Vertex shader:
 	//processedVertex = shade(Vertex); // processedVertex : pos, col, tex, texweight
@@ -232,9 +233,9 @@ inline std::pair<cv::Mat, cv::Mat> render(core::Mesh mesh, glm::tmat4x4<float> m
 
 	// Fragment/pixel shader: Colour the pixel values
 	for (const auto& tri : triangles_to_raster) {
-		detail::raster_triangle(tri, colourbuffer, depthbuffer, texture, enable_far_clipping);
+		detail::raster_triangle(tri, colorbuffer, depthbuffer, texture, enable_far_clipping);
 	}
-	return std::make_pair(colourbuffer, depthbuffer);
+	return std::make_pair(colorbuffer, depthbuffer);
 };
 
 	} /* namespace render */

@@ -17,8 +17,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "eos/core/Image.hpp"
+#include "eos/core/Image_opencv_interop.hpp"
 #include "eos/morphablemodel/MorphableModel.hpp"
 #include "eos/render/render.hpp"
+
 #include "glm/gtc/matrix_transform.hpp"
 
 #include "opencv2/core/core.hpp"
@@ -92,10 +95,10 @@ int main(int argc, char *argv[])
 	core::Mesh sample_mesh = morphable_model.draw_sample(shape_coefficients, colour_coefficients); // if one of the two vectors is empty, it uses get_mean()
 
 	core::write_obj(sample_mesh, output_file.string());
-	cv::Mat rendering;
+	core::Image4u rendering;
 	std::tie(rendering, std::ignore) = render::render(sample_mesh, glm::mat4x4(1.0f), glm::ortho(-130.0f, 130.0f, -130.0f, 130.0f), 512, 512, boost::none, true, false, false);
 	output_file.replace_extension(".png");
-	cv::imwrite(output_file.string(), rendering);
+	cv::imwrite(output_file.string(), core::to_mat(rendering));
 
 	cout << "Wrote the generated obj and a rendering to files with basename " << output_file << "." << endl;
 
