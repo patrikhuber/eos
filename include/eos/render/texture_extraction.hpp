@@ -179,6 +179,8 @@ inline core::Image4u extract_texture(const core::Mesh& mesh, Eigen::Matrix<float
 	using std::floor;
 	using std::ceil;
 	using std::round;
+	using std::sqrt;
+	using std::pow;
 
 	Eigen::Matrix<float, 4, 4> affine_camera_matrix_with_z = detail::calculate_affine_z_direction(affine_camera_matrix);
 
@@ -345,8 +347,6 @@ inline core::Image4u extract_texture(const core::Mesh& mesh, Eigen::Matrix<float
 							const Vector2f src_texel = warp_mat_org_inv * homogenous_dst_coord;
 
 							// calculate euclidean distances to next 4 texels
-							using std::sqrt;
-							using std::pow;
 							float distance_upper_left = sqrt(pow(src_texel[0] - floor(src_texel[0]), 2) + pow(src_texel[1] - floor(src_texel[1]), 2));
 							float distance_upper_right = sqrt(pow(src_texel[0] - floor(src_texel[0]), 2) + pow(src_texel[1] - ceil(src_texel[1]), 2));
 							float distance_lower_left = sqrt(pow(src_texel[0] - ceil(src_texel[0]), 2) + pow(src_texel[1] - floor(src_texel[1]), 2));
