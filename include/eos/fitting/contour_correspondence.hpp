@@ -30,7 +30,6 @@
 
 #include "glm/gtc/matrix_transform.hpp"
 
-#include "opencv2/core/core.hpp"
 #include "Eigen/Core"
 
 #include "boost/property_tree/ptree.hpp"
