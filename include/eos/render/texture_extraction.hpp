@@ -38,6 +38,7 @@
 #include "glm/vec4.hpp"
 
 #include "Eigen/Core"
+#include "Eigen/QR"
 
 #include <tuple>
 #include <cassert>
@@ -77,7 +78,7 @@ Eigen::Matrix<float, 2, 3> get_affine_transform(const std::array<Eigen::Vector2f
 	assert(src.size() == dst.size() && src.size() == 3);
 	
 	Matrix<float, 6, 6> A;
-	Matrix<float, 6, 1> B; // change to 'b'
+	Matrix<float, 6, 1> b;
 
     for( int i = 0; i < 3; i++ )
     {
@@ -87,10 +88,10 @@ Eigen::Matrix<float, 2, 3> get_affine_transform(const std::array<Eigen::Vector2f
 		A((2 * i) + 1, 5) = 1.0f;
 		A.block<1, 3>(2 * i, 3).setZero();
 		A.block<1, 3>((2 * i) + 1, 0).setZero();
-		B.segment<2>(2 * i) = dst[i];
+		b.segment<2>(2 * i) = dst[i];
     }
 
-	Matrix<float, 6, 1> X = A.colPivHouseholderQr().solve(B); // Include the QR module?
+	Matrix<float, 6, 1> X = A.colPivHouseholderQr().solve(b);
 
 	Matrix<float, 2, 3> transform_matrix;
 	transform_matrix.block<1, 3>(0, 0) = X.segment<3>(0);
