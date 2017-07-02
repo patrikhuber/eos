@@ -125,7 +125,7 @@ inline std::vector<float> fit_blendshapes_to_landmarks_linear(const std::vector<
  * @param[in] vertex_ids The vertex ids in the model that correspond to the 2D points.
  * @return The estimated blendshape-coefficients.
  */
-inline std::vector<float> fit_blendshapes_to_landmarks_nnls(const std::vector<eos::morphablemodel::Blendshape>& blendshapes, const Eigen::VectorXf& face_instance, Eigen::Matrix<float, 3, 4> affine_camera_matrix, const std::vector<core::Point2f>& landmarks, const std::vector<int>& vertex_ids)
+inline std::vector<float> fit_blendshapes_to_landmarks_nnls(const std::vector<eos::morphablemodel::Blendshape>& blendshapes, const Eigen::VectorXf& face_instance, Eigen::Matrix<float, 3, 4> affine_camera_matrix, const std::vector<Eigen::Vector2f>& landmarks, const std::vector<int>& vertex_ids)
 {
 	assert(landmarks.size() == vertex_ids.size());
 

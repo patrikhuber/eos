@@ -201,10 +201,10 @@ PYBIND11_PLUGIN(eos) {
 			std::vector<Eigen::Vector2f> fitted_image_points;
 			// We can change this to std::optional as soon as we switch to VS2017 and pybind supports std::optional
 			const boost::optional<int> num_shape_coefficients_opt = num_shape_coefficients_to_fit == -1 ? boost::none : boost::optional<int>(num_shape_coefficients_to_fit);
-			core::LandmarkCollection<core::Point2f> landmark_collection;
+			core::LandmarkCollection<Eigen::Vector2f> landmark_collection;
 			for (int i = 0; i < landmarks.size(); ++i)
 			{
-				landmark_collection.push_back(core::Landmark<core::Point2f>{ landmark_ids[i], core::Point2f(landmarks[i][0], landmarks[i][1]) });
+				landmark_collection.push_back(core::Landmark<Eigen::Vector2f>{ landmark_ids[i], Eigen::Vector2f(landmarks[i][0], landmarks[i][1]) });
 			}
 			auto result = fitting::fit_shape_and_pose(morphable_model, blendshapes, landmark_collection, landmark_mapper, image_width, image_height, edge_topology, contour_landmarks, model_contour, num_iterations, num_shape_coefficients_opt, lambda, boost::none, pca_coeffs, blendshape_coeffs, fitted_image_points);
 			return std::make_tuple(result.first, result.second, pca_coeffs, blendshape_coeffs);

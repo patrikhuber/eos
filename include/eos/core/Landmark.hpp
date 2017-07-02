@@ -50,7 +50,8 @@ template<class LandmarkType> using LandmarkCollection = std::vector<Landmark<Lan
 /**
  * @brief Alias for the 2D landmark point type.
  */
-using Point2f = Eigen::Vector2f;
+//using Point2f = Eigen::Vector2f;
+//using Point2f = std::array<float, 2>;
 
 /**
  * @brief Filters the given LandmarkCollection and returns a new LandmarkCollection

@@ -27,6 +27,8 @@
 #include "eos/render/utils.hpp"
 #include "eos/render/texture_extraction.hpp"
 
+#include "Eigen/Core"
+
 #include "opencv2/core/core.hpp"
 #include "opencv2/highgui/highgui.hpp"
 
@@ -55,12 +57,12 @@ using std::string;
  * @param[in] filename Path to a .pts file.
  * @return An ordered vector with the 68 ibug landmarks.
  */
-LandmarkCollection<core::Point2f> read_pts_landmarks(std::string filename)
+LandmarkCollection<Eigen::Vector2f> read_pts_landmarks(std::string filename)
 {
 	using std::getline;
-	using core::Point2f;
+	using Eigen::Vector2f;
 	using std::string;
-	LandmarkCollection<Point2f> landmarks;
+	LandmarkCollection<Vector2f> landmarks;
 	landmarks.reserve(68);
 
 	std::ifstream file(filename);
@@ -82,7 +84,7 @@ LandmarkCollection<core::Point2f> read_pts_landmarks(std::string filename)
 		}
 		std::stringstream lineStream(line);
 
-		Landmark<Point2f> landmark;
+		Landmark<Vector2f> landmark;
 		landmark.name = std::to_string(ibugId);
 		if (!(lineStream >> landmark.coordinates[0] >> landmark.coordinates[1])) {
 			throw std::runtime_error(string("Landmark format error while parsing the line: " + line));
@@ -178,7 +180,7 @@ int main(int argc, char *argv[])
 
 	// Load the image, landmarks, LandmarkMapper and the Morphable Model:
 	Mat image = cv::imread(imagefile.string());
-	LandmarkCollection<core::Point2f> landmarks;
+	LandmarkCollection<Eigen::Vector2f> landmarks;
 	try {
 		landmarks = read_pts_landmarks(landmarksfile.string());
 	}
