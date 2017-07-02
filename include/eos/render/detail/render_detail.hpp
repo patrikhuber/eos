@@ -23,6 +23,7 @@
 #define RENDER_DETAIL_HPP_
 
 #include "eos/render/utils.hpp"
+#include "eos/render/Texture.hpp"
 #include "eos/render/detail/Vertex.hpp"
 
 #include "glm/glm.hpp" // tvec2, glm::precision, tvec3, tvec4, normalize, dot, cross
