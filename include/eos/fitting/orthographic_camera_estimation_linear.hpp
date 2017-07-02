@@ -88,7 +88,6 @@ inline ScaledOrthoProjectionParameters estimate_orthographic_projection_linear(s
 		}
 	}
 
-	Mat A_ = Mat::zeros(2 * num_correspondences, 8, CV_32FC1);
 	Matrix<float, Eigen::Dynamic, 8> A = Matrix<float, Eigen::Dynamic, 8>::Zero(2 * num_correspondences, 8);
 	int row_index = 0;
 	for (int i = 0; i < model_points.size(); ++i)
@@ -129,7 +128,6 @@ inline ScaledOrthoProjectionParameters estimate_orthographic_projection_linear(s
 	Eigen::JacobiSVD<Eigen::Matrix3f, Eigen::NoQRPreconditioner> svd(R, Eigen::ComputeFullU | Eigen::ComputeFullV);
 	Eigen::Matrix3f U = svd.matrixU();
 	const Eigen::Matrix3f V = svd.matrixV();
-	Mat R_ortho_ = U_ * Vt_;
 	Eigen::Matrix3f R_ortho = U * V.transpose();
 
 	// The determinant of R must be 1 for it to be a valid rotation matrix
