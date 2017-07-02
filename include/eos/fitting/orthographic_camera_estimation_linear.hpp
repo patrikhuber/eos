@@ -24,7 +24,6 @@
 
 #include "glm/mat3x3.hpp"
 
-#include "opencv2/core/core.hpp" // Remove eventually
 #include "Eigen/Core"
 #include "Eigen/SVD"
 
@@ -71,7 +70,6 @@ struct ScaledOrthoProjectionParameters {
  */
 inline ScaledOrthoProjectionParameters estimate_orthographic_projection_linear(std::vector<Eigen::Vector2f> image_points, std::vector<Eigen::Vector4f> model_points, bool is_viewport_upsidedown, boost::optional<int> viewport_height = boost::none)
 {
-	using cv::Mat;
 	using Eigen::Matrix;
 	assert(image_points.size() == model_points.size());
 	assert(image_points.size() >= 4); // Number of correspondence points given needs to be equal to or larger than 4
@@ -95,96 +93,64 @@ inline ScaledOrthoProjectionParameters estimate_orthographic_projection_linear(s
 	int row_index = 0;
 	for (int i = 0; i < model_points.size(); ++i)
 	{
-		cv::Vec4f tmp(model_points[i][0], model_points[i][1], model_points[i][2], model_points[i][3]); // Temp, remove! Switch to Eigen.
-		Mat p = Mat(tmp).t();
-		p.copyTo(A_.row(row_index).colRange(0, 4)); // even row - copy to left side (first row is row 0)
-		A.block<1, 4>(row_index, 0) = model_points[i]; // no transpose?
+		A.block<1, 4>(row_index, 0) = model_points[i]; // even row - copy to left side (first row is row 0)
 		row_index++;
-		p.copyTo(A_.row(row_index).colRange(4, 8)); // odd row - copy to right side
-		A.block<1, 4>(row_index, 4) = model_points[i];
+		A.block<1, 4>(row_index, 4) = model_points[i]; // odd row - copy to right side
 		row_index++;
 	} // 4th coord (homogeneous) is already 1
 
-	Mat b_(2 * num_correspondences, 1, CV_32FC1);
 	Matrix<float, Eigen::Dynamic, 1> b(2 * num_correspondences, 1);
 	row_index = 0;
 	for (int i = 0; i < image_points.size(); ++i)
 	{
 		b.segment<2>(row_index) = image_points[i];
-		b_.at<float>(row_index) = image_points[i][0];
 		row_index++;
-		b_.at<float>(row_index) = image_points[i][1];
 		row_index++;
 	}
 
-	Mat k_; // resulting affine matrix (8x1)
-	bool solved = cv::solve(A_, b_, k_, cv::DECOMP_SVD);
 	// The original implementation used SVD here to solve the linear system, but
 	// QR seems to do the job fine too.
-	const Matrix<float, 8, 1> k = A.colPivHouseholderQr().solve(b);
+	const Matrix<float, 8, 1> k = A.colPivHouseholderQr().solve(b); // resulting affine matrix (8x1)
 
-	const Mat R1_ = k_.rowRange(0, 3);
+	// Extract all values from the estimated affine parameters k:
 	const Eigen::Vector3f R1 = k.segment<3>(0);
-	const Mat R2_ = k_.rowRange(4, 7);
 	const Eigen::Vector3f R2 = k.segment<3>(4);
-	const float sTx_ = k_.at<float>(3);
 	const float sTx = k(3);
-	const float sTy_ = k_.at<float>(7);
 	const float sTy = k(7);
-	const auto s_ = (cv::norm(R1_) + cv::norm(R2_)) / 2.0;
 	const auto s = (R1.norm() + R2.norm()) / 2.0;
-	Mat r1_ = R1_ / cv::norm(R1_);
-	Mat r2_ = R2_ / cv::norm(R2_);
-	Mat r3_ = r1_.cross(r2_);
-	Mat R_;
 	Eigen::Matrix3f R;
 	Eigen::Vector3f r1 = R1.normalized(); // Not sure why R1.normalize() (in-place) produces a compiler error.
 	Eigen::Vector3f r2 = R2.normalized();
 	R.block<1, 3>(0, 0) = r1;
 	R.block<1, 3>(1, 0) = r2;
 	R.block<1, 3>(2, 0) = r1.cross(r2);
-	r1_ = r1_.t();
-	r2_ = r2_.t();
-	r3_ = r3_.t();
-	R_.push_back(r1_);
-	R_.push_back(r2_);
-	R_.push_back(r3_);
+	
 	// Set R to the closest orthonormal matrix to the estimated affine transform:
-	Mat S_, U_, Vt_;
-	cv::SVDecomp(R_, S_, U_, Vt_);
 	Eigen::JacobiSVD<Eigen::Matrix3f, Eigen::NoQRPreconditioner> svd(R, Eigen::ComputeFullU | Eigen::ComputeFullV);
 	Eigen::Matrix3f U = svd.matrixU();
 	const Eigen::Matrix3f V = svd.matrixV();
 	Mat R_ortho_ = U_ * Vt_;
 	Eigen::Matrix3f R_ortho = U * V.transpose();
+
 	// The determinant of R must be 1 for it to be a valid rotation matrix
-	if (cv::determinant(R_ortho_) < 0)
-	{
-		U_.row(2) = -U_.row(2); // not sure this works...
-		R_ortho_ = U_ * Vt_;
-	}
 	if (R_ortho.determinant() < 0)
 	{
-		U.block<1, 3>(2, 0) = -U.block<1, 3>(2, 0);
+		U.block<1, 3>(2, 0) = -U.block<1, 3>(2, 0); // not tested
 		R_ortho = U * V.transpose();
 	}
 
 	// Remove the scale from the translations:
-	const auto t1_ = sTx_ / s_;
-	const auto t2_ = sTy_ / s_;
 	const auto t1 = sTx / s;
 	const auto t2 = sTy / s;
 
 	// Convert to a glm::mat4x4:
-	glm::mat3x3 R_glm_; // identity
-	glm::mat3x3 R_glm;
+	glm::mat3x3 R_glm; // identity
 	for (int r = 0; r < 3; ++r) {
 		for (int c = 0; c < 3; ++c) {
-			R_glm_[c][r] = R_ortho_.at<float>(r, c);
 			R_glm[c][r] = R_ortho(r, c);
 		}
 	}
-	return ScaledOrthoProjectionParameters{ R_glm, t1_, t2_, s_ };
+	return ScaledOrthoProjectionParameters{ R_glm, t1, t2, s };
 };
 
 	} /* namespace fitting */
