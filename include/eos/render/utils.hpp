@@ -77,13 +77,13 @@ inline glm::vec2 clip_to_screen_space(const glm::vec2& clip_coordinates, int scr
  * @param[in] screen_height Height of the screen or window.
  * @return A vector with x and y coordinates transformed to clip space.
  */
-inline cv::Vec2f screen_to_clip_space(const cv::Vec2f& screen_coordinates, int screen_width, int screen_height)
+/*inline cv::Vec2f screen_to_clip_space(const cv::Vec2f& screen_coordinates, int screen_width, int screen_height)
 {
 	const float x_cs = screen_coordinates[0] / (screen_width / 2.0f) - 1.0f;
 	float y_cs = screen_coordinates[1] / (screen_height / 2.0f) - 1.0f;
 	y_cs *= -1.0f;
 	return cv::Vec2f(x_cs, y_cs);
-};
+};*/
 
 template<typename T, glm::precision P = glm::defaultp>
 glm::tvec2<T, P> clip_to_screen_space(const T clip_coord_x, const T clip_coord_y, int screen_width, int screen_height) {
