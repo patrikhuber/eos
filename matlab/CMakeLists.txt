@@ -4,8 +4,10 @@ cmake_minimum_required(VERSION 3.7.0)
 find_package(Matlab COMPONENTS MX_LIBRARY REQUIRED)
 
 # Dependencies of the modules:
-#check installed version in order to include the correct OpenCV libraries
-#version variable is defined from project root's CMakeLists
+
+# Check installed version in order to include the correct OpenCV libraries:
+# First call find_package without a version to find any OpenCV. OpenCV_VERSION_MAJOR is then defined.
+find_package(OpenCV REQUIRED core)
 if("${OpenCV_VERSION_MAJOR}$" EQUAL 2)
   message(STATUS "OpenCV 2.x detected")
   find_package(OpenCV 2.4.3 REQUIRED core imgproc highgui)

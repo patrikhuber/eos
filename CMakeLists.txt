@@ -39,9 +39,7 @@ set(CPACK_PACKAGE_VERSION_MINOR "${eos_VERSION_MINOR}")
 set(CPACK_PACKAGE_VERSION_PATCH "${eos_VERSION_PATCH}")
 include(CPack)
 
-# Find dependencies:
-find_package(OpenCV REQUIRED core)
-
+# Find and set up Boost:
 if(MSVC)
   # The standard find_package for boost on Win finds the dynamic libs, so for dynamic linking to boost we need to #define:
   add_definitions(-DBOOST_ALL_NO_LIB) # Don't use the automatic library linking by boost with VS (#pragma ...). Instead, we specify everything here in cmake.
@@ -118,7 +116,6 @@ target_compile_features(eos INTERFACE ${EOS_CXX_COMPILE_FEATURES})
 target_include_directories(eos INTERFACE "include")
 target_include_directories(eos INTERFACE ${CEREAL_INCLUDE_DIR})
 target_include_directories(eos INTERFACE ${Boost_INCLUDE_DIRS})
-target_include_directories(eos INTERFACE ${OpenCV_INCLUDE_DIRS})
 target_include_directories(eos INTERFACE ${EIGEN3_INCLUDE_DIR})
 target_include_directories(eos INTERFACE ${glm_INCLUDE_DIR})
 target_include_directories(eos INTERFACE ${nanoflann_INCLUDE_DIR})
