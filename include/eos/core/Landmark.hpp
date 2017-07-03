@@ -26,6 +26,7 @@
 #include <vector>
 #include <algorithm>
 
+//#include <array>
 #include "Eigen/Core"
 
 namespace eos {
@@ -46,6 +47,11 @@ struct Landmark
  * @brief A trivial collection of landmarks that belong together.
  */
 template<class LandmarkType> using LandmarkCollection = std::vector<Landmark<LandmarkType>>;
+
+/**
+ * @brief Shorthand for a 2D floating point landmark type.
+ */
+//using Landmark2f = Landmark<std::array<float, 2>>;
 
 /**
  * @brief Alias for the 2D landmark point type.
