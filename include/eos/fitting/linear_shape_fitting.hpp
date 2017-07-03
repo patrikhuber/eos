@@ -83,7 +83,7 @@ inline std::vector<float> fit_shape_to_landmarks_linear(const morphablemodel::Mo
 	// Form a block diagonal matrix $P \in R^{3N\times 4N}$ in which the camera matrix C (P_Affine, affine_camera_matrix) is placed on the diagonal:
 	MatrixXf P = MatrixXf::Zero(3 * num_landmarks, 4 * num_landmarks);
 	for (int i = 0; i < num_landmarks; ++i) {
-		P.block(3 * i, 4 * i, 3, 4) = affine_camera_matrix;
+		P.block<3, 4>(3 * i, 4 * i) = affine_camera_matrix;
 	}
 	// The variances: Add the 2D and 3D standard deviations.
 	// If the user doesn't provide them, we choose the following:

@@ -78,7 +78,7 @@ inline std::vector<float> fit_blendshapes_to_landmarks_linear(const std::vector<
 	// Form a block diagonal matrix $P \in R^{3N\times 4N}$ in which the camera matrix C (P_Affine, affine_camera_matrix) is placed on the diagonal:
 	MatrixXf P = MatrixXf::Zero(3 * num_landmarks, 4 * num_landmarks);
 	for (int i = 0; i < num_landmarks; ++i) {
-		P.block(3 * i, 4 * i, 3, 4) = affine_camera_matrix; // Todo: I think we can do .block<3, 4>(...)
+		P.block<3, 4>(3 * i, 4 * i) = affine_camera_matrix;
 	}
 
 	// The landmarks in matrix notation (in homogeneous coordinates), $3N\times 1$
@@ -149,7 +149,7 @@ inline std::vector<float> fit_blendshapes_to_landmarks_nnls(const std::vector<eo
 	// Form a block diagonal matrix $P \in R^{3N\times 4N}$ in which the camera matrix C (P_Affine, affine_camera_matrix) is placed on the diagonal:
 	MatrixXf P = MatrixXf::Zero(3 * num_landmarks, 4 * num_landmarks);
 	for (int i = 0; i < num_landmarks; ++i) {
-		P.block(3 * i, 4 * i, 3, 4) = affine_camera_matrix;
+		P.block<3, 4>(3 * i, 4 * i) = affine_camera_matrix;
 	}
 	// The landmarks in matrix notation (in homogeneous coordinates), $3N\times 1$
 	VectorXf y = VectorXf::Ones(3 * num_landmarks);
