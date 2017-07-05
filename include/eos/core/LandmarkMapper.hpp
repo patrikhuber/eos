@@ -23,7 +23,6 @@
 #define LANDMARKMAPPER_HPP_
 
 #include "boost/optional.hpp"
-#include "boost/filesystem/path.hpp"
 #include "boost/property_tree/ptree.hpp"
 #include "boost/property_tree/info_parser.hpp"
 
@@ -67,13 +66,13 @@ public:
 	 * @param[in] filename A file with landmark mappings.
 	 * @throws runtime_error if there is an error loading the mappings from the file.
 	 */
-	LandmarkMapper(boost::filesystem::path filename)
+	LandmarkMapper(std::string filename)
 	{
 		using std::string;
 		using boost::property_tree::ptree;
 		ptree configtree;
 		try {
-			boost::property_tree::info_parser::read_info(filename.string(), configtree);
+			boost::property_tree::info_parser::read_info(filename, configtree);
 		}
 		catch (const boost::property_tree::ptree_error& error) {
 			throw std::runtime_error(string("LandmarkMapper: Error reading landmark-mappings file: ") + error.what());
