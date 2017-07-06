@@ -3,7 +3,7 @@
  *
  * File: include/eos/core/LandmarkMapper.hpp
  *
- * Copyright 2014, 2015 Patrik Huber
+ * Copyright 2014-2017 Patrik Huber
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,11 +23,13 @@
 #define LANDMARKMAPPER_HPP_
 
 #include "boost/optional.hpp"
-#include "boost/property_tree/ptree.hpp"
-#include "boost/property_tree/info_parser.hpp"
 
 #include <string>
 #include <map>
+#include <fstream>
+#include <sstream>
+#include <stdexcept>
+#include <algorithm>
 
 namespace eos {
 	namespace core {
@@ -69,27 +71,67 @@ public:
 	LandmarkMapper(std::string filename)
 	{
 		using std::string;
-		using boost::property_tree::ptree;
-		ptree configtree;
-		try {
-			boost::property_tree::info_parser::read_info(filename, configtree);
-		}
-		catch (const boost::property_tree::ptree_error& error) {
-			throw std::runtime_error(string("LandmarkMapper: Error reading landmark-mappings file: ") + error.what());
+		using std::getline;
+
+		std::ifstream file(filename);
+		if (!file.is_open()) {
+			throw std::runtime_error(string("LandmarkMapper: Could not open landmark mappings file: " + filename));
 		}
 
-		try {
-			ptree pt_landmark_mappings = configtree.get_child("landmarkMappings");
-			for (auto&& mapping : pt_landmark_mappings) {
-				landmark_mappings.insert(make_pair(mapping.first, mapping.second.get_value<string>()));
+		// We'll need these helper functions for the parsing:
+		auto starts_with = [](const std::string& input, const std::string& match)
+		{
+			return input.size() >= match.size() && std::equal(match.begin(), match.end(), input.begin());
+		};
+
+		auto trim_left = [](const std::string& input, std::string pattern = " \t")
+		{
+			auto first = input.find_first_not_of(pattern);
+			if (first == string::npos)
+			{
+				return input;
+			}
+			return input.substr(first, input.size());
+		};
+
+		// Read the actual file:
+		string line;
+		// Skip any comments (";") or empty lines at the beginning:
+		while (getline(file, line)) {
+			if (!starts_with(line, ";") && line != "")
+			{
+				// not a commented or not an empty line
+				break;
 			}
 		}
-		catch (const boost::property_tree::ptree_error& error) {
-			throw std::runtime_error(string("LandmarkMapper: Error while parsing the mappings file: ") + error.what());
+		// First actual line should be "landmarkMappings"
+		if (!starts_with(line, "landmarkMappings")) {
+			throw std::runtime_error("LandmarkMapper error: First non-comment line should be \"landmarkMappings\".");
 		}
-		catch (const std::runtime_error& error) {
-			throw std::runtime_error(string("LandmarkMapper: Error while parsing the mappings file: ") + error.what());
+		getline(file, line);
+		// The next line has to be "{":
+		if (line != "{") {
+			throw std::runtime_error("LandmarkMapper error: Expected a \"{\" on the line following \"landmarkMappings\" statement.");
 		}
+		
+		while (getline(file, line))
+		{
+			if (line == "}") { // end of the file
+				break;
+			}
+			// on comment, continue:
+			if (starts_with(trim_left(line), ";"))
+			{
+				continue;
+			}
+			std::stringstream line_stream(line);
+			string lhs, rhs;
+			if (!(line_stream >> lhs >> rhs)) {
+				throw std::runtime_error(string("Landmark mappings format error while parsing the line: " + line));
+			}
+			landmark_mappings.insert(std::make_pair(lhs, rhs));
+		}
+		// We're at the end of the "landmarkMappings { ... }" block. Something else may follow, but we don't care.
 	};
 
 	/**

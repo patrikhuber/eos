@@ -198,7 +198,7 @@ int main(int argc, char *argv[])
 		return EXIT_FAILURE;
 	}
 	// The landmark mapper is used to map ibug landmark identifiers to vertex ids:
-	core::LandmarkMapper landmark_mapper = mappingsfile.empty() ? core::LandmarkMapper() : core::LandmarkMapper(mappingsfile);
+	core::LandmarkMapper landmark_mapper = mappingsfile.empty() ? core::LandmarkMapper() : core::LandmarkMapper(mappingsfile.string());
 
 	// The expression blendshapes:
 	vector<morphablemodel::Blendshape> blendshapes = morphablemodel::load_blendshapes(blendshapesfile.string());

@@ -165,7 +165,7 @@ int main(int argc, char *argv[])
 		cout << "Error loading the Morphable Model: " << e.what() << endl;
 		return EXIT_FAILURE;
 	}
-	core::LandmarkMapper landmark_mapper = mappingsfile.empty() ? core::LandmarkMapper() : core::LandmarkMapper(mappingsfile);
+	core::LandmarkMapper landmark_mapper = mappingsfile.empty() ? core::LandmarkMapper() : core::LandmarkMapper(mappingsfile.string());
 
 	// Draw the loaded landmarks:
 	Mat outimg = image.clone();
