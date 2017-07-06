@@ -27,14 +27,11 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/quaternion.hpp"
 
-#include "eos/fitting/detail/optional_cerealisation.hpp"
 #include "eos/fitting/detail/glm_cerealisation.hpp"
 #include "cereal/cereal.hpp"
 #include "cereal/archives/json.hpp"
 
 #include "Eigen/Core"
-
-#include "boost/optional.hpp"
 
 #include <string>
 #include <fstream>
