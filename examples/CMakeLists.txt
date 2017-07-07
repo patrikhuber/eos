@@ -28,6 +28,7 @@ target_link_libraries(fit-model-simple "$<$<CXX_COMPILER_ID:GNU>:-pthread>$<$<CX
 
 # Model fitting example that fits orthographic camera, shape, blendshapes, and contours:
 add_executable(fit-model fit-model.cpp)
+target_include_directories(fit-model PRIVATE ${Boost_INCLUDE_DIRS})
 target_link_libraries(fit-model eos ${OpenCV_LIBS} ${Boost_LIBRARIES})
 target_link_libraries(fit-model "$<$<CXX_COMPILER_ID:GNU>:-pthread>$<$<CXX_COMPILER_ID:Clang>:-pthreads>")
 target_include_directories(fit-model PUBLIC ${OpenCV_INCLUDE_DIRS})
