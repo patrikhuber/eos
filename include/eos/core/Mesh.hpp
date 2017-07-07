@@ -26,8 +26,6 @@
 #include "glm/vec3.hpp"
 #include "glm/vec4.hpp"
 
-#include "boost/filesystem/path.hpp"
-
 #include <vector>
 #include <array>
 #include <string>
@@ -110,12 +108,28 @@ inline void write_textured_obj(Mesh mesh, std::string filename)
 {
 	assert((mesh.vertices.size() == mesh.colors.size() || mesh.colors.empty()) && !mesh.texcoords.empty());
 
+	if (filename.at(filename.size() - 4) != '.')
+	{
+		throw std::runtime_error("Error in given filename: Expected a dot and a 3-letter extension at the end (i.e. '.obj'). " + filename);
+	}
+
+	// Takes a full path to a file and returns only the filename:
+	auto get_filename = [](const std::string& path) {
+		auto last_slash = path.find_last_of("/\\");
+		if (last_slash == std::string::npos)
+		{
+			return path;
+		}
+		return path.substr(last_slash + 1, path.size());
+	};
+
 	std::ofstream obj_file(filename);
 
-	boost::filesystem::path mtl_filename(filename);
-	mtl_filename.replace_extension(".mtl");
+	std::string mtl_filename(filename);
+	// replace '.obj' at the end with '.mtl':
+	mtl_filename.replace(std::end(mtl_filename) - 4, std::end(mtl_filename), ".mtl");
 
-	obj_file << "mtllib " << mtl_filename.filename().string() << std::endl; // first line of the obj file
+	obj_file << "mtllib " << get_filename(mtl_filename) << std::endl; // first line of the obj file
 
 	// same as in write_obj():
 	if (mesh.colors.empty()) {
@@ -143,12 +157,13 @@ inline void write_textured_obj(Mesh mesh, std::string filename)
 		obj_file << "f " << v[0] + 1 << "/" << v[0] + 1 << " " << v[1] + 1 << "/" << v[1] + 1 << " " << v[2] + 1 << "/" << v[2] + 1 << std::endl;
 	}
 
-	std::ofstream mtl_file(mtl_filename.string());
-	boost::filesystem::path texture_filename(filename);
-	texture_filename.replace_extension(".isomap.png");
+	std::ofstream mtl_file(mtl_filename);
+	std::string texture_filename(filename);
+	// replace '.obj' at the end with '.isomap.png':
+	texture_filename.replace(std::end(texture_filename) - 4, std::end(texture_filename), ".isomap.png");
 
 	mtl_file << "newmtl FaceTexture" << std::endl;
-	mtl_file << "map_Kd " << texture_filename.filename().string() << std::endl;
+	mtl_file << "map_Kd " << get_filename(texture_filename) << std::endl;
 
 	return;
 };
