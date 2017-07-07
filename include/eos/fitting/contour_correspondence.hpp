@@ -31,9 +31,6 @@
 
 #include "Eigen/Core"
 
-#include "boost/property_tree/ptree.hpp"
-#include "boost/property_tree/info_parser.hpp"
-
 #include <vector>
 #include <string>
 #include <algorithm>
@@ -118,6 +115,10 @@ struct ModelContour
  * it defines which 2D landmark IDs correspond to the right contour and which
  * to the left. These definitions are loaded from a file, for example from
  * the "contour_landmarks" part of share/ibug_to_sfm.txt.
+ * 
+ * Todo: We should improve error handling here. When there's no contour_landmarks
+ * in the file, it will crash, but it would be nice if it still worked, the returned
+ * vectors should just be empty.
  *
  * Note: Better names could be ContourDefinition or ImageContourLandmarks, to
  * disambiguate 3D and 2D landmarks?
@@ -143,35 +144,119 @@ struct ContourLandmarks
 	 */
 	static ContourLandmarks load(std::string filename)
 	{
+		using std::string;
+		using std::getline;
+
 		ContourLandmarks contour;
 
-		using std::string;
-		using boost::property_tree::ptree;
-		ptree configtree;
-		try {
-			boost::property_tree::info_parser::read_info(filename, configtree);
-		}
-		catch (const boost::property_tree::ptree_error& error) {
-			throw std::runtime_error(string("ContourLandmarks: Error reading landmark-mappings file: ") + error.what());
+		std::ifstream file(filename);
+		if (!file.is_open()) {
+			throw std::runtime_error(string("ContourLandmarks: Could not open landmark mappings file: " + filename));
 		}
 
-		try {
-			// Todo: I think we should improve error handling here. When there's no contour_landmarks in the file, it
-			// should still work, the returned vectors should just be empty.
-			ptree right_contour = configtree.get_child("contour_landmarks.right");
-			for (auto&& landmark : right_contour) {
-				contour.right_contour.emplace_back(landmark.first);
+		// We'll need these helper functions for the parsing:
+		auto starts_with = [](const std::string& input, const std::string& match)
+		{
+			return input.size() >= match.size() && std::equal(match.begin(), match.end(), input.begin());
+		};
+
+		auto trim_left = [](const std::string& input, std::string pattern = " \t")
+		{
+			auto first = input.find_first_not_of(pattern);
+			if (first == std::string::npos)
+			{
+				return input;
 			}
-			ptree left_contour = configtree.get_child("contour_landmarks.left");
-			for (auto&& landmark : left_contour) {
-				contour.left_contour.emplace_back(landmark.first);
+			return input.substr(first, input.size());
+		};
+
+		// Read the actual file:
+		string line;
+		// Skip any comments (";") or empty lines at the beginning:
+		while (getline(file, line)) {
+			if (!starts_with(line, ";") && line != "")
+			{
+				// not a commented or not an empty line
+				break;
 			}
 		}
-		catch (const boost::property_tree::ptree_error& error) {
-			throw std::runtime_error(string("ContourLandmarks: Error while parsing the mappings file: ") + error.what());
+		// First actual line should be "landmarkMappings"
+		if (!starts_with(line, "landmarkMappings")) {
+			throw std::runtime_error("ContourLandmarks error: First non-comment line should be \"landmarkMappings\".");
 		}
-		catch (const std::runtime_error& error) {
-			throw std::runtime_error(string("ContourLandmarks: Error while parsing the mappings file: ") + error.what());
+		getline(file, line);
+		// The next line has to be "{":
+		if (line != "{") {
+			throw std::runtime_error("ContourLandmarks error: Expected a \"{\" on the line following the \"landmarkMappings\" statement.");
+		}
+		// Skip the whole landmarkMappings block:
+		while (getline(file, line))
+		{
+			if (line == "}") { // end of the block
+				break;
+			}
+		}
+
+		// Next actual line should be "contour_landmarks":
+		getline(file, line);
+		if (!starts_with(line, "contour_landmarks")) {
+			throw std::runtime_error("ContourLandmarks error: Expected a \"contour_landmarks\" block.");
+		}
+		getline(file, line);
+		// The next line has to be "{":
+		if (line != "{") {
+			throw std::runtime_error("ContourLandmarks error: Expected a \"{\" on the line following the \"contour_landmarks\" statement.");
+		}
+		getline(file, line);
+		// The next line has to be "right {":
+		if (trim_left(line) != "right {") {
+			throw std::runtime_error("ContourLandmarks error: Expected a line containing \"right {\".");
+		}
+		// Now read all the "right" contour landmarks:
+		while (getline(file, line))
+		{
+			if (trim_left(line) == "}") { // end of the block
+				break;
+			}
+			// on comment, continue:
+			if (starts_with(trim_left(line), ";"))
+			{
+				continue;
+			}
+			std::stringstream line_stream(line);
+			string value;
+			if (!(line_stream >> value)) {
+				throw std::runtime_error(string("Contour landmarks format error while parsing the line: " + line));
+			}
+			contour.right_contour.push_back(value);
+		}
+		// The next line has to be "left {":
+		getline(file, line);
+		if (trim_left(line) != "left {") {
+			throw std::runtime_error("ContourLandmarks error: Expected a line containing \"left {\".");
+		}
+		// Now read all the "left" contour landmarks:
+		while (getline(file, line))
+		{
+			if (trim_left(line) == "}") { // end of the block
+				break;
+			}
+			// on comment, continue:
+			if (starts_with(trim_left(line), ";"))
+			{
+				continue;
+			}
+			std::stringstream line_stream(line);
+			string value;
+			if (!(line_stream >> value)) {
+				throw std::runtime_error(string("Contour landmarks format error while parsing the line: " + line));
+			}
+			contour.left_contour.push_back(value);
+		}
+		getline(file, line);
+		// The last line has to be the "}" closing the contour_landmarks block:
+		if (line != "}") {
+			throw std::runtime_error("ContourLandmarks error: Expected a line containing \"}\".");
 		}
 
 		return contour;
