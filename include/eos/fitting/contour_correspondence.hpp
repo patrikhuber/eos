@@ -24,7 +24,6 @@
 
 #include "eos/core/Landmark.hpp"
 #include "eos/core/Mesh.hpp"
-#include "eos/morphablemodel/MorphableModel.hpp"
 
 #include "cereal/archives/json.hpp"
 
@@ -39,6 +38,7 @@
 #include <string>
 #include <algorithm>
 #include <fstream>
+#include <tuple>
 
 namespace eos {
 	namespace fitting {
