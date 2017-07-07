@@ -87,7 +87,7 @@ public:
 		auto trim_left = [](const std::string& input, std::string pattern = " \t")
 		{
 			auto first = input.find_first_not_of(pattern);
-			if (first == string::npos)
+			if (first == std::string::npos)
 			{
 				return input;
 			}
@@ -111,12 +111,12 @@ public:
 		getline(file, line);
 		// The next line has to be "{":
 		if (line != "{") {
-			throw std::runtime_error("LandmarkMapper error: Expected a \"{\" on the line following \"landmarkMappings\" statement.");
+			throw std::runtime_error("LandmarkMapper error: Expected a \"{\" on the line following the \"landmarkMappings\" statement.");
 		}
 		
 		while (getline(file, line))
 		{
-			if (line == "}") { // end of the file
+			if (line == "}") { // end of the landmarkMappings block
 				break;
 			}
 			// on comment, continue:
