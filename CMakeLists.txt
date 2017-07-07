@@ -39,12 +39,7 @@ set(CPACK_PACKAGE_VERSION_MINOR "${eos_VERSION_MINOR}")
 set(CPACK_PACKAGE_VERSION_PATCH "${eos_VERSION_PATCH}")
 include(CPack)
 
-# Find and set up Boost:
-#if(MSVC)
-  # The standard find_package for boost on Win finds the dynamic libs, so for dynamic linking to boost we need to #define:
-#  add_definitions(-DBOOST_ALL_NO_LIB) # Don't use the automatic library linking by boost with VS (#pragma ...). Instead, we specify everything here in cmake.
-#  add_definitions(-DBOOST_ALL_DYN_LINK) # Link against the dynamic boost lib - needs to match with the version that find_package finds.
-#endif()
+# Find and set up Boost, for boost::optional:
 find_package(Boost 1.50.0 REQUIRED)
 message(STATUS "Boost found at ${Boost_INCLUDE_DIRS}")
 
