@@ -39,10 +39,6 @@ set(CPACK_PACKAGE_VERSION_MINOR "${eos_VERSION_MINOR}")
 set(CPACK_PACKAGE_VERSION_PATCH "${eos_VERSION_PATCH}")
 include(CPack)
 
-# Find and set up Boost, for boost::optional:
-find_package(Boost 1.50.0 REQUIRED)
-message(STATUS "Boost found at ${Boost_INCLUDE_DIRS}")
-
 set(eos_3RDPARTY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty") # this is used by the CMakeLists.txt files in the subdirectories
 
 set(CMAKE_MODULE_PATH ${eos_3RDPARTY_DIR}/eigen/cmake)
@@ -117,7 +113,6 @@ target_compile_options(eos INTERFACE "$<$<CXX_COMPILER_ID:MSVC>:/std:c++17>")
 # Add header includes:
 target_include_directories(eos INTERFACE "include")
 target_include_directories(eos INTERFACE ${CEREAL_INCLUDE_DIR})
-target_include_directories(eos INTERFACE ${Boost_INCLUDE_DIRS})
 target_include_directories(eos INTERFACE ${EIGEN3_INCLUDE_DIR})
 target_include_directories(eos INTERFACE ${glm_INCLUDE_DIR})
 target_include_directories(eos INTERFACE ${nanoflann_INCLUDE_DIR})
