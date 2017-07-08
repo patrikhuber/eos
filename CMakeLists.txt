@@ -10,7 +10,7 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 # This sets the C++ standard to c++14 and required for all the following targets that we define.
 # It has no effect on MSVC though - we thus define more specific requirements for each executable target respectively.
 # Also it will not apply to the eos library target, since it is an INTERFACE_LIBRARY, and these properties do not apply to interface libraries.
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF) # This makes CMake use -std=c++11 instead of -std=gnu++11
 # This list is likely not complete, but it should be sufficient to error out on old compilers that we cannot build on:
@@ -110,6 +110,10 @@ set(HEADERS
 
 add_library(eos INTERFACE)
 target_compile_features(eos INTERFACE ${EOS_CXX_COMPILE_FEATURES})
+# Add c++17 flag for VS2017:
+# Results in a warning that both /std:c++14 and c++17 are defined but we can't get around that until CMake properly supports it.
+target_compile_options(eos INTERFACE "$<$<CXX_COMPILER_ID:MSVC>:/std:c++17>")
+
 # Add header includes:
 target_include_directories(eos INTERFACE "include")
 target_include_directories(eos INTERFACE ${CEREAL_INCLUDE_DIR})
