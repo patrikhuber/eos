@@ -1,4 +1,4 @@
-include README.md LICENSE setup.cfg.template
+include README.md LICENSE
 global-include CMakeLists.txt *.cmake
 exclude initial_cache.cmake
 recursive-include 3rdparty/cereal/include *
