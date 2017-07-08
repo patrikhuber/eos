@@ -22,14 +22,13 @@
 #ifndef LANDMARKMAPPER_HPP_
 #define LANDMARKMAPPER_HPP_
 
-#include "boost/optional.hpp"
-
 #include <string>
 #include <map>
 #include <fstream>
 #include <sstream>
 #include <stdexcept>
 #include <algorithm>
+#include <optional>
 
 namespace eos {
 	namespace core {
@@ -142,21 +141,20 @@ public:
 	 * @throws out_of_range exception if there is no mapping
 	 *         for the given landmarkName.
 	 */
-	boost::optional<std::string> convert(std::string landmark_name) const
+	std::optional<std::string> convert(std::string landmark_name) const
 	{
 		if (landmark_mappings.empty()) {
 			// perform identity mapping, i.e. return the input
 			return landmark_name;
 		}
-		else {
-			auto&& converted_landmark = landmark_mappings.find(landmark_name);
-			if (converted_landmark != std::end(landmark_mappings)) {
-				// landmark mapping found, return it
-				return converted_landmark->second;
-			}
-			else { // landmark_name does not match the key of any element in the map
-				return boost::none;
-			}
+
+		auto&& converted_landmark = landmark_mappings.find(landmark_name);
+		if (converted_landmark != std::end(landmark_mappings)) {
+			// landmark mapping found, return it
+			return converted_landmark->second;
+		}
+		else { // landmark_name does not match the key of any element in the map
+			return std::nullopt;
 		}
 	};
 

@@ -27,10 +27,9 @@
 #include "Eigen/Core"
 #include "Eigen/SVD"
 
-#include "boost/optional.hpp"
-
 #include <vector>
 #include <cassert>
+#include <optional>
 
 namespace eos {
 	namespace fitting {
@@ -68,7 +67,7 @@ struct ScaledOrthoProjectionParameters {
  * @param[in] viewport_height Height of the viewport of the image points (needs to be given if is_viewport_upsidedown == true).
  * @return Rotation, translation and scaling of the estimated scaled orthographic projection.
  */
-inline ScaledOrthoProjectionParameters estimate_orthographic_projection_linear(std::vector<Eigen::Vector2f> image_points, std::vector<Eigen::Vector4f> model_points, bool is_viewport_upsidedown, boost::optional<int> viewport_height = boost::none)
+inline ScaledOrthoProjectionParameters estimate_orthographic_projection_linear(std::vector<Eigen::Vector2f> image_points, std::vector<Eigen::Vector4f> model_points, bool is_viewport_upsidedown, std::optional<int> viewport_height = std::nullopt)
 {
 	using Eigen::Matrix;
 	assert(image_points.size() == model_points.size());
@@ -78,13 +77,13 @@ inline ScaledOrthoProjectionParameters estimate_orthographic_projection_linear(s
 
 	if (is_viewport_upsidedown)
 	{
-		if (viewport_height == boost::none)
+		if (viewport_height == std::nullopt)
 		{
 			throw std::runtime_error("Error: If is_viewport_upsidedown is set to true, viewport_height needs to be given.");
 		}
 		for (auto&& ip : image_points)
 		{
-			ip[1] = viewport_height.get() - ip[1];
+			ip[1] = viewport_height.value() - ip[1];
 		}
 	}
 
