@@ -26,6 +26,7 @@
 
 #include "Eigen/Core"
 #include "Eigen/SVD"
+#include "Eigen/Dense"
 
 #include "boost/optional.hpp"
 
