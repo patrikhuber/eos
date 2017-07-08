@@ -18,9 +18,11 @@
  * limitations under the License.
  */
 #include "eos/core/Mesh.hpp"
+#include "eos/core/Image_opencv_interop.hpp"
 #include "eos/fitting/RenderingParameters.hpp"
 #include "eos/render/texture_extraction.hpp"
 #include "eos/render/render.hpp"
+#include "eos/render/Texture.hpp"
 
 #include "mexplus_opencv.hpp"
 #include "mexplus_eos_types.hpp"
@@ -60,15 +62,16 @@ MEX_DEFINE(extract_texture)(int nlhs, mxArray* plhs[], int nrhs, const mxArray* 
     // cv::cvtColor(image, image_as_bgr, cv::COLOR_RGB2BGR);
 
     // Now do the actual extraction:
-    const cv::Mat affine_from_ortho =
+    const auto affine_from_ortho =
         fitting::get_3x4_affine_camera_matrix(rendering_params, image.cols, image.rows);
-    const cv::Mat isomap =
-        render::extract_texture(mesh, affine_from_ortho, image, compute_view_angle,
+    const auto isomap =
+        render::extract_texture(mesh, affine_from_ortho, core::from_mat(image), compute_view_angle,
                                 render::TextureInterpolation::NearestNeighbour, isomap_resolution);
-
-    // Return the extracted texture map:
+	const auto isomap_mat = core::to_mat(isomap);
+    
+	// Return the extracted texture map:
     OutputArguments output(nlhs, plhs, 1);
-    output.set(0, isomap);
+    output.set(0, isomap_mat);
 };
 
 MEX_DEFINE(render)(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
@@ -91,15 +94,19 @@ MEX_DEFINE(render)(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
     const auto image_height = input.get<int>(4);
     const auto texture = input.get<cv::Mat>(5);
 
-    cv::Mat colorbuffer, depthbuffer;
+	core::Image4u colorbuffer;
+	core::Image1d depthbuffer;
     std::tie(colorbuffer, depthbuffer) =
         render::render(mesh, modelview_matrix, projection_matrix, image_width, image_height,
                        render::create_mipmapped_texture(texture), true, false,
                        false); // backface culling = true, near & far plane clipping = false
 
+	const cv::Mat colorbuffer_mat = core::to_mat(colorbuffer);
+	const cv::Mat depthbuffer_mat = core::to_mat(depthbuffer);
+
     OutputArguments output(nlhs, plhs, 2);
-    output.set(0, colorbuffer);
-    output.set(1, depthbuffer);
+    output.set(0, colorbuffer_mat);
+    output.set(1, depthbuffer_mat);
 };
 
 MEX_DISPATCH;

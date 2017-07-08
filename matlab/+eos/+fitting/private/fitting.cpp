@@ -72,10 +72,10 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 		mexErrMsgIdAndTxt("eos:fitting:argin", "Given landmarks must be a 68 x 2 vector with ibug landmarks, in the order from 1 to 68.");
 	}
 	// Convert the landmarks (given as matrix in Matlab) to a LandmarkCollection:
-	core::LandmarkCollection<cv::Vec2f> landmarks;
+	core::LandmarkCollection<Eigen::Vector2f> landmarks;
 	for (int i = 0; i < 68; ++i)
 	{
-		landmarks.push_back(core::Landmark<cv::Vec2f>{ std::to_string(i + 1), cv::Vec2f(landmarks_in(i, 0), landmarks_in(i, 1)) });
+		landmarks.push_back(core::Landmark<Eigen::Vector2f>{ std::to_string(i + 1), Eigen::Vector2f(landmarks_in(i, 0), landmarks_in(i, 1)) });
 	}
 
 	// Load everything:
