@@ -17,8 +17,8 @@ Files in this directory:
 	VISAPP 2016, Rome, Italy.
 
 - expression_blendshapes_3448.bin:
-	6 expression blendshapes for the sfm_shape_3448 model. Contains the expressions angry,
-	disgust, fear, happy, sad and surprised.
+	6 expression blendshapes for the sfm_shape_3448 model. Contains the expressions anger,
+	disgust, fear, happiness, sadness and surprise.
 
 - sfm_3448_edge_topology.json:
 	Contains a precomputed list of the model's edges, and the two faces and vertices that are
