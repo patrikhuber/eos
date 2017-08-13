@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.1.3)
 project(eos)
+if(MSVC)
+  cmake_minimum_required(VERSION 3.9.20170812-g71ee6) # needed for CMAKE_CXX_STANDARD 17
+endif()
 set(eos_VERSION_MAJOR 0)
 set(eos_VERSION_MINOR 12)
 set(eos_VERSION_PATCH 1)
@@ -106,9 +109,6 @@ set(HEADERS
 
 add_library(eos INTERFACE)
 target_compile_features(eos INTERFACE ${EOS_CXX_COMPILE_FEATURES})
-# Add c++17 flag for VS2017:
-# Results in a warning that both /std:c++14 and c++17 are defined but we can't get around that until CMake properly supports it.
-target_compile_options(eos INTERFACE "$<$<CXX_COMPILER_ID:MSVC>:/std:c++17>")
 
 # Add header includes:
 target_include_directories(eos INTERFACE "include")
