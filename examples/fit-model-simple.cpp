@@ -160,7 +160,15 @@ int main(int argc, char *argv[])
 		cout << "Error loading the Morphable Model: " << e.what() << endl;
 		return EXIT_FAILURE;
 	}
-	core::LandmarkMapper landmark_mapper = mappingsfile.empty() ? core::LandmarkMapper() : core::LandmarkMapper(mappingsfile);
+	// The landmark mapper is used to map 2D landmark points (e.g. from the ibug scheme) to vertex ids:
+	core::LandmarkMapper landmark_mapper;
+	try {
+		landmark_mapper = core::LandmarkMapper(mappingsfile);
+	}
+	catch (const std::exception& e) {
+		cout << "Error loading the landmark mappings: " << e.what() << endl;
+		return EXIT_FAILURE;
+	}
 
 	// Draw the loaded landmarks:
 	Mat outimg = image.clone();
