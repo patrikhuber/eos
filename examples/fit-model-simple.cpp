@@ -29,20 +29,19 @@
 
 #include "Eigen/Core"
 
+#include "cxxopts.hpp"
+
 #include "opencv2/core/core.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 #include "opencv2/highgui/highgui.hpp"
 
-#include "boost/program_options.hpp"
-#include "boost/filesystem.hpp"
-
 #include <vector>
 #include <iostream>
 #include <fstream>
+#include <filesystem>
 
 using namespace eos;
-namespace po = boost::program_options;
-namespace fs = boost::filesystem;
+namespace fs = std::experimental::filesystem;
 using eos::core::Landmark;
 using eos::core::LandmarkCollection;
 using cv::Mat;
@@ -115,43 +114,39 @@ LandmarkCollection<Eigen::Vector2f> read_pts_landmarks(std::string filename)
  */
 int main(int argc, char *argv[])
 {
-	fs::path modelfile, isomapfile, imagefile, landmarksfile, mappingsfile, outputfile;
+	std::string modelfile, isomapfile, imagefile, landmarksfile, mappingsfile, outputbasename;
 	try {
-		po::options_description desc("Allowed options");
-		desc.add_options()
-			("help,h",
-				"display the help message")
-			("model,m", po::value<fs::path>(&modelfile)->required()->default_value("../share/sfm_shape_3448.bin"),
-				"a Morphable Model stored as cereal BinaryArchive")
-			("image,i", po::value<fs::path>(&imagefile)->required()->default_value("data/image_0010.png"),
-				"an input image")
-			("landmarks,l", po::value<fs::path>(&landmarksfile)->required()->default_value("data/image_0010.pts"),
-				"2D landmarks for the image, in ibug .pts format")
-			("mapping,p", po::value<fs::path>(&mappingsfile)->required()->default_value("../share/ibug_to_sfm.txt"),
-				"landmark identifier to model vertex number mapping")
-			("output,o", po::value<fs::path>(&outputfile)->required()->default_value("out"),
-				"basename for the output rendering and obj files")
+		cxxopts::Options options("fit-model-simple");
+		options.add_options()
+			("h,help","display the help message")
+			("m,model", "a Morphable Model stored as cereal BinaryArchive",
+				cxxopts::value<std::string>(modelfile)->default_value("../share/sfm_shape_3448.bin"))
+			("i,image", "an input image",
+				cxxopts::value<std::string>(imagefile)->default_value("data/image_0010.png"))
+			("l,landmarks", "2D landmarks for the image, in ibug .pts format",
+				cxxopts::value<std::string>(landmarksfile)->default_value("data/image_0010.pts"))
+			("p,mapping", "landmark identifier to model vertex number mapping",
+				cxxopts::value<std::string>(mappingsfile)->default_value("../share/ibug_to_sfm.txt"))
+			("o,output", "basename for the output rendering and obj files",
+				cxxopts::value<std::string>(outputbasename)->default_value("out"))
 			;
-		po::variables_map vm;
-		po::store(po::command_line_parser(argc, argv).options(desc).run(), vm);
-		if (vm.count("help")) {
-			cout << "Usage: fit-model-simple [options]" << endl;
-			cout << desc;
+		options.parse(argc, argv);
+		if (options.count("help")) {
+			cout << options.help() << endl;
 			return EXIT_SUCCESS;
 		}
-		po::notify(vm);
 	}
-	catch (const po::error& e) {
+	catch (const cxxopts::OptionException& e) {
 		cout << "Error while parsing command-line arguments: " << e.what() << endl;
 		cout << "Use --help to display a list of options." << endl;
 		return EXIT_FAILURE;
 	}
 
 	// Load the image, landmarks, LandmarkMapper and the Morphable Model:
-	Mat image = cv::imread(imagefile.string());
+	Mat image = cv::imread(imagefile);
 	LandmarkCollection<Eigen::Vector2f> landmarks;
 	try {
-		landmarks = read_pts_landmarks(landmarksfile.string());
+		landmarks = read_pts_landmarks(landmarksfile);
 	}
 	catch (const std::runtime_error& e) {
 		cout << "Error reading the landmarks: " << e.what() << endl;
@@ -159,13 +154,13 @@ int main(int argc, char *argv[])
 	}
 	morphablemodel::MorphableModel morphable_model;
 	try {
-		morphable_model = morphablemodel::load_model(modelfile.string());
+		morphable_model = morphablemodel::load_model(modelfile);
 	}
 	catch (const std::runtime_error& e) {
 		cout << "Error loading the Morphable Model: " << e.what() << endl;
 		return EXIT_FAILURE;
 	}
-	core::LandmarkMapper landmark_mapper = mappingsfile.empty() ? core::LandmarkMapper() : core::LandmarkMapper(mappingsfile.string());
+	core::LandmarkMapper landmark_mapper = mappingsfile.empty() ? core::LandmarkMapper() : core::LandmarkMapper(mappingsfile);
 
 	// Draw the loaded landmarks:
 	Mat outimg = image.clone();
@@ -184,7 +179,7 @@ int main(int argc, char *argv[])
 		if (!converted_name) { // no mapping defined for the current landmark
 			continue;
 		}
-		int vertex_idx = std::stoi(converted_name.get());
+		int vertex_idx = std::stoi(converted_name.value());
 		auto vertex = morphable_model.get_shape_model().get_mean_at_point(vertex_idx);
 		model_points.emplace_back(Vector4f(vertex.x(), vertex.y(), vertex.z(), 1.0f));
 		vertex_indices.emplace_back(vertex_idx);
@@ -210,7 +205,7 @@ int main(int argc, char *argv[])
 	core::Image4u isomap = render::extract_texture(mesh, affine_from_ortho, core::from_mat(image));
 
 	// Save the mesh as textured obj:
-	outputfile += fs::path(".obj");
+	fs::path outputfile = outputbasename + ".obj";
 	core::write_textured_obj(mesh, outputfile.string());
 
 	// And save the isomap:
