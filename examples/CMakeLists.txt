@@ -49,10 +49,10 @@ if(EOS_BUILD_CERES_EXAMPLE)
   # Find Ceres, for the fit-model-ceres app:
   find_package(Ceres REQUIRED)
   message(STATUS "Ceres locations: Headers: ${CERES_INCLUDE_DIRS} Library: ${CERES_LIBRARIES}")
-  include_directories(${CERES_INCLUDE_DIRS})
 
   # Single and multi-image non-linear model fitting with Ceres example:
   add_executable(fit-model-ceres fit-model-ceres.cpp)
   target_link_libraries(fit-model-ceres eos ${CERES_LIBRARIES} ${OpenCV_LIBS} ${Boost_LIBRARIES})
+  target_include_directories(fit-model-ceres PUBLIC ${CERES_INCLUDE_DIRS})
   install(TARGETS fit-model-ceres DESTINATION bin)
 endif()
