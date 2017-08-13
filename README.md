@@ -11,6 +11,8 @@
 
 eos is a lightweight 3D Morphable Face Model fitting library that provides basic functionality to use face models, as well as camera and shape fitting functionality. It's written in modern C++11/14.
 
+### Warning: The `devel` branch is undergoing significant changes. It currently only compiles with the latest VS2017 Preview and CMake nightly (and only fit-model and the python bindings). Please use the master branch/tag v0.12.1, unless you know what you are doing.
+
 At the moment, it mainly provides the following functionality:
 
 * MorphableModel and PcaModel classes to represent 3DMMs, with basic operations like `draw_sample()`
