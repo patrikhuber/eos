@@ -26,16 +26,15 @@
 
 #include "opencv2/core/core.hpp"
 
-#include "boost/filesystem/path.hpp"
-
 #include <vector>
 #include <iostream>
+#include <string>
 
 namespace eos {
 	namespace morphablemodel {
 
 // Forward declaration
-std::vector<std::array<double, 2>> load_isomap(boost::filesystem::path isomap_file);
+std::vector<std::array<double, 2>> load_isomap(std::string isomap_file);
 
 /**
  * Load a shape or color model from a .scm file containing
@@ -56,7 +55,7 @@ std::vector<std::array<double, 2>> load_isomap(boost::filesystem::path isomap_fi
  * @return The Morphable Model loaded from the file.
  * @throws ...
  */
-inline MorphableModel load_scm_model(boost::filesystem::path model_filename, boost::filesystem::path isomap_file = boost::filesystem::path())
+inline MorphableModel load_scm_model(std::string model_filename, std::string isomap_file = std::string())
 {
 	using cv::Mat;
 	if (sizeof(unsigned int) != 4) { // note/todo: maybe use uint32 or similar instead? Yep, but still we could encounter endianness-trouble.
@@ -66,9 +65,9 @@ inline MorphableModel load_scm_model(boost::filesystem::path model_filename, boo
 		std::cout << "Warning: We're reading 8 Bytes from the file but sizeof(double) != 8. Check the code/behaviour." << std::endl;
 	}
 
-	std::ifstream model_file(model_filename.string(), std::ios::binary);
+	std::ifstream model_file(model_filename, std::ios::binary);
 	if (!model_file.is_open()) {
-		std::string msg("Unable to open model file: " + model_filename.string());
+		std::string msg("Unable to open model file: " + model_filename);
 		std::cout << msg << std::endl;
 		throw std::runtime_error(msg);
 	}
@@ -233,14 +232,14 @@ inline MorphableModel load_scm_model(boost::filesystem::path model_filename, boo
  * @return The 2D texture coordinates for every vertex.
  * @throws ...
  */
-inline std::vector<std::array<double, 2>> load_isomap(boost::filesystem::path isomap_file)
+inline std::vector<std::array<double, 2>> load_isomap(std::string isomap_file)
 {
 	using std::string;
 	std::vector<float> x_coords, y_coords;
 	string line;
-	std::ifstream file(isomap_file.string());
+	std::ifstream file(isomap_file);
 	if (!file.is_open()) {
-		string error_msg("The isomap file could not be opened. Did you specify a correct filename? " + isomap_file.string());
+		string error_msg("The isomap file could not be opened. Did you specify a correct filename? " + isomap_file);
 		throw std::runtime_error(error_msg);
 	}
 	else {
