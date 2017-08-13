@@ -1,4 +1,4 @@
-# The utils need a few additional dependencies (e.g. boost filesystem and OpenCV highgui):
+# The utils need a few additional dependencies (e.g. boost::split, OpenCV highgui and cxxopts):
 
 # Check installed version in order to include the correct OpenCV libraries:
 # First call find_package without a version to find any OpenCV. OpenCV_VERSION_MAJOR is then defined.
@@ -18,20 +18,23 @@ if(MSVC)
   add_definitions(-DBOOST_ALL_NO_LIB) # Don't use the automatic library linking by boost with VS (#pragma ...). Instead, we specify everything here in cmake.
   add_definitions(-DBOOST_ALL_DYN_LINK) # Link against the dynamic boost lib - needs to match with the version that find_package finds.
 endif()
-find_package(Boost 1.50.0 COMPONENTS system filesystem program_options REQUIRED)
+find_package(Boost 1.50.0 REQUIRED)
 message(STATUS "Boost found at ${Boost_INCLUDE_DIRS}")
 
 # Converts a CVSSP .scm Morphable Model to a cereal binary file:
 add_executable(scm-to-cereal scm-to-cereal.cpp)
-target_link_libraries(scm-to-cereal eos ${OpenCV_LIBS} ${Boost_LIBRARIES})
+target_link_libraries(scm-to-cereal eos ${OpenCV_LIBS})
+target_include_directories(scm-to-cereal PUBLIC ${OpenCV_INCLUDE_DIRS} "${eos_3RDPARTY_DIR}/cxxopts/include")
 
 # Converts a file created with share/convert_bfm2009_to_raw_binary.m to a cereal binary file:
 add_executable(bfm-binary-to-cereal bfm-binary-to-cereal.cpp)
-target_link_libraries(bfm-binary-to-cereal eos ${OpenCV_LIBS} ${Boost_LIBRARIES})
+target_link_libraries(bfm-binary-to-cereal eos ${OpenCV_LIBS})
+target_include_directories(bfm-binary-to-cereal PUBLIC ${OpenCV_INCLUDE_DIRS} "${eos_3RDPARTY_DIR}/cxxopts/include")
 
 # Reads an edgestruct CSV file created from Matlab, and converts it to json:
 add_executable(edgestruct-csv-to-json edgestruct-csv-to-json.cpp)
 target_link_libraries(edgestruct-csv-to-json eos ${Boost_LIBRARIES})
+target_include_directories(edgestruct-csv-to-json PUBLIC ${Boost_INCLUDE_DIRS} "${eos_3RDPARTY_DIR}/cxxopts/include")
 
 # Install targets:
 install(TARGETS scm-to-cereal DESTINATION bin)

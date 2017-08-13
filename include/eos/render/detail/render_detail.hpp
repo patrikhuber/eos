@@ -34,7 +34,7 @@
 #include "glm/vec2.hpp"
 #include "glm/vec3.hpp"
 
-#include "boost/optional.hpp"
+#include <optional>
 
 /**
  * Implementations of internal functions, not part of the
@@ -47,7 +47,7 @@ namespace eos {
 // Todo: Split this function into the general (core-part) and the texturing part.
 // Then, utils::extractTexture can re-use the core-part.
 // Note: Maybe a bit outdated "todo" above.
-inline boost::optional<TriangleToRasterize> process_prospective_tri(Vertex<float> v0, Vertex<float> v1, Vertex<float> v2, int viewport_width, int viewport_height, bool enable_backface_culling)
+inline std::optional<TriangleToRasterize> process_prospective_tri(Vertex<float> v0, Vertex<float> v1, Vertex<float> v2, int viewport_width, int viewport_height, bool enable_backface_culling)
 {
 	using glm::vec2;
 	using glm::vec3;
@@ -87,7 +87,7 @@ inline boost::optional<TriangleToRasterize> process_prospective_tri(Vertex<float
 
 	if (enable_backface_culling) {
 		if (!are_vertices_ccw_in_screen_space(glm::tvec2<float>(t.v0.position), glm::tvec2<float>(t.v1.position), glm::tvec2<float>(t.v2.position)))
-			return boost::none;
+			return std::nullopt;
 	}
 
 	// Get the bounding box of the triangle:
@@ -98,7 +98,7 @@ inline boost::optional<TriangleToRasterize> process_prospective_tri(Vertex<float
 	t.max_y = boundingBox.y + boundingBox.height;
 
 	if (t.max_x <= t.min_x || t.max_y <= t.min_y) 	// Note: Can the width/height of the bbox be negative? Maybe we only need to check for equality here?
-		return boost::none;
+		return std::nullopt;
 
 	// Which of these is for texturing, mipmapping, what for perspective?
 	// for partial derivatives computation
@@ -122,10 +122,10 @@ inline boost::optional<TriangleToRasterize> process_prospective_tri(Vertex<float
 	t.gamma_ffy = -t.gammaPlane.b * t.one_over_gamma_c;
 
 	// Use t
-	return boost::optional<TriangleToRasterize>(t);
+	return std::optional<TriangleToRasterize>(t);
 };
 
-inline void raster_triangle(TriangleToRasterize triangle, core::Image4u& colorbuffer, core::Image1d& depthbuffer, boost::optional<Texture> texture, bool enable_far_clipping)
+inline void raster_triangle(TriangleToRasterize triangle, core::Image4u& colorbuffer, core::Image1d& depthbuffer, std::optional<Texture> texture, bool enable_far_clipping)
 {
 	for (int yi = triangle.min_y; yi <= triangle.max_y; ++yi)
 	{
@@ -191,13 +191,13 @@ inline void raster_triangle(TriangleToRasterize triangle, core::Image4u& colorbu
 						float dvdx = one_over_squared_one_over_z * (triangle.alpha_ffy * one_over_z - u_over_z * triangle.gamma_ffy);
 						float dvdy = one_over_squared_one_over_z * (triangle.beta_ffy * one_over_z - v_over_z * triangle.gamma_ffy);
 
-						dudx *= texture.get().mipmaps[0].cols;
-						dudy *= texture.get().mipmaps[0].cols;
-						dvdx *= texture.get().mipmaps[0].rows;
-						dvdy *= texture.get().mipmaps[0].rows;
+						dudx *= texture.value().mipmaps[0].cols;
+						dudy *= texture.value().mipmaps[0].cols;
+						dvdx *= texture.value().mipmaps[0].rows;
+						dvdy *= texture.value().mipmaps[0].rows;
 
 						// The Texture is in BGR, thus tex2D returns BGR
-						glm::tvec3<float> texture_color = detail::tex2d(texcoords_persp, texture.get(), dudx, dudy, dvdx, dvdy); // uses the current texture
+						glm::tvec3<float> texture_color = detail::tex2d(texcoords_persp, texture.value(), dudx, dudy, dvdx, dvdy); // uses the current texture
 						pixel_color = glm::tvec3<float>(texture_color[2], texture_color[1], texture_color[0]);
 						// other: color.mul(tex2D(texture, texCoord));
 						// Old note: for texturing, we load the texture as BGRA, so the colors get the wrong way in the next few lines...

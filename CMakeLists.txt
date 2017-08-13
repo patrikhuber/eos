@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.1.3)
 project(eos)
+if(MSVC)
+  cmake_minimum_required(VERSION 3.9.20170812-g71ee6) # needed for CMAKE_CXX_STANDARD 17
+endif()
 set(eos_VERSION_MAJOR 0)
 set(eos_VERSION_MINOR 12)
 set(eos_VERSION_PATCH 1)
@@ -10,7 +13,7 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 # This sets the C++ standard to c++14 and required for all the following targets that we define.
 # It has no effect on MSVC though - we thus define more specific requirements for each executable target respectively.
 # Also it will not apply to the eos library target, since it is an INTERFACE_LIBRARY, and these properties do not apply to interface libraries.
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF) # This makes CMake use -std=c++11 instead of -std=gnu++11
 # This list is likely not complete, but it should be sufficient to error out on old compilers that we cannot build on:
@@ -39,10 +42,6 @@ set(CPACK_PACKAGE_VERSION_MINOR "${eos_VERSION_MINOR}")
 set(CPACK_PACKAGE_VERSION_PATCH "${eos_VERSION_PATCH}")
 include(CPack)
 
-# Find and set up Boost, for boost::optional:
-find_package(Boost 1.50.0 REQUIRED)
-message(STATUS "Boost found at ${Boost_INCLUDE_DIRS}")
-
 set(eos_3RDPARTY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty") # this is used by the CMakeLists.txt files in the subdirectories
 
 set(CMAKE_MODULE_PATH ${eos_3RDPARTY_DIR}/eigen/cmake)
@@ -59,6 +58,7 @@ set(CEREAL_INCLUDE_DIR "${eos_3RDPARTY_DIR}/cereal/include")
 set(glm_INCLUDE_DIR "${eos_3RDPARTY_DIR}/glm")
 set(nanoflann_INCLUDE_DIR "${eos_3RDPARTY_DIR}/nanoflann/include")
 set(eigen3_nnls_INCLUDE_DIR "${eos_3RDPARTY_DIR}/eigen3-nnls/src")
+set(toml11_INCLUDE_DIR "${eos_3RDPARTY_DIR}/toml11")
 
 # Header files of the eos library:
 set(HEADERS
@@ -110,14 +110,15 @@ set(HEADERS
 
 add_library(eos INTERFACE)
 target_compile_features(eos INTERFACE ${EOS_CXX_COMPILE_FEATURES})
+
 # Add header includes:
 target_include_directories(eos INTERFACE "include")
 target_include_directories(eos INTERFACE ${CEREAL_INCLUDE_DIR})
-target_include_directories(eos INTERFACE ${Boost_INCLUDE_DIRS})
 target_include_directories(eos INTERFACE ${EIGEN3_INCLUDE_DIR})
 target_include_directories(eos INTERFACE ${glm_INCLUDE_DIR})
 target_include_directories(eos INTERFACE ${nanoflann_INCLUDE_DIR})
 target_include_directories(eos INTERFACE ${eigen3_nnls_INCLUDE_DIR})
+target_include_directories(eos INTERFACE ${toml11_INCLUDE_DIR})
 
 # Custom target for the library, to make the headers show up in IDEs:
 add_custom_target(eos-headers SOURCES ${HEADERS})
@@ -141,6 +142,7 @@ install(DIRECTORY ${eos_3RDPARTY_DIR}/nanoflann/include/ DESTINATION 3rdparty/na
 install(FILES ${eos_3RDPARTY_DIR}/nanoflann/COPYING DESTINATION 3rdparty/nanoflann/) # nanoflann licence
 install(DIRECTORY ${eos_3RDPARTY_DIR}/eigen3-nnls/src/ DESTINATION 3rdparty/eigen3-nnls/src) # eigen3-nnls header
 install(FILES ${eos_3RDPARTY_DIR}/eigen3-nnls/README.md DESTINATION 3rdparty/eigen3-nnls/) # eigen3-nnls attribution
+install(DIRECTORY ${eos_3RDPARTY_DIR}/toml11/ DESTINATION 3rdparty/toml11) # toml11 headers
 # Install Eigen headers if we're using the Eigen submodule included with eos:
 if(EIGEN3_INCLUDE_DIR STREQUAL ${eos_3RDPARTY_DIR}/eigen)
   install(DIRECTORY ${eos_3RDPARTY_DIR}/eigen/Eigen/ DESTINATION 3rdparty/eigen/Eigen)

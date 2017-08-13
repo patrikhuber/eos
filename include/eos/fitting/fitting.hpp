@@ -40,6 +40,7 @@
 #include <cassert>
 #include <vector>
 #include <algorithm>
+#include <optional>
 
 namespace eos {
 	namespace fitting {
@@ -65,7 +66,7 @@ namespace eos {
  * @param[out] blendshape_coefficients Output parameter that will contain the resulting blendshape coefficients.
  * @return The fitted model shape instance.
  */
-inline Eigen::VectorXf fit_shape(Eigen::Matrix<float, 3, 4> affine_camera_matrix, const morphablemodel::MorphableModel& morphable_model, const std::vector<morphablemodel::Blendshape>& blendshapes, const std::vector<Eigen::Vector2f>& image_points, const std::vector<int>& vertex_indices, float lambda, boost::optional<int> num_coefficients_to_fit, std::vector<float>& pca_shape_coefficients, std::vector<float>& blendshape_coefficients)
+inline Eigen::VectorXf fit_shape(Eigen::Matrix<float, 3, 4> affine_camera_matrix, const morphablemodel::MorphableModel& morphable_model, const std::vector<morphablemodel::Blendshape>& blendshapes, const std::vector<Eigen::Vector2f>& image_points, const std::vector<int>& vertex_indices, float lambda, std::optional<int> num_coefficients_to_fit, std::vector<float>& pca_shape_coefficients, std::vector<float>& blendshape_coefficients)
 {
 	using Eigen::VectorXf;
 	using Eigen::MatrixXf;
@@ -114,7 +115,7 @@ inline Eigen::VectorXf fit_shape(Eigen::Matrix<float, 3, 4> affine_camera_matrix
  * @param[in] num_coefficients_to_fit How many shape-coefficients to fit (all others will stay 0). Should be bigger than zero, or boost::none to fit all coefficients.
  * @return The fitted model shape instance.
  */
-inline Eigen::VectorXf fit_shape(Eigen::Matrix<float ,3, 4> affine_camera_matrix, const morphablemodel::MorphableModel& morphable_model, const std::vector<morphablemodel::Blendshape>& blendshapes, const std::vector<Eigen::Vector2f>& image_points, const std::vector<int>& vertex_indices, float lambda = 3.0f, boost::optional<int> num_coefficients_to_fit = boost::optional<int>())
+inline Eigen::VectorXf fit_shape(Eigen::Matrix<float ,3, 4> affine_camera_matrix, const morphablemodel::MorphableModel& morphable_model, const std::vector<morphablemodel::Blendshape>& blendshapes, const std::vector<Eigen::Vector2f>& image_points, const std::vector<int>& vertex_indices, float lambda = 3.0f, std::optional<int> num_coefficients_to_fit = std::optional<int>())
 {
 	std::vector<float> unused;
 	return fit_shape(affine_camera_matrix, morphable_model, blendshapes, image_points, vertex_indices, lambda, num_coefficients_to_fit, unused, unused);
@@ -230,7 +231,7 @@ inline auto concat(const std::vector<T>& vec_a, const std::vector<T>& vec_b)
  * @param[out] fitted_image_points Debug parameter: Returns all the 2D points that have been used for the fitting.
  * @return The fitted model shape instance and the final pose.
  */
-inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(const morphablemodel::MorphableModel& morphable_model, const std::vector<morphablemodel::Blendshape>& blendshapes, const core::LandmarkCollection<Eigen::Vector2f>& landmarks, const core::LandmarkMapper& landmark_mapper, int image_width, int image_height, const morphablemodel::EdgeTopology& edge_topology, const fitting::ContourLandmarks& contour_landmarks, const fitting::ModelContour& model_contour, int num_iterations, boost::optional<int> num_shape_coefficients_to_fit, float lambda, boost::optional<fitting::RenderingParameters> initial_rendering_params, std::vector<float>& pca_shape_coefficients, std::vector<float>& blendshape_coefficients, std::vector<Eigen::Vector2f>& fitted_image_points)
+inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(const morphablemodel::MorphableModel& morphable_model, const std::vector<morphablemodel::Blendshape>& blendshapes, const core::LandmarkCollection<Eigen::Vector2f>& landmarks, const core::LandmarkMapper& landmark_mapper, int image_width, int image_height, const morphablemodel::EdgeTopology& edge_topology, const fitting::ContourLandmarks& contour_landmarks, const fitting::ModelContour& model_contour, int num_iterations, std::optional<int> num_shape_coefficients_to_fit, float lambda, std::optional<fitting::RenderingParameters> initial_rendering_params, std::vector<float>& pca_shape_coefficients, std::vector<float>& blendshape_coefficients, std::vector<Eigen::Vector2f>& fitted_image_points)
 {
 	assert(blendshapes.size() > 0);
 	assert(landmarks.size() >= 4);
@@ -252,7 +253,7 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(co
 
 	if (pca_shape_coefficients.empty())
 	{
-		pca_shape_coefficients.resize(num_shape_coefficients_to_fit.get());
+		pca_shape_coefficients.resize(num_shape_coefficients_to_fit.value());
 	}
 	// Todo: This leaves the following case open: num_coeffs given is empty or defined, but the
 	// pca_shape_coefficients given is != num_coeffs or the model's max-coeffs. What to do then? Handle & document!
@@ -281,7 +282,7 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(co
 		if (!converted_name) { // no mapping defined for the current landmark
 			continue;
 		}
-		int vertex_idx = std::stoi(converted_name.get());
+		int vertex_idx = std::stoi(converted_name.value());
 		Vector4f vertex(current_mesh.vertices[vertex_idx].x, current_mesh.vertices[vertex_idx].y, current_mesh.vertices[vertex_idx].z, current_mesh.vertices[vertex_idx].w);
 		model_points.emplace_back(vertex);
 		vertex_indices.emplace_back(vertex_idx);
@@ -398,12 +399,12 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(co
  * @param[in] lambda Regularisation parameter of the PCA shape fitting.
  * @return The fitted model shape instance and the final pose.
  */
-inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(const morphablemodel::MorphableModel& morphable_model, const std::vector<morphablemodel::Blendshape>& blendshapes, const core::LandmarkCollection<Eigen::Vector2f>& landmarks, const core::LandmarkMapper& landmark_mapper, int image_width, int image_height, const morphablemodel::EdgeTopology& edge_topology, const fitting::ContourLandmarks& contour_landmarks, const fitting::ModelContour& model_contour, int num_iterations = 5, boost::optional<int> num_shape_coefficients_to_fit = boost::none, float lambda = 50.0f)
+inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(const morphablemodel::MorphableModel& morphable_model, const std::vector<morphablemodel::Blendshape>& blendshapes, const core::LandmarkCollection<Eigen::Vector2f>& landmarks, const core::LandmarkMapper& landmark_mapper, int image_width, int image_height, const morphablemodel::EdgeTopology& edge_topology, const fitting::ContourLandmarks& contour_landmarks, const fitting::ModelContour& model_contour, int num_iterations = 5, std::optional<int> num_shape_coefficients_to_fit = std::nullopt, float lambda = 50.0f)
 {
 	std::vector<float> pca_coeffs;
 	std::vector<float> blendshape_coeffs;
 	std::vector<Eigen::Vector2f> fitted_image_points;
-	return fit_shape_and_pose(morphable_model, blendshapes, landmarks, landmark_mapper, image_width, image_height, edge_topology, contour_landmarks, model_contour, num_iterations, num_shape_coefficients_to_fit, lambda, boost::none, pca_coeffs, blendshape_coeffs, fitted_image_points);
+	return fit_shape_and_pose(morphable_model, blendshapes, landmarks, landmark_mapper, image_width, image_height, edge_topology, contour_landmarks, model_contour, num_iterations, num_shape_coefficients_to_fit, lambda, std::nullopt, pca_coeffs, blendshape_coeffs, fitted_image_points);
 };
 	} /* namespace fitting */
 } /* namespace eos */

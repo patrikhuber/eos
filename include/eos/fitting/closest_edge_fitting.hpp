@@ -36,8 +36,6 @@
 
 #include "Eigen/Core"
 
-#include "boost/optional.hpp"
-
 #include <vector>
 #include <algorithm>
 #include <utility>
@@ -67,7 +65,7 @@ namespace eos {
  * @param[in] enable_backculling When culling is on, rays intersecting triangles from the back will be discarded.
  * @return Whether the ray intersects the triangle, and if yes, including the distance.
  */
-inline std::pair<bool, boost::optional<float>> ray_triangle_intersect(const glm::vec3& ray_origin, const glm::vec3& ray_direction, const glm::vec3& v0, const glm::vec3& v1, const glm::vec3& v2, bool enable_backculling)
+inline std::pair<bool, std::optional<float>> ray_triangle_intersect(const glm::vec3& ray_origin, const glm::vec3& ray_direction, const glm::vec3& v0, const glm::vec3& v1, const glm::vec3& v2, bool enable_backculling)
 {
 	using glm::vec3;
 	const float epsilon = 1e-6f;
@@ -83,24 +81,24 @@ inline std::pair<bool, boost::optional<float>> ray_triangle_intersect(const glm:
 		// If det is negative, the triangle is back-facing.
 		// If det is close to 0, the ray misses the triangle.
 		if (det < epsilon)
-			return { false, boost::none };
+			return { false, std::nullopt };
 	}
 	else {
 		// If det is close to 0, the ray and triangle are parallel.
 		if (std::abs(det) < epsilon)
-			return { false, boost::none };
+			return { false, std::nullopt };
 	}
 	const float inv_det = 1 / det;
 
 	const vec3 tvec = ray_origin - v0;
 	const auto u = glm::dot(tvec, pvec) * inv_det;
 	if (u < 0 || u > 1)
-		return { false, boost::none };
+		return { false, std::nullopt };
 
 	const vec3 qvec = glm::cross(tvec, v0v1);
 	const auto v = glm::dot(ray_direction, qvec) * inv_det;
 	if (v < 0 || u + v > 1)
-		return { false, boost::none };
+		return { false, std::nullopt };
 
 	const auto t = glm::dot(v0v2, qvec) * inv_det;
 
@@ -186,7 +184,7 @@ inline std::vector<int> occluding_boundary_vertices(const core::Mesh& mesh, cons
 			{
 				// We've hit a triangle. Ray hit its own triangle. If it's behind the ray origin, ignore the intersection:
 				// Check if in front or behind?
-				if (intersect.second.get() <= 1e-4)
+				if (intersect.second.value() <= 1e-4)
 				{
 					continue; // the intersection is behind the vertex, we don't care about it
 				}

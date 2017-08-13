@@ -33,12 +33,11 @@
 
 #include "Eigen/Core"
 
-#include "opencv2/core/core.hpp"
-
 #include "mex.h"
 //#include "matrix.h"
 
 #include <string>
+#include <optional>
 
 using namespace eos;
 using namespace mexplus;
@@ -85,7 +84,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	const auto edge_topology = morphablemodel::load_edge_topology(edgetopo_file);
 	const auto contour_landmarks = fitting::ContourLandmarks::load(contour_lms_file);
 	const auto model_contour = fitting::ModelContour::load(model_cnt_file);
-	const boost::optional<int> num_shape_coefficients_to_fit = num_shape_coeffs == -1 ? boost::none : boost::optional<int>(num_shape_coeffs);
+	const std::optional<int> num_shape_coefficients_to_fit = num_shape_coeffs == -1 ? std::nullopt : std::optional<int>(num_shape_coeffs);
 
 	// Now do the actual fitting:
 	core::Mesh mesh;

@@ -27,10 +27,9 @@
 #include "Eigen/Core"
 #include "Eigen/QR"
 
-#include "boost/optional.hpp"
-
 #include <vector>
 #include <cassert>
+#include <optional>
 
 namespace eos {
 	namespace fitting {
@@ -56,14 +55,14 @@ namespace eos {
  * @param[in] model_standard_deviation The standard deviation of the 3D vertex points in the 3D model, projected to 2D (so the value is in pixels).
  * @return The estimated shape-coefficients (alphas).
  */
-inline std::vector<float> fit_shape_to_landmarks_linear(const morphablemodel::MorphableModel& morphable_model, Eigen::Matrix<float, 3, 4> affine_camera_matrix, const std::vector<Eigen::Vector2f>& landmarks, const std::vector<int>& vertex_ids, Eigen::VectorXf base_face=Eigen::VectorXf(), float lambda=3.0f, boost::optional<int> num_coefficients_to_fit=boost::optional<int>(), boost::optional<float> detector_standard_deviation=boost::optional<float>(), boost::optional<float> model_standard_deviation=boost::optional<float>())
+inline std::vector<float> fit_shape_to_landmarks_linear(const morphablemodel::MorphableModel& morphable_model, Eigen::Matrix<float, 3, 4> affine_camera_matrix, const std::vector<Eigen::Vector2f>& landmarks, const std::vector<int>& vertex_ids, Eigen::VectorXf base_face=Eigen::VectorXf(), float lambda=3.0f, std::optional<int> num_coefficients_to_fit= std::optional<int>(), std::optional<float> detector_standard_deviation= std::optional<float>(), std::optional<float> model_standard_deviation= std::optional<float>())
 {
 	assert(landmarks.size() == vertex_ids.size());
 
 	using Eigen::VectorXf;
 	using Eigen::MatrixXf;
 
-	int num_coeffs_to_fit = num_coefficients_to_fit.get_value_or(morphable_model.get_shape_model().get_num_principal_components());
+	int num_coeffs_to_fit = num_coefficients_to_fit.value_or(morphable_model.get_shape_model().get_num_principal_components());
 	int num_landmarks = static_cast<int>(landmarks.size());
 
 	if (base_face.size() == 0)
@@ -90,7 +89,7 @@ inline std::vector<float> fit_shape_to_landmarks_linear(const morphablemodel::Mo
 	// 2D (detector) standard deviation: In pixel, we follow [1] and choose sqrt(3) as the default value.
 	// 3D (model) variance: 0.0f. It only makes sense to set it to something when we have a different variance for different vertices.
 	// The 3D variance has to be projected to 2D (for details, see paper [1]) so the units do match up.
-	float sigma_squared_2D = std::pow(detector_standard_deviation.get_value_or(std::sqrt(3.0f)), 2) + std::pow(model_standard_deviation.get_value_or(0.0f), 2);
+	float sigma_squared_2D = std::pow(detector_standard_deviation.value_or(std::sqrt(3.0f)), 2) + std::pow(model_standard_deviation.value_or(0.0f), 2);
 	// We use a VectorXf, and later use .asDiagonal():
 	VectorXf Omega = VectorXf::Constant(3 * num_landmarks, 1.0f / sigma_squared_2D);
 	// Earlier, we set Sigma in a for-loop and then computed Omega, but it was really unnecessary:

@@ -1,8 +1,0 @@
-# This file goes with setup.py and is the (optional) config file for generating
-# pip and wheel packages for eos's Python bindings.
-# Rename to setup.cfg to use.
-[build_ext]
-# Uncomment and set these paths if required (usually on Windows):
-#boost-root=C:/boost_1_59_0
-#eigen3-include-dir=C:/eigen-3.3.2
-#opencv-dir=C:/opencv/install

@@ -19,8 +19,8 @@
  */
 #include "eos/morphablemodel/EdgeTopology.hpp"
 
-#include "boost/program_options.hpp"
-#include "boost/filesystem.hpp"
+#include "cxxopts.hpp"
+
 #include "boost/algorithm/string.hpp"
 
 #include <array>
@@ -30,8 +30,6 @@
 #include <fstream>
 
 using namespace eos;
-namespace po = boost::program_options;
-namespace fs = boost::filesystem;
 using std::cout;
 using std::endl;
 
@@ -65,40 +63,36 @@ std::vector<std::array<int, 2>> read_edgestruct_csv(std::string filename)
  */
 int main(int argc, char *argv[])
 {
-	fs::path input_adj_faces, input_adj_vertices, outputfile;
+	std::string input_adj_faces, input_adj_vertices, outputfile;
 	try {
-		po::options_description desc("Allowed options");
-		desc.add_options()
-			("help,h",
-				"display the help message")
-			("faces,f", po::value<fs::path>(&input_adj_faces)->required(),
-				"input edgestruct csv file from Matlab with a list of adjacent faces")
-			("vertices,v", po::value<fs::path>(&input_adj_vertices)->required(),
-				"input edgestruct csv file from Matlab with a list of adjacent vertices")
-			("output,o", po::value<fs::path>(&outputfile)->required()->default_value("converted_edge_topology.json"),
-				"output filename for the converted .json file")
+		cxxopts::Options options("edgestruct-csv-to-json");
+		options.add_options()
+			("help,h", "display the help message")
+			("faces,f", "input edgestruct csv file from Matlab with a list of adjacent faces",
+				cxxopts::value<std::string>(input_adj_faces))
+			("vertices,v", "input edgestruct csv file from Matlab with a list of adjacent vertices",
+				cxxopts::value<std::string>(input_adj_vertices))
+			("output,o", "output filename for the converted .json file",
+				cxxopts::value<std::string>(outputfile)->default_value("converted_edge_topology.json"))
 			;
-		po::variables_map vm;
-		po::store(po::command_line_parser(argc, argv).options(desc).run(), vm);
-		if (vm.count("help")) {
-			cout << "Usage: edgestruct-csv-to-json [options]" << endl;
-			cout << desc;
+		options.parse(argc, argv);
+		if (options.count("help")) {
+			cout << options.help() << endl;
 			return EXIT_SUCCESS;
 		}
-		po::notify(vm);
 	}
-	catch (const po::error& e) {
+	catch (const cxxopts::OptionException& e) {
 		cout << "Error while parsing command-line arguments: " << e.what() << endl;
 		cout << "Use --help to display a list of options." << endl;
 		return EXIT_FAILURE;
 	}
 
 	morphablemodel::EdgeTopology edge_info;
-	edge_info.adjacent_faces = read_edgestruct_csv(input_adj_faces.string());
-	edge_info.adjacent_vertices = read_edgestruct_csv(input_adj_vertices.string());
+	edge_info.adjacent_faces = read_edgestruct_csv(input_adj_faces);
+	edge_info.adjacent_vertices = read_edgestruct_csv(input_adj_vertices);
 
-	morphablemodel::save_edge_topology(edge_info, outputfile.string());
+	morphablemodel::save_edge_topology(edge_info, outputfile);
 
-	cout << "Saved EdgeTopology in json file: " << outputfile.string() << "." << endl;
+	cout << "Saved EdgeTopology in json file: " << outputfile << "." << endl;
 	return EXIT_SUCCESS;
 }

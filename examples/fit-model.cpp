@@ -24,25 +24,25 @@
 #include "eos/morphablemodel/MorphableModel.hpp"
 #include "eos/morphablemodel/Blendshape.hpp"
 #include "eos/fitting/fitting.hpp"
-#include "eos/render/utils.hpp"
 #include "eos/render/texture_extraction.hpp"
 
 #include "Eigen/Core"
+
+#include "cxxopts.hpp"
 
 #include "opencv2/core/core.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 #include "opencv2/highgui/highgui.hpp"
 
-#include "boost/program_options.hpp"
-#include "boost/filesystem.hpp"
-
 #include <vector>
 #include <iostream>
 #include <fstream>
+#include <string>
+#include <optional>
+#include <filesystem>
 
 using namespace eos;
-namespace po = boost::program_options;
-namespace fs = boost::filesystem;
+namespace fs = std::experimental::filesystem;
 using eos::core::Landmark;
 using eos::core::LandmarkCollection;
 using cv::Mat;
@@ -141,49 +141,46 @@ void draw_wireframe(cv::Mat image, const core::Mesh& mesh, glm::mat4x4 modelview
  */
 int main(int argc, char *argv[])
 {
-	fs::path modelfile, isomapfile, imagefile, landmarksfile, mappingsfile, contourfile, edgetopologyfile, blendshapesfile, outputfile;
+	string modelfile, isomapfile, imagefile, landmarksfile, mappingsfile, contourfile, edgetopologyfile, blendshapesfile, outputbasename;
 	try {
-		po::options_description desc("Allowed options");
-		desc.add_options()
-			("help,h",
-				"display the help message")
-			("model,m", po::value<fs::path>(&modelfile)->required()->default_value("../share/sfm_shape_3448.bin"),
-				"a Morphable Model stored as cereal BinaryArchive")
-			("image,i", po::value<fs::path>(&imagefile)->required()->default_value("data/image_0010.png"),
-				"an input image")
-			("landmarks,l", po::value<fs::path>(&landmarksfile)->required()->default_value("data/image_0010.pts"),
-				"2D landmarks for the image, in ibug .pts format")
-			("mapping,p", po::value<fs::path>(&mappingsfile)->required()->default_value("../share/ibug_to_sfm.txt"),
-				"landmark identifier to model vertex number mapping")
-			("model-contour,c", po::value<fs::path>(&contourfile)->required()->default_value("../share/model_contours.json"),
-				"file with model contour indices")
-			("edge-topology,e", po::value<fs::path>(&edgetopologyfile)->required()->default_value("../share/sfm_3448_edge_topology.json"),
-				"file with model's precomputed edge topology")
-			("blendshapes,b", po::value<fs::path>(&blendshapesfile)->required()->default_value("../share/expression_blendshapes_3448.bin"),
-				"file with blendshapes")
-			("output,o", po::value<fs::path>(&outputfile)->required()->default_value("out"),
-				"basename for the output rendering and obj files")
+		cxxopts::Options options("fit-model", "Fits a 3D Morphable Model to an image with landmarks.");
+		options.add_options()
+			("h,help", "display the help message")
+			("m,model", "a Morphable Model stored as cereal BinaryArchive",
+				cxxopts::value<string>(modelfile)->default_value("../share/sfm_shape_3448.bin"))
+			("i,image", "an input image",
+				cxxopts::value<string>(imagefile)->default_value("data/image_0010.png"))
+			("l,landmarks", "2D landmarks for the image, in ibug .pts format",
+				cxxopts::value<string>(landmarksfile)->default_value("data/image_0010.pts"))
+			("p,mapping", "landmark identifier to model vertex number mapping",
+				cxxopts::value<string>(mappingsfile)->default_value("../share/ibug_to_sfm.txt"))
+			("c,model-contour", "file with model contour indices",
+				cxxopts::value<string>(contourfile)->default_value("../share/model_contours.json"))
+			("e,edge-topology", "file with model's precomputed edge topology",
+				cxxopts::value<string>(edgetopologyfile)->default_value("../share/sfm_3448_edge_topology.json"))
+			("b,blendshapes", "file with blendshapes",
+				cxxopts::value<string>(blendshapesfile)->default_value("../share/expression_blendshapes_3448.bin"))
+			("o,output", "basename for the output rendering and obj files",
+				cxxopts::value<string>(outputbasename)->default_value("out"))
 			;
-		po::variables_map vm;
-		po::store(po::command_line_parser(argc, argv).options(desc).run(), vm);
-		if (vm.count("help")) {
-			cout << "Usage: fit-model [options]" << endl;
-			cout << desc;
+		options.parse(argc, argv);
+		if (options.count("help"))
+		{
+			cout << options.help() << endl;
 			return EXIT_SUCCESS;
 		}
-		po::notify(vm);
 	}
-	catch (const po::error& e) {
+	catch (const cxxopts::OptionException& e) {
 		cout << "Error while parsing command-line arguments: " << e.what() << endl;
 		cout << "Use --help to display a list of options." << endl;
 		return EXIT_FAILURE;
 	}
 
 	// Load the image, landmarks, LandmarkMapper and the Morphable Model:
-	Mat image = cv::imread(imagefile.string());
+	Mat image = cv::imread(imagefile);
 	LandmarkCollection<Eigen::Vector2f> landmarks;
 	try {
-		landmarks = read_pts_landmarks(landmarksfile.string());
+		landmarks = read_pts_landmarks(landmarksfile);
 	}
 	catch (const std::runtime_error& e) {
 		cout << "Error reading the landmarks: " << e.what() << endl;
@@ -191,24 +188,31 @@ int main(int argc, char *argv[])
 	}
 	morphablemodel::MorphableModel morphable_model;
 	try {
-		morphable_model = morphablemodel::load_model(modelfile.string());
+		morphable_model = morphablemodel::load_model(modelfile);
 	}
 	catch (const std::runtime_error& e) {
 		cout << "Error loading the Morphable Model: " << e.what() << endl;
 		return EXIT_FAILURE;
 	}
-	// The landmark mapper is used to map ibug landmark identifiers to vertex ids:
-	core::LandmarkMapper landmark_mapper = mappingsfile.empty() ? core::LandmarkMapper() : core::LandmarkMapper(mappingsfile.string());
+	// The landmark mapper is used to map 2D landmark points (e.g. from the ibug scheme) to vertex ids:
+	core::LandmarkMapper landmark_mapper;
+	try {
+		landmark_mapper = core::LandmarkMapper(mappingsfile);
+	}
+	catch(const std::exception& e) {
+		cout << "Error loading the landmark mappings: " << e.what() << endl;
+		return EXIT_FAILURE;
+	}
 
 	// The expression blendshapes:
-	vector<morphablemodel::Blendshape> blendshapes = morphablemodel::load_blendshapes(blendshapesfile.string());
+	vector<morphablemodel::Blendshape> blendshapes = morphablemodel::load_blendshapes(blendshapesfile);
 
 	// These two are used to fit the front-facing contour to the ibug contour landmarks:
-	fitting::ModelContour model_contour = contourfile.empty() ? fitting::ModelContour() : fitting::ModelContour::load(contourfile.string());
-	fitting::ContourLandmarks ibug_contour = fitting::ContourLandmarks::load(mappingsfile.string());
+	fitting::ModelContour model_contour = contourfile.empty() ? fitting::ModelContour() : fitting::ModelContour::load(contourfile);
+	fitting::ContourLandmarks ibug_contour = fitting::ContourLandmarks::load(mappingsfile);
 
 	// The edge topology is used to speed up computation of the occluding face contour fitting:
-	morphablemodel::EdgeTopology edge_topology = morphablemodel::load_edge_topology(edgetopologyfile.string());
+	morphablemodel::EdgeTopology edge_topology = morphablemodel::load_edge_topology(edgetopologyfile);
 
 	// Draw the loaded landmarks:
 	Mat outimg = image.clone();
@@ -219,7 +223,7 @@ int main(int argc, char *argv[])
 	// Fit the model, get back a mesh and the pose:
 	core::Mesh mesh;
 	fitting::RenderingParameters rendering_params;
-	std::tie(mesh, rendering_params) = fitting::fit_shape_and_pose(morphable_model, blendshapes, landmarks, landmark_mapper, image.cols, image.rows, edge_topology, ibug_contour, model_contour, 5, boost::none, 30.0f);
+	std::tie(mesh, rendering_params) = fitting::fit_shape_and_pose(morphable_model, blendshapes, landmarks, landmark_mapper, image.cols, image.rows, edge_topology, ibug_contour, model_contour, 5, std::nullopt, 30.0f);
 
 	// The 3D head pose can be recovered as follows:
 	float yaw_angle = glm::degrees(glm::yaw(rendering_params.get_rotation()));
@@ -232,7 +236,7 @@ int main(int argc, char *argv[])
 
 	// Draw the fitted mesh as wireframe, and save the image:
 	draw_wireframe(outimg, mesh, rendering_params.get_modelview(), rendering_params.get_projection(), fitting::get_opencv_viewport(image.cols, image.rows));
-	outputfile += fs::path(".png");
+	fs::path outputfile = outputbasename + ".png";
 	cv::imwrite(outputfile.string(), outimg);
 
 	// Save the mesh as textured obj:
