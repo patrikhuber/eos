@@ -23,6 +23,7 @@
 
 #include "cxxopts.hpp"
 
+#include <array>
 #include <vector>
 #include <iostream>
 #include <fstream>
