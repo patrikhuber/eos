@@ -25,6 +25,7 @@
 #include "glm/mat3x3.hpp"
 
 #include "Eigen/Core"
+#include "Eigen/Dense"
 #include "Eigen/SVD"
 
 #include <vector>
