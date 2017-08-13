@@ -21,8 +21,7 @@
 
 #include "Eigen/Core"
 
-#include "boost/program_options.hpp"
-#include "boost/filesystem.hpp"
+#include "cxxopts.hpp"
 
 #include <vector>
 #include <iostream>
@@ -30,8 +29,6 @@
 #include <string>
 
 using namespace eos;
-namespace po = boost::program_options;
-namespace fs = boost::filesystem;
 using std::cout;
 using std::endl;
 using std::vector;
@@ -72,38 +69,34 @@ std::vector<std::array<double, 2>> read_texcoords_from_obj(std::string obj_file)
  */
 int main(int argc, char *argv[])
 {
-	fs::path bfm_file, obj_file, outputfile;
+	std::string bfm_file, obj_file, outputfile;
 	std::string file_type;
 	try {
-		po::options_description desc("Allowed options");
-		desc.add_options()
-			("help,h",
-				"display the help message")
-			("input,i", po::value<fs::path>(&bfm_file)->required(),
-				"input raw binary model file from Matlab script")
-			("texture-coordinates,t", po::value<fs::path>(&obj_file),
-				"optional .obj file to read texture coordinates from")
-			("output,o", po::value<fs::path>(&outputfile)->required()->default_value("bfm2009.bin"),
-				"output filename for the converted .bin file")
+		cxxopts::Options options("bfm-binary-to-cereal");
+		options.add_options()
+			("h,help", "display the help message")
+			("i,input", "input raw binary model file from Matlab script",
+				cxxopts::value<std::string>(bfm_file))
+			("t,texture-coordinates", "optional .obj file to read texture coordinates from",
+				cxxopts::value<std::string>(obj_file)) // optional argument
+			("o,output", "output filename for the converted .bin file",
+				cxxopts::value<std::string>(outputfile)->default_value("bfm2009.bin"))
 			;
-		po::variables_map vm;
-		po::store(po::command_line_parser(argc, argv).options(desc).run(), vm);
-		if (vm.count("help")) {
-			cout << "Usage: bfm-binary-to-cereal [options]" << endl;
-			cout << desc;
+		options.parse(argc, argv);
+		if (options.count("help")) {
+			cout << options.help() << endl;
 			return EXIT_SUCCESS;
 		}
-		po::notify(vm);
 	}
-	catch (const po::error& e) {
+	catch (const cxxopts::OptionException& e) {
 		cout << "Error while parsing command-line arguments: " << e.what() << endl;
 		cout << "Use --help to display a list of options." << endl;
 		return EXIT_FAILURE;
 	}
 
-	std::ifstream file(bfm_file.string(), std::ios::binary);
+	std::ifstream file(bfm_file, std::ios::binary);
 	if (!file.is_open()) {
-		std::cout << "Unable to open model file: " << bfm_file.string() << std::endl;
+		std::cout << "Unable to open model file: " << bfm_file << std::endl;
 		return EXIT_FAILURE;
 	}
 
@@ -111,7 +104,7 @@ int main(int argc, char *argv[])
 	std::vector<std::array<double, 2>> texture_coordinates;
 	if (!obj_file.empty())
 	{
-		texture_coordinates = read_texcoords_from_obj(obj_file.string());
+		texture_coordinates = read_texcoords_from_obj(obj_file);
 	}
 
 	// Read the shape model - first some dimensions:
@@ -233,8 +226,8 @@ int main(int argc, char *argv[])
 	}
 
 	morphablemodel::MorphableModel morphable_model(shape_model, color_model, texture_coordinates);
-	morphablemodel::save_model(morphable_model, outputfile.string());
+	morphablemodel::save_model(morphable_model, outputfile);
 
-	cout << "Saved eos .bin model as " << outputfile.string() << "." << endl;
+	cout << "Saved eos .bin model as " << outputfile << "." << endl;
 	return EXIT_SUCCESS;
 }
