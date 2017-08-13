@@ -24,7 +24,6 @@
 #include "eos/morphablemodel/MorphableModel.hpp"
 #include "eos/morphablemodel/Blendshape.hpp"
 #include "eos/fitting/fitting.hpp"
-#include "eos/render/utils.hpp"
 #include "eos/render/texture_extraction.hpp"
 
 #include "Eigen/Core"
