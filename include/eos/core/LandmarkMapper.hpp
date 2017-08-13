@@ -138,8 +138,6 @@ public:
 	 *
 	 * @param[in] landmark_name A landmark name to convert.
 	 * @return The mapped landmark name if a mapping exists, an empty optional otherwise.
-	 * @throws out_of_range exception if there is no mapping
-	 *         for the given landmarkName.
 	 */
 	std::optional<std::string> convert(std::string landmark_name) const
 	{
