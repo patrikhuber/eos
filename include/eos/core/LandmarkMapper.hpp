@@ -22,12 +22,11 @@
 #ifndef LANDMARKMAPPER_HPP_
 #define LANDMARKMAPPER_HPP_
 
+#include "toml.hpp"
+
 #include <string>
-#include <map>
-#include <fstream>
-#include <sstream>
+#include <unordered_map>
 #include <stdexcept>
-#include <algorithm>
 #include <optional>
 
 namespace eos {
@@ -65,72 +64,28 @@ public:
 	 * that performs an identity mapping is constructed.
 	 *
 	 * @param[in] filename A file with landmark mappings.
-	 * @throws runtime_error if there is an error loading the mappings from the file.
+	 * @throws runtime_error or toml::exception if there is an error loading the mappings from the file.
 	 */
 	LandmarkMapper(std::string filename)
 	{
-		using std::string;
-		using std::getline;
+		// parse() as well as extracting the data can throw std::runtime error or toml::exception,
+		// so ideally you'd want to call this c'tor within a try-catch.
+		const auto data = toml::parse(filename);
 
-		std::ifstream file(filename);
-		if (!file.is_open()) {
-			throw std::runtime_error(string("LandmarkMapper: Could not open landmark mappings file: " + filename));
-		}
-
-		// We'll need these helper functions for the parsing:
-		auto starts_with = [](const std::string& input, const std::string& match)
+		const auto mappings_table = toml::get<toml::Table>(data.at("landmark_mappings"));
+		// The key in the config is always a string. The value however may be a string or an integer, so we check for that and convert to a string.
+		for (const auto& mapping : mappings_table)
 		{
-			return input.size() >= match.size() && std::equal(match.begin(), match.end(), input.begin());
-		};
+			std::string f = mapping.first;
+			std::string value;
+			switch (mapping.second.type()) {
+				case toml::value_t::Integer: value = std::to_string(toml::get<int>(mapping.second)); break;
+				case toml::value_t::String: value = toml::get<std::string>(mapping.second); break;
+				default: throw std::runtime_error("unexpected type : " + toml::stringize(mapping.second.type()));
+			}
 
-		auto trim_left = [](const std::string& input, std::string pattern = " \t")
-		{
-			auto first = input.find_first_not_of(pattern);
-			if (first == std::string::npos)
-			{
-				return input;
-			}
-			return input.substr(first, input.size());
-		};
-
-		// Read the actual file:
-		string line;
-		// Skip any comments (";") or empty lines at the beginning:
-		while (getline(file, line)) {
-			if (!starts_with(line, ";") && line != "")
-			{
-				// not a commented or not an empty line
-				break;
-			}
+			landmark_mappings.emplace(mapping.first, value);
 		}
-		// First actual line should be "landmarkMappings"
-		if (!starts_with(line, "landmarkMappings")) {
-			throw std::runtime_error("LandmarkMapper error: First non-comment line should be \"landmarkMappings\".");
-		}
-		getline(file, line);
-		// The next line has to be "{":
-		if (line != "{") {
-			throw std::runtime_error("LandmarkMapper error: Expected a \"{\" on the line following the \"landmarkMappings\" statement.");
-		}
-		
-		while (getline(file, line))
-		{
-			if (line == "}") { // end of the landmarkMappings block
-				break;
-			}
-			// on comment, continue:
-			if (starts_with(trim_left(line), ";"))
-			{
-				continue;
-			}
-			std::stringstream line_stream(line);
-			string lhs, rhs;
-			if (!(line_stream >> lhs >> rhs)) {
-				throw std::runtime_error(string("Landmark mappings format error while parsing the line: " + line));
-			}
-			landmark_mappings.insert(std::make_pair(lhs, rhs));
-		}
-		// We're at the end of the "landmarkMappings { ... }" block. Something else may follow, but we don't care.
 	};
 
 	/**
@@ -167,7 +122,7 @@ public:
 	};
 
 private:
-	std::map<std::string, std::string> landmark_mappings; ///< Mapping from one landmark name to a name in a different format.
+	std::unordered_map<std::string, std::string> landmark_mappings; ///< Mapping from one landmark name to a name in a different format.
 };
 
 	} /* namespace core */

@@ -27,6 +27,8 @@
 
 #include "cereal/archives/json.hpp"
 
+#include "toml.hpp"
+
 #include "glm/gtc/matrix_transform.hpp"
 
 #include "Eigen/Core"
@@ -75,7 +77,8 @@ struct ModelContour
 	 * Helper method to load a ModelContour from
 	 * a json file from the hard drive.
 	 *
-	 * Eventually, it might be included in the MorphableModel class.
+	 * Note: Eventually, it might be included in the MorphableModel class.
+	 * Also, for consistency, we should probably switch to toml for this file.
 	 *
 	 * @param[in] filename Filename to a model.
 	 * @return The loaded ModelContour.
@@ -140,123 +143,43 @@ struct ContourLandmarks
 	 *
 	 * @param[in] filename Filename to a landmark-mapping file.
 	 * @return A ContourLandmarks instance with loaded 2D contour landmarks.
-	 * @throw std::runtime_error When the file given in \c filename fails to be opened (most likely because the file doesn't exist).
+	 * @throw std::runtime_error runtime_error or toml::exception if there is an error loading the landmarks from the file.
 	 */
 	static ContourLandmarks load(std::string filename)
 	{
-		using std::string;
-		using std::getline;
+		// parse() as well as extracting the data can throw std::runtime error or toml::exception,
+		// so ideally you'd want to call this c'tor within a try-catch.
+		const auto data = toml::parse(filename);
+
+		// Todo: Handle the case when '[contour_landmarks]' is empty - now it just throws. Use std::unordered_map::count.
+		const auto contour_table = toml::get<toml::Table>(data.at("contour_landmarks"));
 
 		ContourLandmarks contour;
-
-		std::ifstream file(filename);
-		if (!file.is_open()) {
-			throw std::runtime_error(string("ContourLandmarks: Could not open landmark mappings file: " + filename));
-		}
-
-		// We'll need these helper functions for the parsing:
-		auto starts_with = [](const std::string& input, const std::string& match)
+		// There might be a vector<string> or a vector<int>, we need to check for that and convert to vector<string>.
+		// Todo: Again, check whether the key exists first.
+		// Read all the "right" contour landmarks:
+		const auto right_contour = toml::get<std::vector<toml::value>>(contour_table.at("right"));
+		for (const auto& landmark : right_contour)
 		{
-			return input.size() >= match.size() && std::equal(match.begin(), match.end(), input.begin());
-		};
-
-		auto trim_left = [](const std::string& input, std::string pattern = " \t")
-		{
-			auto first = input.find_first_not_of(pattern);
-			if (first == std::string::npos)
-			{
-				return input;
-			}
-			return input.substr(first, input.size());
-		};
-
-		// Read the actual file:
-		string line;
-		// Skip any comments (";") or empty lines at the beginning:
-		while (getline(file, line)) {
-			if (!starts_with(line, ";") && line != "")
-			{
-				// not a commented or not an empty line
-				break;
-			}
-		}
-		// First actual line should be "landmarkMappings"
-		if (!starts_with(line, "landmarkMappings")) {
-			throw std::runtime_error("ContourLandmarks error: First non-comment line should be \"landmarkMappings\".");
-		}
-		getline(file, line);
-		// The next line has to be "{":
-		if (line != "{") {
-			throw std::runtime_error("ContourLandmarks error: Expected a \"{\" on the line following the \"landmarkMappings\" statement.");
-		}
-		// Skip the whole landmarkMappings block:
-		while (getline(file, line))
-		{
-			if (line == "}") { // end of the block
-				break;
-			}
-		}
-
-		// Next actual line should be "contour_landmarks":
-		getline(file, line);
-		if (!starts_with(line, "contour_landmarks")) {
-			throw std::runtime_error("ContourLandmarks error: Expected a \"contour_landmarks\" block.");
-		}
-		getline(file, line);
-		// The next line has to be "{":
-		if (line != "{") {
-			throw std::runtime_error("ContourLandmarks error: Expected a \"{\" on the line following the \"contour_landmarks\" statement.");
-		}
-		getline(file, line);
-		// The next line has to be "right {":
-		if (trim_left(line) != "right {") {
-			throw std::runtime_error("ContourLandmarks error: Expected a line containing \"right {\".");
-		}
-		// Now read all the "right" contour landmarks:
-		while (getline(file, line))
-		{
-			if (trim_left(line) == "}") { // end of the block
-				break;
-			}
-			// on comment, continue:
-			if (starts_with(trim_left(line), ";"))
-			{
-				continue;
-			}
-			std::stringstream line_stream(line);
-			string value;
-			if (!(line_stream >> value)) {
-				throw std::runtime_error(string("Contour landmarks format error while parsing the line: " + line));
+			std::string value;
+			switch (landmark.type()) {
+				case toml::value_t::Integer: value = std::to_string(toml::get<int>(landmark)); break;
+				case toml::value_t::String: value = toml::get<std::string>(landmark); break;
+				default: throw std::runtime_error("unexpected type : " + toml::stringize(landmark.type()));
 			}
 			contour.right_contour.push_back(value);
 		}
-		// The next line has to be "left {":
-		getline(file, line);
-		if (trim_left(line) != "left {") {
-			throw std::runtime_error("ContourLandmarks error: Expected a line containing \"left {\".");
-		}
-		// Now read all the "left" contour landmarks:
-		while (getline(file, line))
+		// Now the same for all the "left" contour landmarks:
+		const auto left_contour = toml::get<std::vector<toml::value>>(contour_table.at("left"));
+		for (const auto& landmark : left_contour)
 		{
-			if (trim_left(line) == "}") { // end of the block
-				break;
-			}
-			// on comment, continue:
-			if (starts_with(trim_left(line), ";"))
-			{
-				continue;
-			}
-			std::stringstream line_stream(line);
-			string value;
-			if (!(line_stream >> value)) {
-				throw std::runtime_error(string("Contour landmarks format error while parsing the line: " + line));
+			std::string value;
+			switch (landmark.type()) {
+				case toml::value_t::Integer: value = std::to_string(toml::get<int>(landmark)); break;
+				case toml::value_t::String: value = toml::get<std::string>(landmark); break;
+				default: throw std::runtime_error("unexpected type : " + toml::stringize(landmark.type()));
 			}
 			contour.left_contour.push_back(value);
-		}
-		getline(file, line);
-		// The last line has to be the "}" closing the contour_landmarks block:
-		if (line != "}") {
-			throw std::runtime_error("ContourLandmarks error: Expected a line containing \"}\".");
 		}
 
 		return contour;

@@ -58,6 +58,7 @@ set(CEREAL_INCLUDE_DIR "${eos_3RDPARTY_DIR}/cereal/include")
 set(glm_INCLUDE_DIR "${eos_3RDPARTY_DIR}/glm")
 set(nanoflann_INCLUDE_DIR "${eos_3RDPARTY_DIR}/nanoflann/include")
 set(eigen3_nnls_INCLUDE_DIR "${eos_3RDPARTY_DIR}/eigen3-nnls/src")
+set(toml11_INCLUDE_DIR "${eos_3RDPARTY_DIR}/toml11")
 
 # Header files of the eos library:
 set(HEADERS
@@ -117,6 +118,7 @@ target_include_directories(eos INTERFACE ${EIGEN3_INCLUDE_DIR})
 target_include_directories(eos INTERFACE ${glm_INCLUDE_DIR})
 target_include_directories(eos INTERFACE ${nanoflann_INCLUDE_DIR})
 target_include_directories(eos INTERFACE ${eigen3_nnls_INCLUDE_DIR})
+target_include_directories(eos INTERFACE ${toml11_INCLUDE_DIR})
 
 # Custom target for the library, to make the headers show up in IDEs:
 add_custom_target(eos-headers SOURCES ${HEADERS})
@@ -140,6 +142,7 @@ install(DIRECTORY ${eos_3RDPARTY_DIR}/nanoflann/include/ DESTINATION 3rdparty/na
 install(FILES ${eos_3RDPARTY_DIR}/nanoflann/COPYING DESTINATION 3rdparty/nanoflann/) # nanoflann licence
 install(DIRECTORY ${eos_3RDPARTY_DIR}/eigen3-nnls/src/ DESTINATION 3rdparty/eigen3-nnls/src) # eigen3-nnls header
 install(FILES ${eos_3RDPARTY_DIR}/eigen3-nnls/README.md DESTINATION 3rdparty/eigen3-nnls/) # eigen3-nnls attribution
+install(DIRECTORY ${eos_3RDPARTY_DIR}/toml11/ DESTINATION 3rdparty/toml11) # toml11 headers
 # Install Eigen headers if we're using the Eigen submodule included with eos:
 if(EIGEN3_INCLUDE_DIR STREQUAL ${eos_3RDPARTY_DIR}/eigen)
   install(DIRECTORY ${eos_3RDPARTY_DIR}/eigen/Eigen/ DESTINATION 3rdparty/eigen/Eigen)
