@@ -258,7 +258,7 @@ int main(int argc, char *argv[])
 	Problem camera_costfunction;
 	for (int i = 0; i < image_points.size(); ++i)
 	{
-		CostFunction* cost_function = new AutoDiffCostFunction<fitting::LandmarkCost, 2 /* num residuals */, 4 /* camera rotation (quaternion) */, num_cam_trans_intr_params /* camera translation & fov/frustum_scale */, 10 /* shape-coeffs */, 6 /* bs-coeffs */>(new fitting::LandmarkCost(morphable_model.get_shape_model(), blendshapes, image_points[i], vertex_indices[i], image.cols, image.rows, use_perspective));
+		CostFunction* cost_function = new AutoDiffCostFunction<fitting::LandmarkCost, 2 /* num residuals */, 4 /* camera rotation (quaternion) */, num_cam_trans_intr_params /* camera translation & fov/frustum_scale */, 10 /* shape-coeffs */, 6 /* bs-coeffs */>(new fitting::LandmarkCost(morphable_model.get_shape_model(), blendshapes, image_points[i], vertex_indices[i], 10, image.cols, image.rows, use_perspective));
 		camera_costfunction.AddResidualBlock(cost_function, NULL, &camera_rotation[0], &camera_translation_and_intrinsics[0], &shape_coefficients[0], &blendshape_coefficients[0]);
 	}
 	camera_costfunction.SetParameterBlockConstant(&shape_coefficients[0]); // keep the shape constant
@@ -344,7 +344,7 @@ int main(int argc, char *argv[])
 	// Landmark constraint:
 	for (int i = 0; i < image_points.size(); ++i)
 	{
-		CostFunction* cost_function = new AutoDiffCostFunction<fitting::LandmarkCost, 2 /* num residuals */, 4 /* camera rotation (quaternion) */, num_cam_trans_intr_params /* camera translation & focal length */, 10 /* shape-coeffs */, 6 /* bs-coeffs */>(new fitting::LandmarkCost(morphable_model.get_shape_model(), blendshapes, image_points[i], vertex_indices[i], image.cols, image.rows, use_perspective));
+		CostFunction* cost_function = new AutoDiffCostFunction<fitting::LandmarkCost, 2 /* num residuals */, 4 /* camera rotation (quaternion) */, num_cam_trans_intr_params /* camera translation & focal length */, 10 /* shape-coeffs */, 6 /* bs-coeffs */>(new fitting::LandmarkCost(morphable_model.get_shape_model(), blendshapes, image_points[i], vertex_indices[i], 10, image.cols, image.rows, use_perspective));
 		fitting_costfunction.AddResidualBlock(cost_function, NULL, &camera_rotation[0], &camera_translation_and_intrinsics[0], &shape_coefficients[0], &blendshape_coefficients[0]);
 	}
 	// Shape prior:
@@ -388,7 +388,7 @@ int main(int argc, char *argv[])
 	// Add a residual for each vertex:
 	for (int i = 0; i < morphable_model.get_shape_model().get_data_dimension() / 3; ++i)
 	{
-		CostFunction* cost_function = new AutoDiffCostFunction<fitting::ImageCost, 3 /* Residuals: [R, G, B] */, 4 /* camera rotation (quaternion) */, num_cam_trans_intr_params /* camera translation & focal length */, 10 /* shape-coeffs */, 6 /* bs-coeffs */, 10 /* colour coeffs */>(new fitting::ImageCost(morphable_model, blendshapes, image, i, use_perspective));
+		CostFunction* cost_function = new AutoDiffCostFunction<fitting::ImageCost, 3 /* Residuals: [R, G, B] */, 4 /* camera rotation (quaternion) */, num_cam_trans_intr_params /* camera translation & focal length */, 10 /* shape-coeffs */, 6 /* bs-coeffs */, 10 /* colour coeffs */>(new fitting::ImageCost(morphable_model, blendshapes, image, i, 10, 10, use_perspective));
 		fitting_costfunction.AddResidualBlock(cost_function, NULL, &camera_rotation[0], &camera_translation_and_intrinsics[0], &shape_coefficients[0], &blendshape_coefficients[0], &colour_coefficients[0]);
 	}
 	// Prior for the colour coefficients:

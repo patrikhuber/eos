@@ -40,10 +40,10 @@ namespace eos {
 
 // Forward declarations:
 template <typename T>
-std::array<T, 3> get_shape_point(const morphablemodel::PcaModel& shape_model, const std::vector<morphablemodel::Blendshape>& blendshapes, int vertex_id, const T* const shape_coeffs, const T* const blendshape_coeffs);
+std::array<T, 3> get_shape_point(const morphablemodel::PcaModel& shape_model, const std::vector<morphablemodel::Blendshape>& blendshapes, int vertex_id, int num_coeffs_fitting, const T* const shape_coeffs, const T* const blendshape_coeffs);
 
 template <typename T>
-std::array<T, 3> get_vertex_colour(const morphablemodel::PcaModel& colour_model, int vertex_id, const T* const colour_coeffs);
+std::array<T, 3> get_vertex_colour(const morphablemodel::PcaModel& color_model, int vertex_id, int num_coeffs_fitting, const T* const color_coeffs);
 
 /**
  * Cost function for a prior on the parameters.
@@ -103,11 +103,12 @@ struct LandmarkCost {
 	 * @param[in] blendshapes A set of 3D blendshapes. Do not use a temporary.
 	 * @param[in] observed_landmark An observed 2D landmark in an image.
 	 * @param[in] vertex_id The vertex id that the given observed landmark corresponds to.
+	 * @param[in] num_shape_fit_coeffs Number of PCA shape basis vectors to use.
 	 * @param[in] image_width Width of the image that the 2D landmark is from (needed for the model projection).
 	 * @param[in] image_height Height of the image.
 	 * @param[in] use_perspective Whether a perspective or an orthographic projection should be used.
 	 */
-	LandmarkCost(const morphablemodel::PcaModel& shape_model, const std::vector<morphablemodel::Blendshape>& blendshapes, cv::Vec2f observed_landmark, int vertex_id, int image_width, int image_height, bool use_perspective) : shape_model(shape_model), blendshapes(blendshapes), observed_landmark(observed_landmark), vertex_id(vertex_id), image_width(image_width), image_height(image_height), aspect_ratio(static_cast<double>(image_width) / image_height), use_perspective(use_perspective) {};
+	LandmarkCost(const morphablemodel::PcaModel& shape_model, const std::vector<morphablemodel::Blendshape>& blendshapes, cv::Vec2f observed_landmark, int vertex_id, int num_shape_fit_coeffs, int image_width, int image_height, bool use_perspective) : shape_model(shape_model), blendshapes(blendshapes), observed_landmark(observed_landmark), vertex_id(vertex_id), num_shape_fit_coeffs(num_shape_fit_coeffs), image_width(image_width), image_height(image_height), aspect_ratio(static_cast<double>(image_width) / image_height), use_perspective(use_perspective) {};
 
 	/**
 	 * Landmark cost function implementation.
@@ -128,7 +129,7 @@ struct LandmarkCost {
 		using namespace glm;
 		// Generate shape instance (of only one vertex id!) using current parameters and 10 shape coefficients:
 		// Note: Why are we not returning a glm::tvec3<T>?
-		const auto point_arr = get_shape_point<T>(shape_model, blendshapes, vertex_id, shape_coeffs, blendshape_coeffs);
+		const auto point_arr = get_shape_point<T>(shape_model, blendshapes, vertex_id, num_shape_fit_coeffs, shape_coeffs, blendshape_coeffs);
 
 		// Project the point to 2D:
 		const tvec3<T> point_3d(point_arr[0], point_arr[1], point_arr[2]);
@@ -169,6 +170,7 @@ private:
 	const int image_height;
 	const double aspect_ratio;
 	const bool use_perspective;
+	const int num_shape_fit_coeffs;
 };
 
 /**
@@ -191,10 +193,12 @@ struct ImageCost {
 	 * @param[in] blendshapes A set of 3D blendshapes. Do not use a temporary.
 	 * @param[in] image The observed image. TODO: We should assert that the image we get is 8UC3!
 	 * @param[in] vertex_id Vertex id of the 3D model that should be projected and measured.
+	 * @param[in] num_shape_fit_coeffs Number of PCA shape basis vectors to use.
+	 * @param[in] num_color_fit_coeffs Number of PCA colour basis vectors to use.
 	 * @param[in] use_perspective Whether a perspective or an orthographic projection should be used.
 	 * @throws std::runtime_error if the given \c image is not of type CV_8UC3.
 	 */
-	ImageCost(const morphablemodel::MorphableModel& morphable_model, const std::vector<morphablemodel::Blendshape>& blendshapes, cv::Mat image, int vertex_id, bool use_perspective) : morphable_model(morphable_model), blendshapes(blendshapes), image(image), aspect_ratio(static_cast<double>(image.cols) / image.rows), vertex_id(vertex_id), use_perspective(use_perspective)
+	ImageCost(const morphablemodel::MorphableModel& morphable_model, const std::vector<morphablemodel::Blendshape>& blendshapes, cv::Mat image, int vertex_id, int num_shape_fit_coeffs, int num_color_fit_coeffs, bool use_perspective) : morphable_model(morphable_model), blendshapes(blendshapes), image(image), aspect_ratio(static_cast<double>(image.cols) / image.rows), vertex_id(vertex_id), num_shape_fit_coeffs(num_shape_fit_coeffs), num_color_fit_coeffs(num_color_fit_coeffs) ,use_perspective(use_perspective)
 	{
 		if (image.type() != CV_8UC3)
 		{
@@ -227,7 +231,7 @@ struct ImageCost {
 		using namespace glm;
 		// Note: The following is all duplicated code with LandmarkCost. Fix if possible performance-wise.
 		// Generate 3D shape point using the current parameters:
-		const auto point_arr = get_shape_point<T>(morphable_model.get_shape_model(), blendshapes, vertex_id, shape_coeffs, blendshape_coeffs);
+		const auto point_arr = get_shape_point<T>(morphable_model.get_shape_model(), blendshapes, vertex_id, num_shape_fit_coeffs, shape_coeffs, blendshape_coeffs);
 
 		// Project the point to 2D:
 		const tvec3<T> point_3d(point_arr[0], point_arr[1], point_arr[2]);
@@ -282,7 +286,7 @@ struct ImageCost {
 			interpolator.Evaluate(projected_point.y, projected_point.x, &observed_colour[0]);
 
 			// This probably needs to be modified if we add a light model.
-			auto model_colour = get_vertex_colour(morphable_model.get_color_model(), vertex_id, color_coeffs);
+			auto model_colour = get_vertex_colour(morphable_model.get_color_model(), vertex_id, num_color_fit_coeffs, color_coeffs);
 			// I think this returns RGB, and between [0, 1].
 
 			// Residual: Vertex colour of model point minus the observed colour in the 2D image
@@ -301,6 +305,8 @@ private:
 	const double aspect_ratio;
 	const int vertex_id;
 	const bool use_perspective;
+	const int num_shape_fit_coeffs;
+	const int num_color_fit_coeffs;
 };
 
 /**
@@ -309,14 +315,15 @@ private:
  * @param[in] shape_model A PCA 3D shape model.
  * @param[in] blendshapes A set of 3D blendshapes.
  * @param[in] vertex_id Vertex id of the 3D model that should be projected.
+ * @param[in] num_coeffs_fitting Number of PCA shape basis vectors to use.
  * @param[in] shape_coeffs A set of PCA shape coefficients used to generate the point.
  * @param[in] blendshape_coeffs A set of blendshape coefficients used to generate the point.
  * @return The 3D point.
  */
 template <typename T>
-std::array<T, 3> get_shape_point(const morphablemodel::PcaModel& shape_model, const std::vector<morphablemodel::Blendshape>& blendshapes, int vertex_id, const T* const shape_coeffs, const T* const blendshape_coeffs)
+std::array<T, 3> get_shape_point(const morphablemodel::PcaModel& shape_model, const std::vector<morphablemodel::Blendshape>& blendshapes, int vertex_id, int num_coeffs_fitting, const T* const shape_coeffs, const T* const blendshape_coeffs)
 {
-	int num_coeffs_fitting = 10; // Todo: Should be inferred or a function parameter!
+	assert(num_coeffs_fitting > 0 && num_coeffs_fitting < shape_model.get_num_principal_components() && "number of shape coefficients not compatible with model");
 	auto mean = shape_model.get_mean_at_point(vertex_id);
 	auto basis = shape_model.get_rescaled_pca_basis_at_point(vertex_id);
 	// Computing Shape = mean + basis * coeffs:
@@ -351,13 +358,14 @@ std::array<T, 3> get_shape_point(const morphablemodel::PcaModel& shape_model, co
  *
  * @param[in] color_model A PCA 3D colour (albedo) model.
  * @param[in] vertex_id Vertex id of the 3D model whose colour is to be returned.
+ * @param[in] num_coeffs_fitting Number of PCA colour basis vectors to use.
  * @param[in] color_coeffs A set of PCA colour coefficients.
  * @return The colour. As RGB? In [0, 1]?
  */
 template <typename T>
-std::array<T, 3> get_vertex_colour(const morphablemodel::PcaModel& color_model, int vertex_id, const T* const color_coeffs)
+std::array<T, 3> get_vertex_colour(const morphablemodel::PcaModel& color_model, int vertex_id, int num_coeffs_fitting, const T* const color_coeffs)
 {
-	int num_coeffs_fitting = 10; // Todo: Should be inferred or a function parameter!
+	assert(num_coeffs_fitting > 0 && num_coeffs_fitting < color_model.get_num_principal_components() && "number of colour coefficients not compatible with model");
 	auto mean = color_model.get_mean_at_point(vertex_id);
 	auto basis = color_model.get_rescaled_pca_basis_at_point(vertex_id);
 	// Computing Colour = mean + basis * coeffs
