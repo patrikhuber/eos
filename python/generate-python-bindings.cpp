@@ -50,8 +50,8 @@ using namespace eos;
 /**
  * Generate python bindings for the eos library using pybind11.
  */
-PYBIND11_PLUGIN(eos) {
-    py::module eos_module("eos", "Python bindings for the eos 3D Morphable Face Model fitting library.\n\nFor an overview of the functionality, see the documentation of the submodules. For the full documentation, see the C++ doxygen documentation.");
+PYBIND11_MODULE(eos, eos_module) {
+	eos_module.doc() = "Python bindings for the eos 3D Morphable Face Model fitting library.\n\nFor an overview of the functionality, see the documentation of the submodules. For the full documentation, see the C++ doxygen documentation.";
 
 	/**
 	 * Bindings for the eos::core namespace:
@@ -231,5 +231,4 @@ PYBIND11_PLUGIN(eos) {
 		return render::extract_texture(mesh, affine_from_ortho, image, compute_view_angle, render::TextureInterpolation::NearestNeighbour, isomap_resolution);
 	}, "Extracts the texture of the face from the given image and stores it as isomap (a rectangular texture map).", py::arg("mesh"), py::arg("rendering_params"), py::arg("image"), py::arg("compute_view_angle") = false, py::arg("isomap_resolution") = 512);
 
-    return eos_module.ptr();
 };
