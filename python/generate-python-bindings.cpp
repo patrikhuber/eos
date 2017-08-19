@@ -23,6 +23,7 @@
 #include "eos/morphablemodel/MorphableModel.hpp"
 #include "eos/morphablemodel/Blendshape.hpp"
 #include "eos/morphablemodel/EdgeTopology.hpp"
+#include "eos/pca/pca.hpp"
 #include "eos/fitting/contour_correspondence.hpp"
 #include "eos/fitting/fitting.hpp"
 #include "eos/fitting/orthographic_camera_estimation_linear.hpp"
