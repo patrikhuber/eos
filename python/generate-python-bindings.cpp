@@ -151,6 +151,18 @@ PYBIND11_PLUGIN(eos) {
 	morphablemodel_module.def("load_edge_topology", &morphablemodel::load_edge_topology, "Load a 3DMM edge topology file from a json file.", py::arg("filename"));
 
 	/**
+	 * Bindings for the eos::pca namespace:
+	 *  - pca()
+	 */
+	py::module pca_module = eos_module.def_submodule("pca", "PCA and functionality to build statistical models.");
+
+	py::enum_<pca::Covariance>(pca_module, "Covariance")
+		.value("AtA", pca::Covariance::AtA)
+		.value("AAt", pca::Covariance::AAt);
+
+	pca_module.def("pca", py::overload_cast<const Eigen::Ref<const Eigen::MatrixXf>, pca::Covariance>(&pca::pca), "Doc", py::arg("data"), py::arg("covariance_type"));
+
+	/**
 	 * Bindings for the eos::fitting namespace:
 	 *  - ScaledOrthoProjectionParameters
 	 *  - RenderingParameters
