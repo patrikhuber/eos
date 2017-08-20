@@ -153,6 +153,7 @@ PYBIND11_MODULE(eos, eos_module) {
 
 	/**
 	 * Bindings for the eos::pca namespace:
+	 *  - Covariance
 	 *  - pca()
 	 */
 	py::module pca_module = eos_module.def_submodule("pca", "PCA and functionality to build statistical models.");
