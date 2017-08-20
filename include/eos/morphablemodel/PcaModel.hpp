@@ -206,6 +206,8 @@ public:
 	 * vectors, but only the block that is relevant for the vertex \p vertex_id.
 	 *
 	 * Todo: Can we return a const & view that points into the original data?
+	 *       I think actually .block returns a const, and by not defining our function
+	 *       const, we might copy the data here actually?
 	 *
 	 * @param[in] vertex_id A vertex index. Make sure it is valid.
 	 * @return A 1x3? 3x1? matrix that points to the rows in the original basis.

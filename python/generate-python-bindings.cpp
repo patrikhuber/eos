@@ -64,9 +64,7 @@ PYBIND11_MODULE(eos, eos_module) {
 	py::module core_module = eos_module.def_submodule("core", "Essential functions and classes to work with 3D face models and landmarks.");
 	py::class_<core::LandmarkMapper>(core_module, "LandmarkMapper", "Represents a mapping from one kind of landmarks to a different format(e.g.model vertices).")
 		.def(py::init<>(), "Constructs a new landmark mapper that performs an identity mapping, that is, its output is the same as the input.")
-		.def("__init__", [](core::LandmarkMapper& instance, std::string filename) { // wrap the fs::path c'tor with std::string
-				new (&instance) core::LandmarkMapper(filename);
-			}, "Constructs a new landmark mapper from a file containing mappings from one set of landmark identifiers to another.", py::arg("filename"))
+		.def(py::init<std::string>(), "Constructs a new landmark mapper from a file containing mappings from one set of landmark identifiers to another.", py::arg("filename"))
 		// We can't expose the convert member function yet - need std::optional (or some trick with self/this and a lambda)
 		;
 
@@ -98,18 +96,18 @@ PYBIND11_MODULE(eos, eos_module) {
 		.def("get_triangle_list", &morphablemodel::PcaModel::get_triangle_list, "Returns a list of triangles on how to assemble the vertices into a mesh.")
 		.def("get_mean", &morphablemodel::PcaModel::get_mean, "Returns the mean of the model.")
 		.def("get_mean_at_point", &morphablemodel::PcaModel::get_mean_at_point, "Return the value of the mean at a given vertex index.", py::arg("vertex_index"))
-		.def("get_orthonormal_pca_basis", [](const morphablemodel::PcaModel& m) { return m.get_orthonormal_pca_basis(); }, "Returns the orthonormal PCA basis matrix, i.e. the eigenvectors. Each column of the matrix is an eigenvector.") // use py::overload in VS2017
-		.def("get_rescaled_pca_basis", [](const morphablemodel::PcaModel& m) { return m.get_rescaled_pca_basis(); }, "Returns the rescaled PCA basis matrix, i.e. the eigenvectors. Each column of the matrix is an eigenvector, and each eigenvector has been rescaled by multiplying it with the square root of its eigenvalue.") // use py::overload in VS2017
+		.def("get_orthonormal_pca_basis", &morphablemodel::PcaModel::get_orthonormal_pca_basis, "Returns the orthonormal PCA basis matrix, i.e. the eigenvectors. Each column of the matrix is an eigenvector.")
+		.def("get_rescaled_pca_basis", &morphablemodel::PcaModel::get_rescaled_pca_basis, "Returns the rescaled PCA basis matrix, i.e. the eigenvectors. Each column of the matrix is an eigenvector, and each eigenvector has been rescaled by multiplying it with the square root of its eigenvalue.")
 		.def("get_eigenvalues", &morphablemodel::PcaModel::get_eigenvalues, "Returns the models eigenvalues.")
 		.def("draw_sample", (Eigen::VectorXf(morphablemodel::PcaModel::*)(std::vector<float>) const)&morphablemodel::PcaModel::draw_sample, "Returns a sample from the model with the given PCA coefficients. The given coefficients should follow a standard normal distribution, i.e. not be scaled with their eigenvalues/variances.", py::arg("coefficients"))
 		;
 
 	py::class_<morphablemodel::MorphableModel>(morphablemodel_module, "MorphableModel", "A class representing a 3D Morphable Model, consisting of a shape- and colour (albedo) PCA model, as well as texture (uv) coordinates.")
 		.def(py::init<morphablemodel::PcaModel, morphablemodel::PcaModel, std::vector<std::array<double, 2>>>(), "Create a Morphable Model from a shape and a colour PCA model, and optional texture coordinates.", py::arg("shape_model"), py::arg("color_model"), py::arg("texture_coordinates") = std::vector<std::array<double, 2>>())
-		.def("get_shape_model", [](const morphablemodel::MorphableModel& m) { return m.get_shape_model(); }, "Returns the PCA shape model of this Morphable Model.") // Not sure if that'll really be const in Python? I think Python does a copy each time this gets called?
-		.def("get_color_model", [](const morphablemodel::MorphableModel& m) { return m.get_color_model(); }, "Returns the PCA colour (albedo) model of this Morphable Model.") // (continued from above:) We may want to use py::overload, but in any case, we need to tell pybind11 if it should use the const or non-const overload.
+		.def("get_shape_model", &morphablemodel::MorphableModel::get_shape_model, "Returns the PCA shape model of this Morphable Model.") // Not sure if that'll really be const in Python? I think Python does a copy each time this gets called?
+		.def("get_color_model", &morphablemodel::MorphableModel::get_color_model, "Returns the PCA colour (albedo) model of this Morphable Model.")
 		.def("get_mean", &morphablemodel::MorphableModel::get_mean, "Returns the mean of the shape- and colour model as a Mesh.")
-		.def("draw_sample", (core::Mesh(morphablemodel::MorphableModel::*)(std::vector<float>, std::vector<float>) const)&morphablemodel::MorphableModel::draw_sample, "Returns a sample from the model with the given shape- and colour PCA coefficients.", py::arg("shape_coefficients"), py::arg("color_coefficients"))
+		.def("draw_sample", &morphablemodel::MorphableModel::draw_sample, "Returns a sample from the model with the given shape- and colour PCA coefficients.", py::arg("shape_coefficients"), py::arg("color_coefficients"))
 		.def("has_color_model", &morphablemodel::MorphableModel::has_color_model, "Returns true if this Morphable Model contains a colour model, and false if it is a shape-only model.")
 		.def("get_texture_coordinates", &morphablemodel::MorphableModel::get_texture_coordinates, "Returns the texture coordinates for all the vertices in the model.")
 		;
