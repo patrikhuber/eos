@@ -105,16 +105,11 @@ inline std::pair<Eigen::MatrixXf, Eigen::VectorXf> pca(const Eigen::Ref<const Ei
 	// (see e.g. https://math.stackexchange.com/questions/787822/how-do-covariance-matrix-c-aat-justify-the-actual-ata-in-pca)
 	// (note the signs might be different from the AtA solution but that's not a problem as the sign of eigenvectors are arbitrary anyway)
 	eigenvectors = data.adjoint() * eigenvectors;
-	for (int c = 0; c < eigenvectors.cols(); ++c)
-	{
-		eigenvectors.col(c) *= 1.0 / std::sqrt(eigenvalues(c));
-	}
-	// Maybe we can do this instead of the for loop?:
-	//VectorXd evals_rsqrts = e_aat.array().rsqrt();
-	//RowMajorMatrixXd b_aat_to_ata_all_normalised = b_aat_to_ata_all.cw * evals_rsqrts;
-	// What about next 2 lines, not sure:
-	//b_aat_to_ata_all.col(2) *= 1.0 / std::sqrt(e_aat(2)); // first eigenvector is identical
-	//b_aat_to_ata_all.col(1) *= 1.0 / std::sqrt(e_aat(1)); // this one needs multiplication by -1... odd!
+
+        // Multiply each eigenvector (column) with one over the square root of its respective eigenvalue (1/sqrt(eigenvalue(i))):
+        // (this is a neat short-hand notation, see https://stackoverflow.com/a/42945996/1345959).
+        const VectorXf one_over_sqrt_eigenvalues = eigenvalues.array().rsqrt();
+        eigenvectors *= one_over_sqrt_eigenvalues.asDiagonal();
 
 	// Compensate for the covariance division by (n - 1) above:
 	eigenvectors /= std::sqrt(data.rows() - 1);
