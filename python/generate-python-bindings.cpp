@@ -157,11 +157,14 @@ PYBIND11_MODULE(eos, eos_module) {
 	 */
 	py::module pca_module = eos_module.def_submodule("pca", "PCA and functionality to build statistical models.");
 
-	py::enum_<pca::Covariance>(pca_module, "Covariance")
+	py::enum_<pca::Covariance>(pca_module, "Covariance", "A flag specifying how to compute the covariance matrix in the PCA.")
 		.value("AtA", pca::Covariance::AtA)
 		.value("AAt", pca::Covariance::AAt);
 
-	pca_module.def("pca", py::overload_cast<const Eigen::Ref<const Eigen::MatrixXf>, pca::Covariance>(&pca::pca), "Doc", py::arg("data"), py::arg("covariance_type"));
+	pca_module.def("pca", py::overload_cast<const Eigen::Ref<const Eigen::MatrixXf>, pca::Covariance>(&pca::pca), "Compute PCA on a mean-centred data matrix, and return the eigenvectors and respective eigenvalues.", py::arg("data"), py::arg("covariance_type") = pca::Covariance::AtA);
+        pca_module.def("pca", py::overload_cast<const Eigen::Ref<const Eigen::MatrixXf>, int, pca::Covariance>(&pca::pca), "Performs PCA and returns num_eigenvectors_to_keep eigenvectors and eigenvalues.", py::arg("data"), py::arg("num_eigenvectors_to_keep"), py::arg("covariance_type") = pca::Covariance::AtA);
+        pca_module.def("pca", py::overload_cast<const Eigen::Ref<const Eigen::MatrixXf>, float, pca::Covariance>(&pca::pca), "Performs PCA and returns the number of eigenvectors and eigenvalues to retain \p variance_to_keep variance of the original data.", py::arg("data"), py::arg("variance_to_keep"), py::arg("covariance_type") = pca::Covariance::AtA);
+        pca_module.def("pca", py::overload_cast<const Eigen::Ref<const Eigen::MatrixXf>, std::vector<std::array<int, 3>>, pca::Covariance>(&pca::pca), "Performs PCA on the given data (including subtracting the mean) and returns the built PcaModel.", py::arg("data"), py::arg("triangle_list"), py::arg("covariance_type") = pca::Covariance::AtA);
 
 	/**
 	 * Bindings for the eos::fitting namespace:

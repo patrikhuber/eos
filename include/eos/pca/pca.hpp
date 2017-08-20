@@ -194,7 +194,7 @@ inline std::pair<Eigen::MatrixXf, Eigen::VectorXf> pca(const Eigen::Ref<const Ei
 };
 
 /** 
- * @brief Performs PCA and returns the number of eigenvectors and eigenvalues to retain \p variance_to_keep variance of the original data.
+ * @brief Performs PCA on the given data (including subtracting the mean) and returns the built PcaModel.
  * 
  * See std::pair<Eigen::MatrixXf, Eigen::VectorXf> pca(const Eigen::Ref<const Eigen::MatrixXf>, Covariance) for the details on the PCA.
  * 
