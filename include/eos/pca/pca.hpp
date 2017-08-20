@@ -59,9 +59,9 @@ enum class Covariance {
  *
  * @param[in] data Mean-free!.
  * @param[in] covariance_type Y.
- * @return A pair containing a vector of eigenvalues and a matrix of eigenvectors.
+ * @return A pair containing the matrix of eigenvectors and a vector with the respective eigenvalues.
  */
-inline std::pair<Eigen::VectorXf, Eigen::MatrixXf> pca(const Eigen::Ref<const Eigen::MatrixXf> data, Covariance covariance_type = Covariance::AtA)
+inline std::pair<Eigen::MatrixXf, Eigen::VectorXf> pca(const Eigen::Ref<const Eigen::MatrixXf> data, Covariance covariance_type = Covariance::AtA)
 {
 	using Eigen::VectorXf;
 	using Eigen::MatrixXf;
@@ -76,10 +76,9 @@ inline std::pair<Eigen::VectorXf, Eigen::MatrixXf> pca(const Eigen::Ref<const Ei
 		cov = data * data.adjoint();
 	}
 
-	// In numpy, I do this:
-	//cov /= (num_samples - 1)
+	// The covariance is 1/(n-1) * AtA (or AAt), so divide by (num_samples - 1):
+	cov /= (data.rows() - 1);
 
-	//Eigen::SelfAdjointEigenSolver<MatrixXf> eig_aat(cov);
 	Eigen::SelfAdjointEigenSolver<MatrixXf> eig(cov);
 
 	int num_eigenvectors_to_keep = data.rows() - 1;
@@ -87,20 +86,17 @@ inline std::pair<Eigen::VectorXf, Eigen::MatrixXf> pca(const Eigen::Ref<const Ei
 	// Select the eigenvectors and eigenvalues that we want to keep, reverse them (from most significant to least):
 	// For 'n' data points, do we get 'n' and the last will be zeros/garbage? So we have to remove at least one, always?
 	VectorXf z_evals = eig.eigenvalues().bottomRows(num_eigenvectors_to_keep).reverse(); // eigenvalues() returns a column-vec
-	VectorXf z_evals_aat = eig.eigenvalues().bottomRows(num_eigenvectors_to_keep).reverse();
-
-	MatrixXf z_evecs = eig.eigenvectors().rightCols(num_eigenvectors_to_keep).rowwise().reverse(); // yep, correct!
-	MatrixXf z_evecs_aat = eig.eigenvectors().rightCols(num_eigenvectors_to_keep).rowwise().reverse();
+	MatrixXf z_evecs = eig.eigenvectors().rightCols(num_eigenvectors_to_keep).rowwise().reverse();
 
 	if (covariance_type == Covariance::AAt)
 	{
 		// Bring the AA^t variant in the right form by multiplying with A^t and 1/sqrt(eval):
 		// (see e.g. https://math.stackexchange.com/questions/787822/how-do-covariance-matrix-c-aat-justify-the-actual-ata-in-pca)
 		// (note the signs might be different from the AtA solution but that's not a problem as the sign of eigenvectors are arbitrary anyway)
-		z_evecs_aat = data.adjoint() * z_evecs_aat;
-		for (int c = 0; c < z_evecs_aat.cols(); ++c)
+		z_evecs = data.adjoint() * z_evecs;
+		for (int c = 0; c < z_evecs.cols(); ++c)
 		{
-			z_evecs_aat.col(c) *= 1.0 / std::sqrt(z_evals_aat(c));
+			z_evecs.col(c) *= 1.0 / std::sqrt(z_evals(c));
 		}
 		// Maybe we can do this instead of the for loop?:
 		//VectorXd evals_rsqrts = e_aat.array().rsqrt();
@@ -109,13 +105,11 @@ inline std::pair<Eigen::VectorXf, Eigen::MatrixXf> pca(const Eigen::Ref<const Ei
 		//b_aat_to_ata_all.col(2) *= 1.0 / std::sqrt(e_aat(2)); // first eigenvector is identical
 		//b_aat_to_ata_all.col(1) *= 1.0 / std::sqrt(e_aat(1)); // this one needs multiplication by -1... odd!
 
-
-		// From NumPy:
-		// This is to compensate for the covariance divide by(N - 1) above apparently :
-		//eigenvectors_of_ata_final /= np.sqrt(meanfree_data.shape[0] - 1)
+		// Compensate for the covariance divide by (n - 1) above:
+		z_evecs /= std::sqrt(data.rows() - 1);
 	}
 
-	return { z_evals, z_evecs };
+	return { z_evecs, z_evals };
 };
 
 inline void pca(int num_coeffs_to_keep)
@@ -129,7 +123,10 @@ inline void pca(float variance_to_keep)
 {
 	// Call above pca() function
 
-	// Figure out how many coeffs to keep
+	// Figure out how many coeffs to keep:
+	// variance_explained_by_first_comp = eigenval(1)/sum(eigenvalues)
+	// variance_explained_by_second_comp = eigenval(2)/sum(eigenvalues)
+	// Etc...
 
 	// Call pca(...num_coeffs_to_keep...)
 	// Return.
