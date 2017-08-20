@@ -30,7 +30,7 @@ An experimental model viewer to visualise 3D Morphable Models and blendshapes is
 
 ## Usage
 
-* Tested with the following compilers: >=gcc-4.9, >=clang-3.5, Visual Studio 2015
+* Tested with the following compilers: >=gcc-5, >=clang-3.5, Visual Studio 2015
 * Needed dependencies for the library: Boost system (>=1.50.0), OpenCV core (>=2.4.3)
 
 To use the library in your own project, just add the following directories to your include path:

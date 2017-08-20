@@ -24,6 +24,7 @@
 #include "eos/morphablemodel/MorphableModel.hpp"
 #include "eos/morphablemodel/Blendshape.hpp"
 #include "eos/morphablemodel/EdgeTopology.hpp"
+#include "eos/pca/pca.hpp"
 #include "eos/fitting/contour_correspondence.hpp"
 #include "eos/fitting/fitting.hpp"
 #include "eos/fitting/orthographic_camera_estimation_linear.hpp"
@@ -51,8 +52,8 @@ using namespace eos;
 /**
  * Generate python bindings for the eos library using pybind11.
  */
-PYBIND11_PLUGIN(eos) {
-    py::module eos_module("eos", "Python bindings for the eos 3D Morphable Face Model fitting library.\n\nFor an overview of the functionality, see the documentation of the submodules. For the full documentation, see the C++ doxygen documentation.");
+PYBIND11_MODULE(eos, eos_module) {
+	eos_module.doc() = "Python bindings for the eos 3D Morphable Face Model fitting library.\n\nFor an overview of the functionality, see the documentation of the submodules. For the full documentation, see the C++ doxygen documentation.";
 
 	/**
 	 * Bindings for the eos::core namespace:
@@ -157,6 +158,22 @@ PYBIND11_PLUGIN(eos) {
 	morphablemodel_module.def("load_edge_topology", &morphablemodel::load_edge_topology, "Load a 3DMM edge topology file from a json file.", py::arg("filename"));
 
 	/**
+	 * Bindings for the eos::pca namespace:
+	 *  - Covariance
+	 *  - pca()
+	 */
+	py::module pca_module = eos_module.def_submodule("pca", "PCA and functionality to build statistical models.");
+
+	py::enum_<pca::Covariance>(pca_module, "Covariance", "A flag specifying how to compute the covariance matrix in the PCA.")
+		.value("AtA", pca::Covariance::AtA)
+		.value("AAt", pca::Covariance::AAt);
+
+	pca_module.def("pca", py::overload_cast<const Eigen::Ref<const Eigen::MatrixXf>, pca::Covariance>(&pca::pca), "Compute PCA on a mean-centred data matrix, and return the eigenvectors and respective eigenvalues.", py::arg("data"), py::arg("covariance_type") = pca::Covariance::AtA);
+        pca_module.def("pca", py::overload_cast<const Eigen::Ref<const Eigen::MatrixXf>, int, pca::Covariance>(&pca::pca), "Performs PCA and returns num_eigenvectors_to_keep eigenvectors and eigenvalues.", py::arg("data"), py::arg("num_eigenvectors_to_keep"), py::arg("covariance_type") = pca::Covariance::AtA);
+        pca_module.def("pca", py::overload_cast<const Eigen::Ref<const Eigen::MatrixXf>, float, pca::Covariance>(&pca::pca), "Performs PCA and returns the number of eigenvectors and eigenvalues to retain \p variance_to_keep variance of the original data.", py::arg("data"), py::arg("variance_to_keep"), py::arg("covariance_type") = pca::Covariance::AtA);
+        pca_module.def("pca", py::overload_cast<const Eigen::Ref<const Eigen::MatrixXf>, std::vector<std::array<int, 3>>, pca::Covariance>(&pca::pca), "Performs PCA on the given data (including subtracting the mean) and returns the built PcaModel.", py::arg("data"), py::arg("triangle_list"), py::arg("covariance_type") = pca::Covariance::AtA);
+
+	/**
 	 * Bindings for the eos::fitting namespace:
 	 *  - ScaledOrthoProjectionParameters
 	 *  - RenderingParameters
@@ -224,5 +241,4 @@ PYBIND11_PLUGIN(eos) {
 		return render::extract_texture(mesh, affine_from_ortho, image, compute_view_angle, render::TextureInterpolation::NearestNeighbour, isomap_resolution);
 	}, "Extracts the texture of the face from the given image and stores it as isomap (a rectangular texture map).", py::arg("mesh"), py::arg("rendering_params"), py::arg("image"), py::arg("compute_view_angle") = false, py::arg("isomap_resolution") = 512);
 
-    return eos_module.ptr();
 };

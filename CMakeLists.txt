@@ -74,6 +74,7 @@ set(HEADERS
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/morphablemodel/EdgeTopology.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/morphablemodel/io/cvssp.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/morphablemodel/io/mat_cerealisation.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/pca/pca.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/affine_camera_estimation.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/orthographic_camera_estimation_linear.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/nonlinear_camera_estimation.hpp
@@ -125,6 +126,7 @@ add_custom_target(eos-headers SOURCES ${HEADERS})
 source_group(core REGULAR_EXPRESSION include/eos/core/*)
 source_group(morphablemodel REGULAR_EXPRESSION include/eos/morphablemodel/*)
 source_group(morphablemodel\\io REGULAR_EXPRESSION include/eos/morphablemodel/io/*)
+source_group(pca REGULAR_EXPRESSION include/eos/pca/*)
 source_group(fitting REGULAR_EXPRESSION include/eos/fitting/*)
 source_group(fitting\\detail REGULAR_EXPRESSION include/eos/fitting/detail/*)
 source_group(render REGULAR_EXPRESSION include/eos/render/*)

@@ -19,6 +19,11 @@
  */
 
 /**
+ * @namespace eos::pca
+ * @brief PCA and functionality to build statistical models.
+ */
+
+/**
  * @namespace eos::render
  * @brief Software rendering and texture extraction functionality.
  */
