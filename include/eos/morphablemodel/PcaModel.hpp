@@ -318,12 +318,9 @@ private:
 inline Eigen::MatrixXf rescale_pca_basis(const Eigen::MatrixXf& orthonormal_basis,
                                          const Eigen::VectorXf& eigenvalues)
 {
-    using Eigen::MatrixXf;
-    MatrixXf rescaled_basis(orthonormal_basis.rows(),
-                            orthonormal_basis.cols()); // empty matrix with the same dimensions
-    MatrixXf sqrt_of_eigenvalues =
-        eigenvalues.array().sqrt(); // using eigenvalues.sqrt() directly gives a compile error. These are all
-                                    // Eigen::Array functions? I don't think we copy here, do we?
+    Eigen::MatrixXf rescaled_basis(orthonormal_basis.rows(),
+                                   orthonormal_basis.cols()); // empty matrix with the same dimensions
+    const Eigen::VectorXf sqrt_of_eigenvalues = eigenvalues.array().sqrt();
     // Rescale the basis: We multiply each eigenvector (i.e. each column) with the square root of its
     // corresponding eigenvalue
     for (int basis = 0; basis < orthonormal_basis.cols(); ++basis)
@@ -346,14 +343,10 @@ inline Eigen::MatrixXf rescale_pca_basis(const Eigen::MatrixXf& orthonormal_basi
 inline Eigen::MatrixXf normalise_pca_basis(const Eigen::MatrixXf& rescaled_basis,
                                            const Eigen::VectorXf& eigenvalues)
 {
-    using Eigen::MatrixXf;
-    MatrixXf orthonormal_basis(rescaled_basis.rows(),
-                               rescaled_basis.cols()); // empty matrix with the same dimensions
-    Eigen::VectorXf one_over_sqrt_of_eigenvalues =
-        eigenvalues.array()
-            .sqrt()
-            .inverse(); // Eigen added Array::rsqrt() in 3.3, switch back to that eventually
-    // De-normalise the basis: We multiply each eigenvector (i.e. each column) with 1 over the square root of
+    Eigen::MatrixXf orthonormal_basis(rescaled_basis.rows(),
+                                      rescaled_basis.cols()); // empty matrix with the same dimensions
+    const Eigen::VectorXf one_over_sqrt_of_eigenvalues = eigenvalues.array().rsqrt();
+    // "Normalise" the basis: We multiply each eigenvector (i.e. each column) with 1 over the square root of
     // its corresponding eigenvalue
     for (int basis = 0; basis < rescaled_basis.cols(); ++basis)
     {
