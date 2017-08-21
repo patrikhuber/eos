@@ -106,8 +106,8 @@ public:
                !has_color_model()); // The number of vertices (= model.getDataDimension() / 3) has to be equal
                                     // for both models, or, alternatively, it has to be a shape-only model.
 
-        Eigen::VectorXf shape = shape_model.get_mean();
-        Eigen::VectorXf color = color_model.get_mean();
+        const Eigen::VectorXf shape = shape_model.get_mean();
+        const Eigen::VectorXf color = color_model.get_mean();
 
         core::Mesh mesh;
         if (has_texture_coordinates())
@@ -142,8 +142,8 @@ public:
                !has_color_model()); // The number of vertices (= model.getDataDimension() / 3) has to be equal
                                     // for both models, or, alternatively, it has to be a shape-only model.
 
-        Eigen::VectorXf shape_sample = shape_model.draw_sample(engine, shape_sigma);
-        Eigen::VectorXf color_sample = color_model.draw_sample(engine, color_sigma);
+        const Eigen::VectorXf shape_sample = shape_model.draw_sample(engine, shape_sigma);
+        const Eigen::VectorXf color_sample = color_model.draw_sample(engine, color_sigma);
 
         core::Mesh mesh;
         if (has_texture_coordinates())
@@ -329,7 +329,7 @@ inline core::Mesh sample_to_mesh(const Eigen::VectorXf& shape_instance, const Ei
                                         // equal for both models, or, alternatively, it has to be a shape-only
                                         // model.
 
-    auto num_vertices = shape_instance.rows() / 3;
+    const auto num_vertices = shape_instance.rows() / 3;
 
     core::Mesh mesh;
 
