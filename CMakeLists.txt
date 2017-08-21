@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.8.2)
 project(eos)
 if(MSVC)
-  cmake_minimum_required(VERSION 3.9.20170812-g71ee6) # needed for CMAKE_CXX_STANDARD 17
+  cmake_minimum_required(VERSION 3.9.20170812-g71ee6) # needed for CMAKE_CXX_STANDARD 17 on VS2017.3
 endif()
 set(eos_VERSION_MAJOR 0)
 set(eos_VERSION_MINOR 12)
