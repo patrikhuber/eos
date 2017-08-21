@@ -1,6 +1,6 @@
 environment:
   home: C:\projects
-  cmake: C:\projects\cmake-3.4.1-win32-x86\bin\cmake.exe
+  cmake: C:\projects\cmake-3.9.20170820-g953f0-win64-x64\bin\cmake.exe
 
 version: '{branch}-{build}'
 
@@ -11,8 +11,8 @@ install:
   - cmd: git submodule update --init --recursive # inside the repository directory
   # Get a recent CMake and our dependencies (Eigen, OpenCV, Boost):
   - cmd: cd %home%
-  - ps: wget https://cmake.org/files/v3.4/cmake-3.4.1-win32-x86.zip -OutFile cmake.zip
-  - cmd: 7z x cmake.zip -o"C:\projects" -y > nul # will extract to cmake-3.4.1-win32-x86\
+  - ps: wget https://cmake.org/files/dev/cmake-3.9.20170820-g953f0-win64-x64.zip -OutFile cmake.zip
+  - cmd: 7z x cmake.zip -o"C:\projects" -y > nul # will extract to cmake-3.9.20170820-g953f0-win64-x64\
   - cmd: '%cmake% --version'
   # Get OpenCV (my pre-built binaries for 2.4.12):
   - ps: wget "https://drive.google.com/uc?export=download&id=0B2FFdHlMfJl_cW9PeUplRVFtUWs" -OutFile opencv-2.4.12-github-vc14-release-travis.rar
