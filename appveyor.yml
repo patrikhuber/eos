@@ -14,9 +14,9 @@ install:
   - ps: wget https://cmake.org/files/dev/cmake-3.9.20170820-g953f0-win64-x64.zip -OutFile cmake.zip
   - cmd: 7z x cmake.zip -o"C:\projects" -y > nul # will extract to cmake-3.9.20170820-g953f0-win64-x64\
   - cmd: '%cmake% --version'
-  # Get OpenCV (my pre-built binaries for 2.4.12):
-  - ps: wget "https://drive.google.com/uc?export=download&id=0B2FFdHlMfJl_cW9PeUplRVFtUWs" -OutFile opencv-2.4.12-github-vc14-release-travis.rar
-  - cmd: 7z x opencv-2.4.12-github-vc14-release-travis.rar -o"C:\projects" -y > nul
+  # Get OpenCV (my pre-built binaries of 3.3.0 for VS2017.3):
+  - ps: wget "https://drive.google.com/uc?export=download&id=0B2FFdHlMfJl_eGVEZlI4bXZvUVE" -OutFile opencv-3.3.0-vc15-release-travis.rar
+  - cmd: 7z x opencv-3.3.0-vc15-release-travis.rar -o"C:\projects" -y > nul
   # Using Boost 1.64.0 from AppVeyor (C:\Libraries\boost_1_64_0)
 
 before_build: # We're still in %home%
