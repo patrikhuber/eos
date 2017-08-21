@@ -319,20 +319,22 @@ private:
  *
  * @param[in] filename Filename to a model.
  * @return The loaded PCA model.
- * @throw std::runtime_error When the file given in \c filename fails to be opened (most likely because the file doesn't exist).
+ * @throw std::runtime_error When the file given in \c filename fails to be opened (most likely because the
+ * file doesn't exist).
  */
 inline PcaModel load_pca_model(std::string filename)
 {
-	PcaModel model;
+    PcaModel model;
 
-	std::ifstream file(filename, std::ios::binary);
-	if (file.fail()) {
-		throw std::runtime_error("Error opening given file: " + filename);
-	}
-	cereal::BinaryInputArchive input_archive(file);
-	input_archive(model);
+    std::ifstream file(filename, std::ios::binary);
+    if (file.fail())
+    {
+        throw std::runtime_error("Error opening given file: " + filename);
+    }
+    cereal::BinaryInputArchive input_archive(file);
+    input_archive(model);
 
-	return model;
+    return model;
 };
 
 /**
@@ -344,10 +346,11 @@ inline PcaModel load_pca_model(std::string filename)
  */
 inline void save_pca_model(PcaModel model, std::string filename)
 {
-	std::ofstream file(filename, std::ios::binary);
-	cereal::BinaryOutputArchive output_archive(file);
-	output_archive(model);
+    std::ofstream file(filename, std::ios::binary);
+    cereal::BinaryOutputArchive output_archive(file);
+    output_archive(model);
 };
+
 /**
  * Takes an orthonormal PCA basis matrix (a matrix consisting
  * of the eigenvectors) and rescales it, i.e. multiplies each
