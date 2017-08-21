@@ -4,7 +4,7 @@ environment:
 
 version: '{branch}-{build}'
 
-os: Visual Studio 2015
+os: Visual Studio 2017
 
 install:
   # Get all submodules, since AppVeyor doesn't clone with '--recursive':
@@ -25,7 +25,7 @@ install:
 before_build: # We're still in %home%
   - cmd: mkdir build
   - cmd: cd build
-  - cmd: '%cmake% -G "Visual Studio 14 Win64" -DOpenCV_DIR=C:\projects\opencv -DBOOST_ROOT=C:\Libraries\boost_1_59_0 -DBOOST_LIBRARYDIR=C:\Libraries\boost_1_59_0\lib64-msvc-14.0 -DEIGEN3_INCLUDE_DIR=C:\projects\eigen-eigen-ce5a455b34c0 -DCMAKE_INSTALL_PREFIX=..\install -DEOS_BUILD_EXAMPLES=on -DEOS_BUILD_UTILS=on -DEOS_GENERATE_PYTHON_BINDINGS=on -DPYTHON_EXECUTABLE:path=C:\Python35-x64\python.exe ..\eos'
+  - cmd: '%cmake% -G "Visual Studio 15 Win64" -DOpenCV_DIR=C:\projects\opencv -DBOOST_ROOT=C:\Libraries\boost_1_59_0 -DBOOST_LIBRARYDIR=C:\Libraries\boost_1_59_0\lib64-msvc-14.0 -DEIGEN3_INCLUDE_DIR=C:\projects\eigen-eigen-ce5a455b34c0 -DCMAKE_INSTALL_PREFIX=..\install -DEOS_BUILD_EXAMPLES=on -DEOS_BUILD_UTILS=on -DEOS_GENERATE_PYTHON_BINDINGS=on -DPYTHON_EXECUTABLE:path=C:\Python35-x64\python.exe ..\eos'
 
 build:
   project: C:\projects\build\eos.sln
