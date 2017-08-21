@@ -48,7 +48,7 @@ using std::endl;
 int main(int argc, char *argv[])
 {
 	std::string model_file, output_file;
-	vector<float> shape_coefficients, colour_coefficients;
+	vector<float> shape_coefficients, color_coefficients;
 
 	try {
 		cxxopts::Options options("generate-obj");
@@ -57,20 +57,20 @@ int main(int argc, char *argv[])
 			("model", "an eos .bin Morphable Model file",
 				cxxopts::value<std::string>(model_file))
 			("shape-coeffs", "optional parameter list of shape coefficients. All not specified will be set to zero. E.g.: '--shape-coeffs 0.0 1.5'. If omitted, the mean is used.",
-				cxxopts::value<vector<float>>(shape_coefficients)->multitoken()) // optional arg
-			("colour-coeffs", "optional parameter list of colour coefficients. All not specified will be set to zero. E.g.: '--colour-coeffs 0.0 1.5'. If omitted, the mean is used.",
-				cxxopts::value<vector<float>>(colour_coefficients)->multitoken()) // optional arg
+				cxxopts::value<vector<float>>(shape_coefficients)) // optional arg
+			("color-coeffs", "optional parameter list of colour coefficients. All not specified will be set to zero. E.g.: '--color-coeffs 0.0 1.5'. If omitted, the mean is used.",
+				cxxopts::value<vector<float>>(color_coefficients)) // optional arg
 			("output", "name of the output obj file (including .obj). Can be a full path.",
 				cxxopts::value<std::string>(output_file)->default_value("output.obj"))
 			;
 
-		// disabling short options to allow negative values for the coefficients, e.g. '--shape-coeffs 0.0 -1.5'
-		// Todo: Check how this works with cxxopts!
+		// Todo: Check how this works with cxxopts! It should work now in principle. And can we use it with short options as well or is there a problem then with negative values?
 		options.parse(argc, argv);
 		if (options.count("help")) {
 			cout << options.help() << endl;
 			return EXIT_SUCCESS;
 		}
+                cxxopts::check_required(options, { "model" });
 	}
 	catch (const cxxopts::OptionException& e) {
 		cout << "Error while parsing command-line arguments: " << e.what() << endl;
@@ -84,11 +84,11 @@ int main(int argc, char *argv[])
 		shape_coefficients.resize(morphable_model.get_shape_model().get_num_principal_components());
 	}
 
-	if (colour_coefficients.size() < morphable_model.get_color_model().get_num_principal_components()) {
-		colour_coefficients.resize(morphable_model.get_color_model().get_num_principal_components());
+	if (color_coefficients.size() < morphable_model.get_color_model().get_num_principal_components()) {
+		color_coefficients.resize(morphable_model.get_color_model().get_num_principal_components());
 	}
 
-	core::Mesh sample_mesh = morphable_model.draw_sample(shape_coefficients, colour_coefficients); // if one of the two vectors is empty, it uses get_mean()
+	core::Mesh sample_mesh = morphable_model.draw_sample(shape_coefficients, color_coefficients); // if one of the two vectors is empty, it uses get_mean()
 
 	core::write_obj(sample_mesh, output_file);
 	core::Image4u rendering;
