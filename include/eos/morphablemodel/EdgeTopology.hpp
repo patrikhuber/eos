@@ -28,11 +28,11 @@
 #include "cereal/archives/json.hpp"
 
 #include <array>
-#include <vector>
 #include <fstream>
+#include <vector>
 
 namespace eos {
-	namespace morphablemodel {
+namespace morphablemodel {
 
 /**
  * @brief A struct containing a 3D shape model's edge topology.
@@ -50,21 +50,24 @@ namespace eos {
  *
  * adjacent_faces.size() is equal to adjacent_vertices.size().
  */
-struct EdgeTopology {
-	std::vector<std::array<int, 2>> adjacent_faces; // num_edges x 2 matrix storing faces adjacent to each edge
-	std::vector<std::array<int, 2>> adjacent_vertices; // num_edges x 2 matrix storing vertices adjacent to each edge
+struct EdgeTopology
+{
+    std::vector<std::array<int, 2>>
+        adjacent_faces; // num_edges x 2 matrix storing faces adjacent to each edge
+    std::vector<std::array<int, 2>>
+        adjacent_vertices; // num_edges x 2 matrix storing vertices adjacent to each edge
 
-	friend class cereal::access;
-	/**
-	 * Serialises this class using cereal.
-	 *
-	 * @param[in] ar The archive to serialise to (or to serialise from).
-	 */
-	template<class Archive>
-	void serialize(Archive& archive)
-	{
-		archive(CEREAL_NVP(adjacent_faces), CEREAL_NVP(adjacent_vertices));
-	};
+    friend class cereal::access;
+    /**
+     * Serialises this class using cereal.
+     *
+     * @param[in] ar The archive to serialise to (or to serialise from).
+     */
+    template <class Archive>
+    void serialize(Archive& archive)
+    {
+        archive(CEREAL_NVP(adjacent_faces), CEREAL_NVP(adjacent_vertices));
+    };
 };
 
 /**
@@ -76,12 +79,13 @@ struct EdgeTopology {
  */
 inline void save_edge_topology(EdgeTopology edge_topology, std::string filename)
 {
-	std::ofstream file(filename);
-	if (file.fail()) {
-		throw std::runtime_error("Error opening file for writing: " + filename);
-	}
-	cereal::JSONOutputArchive output_archive(file);
-	output_archive(cereal::make_nvp("edge_topology", edge_topology));
+    std::ofstream file(filename);
+    if (file.fail())
+    {
+        throw std::runtime_error("Error opening file for writing: " + filename);
+    }
+    cereal::JSONOutputArchive output_archive(file);
+    output_archive(cereal::make_nvp("edge_topology", edge_topology));
 };
 
 /**
@@ -93,18 +97,19 @@ inline void save_edge_topology(EdgeTopology edge_topology, std::string filename)
  */
 inline EdgeTopology load_edge_topology(std::string filename)
 {
-	EdgeTopology edge_topology;
-	std::ifstream file(filename);
-	if (file.fail()) {
-		throw std::runtime_error("Error opening file for reading: " + filename);
-	}
-	cereal::JSONInputArchive output_archive(file);
-	output_archive(cereal::make_nvp("edge_topology", edge_topology));
+    EdgeTopology edge_topology;
+    std::ifstream file(filename);
+    if (file.fail())
+    {
+        throw std::runtime_error("Error opening file for reading: " + filename);
+    }
+    cereal::JSONInputArchive output_archive(file);
+    output_archive(cereal::make_nvp("edge_topology", edge_topology));
 
-	return edge_topology;
+    return edge_topology;
 };
 
-	} /* namespace morphablemodel */
+} /* namespace morphablemodel */
 } /* namespace eos */
 
 #endif /* EDGETOPOLOGY_HPP_ */

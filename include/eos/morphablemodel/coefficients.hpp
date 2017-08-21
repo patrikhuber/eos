@@ -25,11 +25,12 @@
 #include "cereal/cereal.hpp"
 #include "cereal/archives/json.hpp"
 
-#include <vector>
 #include <string>
+#include <vector>
+#include <fstream>
 
 namespace eos {
-	namespace morphablemodel {
+namespace morphablemodel {
 
 /**
  * Saves coefficients (for example PCA shape coefficients) to a json file.
@@ -40,15 +41,16 @@ namespace eos {
  */
 inline void save_coefficients(std::vector<float> coefficients, std::string filename)
 {
-	std::ofstream file(filename);
-	if (file.fail()) {
-		throw std::runtime_error("Error opening file for writing: " + filename);
-	}
-	cereal::JSONOutputArchive output_archive(file);
-	output_archive(cereal::make_nvp("shape_coefficients", coefficients));
+    std::ofstream file(filename);
+    if (file.fail())
+    {
+        throw std::runtime_error("Error opening file for writing: " + filename);
+    }
+    cereal::JSONOutputArchive output_archive(file);
+    output_archive(cereal::make_nvp("shape_coefficients", coefficients));
 };
 
-	} /* namespace morphablemodel */
+} /* namespace morphablemodel */
 } /* namespace eos */
 
 #endif /* COEFFICIENTS_HPP_ */
