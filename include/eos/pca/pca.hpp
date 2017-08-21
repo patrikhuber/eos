@@ -93,7 +93,7 @@ inline std::pair<Eigen::MatrixXf, Eigen::VectorXf> pca(const Eigen::Ref<const Ei
 
     const Eigen::SelfAdjointEigenSolver<MatrixXf> eig(cov);
 
-    const int num_eigenvectors_to_keep = data.rows() - 1;
+    const auto num_eigenvectors_to_keep = data.rows() - 1;
 
     // Select the eigenvectors and eigenvalues that we want to keep, reverse them (from most significant to
     // least): For 'n' data points, we get at most 'n - 1' non-zero eigenvalues.
