@@ -176,7 +176,7 @@ public:
         }
         const Eigen::Map<Eigen::VectorXf> alphas(coefficients.data(), coefficients.size());
 
-        Eigen::VectorXf model_sample = mean + rescaled_pca_basis * alphas;
+        const Eigen::VectorXf model_sample = mean + rescaled_pca_basis * alphas;
 
         return model_sample;
     };
