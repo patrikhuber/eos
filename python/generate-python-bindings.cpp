@@ -20,6 +20,7 @@
 #include "eos/core/LandmarkMapper.hpp"
 #include "eos/core/Image.hpp"
 #include "eos/core/Mesh.hpp"
+#include "eos/core/read_obj.hpp"
 #include "eos/morphablemodel/PcaModel.hpp"
 #include "eos/morphablemodel/MorphableModel.hpp"
 #include "eos/morphablemodel/Blendshape.hpp"
@@ -78,6 +79,8 @@ PYBIND11_MODULE(eos, eos_module) {
 
 	core_module.def("write_obj", &core::write_obj, "Writes the given Mesh to an obj file.", py::arg("mesh"), py::arg("filename"));
 	core_module.def("write_textured_obj", &core::write_textured_obj, "Writes the given Mesh to an obj file, including texture coordinates, and an mtl file containing a reference to the isomap. The texture (isomap) has to be saved separately.", py::arg("mesh"), py::arg("filename"));
+
+        core_module.def("read_obj", &core::read_obj, "Reads the given Wavefront .obj file into a Mesh.", py::arg("filename"));
 
 	/**
 	 * Bindings for the eos::morphablemodel namespace:
