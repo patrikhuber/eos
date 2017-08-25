@@ -40,10 +40,7 @@
 
 #include "Eigen/Core"
 
-#include <iostream>
-#include <stdexcept>
 #include <string>
-#include <algorithm>
 #include <cassert>
 #include <optional>
 
