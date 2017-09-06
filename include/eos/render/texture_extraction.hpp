@@ -203,9 +203,9 @@ inline core::Image4u extract_texture(const core::Mesh& mesh, Eigen::Matrix<float
 			// - Use render(), or as in render(...), transfer the vertices once, not in a loop over all triangles (vertices are getting transformed multiple times)
 			// - We transform them later (below) a second time. Only do it once.
 
-			Vector4f v0_as_Vector4f(mesh.vertices[triangle_indices[0]][0], mesh.vertices[triangle_indices[0]][1], mesh.vertices[triangle_indices[0]][2], mesh.vertices[triangle_indices[0]][3]);
-			Vector4f v1_as_Vector4f(mesh.vertices[triangle_indices[1]][0], mesh.vertices[triangle_indices[1]][1], mesh.vertices[triangle_indices[1]][2], mesh.vertices[triangle_indices[1]][3]);
-			Vector4f v2_as_Vector4f(mesh.vertices[triangle_indices[2]][0], mesh.vertices[triangle_indices[2]][1], mesh.vertices[triangle_indices[2]][2], mesh.vertices[triangle_indices[2]][3]);
+			const Vector4f v0_as_Vector4f(mesh.vertices[triangle_indices[0]][0], mesh.vertices[triangle_indices[0]][1], mesh.vertices[triangle_indices[0]][2], mesh.vertices[triangle_indices[0]][3]);
+                        const Vector4f v1_as_Vector4f(mesh.vertices[triangle_indices[1]][0], mesh.vertices[triangle_indices[1]][1], mesh.vertices[triangle_indices[1]][2], mesh.vertices[triangle_indices[1]][3]);
+                        const Vector4f v2_as_Vector4f(mesh.vertices[triangle_indices[2]][0], mesh.vertices[triangle_indices[2]][1], mesh.vertices[triangle_indices[2]][2], mesh.vertices[triangle_indices[2]][3]);
 
 			// Project the triangle vertices to screen coordinates, and use the depthbuffer to check whether the triangle is visible:
 			const Vector4f v0 = affine_camera_matrix_with_z * v0_as_Vector4f;
@@ -562,7 +562,7 @@ inline core::Image4u interpolate_black_line(core::Image4u& isomap)
 	// Replace the vertical black line ("missing data"):
 	using RGBAType = Eigen::Matrix<std::uint8_t, 1, 4>;
 	using Eigen::Map;
-	int col = isomap.cols / 2;
+        const int col = isomap.cols / 2;
 	for (int row = 0; row < isomap.rows; ++row)
 	{
 		if (isomap(row, col) == std::array<std::uint8_t, 4>{ 0, 0, 0, 0 })
@@ -577,7 +577,7 @@ inline core::Image4u interpolate_black_line(core::Image4u& isomap)
 	// isomaps of resolution 512x512 and higher:
 	if (isomap.rows == 512) // num cols is 512 as well
 	{
-		int r = 362;
+                const int r = 362;
 		for (int c = 206; c <= 306; ++c)
 		{
 			if (isomap(r, c) == std::array<std::uint8_t, 4>{ 0, 0, 0, 0 })

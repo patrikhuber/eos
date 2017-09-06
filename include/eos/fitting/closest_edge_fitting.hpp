@@ -127,7 +127,7 @@ inline std::vector<int> occluding_boundary_vertices(const core::Mesh& mesh, cons
 	// Compute the face normals of the rotated mesh:
 	std::vector<glm::vec3> facenormals;
 	for (auto&& f : mesh.tvi) { // for each face (triangle):
-		auto n = render::compute_face_normal(glm::vec3(rotated_vertices[f[0]]), glm::vec3(rotated_vertices[f[1]]), glm::vec3(rotated_vertices[f[2]]));
+		const auto n = render::compute_face_normal(glm::vec3(rotated_vertices[f[0]]), glm::vec3(rotated_vertices[f[1]]), glm::vec3(rotated_vertices[f[2]]));
 		facenormals.push_back(n);
 	}
 
@@ -176,8 +176,8 @@ inline std::vector<int> occluding_boundary_vertices(const core::Mesh& mesh, cons
 			auto& v1 = rotated_vertices[tri[1]];
 			auto& v2 = rotated_vertices[tri[2]];
 
-			glm::vec3 ray_origin(rotated_vertices[vertex_idx]);
-			glm::vec3 ray_direction(0.0f, 0.0f, 1.0f); // we shoot the ray from the vertex towards the camera
+			const glm::vec3 ray_origin(rotated_vertices[vertex_idx]);
+			const glm::vec3 ray_direction(0.0f, 0.0f, 1.0f); // we shoot the ray from the vertex towards the camera
 			auto intersect = ray_triangle_intersect(ray_origin, ray_direction, glm::vec3(v0), glm::vec3(v1), glm::vec3(v2), false);
 			// first is bool intersect, second is the distance t
 			if (intersect.first == true)
@@ -346,7 +346,7 @@ inline std::pair<std::vector<Eigen::Vector2f>, std::vector<int>> find_occluding_
 	vector<Vector2f> model_edges_projected;
 	for (const auto& v : occluding_vertices)
 	{
-		auto p = glm::project({ mesh.vertices[v][0], mesh.vertices[v][1], mesh.vertices[v][2] }, rendering_parameters.get_modelview(), rendering_parameters.get_projection(), fitting::get_opencv_viewport(rendering_parameters.get_screen_width(), rendering_parameters.get_screen_height()));
+		const auto p = glm::project({ mesh.vertices[v][0], mesh.vertices[v][1], mesh.vertices[v][2] }, rendering_parameters.get_modelview(), rendering_parameters.get_projection(), fitting::get_opencv_viewport(rendering_parameters.get_screen_width(), rendering_parameters.get_screen_height()));
 		model_edges_projected.push_back({ p.x, p.y });
 	}
 
@@ -376,7 +376,7 @@ inline std::pair<std::vector<Eigen::Vector2f>, std::vector<int>> find_occluding_
 	assert(occluding_vertices.size() == idx_d.size());
 	for (int i = 0; i < occluding_vertices.size(); ++i)
 	{
-		auto ortho_scale = rendering_parameters.get_screen_width() / rendering_parameters.get_frustum().r; // This might be a bit of a hack - we recover the "real" scaling from the SOP estimate
+		const auto ortho_scale = rendering_parameters.get_screen_width() / rendering_parameters.get_frustum().r; // This might be a bit of a hack - we recover the "real" scaling from the SOP estimate
 		if (idx_d[i].second <= distance_threshold * ortho_scale) // I think multiplying by the scale is good here and gives us invariance w.r.t. the image resolution and face size.
 		{
 			const auto edge_point = image_edges[idx_d[i].first];

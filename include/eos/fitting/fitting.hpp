@@ -71,7 +71,7 @@ inline Eigen::VectorXf fit_shape(Eigen::Matrix<float, 3, 4> affine_camera_matrix
 	using Eigen::VectorXf;
 	using Eigen::MatrixXf;
 	
-	MatrixXf blendshapes_as_basis = morphablemodel::to_matrix(blendshapes);
+	const MatrixXf blendshapes_as_basis = morphablemodel::to_matrix(blendshapes);
 
 	std::vector<float> last_blendshape_coeffs, current_blendshape_coeffs; 
 	std::vector<float> last_pca_coeffs, current_pca_coeffs;
@@ -84,11 +84,11 @@ inline Eigen::VectorXf fit_shape(Eigen::Matrix<float, 3, 4> affine_camera_matrix
 		last_blendshape_coeffs = current_blendshape_coeffs;
 		last_pca_coeffs = current_pca_coeffs;
 		// Estimate the PCA shape coefficients with the current blendshape coefficients (0 in the first iteration):
-		VectorXf mean_plus_blendshapes = morphable_model.get_shape_model().get_mean() + blendshapes_as_basis * Eigen::Map<const Eigen::VectorXf>(last_blendshape_coeffs.data(), last_blendshape_coeffs.size());
+                const VectorXf mean_plus_blendshapes = morphable_model.get_shape_model().get_mean() + blendshapes_as_basis * Eigen::Map<const Eigen::VectorXf>(last_blendshape_coeffs.data(), last_blendshape_coeffs.size());
 		current_pca_coeffs = fitting::fit_shape_to_landmarks_linear(morphable_model, affine_camera_matrix, image_points, vertex_indices, mean_plus_blendshapes, lambda, num_coefficients_to_fit);
 
 		// Estimate the blendshape coefficients with the current PCA model estimate:
-		VectorXf pca_model_shape = morphable_model.get_shape_model().draw_sample(current_pca_coeffs);
+                const VectorXf pca_model_shape = morphable_model.get_shape_model().draw_sample(current_pca_coeffs);
 		current_blendshape_coeffs = fitting::fit_blendshapes_to_landmarks_nnls(blendshapes, pca_model_shape, affine_camera_matrix, image_points, vertex_indices);
 
 		combined_shape = pca_model_shape + blendshapes_as_basis * Eigen::Map<const Eigen::VectorXf>(current_blendshape_coeffs.data(), current_blendshape_coeffs.size()); // Todo/Note: Could move outside the loop, not needed in here actually
@@ -263,7 +263,7 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(co
 		blendshape_coefficients.resize(blendshapes.size());
 	}
 
-	MatrixXf blendshapes_as_basis = morphablemodel::to_matrix(blendshapes);
+        const MatrixXf blendshapes_as_basis = morphablemodel::to_matrix(blendshapes);
 
 	// Current mesh - either from the given coefficients, or the mean:
 	VectorXf current_pca_shape = morphable_model.get_shape_model().draw_sample(pca_shape_coefficients);
@@ -291,11 +291,10 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(co
 
 	// Need to do an initial pose fit to do the contour fitting inside the loop.
 	// We'll do an expression fit too, since face shapes vary quite a lot, depending on expressions.
-	fitting::ScaledOrthoProjectionParameters current_pose;
-	current_pose = fitting::estimate_orthographic_projection_linear(image_points, model_points, true, image_height);
+	fitting::ScaledOrthoProjectionParameters current_pose = fitting::estimate_orthographic_projection_linear(image_points, model_points, true, image_height);
 	fitting::RenderingParameters rendering_params(current_pose, image_width, image_height);
 
-	Eigen::Matrix<float, 3, 4> affine_from_ortho = fitting::get_3x4_affine_camera_matrix(rendering_params, image_width, image_height);
+        const Eigen::Matrix<float, 3, 4> affine_from_ortho = fitting::get_3x4_affine_camera_matrix(rendering_params, image_width, image_height);
 	blendshape_coefficients = fitting::fit_blendshapes_to_landmarks_nnls(blendshapes, current_pca_shape, affine_from_ortho, image_points, vertex_indices);
 
 	// Mesh with same PCA coeffs as before, but new expression fit (this is relevant if no initial blendshape coeffs have been given):
@@ -304,8 +303,8 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(co
 
 	// The static (fixed) landmark correspondences which will stay the same throughout
 	// the fitting (the inner face landmarks):
-	auto fixed_image_points = image_points;
-	auto fixed_vertex_indices = vertex_indices;
+        const auto fixed_image_points = image_points;
+        const auto fixed_vertex_indices = vertex_indices;
 
 	for (int i = 0; i < num_iterations; ++i)
 	{
@@ -314,7 +313,7 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(co
 		// Given the current pose, find 2D-3D contour correspondences of the front-facing face contour:
 		vector<Vector2f> image_points_contour;
 		vector<int> vertex_indices_contour;
-		auto yaw_angle = glm::degrees(glm::eulerAngles(rendering_params.get_rotation())[1]);
+                const auto yaw_angle = glm::degrees(glm::eulerAngles(rendering_params.get_rotation())[1]);
 		// For each 2D contour landmark, get the corresponding 3D vertex point and vertex id:
 		std::tie(image_points_contour, std::ignore, vertex_indices_contour) = fitting::get_contour_correspondences(landmarks, contour_landmarks, model_contour, yaw_angle, current_mesh, rendering_params.get_modelview(), rendering_params.get_projection(), fitting::get_opencv_viewport(image_width, image_height));
 		// Add the contour correspondences to the set of landmarks that we use for the fitting:
@@ -332,7 +331,7 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(co
 			auto contour_landmarks_ = core::filter(landmarks, contour_landmarks.right_contour);
 			std::for_each(begin(contour_landmarks_), end(contour_landmarks_), [&occluding_contour_landmarks](auto&& lm) { occluding_contour_landmarks.push_back({ lm.coordinates[0], lm.coordinates[1] }); });
 		}
-		auto edge_correspondences = fitting::find_occluding_edge_correspondences(current_mesh, edge_topology, rendering_params, occluding_contour_landmarks, 180.0f);
+                const auto edge_correspondences = fitting::find_occluding_edge_correspondences(current_mesh, edge_topology, rendering_params, occluding_contour_landmarks, 180.0f);
 		image_points = fitting::concat(image_points, edge_correspondences.first);
 		vertex_indices = fitting::concat(vertex_indices, edge_correspondences.second);
 
@@ -350,7 +349,7 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(co
 		Eigen::Matrix<float, 3, 4> affine_from_ortho = fitting::get_3x4_affine_camera_matrix(rendering_params, image_width, image_height);
 
 		// Estimate the PCA shape coefficients with the current blendshape coefficients:
-		VectorXf mean_plus_blendshapes = morphable_model.get_shape_model().get_mean() + blendshapes_as_basis * Eigen::Map<const Eigen::VectorXf>(blendshape_coefficients.data(), blendshape_coefficients.size());
+                const VectorXf mean_plus_blendshapes = morphable_model.get_shape_model().get_mean() + blendshapes_as_basis * Eigen::Map<const Eigen::VectorXf>(blendshape_coefficients.data(), blendshape_coefficients.size());
 		pca_shape_coefficients = fitting::fit_shape_to_landmarks_linear(morphable_model, affine_from_ortho, image_points, vertex_indices, mean_plus_blendshapes, lambda, num_shape_coefficients_to_fit);
 
 		// Estimate the blendshape coefficients with the current PCA model estimate:

@@ -70,13 +70,13 @@ inline std::pair<core::Image4u, core::Image1d> render_affine(const core::Mesh& m
 	Image1d depthbuffer(viewport_height, viewport_width);
 	std::for_each(std::begin(depthbuffer.data), std::end(depthbuffer.data), [](auto& element) { element = std::numeric_limits<double>::max(); });
 
-	Eigen::Matrix<float, 4, 4> affine_with_z = detail::calculate_affine_z_direction(affine_camera_matrix);
+        const Eigen::Matrix<float, 4, 4> affine_with_z = detail::calculate_affine_z_direction(affine_camera_matrix);
 
 	vector<detail::Vertex<float>> projected_vertices;
 	projected_vertices.reserve(mesh.vertices.size());
 	for (int i = 0; i < mesh.vertices.size(); ++i) {
 		const Eigen::Vector4f vertex_screen_coords = affine_with_z * Eigen::Vector4f(mesh.vertices[i][0], mesh.vertices[i][1], mesh.vertices[i][2], mesh.vertices[i][3]);
-		glm::tvec4<float> vertex_screen_coords_glm(vertex_screen_coords(0), vertex_screen_coords(1), vertex_screen_coords(2), vertex_screen_coords(3));
+                const glm::tvec4<float> vertex_screen_coords_glm(vertex_screen_coords(0), vertex_screen_coords(1), vertex_screen_coords(2), vertex_screen_coords(3));
 		glm::tvec3<float> vertex_colour;
 		if (mesh.colors.empty()) {
 			vertex_colour = glm::tvec3<float>(0.5f, 0.5f, 0.5f);
@@ -97,11 +97,11 @@ inline std::pair<core::Image4u, core::Image1d> render_affine(const core::Mesh& m
 
 		// Get the bounding box of the triangle:
 		// take care: What do we do if all 3 vertices are not visible. Seems to work on a test case.
-		Rect<int> bounding_box = detail::calculate_clipped_bounding_box(glm::tvec2<float>(projected_vertices[tri_indices[0]].position), glm::tvec2<float>(projected_vertices[tri_indices[1]].position), glm::tvec2<float>(projected_vertices[tri_indices[2]].position), viewport_width, viewport_height);
-		auto min_x = bounding_box.x;
-		auto max_x = bounding_box.x + bounding_box.width;
-		auto min_y = bounding_box.y;
-		auto max_y = bounding_box.y + bounding_box.height;
+		const Rect<int> bounding_box = detail::calculate_clipped_bounding_box(glm::tvec2<float>(projected_vertices[tri_indices[0]].position), glm::tvec2<float>(projected_vertices[tri_indices[1]].position), glm::tvec2<float>(projected_vertices[tri_indices[2]].position), viewport_width, viewport_height);
+                const auto min_x = bounding_box.x;
+                const auto max_x = bounding_box.x + bounding_box.width;
+                const auto min_y = bounding_box.y;
+                const auto max_y = bounding_box.y + bounding_box.height;
 
 		if (max_x <= min_x || max_y <= min_y) // Note: Can the width/height of the bbox be negative? Maybe we only need to check for equality here?
 			continue;

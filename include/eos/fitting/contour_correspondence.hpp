@@ -291,24 +291,24 @@ inline std::tuple<std::vector<Eigen::Vector2f>, std::vector<Eigen::Vector4f>, st
 	{
 		// Check if the contour landmark is amongst the landmarks given to us (from detector or ground truth):
 		// (Note: Alternatively, we could filter landmarks beforehand and then just loop over landmarks => means one less function param here. Separate filtering from actual algorithm.)
-		auto result = std::find_if(begin(landmarks), end(landmarks), [&ibug_idx](auto&& e) { return e.name == ibug_idx; }); // => this can go outside the loop
+		const auto result = std::find_if(begin(landmarks), end(landmarks), [&ibug_idx](auto&& e) { return e.name == ibug_idx; }); // => this can go outside the loop
 		// TODO Check for ::end!!! if it's not found!
-		auto screen_point_2d_contour_landmark = result->coordinates;
+		const auto screen_point_2d_contour_landmark = result->coordinates;
 
 		std::vector<float> distances_2d;
 		for (auto&& model_contour_vertex_idx : model_contour_indices) // we could actually pre-project them, i.e. only project them once, not for each landmark newly...
 		{
                         const glm::vec3 vertex(mesh.vertices[model_contour_vertex_idx][0], mesh.vertices[model_contour_vertex_idx][1], mesh.vertices[model_contour_vertex_idx][2]);
-			glm::vec3 proj = glm::project(vertex, view_model, ortho_projection, viewport);
-			Eigen::Vector2f screen_point_model_contour(proj.x, proj.y);
+			const glm::vec3 proj = glm::project(vertex, view_model, ortho_projection, viewport);
+			const Eigen::Vector2f screen_point_model_contour(proj.x, proj.y);
 
 			const double dist = (screen_point_model_contour - screen_point_2d_contour_landmark).norm();
 			distances_2d.emplace_back(dist);
 		}
-		auto min_ele = std::min_element(begin(distances_2d), end(distances_2d));
+		const auto min_ele = std::min_element(begin(distances_2d), end(distances_2d));
 		// Todo: Cover the case when cnt_indices_to_use.size() is 0.
-		auto min_ele_idx = std::distance(begin(distances_2d), min_ele);
-		auto the_3dmm_vertex_id_that_is_closest = model_contour_indices[min_ele_idx];
+		const auto min_ele_idx = std::distance(begin(distances_2d), min_ele);
+		const auto the_3dmm_vertex_id_that_is_closest = model_contour_indices[min_ele_idx];
 
 		const Eigen::Vector4f vertex(mesh.vertices[the_3dmm_vertex_id_that_is_closest][0], mesh.vertices[the_3dmm_vertex_id_that_is_closest][1], mesh.vertices[the_3dmm_vertex_id_that_is_closest][2], mesh.vertices[the_3dmm_vertex_id_that_is_closest][3]);
 		model_points_cnt.emplace_back(vertex);

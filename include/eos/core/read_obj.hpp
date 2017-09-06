@@ -217,7 +217,7 @@ inline Mesh read_obj(std::string filename)
             }
         }
         if (starts_with(line, "vt ")) {
-            auto texcoords = detail::parse_texcoords(line.substr(3));
+            const auto texcoords = detail::parse_texcoords(line.substr(3));
             mesh.texcoords.push_back(texcoords);
         }
         if (starts_with(line, "vn ")) {

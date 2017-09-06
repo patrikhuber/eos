@@ -149,7 +149,7 @@ inline std::pair<core::Image4u, core::Image1d> render(core::Mesh mesh, glm::tmat
 	clipspace_vertices.reserve(mesh.vertices.size());
 	for (int i = 0; i < mesh.vertices.size(); ++i) { // "previously": mesh.vertex
                 const glm::tvec4<float> vertex(mesh.vertices[i][0], mesh.vertices[i][1], mesh.vertices[i][2], 1.0f);
-		glm::tvec4<float> clipspace_coords = projection_matrix * model_view_matrix * vertex;
+                const glm::tvec4<float> clipspace_coords = projection_matrix * model_view_matrix * vertex;
 		glm::tvec3<float> vertex_colour;
 		if (mesh.colors.empty()) {
 			vertex_colour = glm::tvec3<float>(0.5f, 0.5f, 0.5f);
@@ -176,10 +176,10 @@ inline std::pair<core::Image4u, core::Image1d> render(core::Mesh mesh, glm::tmat
 		for (unsigned char k = 0; k < 3; k++)
 		{
 			visibility_bits[k] = 0;
-			float x_cc = clipspace_vertices[tri_indices[k]].position[0];
-			float y_cc = clipspace_vertices[tri_indices[k]].position[1];
-			float z_cc = clipspace_vertices[tri_indices[k]].position[2];
-			float w_cc = clipspace_vertices[tri_indices[k]].position[3];
+                        const float x_cc = clipspace_vertices[tri_indices[k]].position[0];
+                        const float y_cc = clipspace_vertices[tri_indices[k]].position[1];
+                        const float z_cc = clipspace_vertices[tri_indices[k]].position[2];
+                        const float w_cc = clipspace_vertices[tri_indices[k]].position[3];
 			if (x_cc < -w_cc)			// true if outside of view frustum. False if on or inside the plane.
 				visibility_bits[k] |= 1;	// set bit if outside of frustum
 			if (x_cc > w_cc)
