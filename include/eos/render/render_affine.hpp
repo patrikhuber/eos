@@ -75,16 +75,16 @@ inline std::pair<core::Image4u, core::Image1d> render_affine(const core::Mesh& m
 	vector<detail::Vertex<float>> projected_vertices;
 	projected_vertices.reserve(mesh.vertices.size());
 	for (int i = 0; i < mesh.vertices.size(); ++i) {
-		Eigen::Vector4f vertex_screen_coords = affine_with_z * Eigen::Vector4f(mesh.vertices[i].x, mesh.vertices[i].y, mesh.vertices[i].z, mesh.vertices[i].w);
+		const Eigen::Vector4f vertex_screen_coords = affine_with_z * Eigen::Vector4f(mesh.vertices[i][0], mesh.vertices[i][1], mesh.vertices[i][2], mesh.vertices[i][3]);
 		glm::tvec4<float> vertex_screen_coords_glm(vertex_screen_coords(0), vertex_screen_coords(1), vertex_screen_coords(2), vertex_screen_coords(3));
 		glm::tvec3<float> vertex_colour;
 		if (mesh.colors.empty()) {
 			vertex_colour = glm::tvec3<float>(0.5f, 0.5f, 0.5f);
 		}
 		else {
-			vertex_colour = mesh.colors[i];
+			vertex_colour = glm::tvec3<float>(mesh.colors[i][0], mesh.colors[i][1], mesh.colors[i][2]);
 		}
-		projected_vertices.push_back(detail::Vertex<float>{vertex_screen_coords_glm, vertex_colour, mesh.texcoords[i]});
+		projected_vertices.push_back(detail::Vertex<float>{vertex_screen_coords_glm, vertex_colour, glm::tvec2<float>(mesh.texcoords[i][0], mesh.texcoords[i][1])});
 	}
 
 	// All vertices are screen-coordinates now

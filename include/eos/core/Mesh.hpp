@@ -22,9 +22,7 @@
 #ifndef MESH_HPP_
 #define MESH_HPP_
 
-#include "glm/vec2.hpp"
-#include "glm/vec3.hpp"
-#include "glm/vec4.hpp"
+#include "Eigen/Core"
 
 #include <vector>
 #include <array>
@@ -44,9 +42,9 @@ namespace eos {
  */
 struct Mesh
 {
-	std::vector<glm::vec4> vertices; ///< 3D vertex positions.
-	std::vector<glm::vec3> colors; ///< Colour information for each vertex. Expected to be in RGB order.
-	std::vector<glm::vec2> texcoords; ///< Texture coordinates for each vertex.
+	std::vector<Eigen::Vector3f> vertices; ///< 3D vertex positions.
+	std::vector<Eigen::Vector3f> colors; ///< Colour information for each vertex. Expected to be in RGB order.
+	std::vector<Eigen::Vector2f> texcoords; ///< Texture coordinates for each vertex.
 
 	std::vector<std::array<int, 3>> tvi; ///< Triangle vertex indices
 	std::vector<std::array<int, 3>> tci; ///< Triangle color indices

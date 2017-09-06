@@ -339,8 +339,9 @@ inline core::Mesh sample_to_mesh(const Eigen::VectorXf& shape_instance, const Ei
     mesh.vertices.resize(num_vertices);
     for (auto i = 0; i < num_vertices; ++i)
     {
-        mesh.vertices[i] = glm::tvec4<float>(shape_instance(i * 3 + 0), shape_instance(i * 3 + 1),
-                                             shape_instance(i * 3 + 2), 1.0f);
+        mesh.vertices[i] = Eigen::Vector3f(
+            shape_instance(i * 3 + 0), shape_instance(i * 3 + 1),
+            shape_instance(i * 3 + 2)); // Note: This can probably be simplified now, Eigen on both sides!
     }
 
     // Assign the vertex colour information if it's not a shape-only model:
@@ -349,8 +350,10 @@ inline core::Mesh sample_to_mesh(const Eigen::VectorXf& shape_instance, const Ei
         mesh.colors.resize(num_vertices);
         for (auto i = 0; i < num_vertices; ++i)
         {
-            mesh.colors[i] = glm::tvec3<float>(color_instance(i * 3 + 0), color_instance(i * 3 + 1),
-                                               color_instance(i * 3 + 2)); // We use RGB order everywhere
+            mesh.colors[i] = Eigen::Vector3f(color_instance(i * 3 + 0), color_instance(i * 3 + 1),
+                                             color_instance(i * 3 + 2)); // We use RGB order everywhere. Note:
+                                                                         // This can probably be simplified
+                                                                         // now, Eigen on both sides!
         }
     }
 
@@ -364,7 +367,9 @@ inline core::Mesh sample_to_mesh(const Eigen::VectorXf& shape_instance, const Ei
         mesh.texcoords.resize(num_vertices);
         for (auto i = 0; i < num_vertices; ++i)
         {
-            mesh.texcoords[i] = glm::tvec2<float>(texture_coordinates[i][0], texture_coordinates[i][1]);
+            mesh.texcoords[i] = Eigen::Vector2f(
+                texture_coordinates[i][0],
+                texture_coordinates[i][1]); // Note: This can probably be simplified now, Eigen on both sides!
         }
     }
 

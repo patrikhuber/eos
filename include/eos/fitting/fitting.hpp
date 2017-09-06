@@ -283,7 +283,7 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(co
 			continue;
 		}
 		int vertex_idx = std::stoi(converted_name.value());
-		Vector4f vertex(current_mesh.vertices[vertex_idx].x, current_mesh.vertices[vertex_idx].y, current_mesh.vertices[vertex_idx].z, current_mesh.vertices[vertex_idx].w);
+		Vector4f vertex(current_mesh.vertices[vertex_idx][0], current_mesh.vertices[vertex_idx][1], current_mesh.vertices[vertex_idx][2], current_mesh.vertices[vertex_idx][3]);
 		model_points.emplace_back(vertex);
 		vertex_indices.emplace_back(vertex_idx);
 		image_points.emplace_back(landmarks[i].coordinates);

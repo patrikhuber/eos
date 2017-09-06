@@ -262,6 +262,8 @@ inline std::pair<std::vector<std::string>, std::vector<int>> select_contour(floa
  * Given a set of 2D image landmarks, finds the closest (in a L2 sense) 3D vertex
  * from a list of vertices pre-defined in \p model_contour. Assumes to be given
  * contour correspondences of the front-facing contour.
+ * 
+ * Todo: Return Vector3f here instead of Vector4f?
  *
  * Note: Maybe rename to find_nearest_contour_points, to highlight that there is (potentially a lot) computational cost involved?
  * Note: Does ortho_projection have to be specifically orthographic? Otherwise, if it works with perspective too, rename to just "projection".
@@ -296,8 +298,8 @@ inline std::tuple<std::vector<Eigen::Vector2f>, std::vector<Eigen::Vector4f>, st
 		std::vector<float> distances_2d;
 		for (auto&& model_contour_vertex_idx : model_contour_indices) // we could actually pre-project them, i.e. only project them once, not for each landmark newly...
 		{
-			auto vertex = mesh.vertices[model_contour_vertex_idx];
-			glm::vec3 proj = glm::project(glm::vec3(vertex), view_model, ortho_projection, viewport);
+                        const glm::vec3 vertex(mesh.vertices[model_contour_vertex_idx][0], mesh.vertices[model_contour_vertex_idx][1], mesh.vertices[model_contour_vertex_idx][2]);
+			glm::vec3 proj = glm::project(vertex, view_model, ortho_projection, viewport);
 			Eigen::Vector2f screen_point_model_contour(proj.x, proj.y);
 
 			const double dist = (screen_point_model_contour - screen_point_2d_contour_landmark).norm();
@@ -308,7 +310,7 @@ inline std::tuple<std::vector<Eigen::Vector2f>, std::vector<Eigen::Vector4f>, st
 		auto min_ele_idx = std::distance(begin(distances_2d), min_ele);
 		auto the_3dmm_vertex_id_that_is_closest = model_contour_indices[min_ele_idx];
 
-		Eigen::Vector4f vertex(mesh.vertices[the_3dmm_vertex_id_that_is_closest].x, mesh.vertices[the_3dmm_vertex_id_that_is_closest].y, mesh.vertices[the_3dmm_vertex_id_that_is_closest].z, mesh.vertices[the_3dmm_vertex_id_that_is_closest].w);
+		const Eigen::Vector4f vertex(mesh.vertices[the_3dmm_vertex_id_that_is_closest][0], mesh.vertices[the_3dmm_vertex_id_that_is_closest][1], mesh.vertices[the_3dmm_vertex_id_that_is_closest][2], mesh.vertices[the_3dmm_vertex_id_that_is_closest][3]);
 		model_points_cnt.emplace_back(vertex);
 		vertex_indices_cnt.emplace_back(the_3dmm_vertex_id_that_is_closest);
 		image_points_cnt.emplace_back(screen_point_2d_contour_landmark);

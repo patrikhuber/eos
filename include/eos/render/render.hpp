@@ -148,15 +148,16 @@ inline std::pair<core::Image4u, core::Image1d> render(core::Mesh mesh, glm::tmat
 	vector<detail::Vertex<float>> clipspace_vertices;
 	clipspace_vertices.reserve(mesh.vertices.size());
 	for (int i = 0; i < mesh.vertices.size(); ++i) { // "previously": mesh.vertex
-		glm::tvec4<float> clipspace_coords = projection_matrix * model_view_matrix * mesh.vertices[i];
+                const glm::tvec4<float> vertex(mesh.vertices[i][0], mesh.vertices[i][1], mesh.vertices[i][2], 1.0f);
+		glm::tvec4<float> clipspace_coords = projection_matrix * model_view_matrix * vertex;
 		glm::tvec3<float> vertex_colour;
 		if (mesh.colors.empty()) {
 			vertex_colour = glm::tvec3<float>(0.5f, 0.5f, 0.5f);
 		}
 		else {
-			vertex_colour = mesh.colors[i];
+			vertex_colour = glm::tvec3<float>(mesh.colors[i][0], mesh.colors[i][1], mesh.colors[i][2]);
 		}
-		clipspace_vertices.push_back(detail::Vertex<float>{clipspace_coords, vertex_colour, mesh.texcoords[i]});
+		clipspace_vertices.push_back(detail::Vertex<float>{clipspace_coords, vertex_colour, glm::tvec2<float>(mesh.texcoords[i][0], mesh.texcoords[i][1])});
 	}
 
 	// All vertices are in clip-space now.

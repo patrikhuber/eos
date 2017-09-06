@@ -24,9 +24,7 @@
 
 #include "eos/core/Mesh.hpp"
 
-#include "glm/vec2.hpp"
-#include "glm/vec3.hpp"
-#include "glm/vec4.hpp"
+#include "Eigen/Core"
 
 #include <fstream>
 #include <string>
@@ -105,26 +103,26 @@ void tokenize(const std::string& str, ContainerType& tokens, const std::string& 
  * Todo: Consider using std::string_view for these instead of const string&.
  * And should change to glm::vec3, and just divide by 'w'. As soon as we change the Mesh to vec3.
  */
-inline std::pair<glm::vec4, std::optional<glm::vec3>> parse_vertex(const std::string& line)
+inline std::pair<Eigen::Vector4f, std::optional<Eigen::Vector3f>> parse_vertex(const std::string& line)
 {
     std::vector<std::string> tokens;
     tokenize(line, tokens, " ");
     assert(tokens.size() == 3 || tokens.size() == 6); // Maybe we should throw instead?
-    const glm::vec4 vertex(std::stof(tokens[0]), std::stof(tokens[1]), std::stof(tokens[2]), 1.0);
-    std::optional<glm::vec3> vertex_color;
+    const Eigen::Vector4f vertex(std::stof(tokens[0]), std::stof(tokens[1]), std::stof(tokens[2]), 1.0);
+    std::optional<Eigen::Vector3f> vertex_color;
     if (tokens.size() == 6) {
-        vertex_color = glm::vec3(std::stof(tokens[3]), std::stof(tokens[4]), std::stof(tokens[5]));
+        vertex_color = Eigen::Vector3f(std::stof(tokens[3]), std::stof(tokens[4]), std::stof(tokens[5]));
     }
     return { vertex, vertex_color };
 };
 
 
-inline glm::vec2 parse_texcoords(const std::string& line)
+inline Eigen::Vector2f parse_texcoords(const std::string& line)
 {
     std::vector<std::string> tokens;
     tokenize(line, tokens, " ");
     assert(tokens.size() == 2);
-    const glm::vec2 texcoords(std::stof(tokens[0]), std::stof(tokens[1]));
+    const Eigen::Vector2f texcoords(std::stof(tokens[0]), std::stof(tokens[1]));
     return texcoords;
 };
 
@@ -213,7 +211,7 @@ inline Mesh read_obj(std::string filename)
 
         if (starts_with(line, "v ")) { // matching with a space so that it doesn't match 'vt'
             auto vertex_data = detail::parse_vertex(line.substr(2)); // pass the string without the first two characters
-            mesh.vertices.push_back(vertex_data.first);
+            mesh.vertices.push_back(Eigen::Vector3f(vertex_data.first[0], vertex_data.first[1], vertex_data.first[2]));
             if (vertex_data.second) { // there are vertex colours:
                 mesh.colors.push_back(vertex_data.second.value());
             }

@@ -203,9 +203,9 @@ inline core::Image4u extract_texture(const core::Mesh& mesh, Eigen::Matrix<float
 			// - Use render(), or as in render(...), transfer the vertices once, not in a loop over all triangles (vertices are getting transformed multiple times)
 			// - We transform them later (below) a second time. Only do it once.
 
-			Vector4f v0_as_Vector4f(mesh.vertices[triangle_indices[0]].x, mesh.vertices[triangle_indices[0]].y, mesh.vertices[triangle_indices[0]].z, mesh.vertices[triangle_indices[0]].w);
-			Vector4f v1_as_Vector4f(mesh.vertices[triangle_indices[1]].x, mesh.vertices[triangle_indices[1]].y, mesh.vertices[triangle_indices[1]].z, mesh.vertices[triangle_indices[1]].w);
-			Vector4f v2_as_Vector4f(mesh.vertices[triangle_indices[2]].x, mesh.vertices[triangle_indices[2]].y, mesh.vertices[triangle_indices[2]].z, mesh.vertices[triangle_indices[2]].w);
+			Vector4f v0_as_Vector4f(mesh.vertices[triangle_indices[0]][0], mesh.vertices[triangle_indices[0]][1], mesh.vertices[triangle_indices[0]][2], mesh.vertices[triangle_indices[0]][3]);
+			Vector4f v1_as_Vector4f(mesh.vertices[triangle_indices[1]][0], mesh.vertices[triangle_indices[1]][1], mesh.vertices[triangle_indices[1]][2], mesh.vertices[triangle_indices[1]][3]);
+			Vector4f v2_as_Vector4f(mesh.vertices[triangle_indices[2]][0], mesh.vertices[triangle_indices[2]][1], mesh.vertices[triangle_indices[2]][2], mesh.vertices[triangle_indices[2]][3]);
 
 			// Project the triangle vertices to screen coordinates, and use the depthbuffer to check whether the triangle is visible:
 			const Vector4f v0 = affine_camera_matrix_with_z * v0_as_Vector4f;

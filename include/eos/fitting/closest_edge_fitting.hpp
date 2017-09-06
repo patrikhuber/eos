@@ -122,7 +122,7 @@ inline std::vector<int> occluding_boundary_vertices(const core::Mesh& mesh, cons
 {
 	// Rotate the mesh:
 	std::vector<glm::vec4> rotated_vertices;
-	std::for_each(begin(mesh.vertices), end(mesh.vertices), [&rotated_vertices, &R](auto&& v) { rotated_vertices.push_back(R * v); });
+	std::for_each(begin(mesh.vertices), end(mesh.vertices), [&rotated_vertices, &R](auto&& v) { rotated_vertices.push_back(R * glm::vec4(v[0], v[1], v[2], v[3])); });
 
 	// Compute the face normals of the rotated mesh:
 	std::vector<glm::vec3> facenormals;
