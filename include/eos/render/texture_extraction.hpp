@@ -302,10 +302,10 @@ inline core::Image4u extract_texture(const core::Mesh& mesh, Eigen::Matrix<float
 							const Vector2f src_texel_lower_left = warp_mat_org_inv * homogenous_dst_lower_left;
 							const Vector2f src_texel_lower_right = warp_mat_org_inv * homogenous_dst_lower_right;
 
-							float min_a = min(min(src_texel_upper_left[0], src_texel_upper_right[0]), min(src_texel_lower_left[0], src_texel_lower_right[0]));
-							float max_a = max(max(src_texel_upper_left[0], src_texel_upper_right[0]), max(src_texel_lower_left[0], src_texel_lower_right[0]));
-							float min_b = min(min(src_texel_upper_left[1], src_texel_upper_right[1]), min(src_texel_lower_left[1], src_texel_lower_right[1]));
-							float max_b = max(max(src_texel_upper_left[1], src_texel_upper_right[1]), max(src_texel_lower_left[1], src_texel_lower_right[1]));
+							const float min_a = min(min(src_texel_upper_left[0], src_texel_upper_right[0]), min(src_texel_lower_left[0], src_texel_lower_right[0]));
+                                                        const float max_a = max(max(src_texel_upper_left[0], src_texel_upper_right[0]), max(src_texel_lower_left[0], src_texel_lower_right[0]));
+                                                        const float min_b = min(min(src_texel_upper_left[1], src_texel_upper_right[1]), min(src_texel_lower_left[1], src_texel_lower_right[1]));
+                                                        const float max_b = max(max(src_texel_upper_left[1], src_texel_upper_right[1]), max(src_texel_lower_left[1], src_texel_lower_right[1]));
 
 							Eigen::Vector3i color; // std::uint8_t actually.
 							int num_texels = 0;

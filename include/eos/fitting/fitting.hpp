@@ -337,7 +337,7 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(co
 
 		// Get the model points of the current mesh, for all correspondences that we've got:
 		model_points.clear();
-		for (const auto& v : vertex_indices)
+		for (auto v : vertex_indices)
 		{
 			model_points.push_back({ current_mesh.vertices[v][0], current_mesh.vertices[v][1], current_mesh.vertices[v][2], 1.0f });
 		}
@@ -346,7 +346,7 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(co
 		current_pose = fitting::estimate_orthographic_projection_linear(image_points, model_points, true, image_height);
 		rendering_params = fitting::RenderingParameters(current_pose, image_width, image_height);
 
-		Eigen::Matrix<float, 3, 4> affine_from_ortho = fitting::get_3x4_affine_camera_matrix(rendering_params, image_width, image_height);
+		const Eigen::Matrix<float, 3, 4> affine_from_ortho = fitting::get_3x4_affine_camera_matrix(rendering_params, image_width, image_height);
 
 		// Estimate the PCA shape coefficients with the current blendshape coefficients:
                 const VectorXf mean_plus_blendshapes = morphable_model.get_shape_model().get_mean() + blendshapes_as_basis * Eigen::Map<const Eigen::VectorXf>(blendshape_coefficients.data(), blendshape_coefficients.size());
