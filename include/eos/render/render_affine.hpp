@@ -75,7 +75,7 @@ inline std::pair<core::Image4u, core::Image1d> render_affine(const core::Mesh& m
 	vector<detail::Vertex<float>> projected_vertices;
 	projected_vertices.reserve(mesh.vertices.size());
 	for (int i = 0; i < mesh.vertices.size(); ++i) {
-		const Eigen::Vector4f vertex_screen_coords = affine_with_z * Eigen::Vector4f(mesh.vertices[i][0], mesh.vertices[i][1], mesh.vertices[i][2], mesh.vertices[i][3]);
+		const Eigen::Vector4f vertex_screen_coords = affine_with_z * Eigen::Vector4f(mesh.vertices[i][0], mesh.vertices[i][1], mesh.vertices[i][2], 1.0f);
                 const glm::tvec4<float> vertex_screen_coords_glm(vertex_screen_coords(0), vertex_screen_coords(1), vertex_screen_coords(2), vertex_screen_coords(3));
 		glm::tvec3<float> vertex_colour;
 		if (mesh.colors.empty()) {

@@ -283,7 +283,7 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(co
 			continue;
 		}
 		int vertex_idx = std::stoi(converted_name.value());
-		Vector4f vertex(current_mesh.vertices[vertex_idx][0], current_mesh.vertices[vertex_idx][1], current_mesh.vertices[vertex_idx][2], current_mesh.vertices[vertex_idx][3]);
+		Vector4f vertex(current_mesh.vertices[vertex_idx][0], current_mesh.vertices[vertex_idx][1], current_mesh.vertices[vertex_idx][2], 1.0f);
 		model_points.emplace_back(vertex);
 		vertex_indices.emplace_back(vertex_idx);
 		image_points.emplace_back(landmarks[i].coordinates);
@@ -339,7 +339,7 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(co
 		model_points.clear();
 		for (const auto& v : vertex_indices)
 		{
-			model_points.push_back({ current_mesh.vertices[v][0], current_mesh.vertices[v][1], current_mesh.vertices[v][2], current_mesh.vertices[v][3] });
+			model_points.push_back({ current_mesh.vertices[v][0], current_mesh.vertices[v][1], current_mesh.vertices[v][2], 1.0f });
 		}
 
 		// Re-estimate the pose, using all correspondences:
