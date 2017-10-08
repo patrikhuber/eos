@@ -70,7 +70,7 @@ inline Eigen::VectorXf fit_shape(cv::Mat affine_camera_matrix, const morphablemo
 	using Eigen::VectorXf;
 	using Eigen::MatrixXf;
 	
-	MatrixXf blendshapes_as_basis = morphablemodel::to_matrix(blendshapes);
+	const MatrixXf blendshapes_as_basis = morphablemodel::to_matrix(blendshapes);
 
 	std::vector<float> last_blendshape_coeffs, current_blendshape_coeffs; 
 	std::vector<float> last_pca_coeffs, current_pca_coeffs;
@@ -261,7 +261,7 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(co
 		blendshape_coefficients.resize(blendshapes.size());
 	}
 
-	MatrixXf blendshapes_as_basis = morphablemodel::to_matrix(blendshapes);
+	const MatrixXf blendshapes_as_basis = morphablemodel::to_matrix(blendshapes);
 
 	// Current mesh - either from the given coefficients, or the mean:
 	VectorXf current_pca_shape = morphable_model.get_shape_model().draw_sample(pca_shape_coefficients);
