@@ -56,7 +56,7 @@ namespace eos {
  * @param[in] lambda A regularisation parameter, constraining the L2-norm of the coefficients.
  * @return The estimated blendshape-coefficients.
  */
-inline std::vector<float> fit_blendshapes_to_landmarks_linear(const std::vector<eos::morphablemodel::Blendshape>& blendshapes, const Eigen::VectorXf& face_instance, cv::Mat affine_camera_matrix, const std::vector<cv::Vec2f>& landmarks, const std::vector<int>& vertex_ids, float lambda=500.0f)
+inline std::vector<float> fit_blendshapes_to_landmarks_linear(const std::vector<morphablemodel::Blendshape>& blendshapes, const Eigen::VectorXf& face_instance, cv::Mat affine_camera_matrix, const std::vector<cv::Vec2f>& landmarks, const std::vector<int>& vertex_ids, float lambda=500.0f)
 {
 	assert(landmarks.size() == vertex_ids.size());
 
@@ -129,7 +129,7 @@ inline std::vector<float> fit_blendshapes_to_landmarks_linear(const std::vector<
  * @param[in] vertex_ids The vertex ids in the model that correspond to the 2D points.
  * @return The estimated blendshape-coefficients.
  */
-inline std::vector<float> fit_blendshapes_to_landmarks_nnls(const std::vector<eos::morphablemodel::Blendshape>& blendshapes, const Eigen::VectorXf& face_instance, cv::Mat affine_camera_matrix, const std::vector<cv::Vec2f>& landmarks, const std::vector<int>& vertex_ids)
+inline std::vector<float> fit_blendshapes_to_landmarks_nnls(const std::vector<morphablemodel::Blendshape>& blendshapes, const Eigen::VectorXf& face_instance, cv::Mat affine_camera_matrix, const std::vector<cv::Vec2f>& landmarks, const std::vector<int>& vertex_ids)
 {
 	assert(landmarks.size() == vertex_ids.size());
 
