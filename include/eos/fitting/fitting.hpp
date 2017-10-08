@@ -312,7 +312,7 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(co
 		// Given the current pose, find 2D-3D contour correspondences of the front-facing face contour:
 		vector<Vec2f> image_points_contour;
 		vector<int> vertex_indices_contour;
-		auto yaw_angle = glm::degrees(glm::eulerAngles(rendering_params.get_rotation())[1]);
+		const auto yaw_angle = glm::degrees(glm::eulerAngles(rendering_params.get_rotation())[1]);
 		// For each 2D contour landmark, get the corresponding 3D vertex point and vertex id:
 		std::tie(image_points_contour, std::ignore, vertex_indices_contour) = fitting::get_contour_correspondences(landmarks, contour_landmarks, model_contour, yaw_angle, current_mesh, rendering_params.get_modelview(), rendering_params.get_projection(), fitting::get_opencv_viewport(image_width, image_height));
 		// Add the contour correspondences to the set of landmarks that we use for the fitting:
