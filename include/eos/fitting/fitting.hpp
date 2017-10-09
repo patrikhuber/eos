@@ -223,19 +223,21 @@ inline auto concat(const std::vector<T>& vec_a, const std::vector<T>& vec_b)
  * @param[in] num_iterations Number of iterations that the different fitting parts will be alternated for.
  * @param[in] num_shape_coefficients_to_fit How many shape-coefficients to fit (all others will stay 0). Should be bigger than zero, or boost::none to fit all coefficients.
  * @param[in] lambda Regularisation parameter of the PCA shape fitting.
+ * @param[in] landmarks_standard_deviations A vector of standard deviations of the 2D landmarks, to be used as weights.
  * @param[in] initial_rendering_params Currently ignored (not used).
  * @param[in,out] pca_shape_coefficients If given, will be used as initial PCA shape coefficients to start the fitting. Will contain the final estimated coefficients.
  * @param[in,out] blendshape_coefficients If given, will be used as initial expression blendshape coefficients to start the fitting. Will contain the final estimated coefficients.
  * @param[out] fitted_image_points Debug parameter: Returns all the 2D points that have been used for the fitting.
  * @return The fitted model shape instance and the final pose.
  */
-inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(const morphablemodel::MorphableModel& morphable_model, const std::vector<morphablemodel::Blendshape>& blendshapes, const core::LandmarkCollection<cv::Vec2f>& landmarks, const core::LandmarkMapper& landmark_mapper, int image_width, int image_height, const morphablemodel::EdgeTopology& edge_topology, const fitting::ContourLandmarks& contour_landmarks, const fitting::ModelContour& model_contour, int num_iterations, boost::optional<int> num_shape_coefficients_to_fit, float lambda, boost::optional<fitting::RenderingParameters> initial_rendering_params, std::vector<float>& pca_shape_coefficients, std::vector<float>& blendshape_coefficients, std::vector<cv::Vec2f>& fitted_image_points)
+inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(const morphablemodel::MorphableModel& morphable_model, const std::vector<morphablemodel::Blendshape>& blendshapes, const core::LandmarkCollection<cv::Vec2f>& landmarks, const core::LandmarkMapper& landmark_mapper, int image_width, int image_height, const morphablemodel::EdgeTopology& edge_topology, const fitting::ContourLandmarks& contour_landmarks, const fitting::ModelContour& model_contour, int num_iterations, boost::optional<int> num_shape_coefficients_to_fit, float lambda, std::vector<float> landmarks_standard_deviations, boost::optional<fitting::RenderingParameters> initial_rendering_params, std::vector<float>& pca_shape_coefficients, std::vector<float>& blendshape_coefficients, std::vector<cv::Vec2f>& fitted_image_points)
 {
 	assert(blendshapes.size() > 0);
 	assert(landmarks.size() >= 4);
 	assert(image_width > 0 && image_height > 0);
 	assert(num_iterations > 0); // Can we allow 0, for only the initial pose-fit?
 	assert(pca_shape_coefficients.size() <= morphable_model.get_shape_model().get_num_principal_components());
+    assert(landmarks_standard_deviations.empty() || landmarks_standard_deviations.size() == landmarks.size());
 	// More asserts I forgot?
 
 	using std::vector;
@@ -261,7 +263,7 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(co
 		blendshape_coefficients.resize(blendshapes.size());
 	}
 
-	MatrixXf blendshapes_as_basis = morphablemodel::to_matrix(blendshapes);
+	const MatrixXf blendshapes_as_basis = morphablemodel::to_matrix(blendshapes);
 
 	// Current mesh - either from the given coefficients, or the mean:
 	VectorXf current_pca_shape = morphable_model.get_shape_model().draw_sample(pca_shape_coefficients);
@@ -272,6 +274,7 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(co
 	vector<Vec4f> model_points; // the points in the 3D shape model
 	vector<int> vertex_indices; // their vertex indices
 	vector<Vec2f> image_points; // the corresponding 2D landmark points
+    vector<float> used_landmarks_standard_deviations;
 
 	// Sub-select all the landmarks which we have a mapping for (i.e. that are defined in the 3DMM),
 	// and get the corresponding model points (mean if given no initial coeffs, from the computed shape otherwise):
@@ -285,6 +288,8 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(co
 		model_points.emplace_back(vertex);
 		vertex_indices.emplace_back(vertex_idx);
 		image_points.emplace_back(landmarks[i].coordinates);
+        // copy the appropriate weighting (sdev):
+        used_landmarks_standard_deviations.emplace_back(landmarks_standard_deviations[i]);
 	}
 
 	// Need to do an initial pose fit to do the contour fitting inside the loop.
@@ -304,15 +309,17 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(co
 	// the fitting (the inner face landmarks):
 	auto fixed_image_points = image_points;
 	auto fixed_vertex_indices = vertex_indices;
+    auto fixed_landmarks_standard_deviations = used_landmarks_standard_deviations;
 
 	for (int i = 0; i < num_iterations; ++i)
 	{
 		image_points = fixed_image_points;
 		vertex_indices = fixed_vertex_indices;
+        landmarks_standard_deviations = fixed_landmarks_standard_deviations;
 		// Given the current pose, find 2D-3D contour correspondences of the front-facing face contour:
 		vector<Vec2f> image_points_contour;
 		vector<int> vertex_indices_contour;
-		auto yaw_angle = glm::degrees(glm::eulerAngles(rendering_params.get_rotation())[1]);
+		const auto yaw_angle = glm::degrees(glm::eulerAngles(rendering_params.get_rotation())[1]);
 		// For each 2D contour landmark, get the corresponding 3D vertex point and vertex id:
 		std::tie(image_points_contour, std::ignore, vertex_indices_contour) = fitting::get_contour_correspondences(landmarks, contour_landmarks, model_contour, yaw_angle, current_mesh, rendering_params.get_modelview(), rendering_params.get_projection(), fitting::get_opencv_viewport(image_width, image_height));
 		// Add the contour correspondences to the set of landmarks that we use for the fitting:
@@ -340,6 +347,11 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(co
 		{
 			model_points.push_back({ current_mesh.vertices[v][0], current_mesh.vertices[v][1], current_mesh.vertices[v][2], current_mesh.vertices[v][3] });
 		}
+        // Set the standard deviation for the additional contour points to a default value:
+        const auto num_additional_contour_landmarks = image_points.size() - fixed_landmarks_standard_deviations.size();
+        for (int j = 0; j < num_additional_contour_landmarks; ++j) {
+            landmarks_standard_deviations.push_back(std::sqrt(3.0f)); 
+        }
 
 		// Re-estimate the pose, using all correspondences:
 		current_pose = fitting::estimate_orthographic_projection_linear(image_points, model_points, true, image_height);
@@ -349,11 +361,11 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(co
 
 		// Estimate the PCA shape coefficients with the current blendshape coefficients:
 		VectorXf mean_plus_blendshapes = morphable_model.get_shape_model().get_mean() + blendshapes_as_basis * Eigen::Map<const Eigen::VectorXf>(blendshape_coefficients.data(), blendshape_coefficients.size());
-		pca_shape_coefficients = fitting::fit_shape_to_landmarks_linear(morphable_model, affine_from_ortho, image_points, vertex_indices, mean_plus_blendshapes, lambda, num_shape_coefficients_to_fit);
+		pca_shape_coefficients = fitting::fit_shape_to_landmarks_linear(morphable_model, affine_from_ortho, image_points, vertex_indices, mean_plus_blendshapes, lambda, num_shape_coefficients_to_fit, landmarks_standard_deviations);
 
 		// Estimate the blendshape coefficients with the current PCA model estimate:
 		current_pca_shape = morphable_model.get_shape_model().draw_sample(pca_shape_coefficients);
-		blendshape_coefficients = fitting::fit_blendshapes_to_landmarks_nnls(blendshapes, current_pca_shape, affine_from_ortho, image_points, vertex_indices);
+		blendshape_coefficients = fitting::fit_blendshapes_to_landmarks_nnls(blendshapes, current_pca_shape, affine_from_ortho, image_points, vertex_indices, landmarks_standard_deviations);
 
 		current_combined_shape = current_pca_shape + blendshapes_as_basis * Eigen::Map<const Eigen::VectorXf>(blendshape_coefficients.data(), blendshape_coefficients.size());
 		current_mesh = morphablemodel::sample_to_mesh(current_combined_shape, morphable_model.get_color_model().get_mean(), morphable_model.get_shape_model().get_triangle_list(), morphable_model.get_color_model().get_triangle_list(), morphable_model.get_texture_coordinates());
@@ -395,14 +407,15 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(co
  * @param[in] num_iterations Number of iterations that the different fitting parts will be alternated for.
  * @param[in] num_shape_coefficients_to_fit How many shape-coefficients to fit (all others will stay 0). Should be bigger than zero, or boost::none to fit all coefficients.
  * @param[in] lambda Regularisation parameter of the PCA shape fitting.
+ * @param[in] landmarks_standard_deviations A vector of standard deviations of the 2D landmarks, to be used as weights.
  * @return The fitted model shape instance and the final pose.
  */
-inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(const morphablemodel::MorphableModel& morphable_model, const std::vector<morphablemodel::Blendshape>& blendshapes, const core::LandmarkCollection<cv::Vec2f>& landmarks, const core::LandmarkMapper& landmark_mapper, int image_width, int image_height, const morphablemodel::EdgeTopology& edge_topology, const fitting::ContourLandmarks& contour_landmarks, const fitting::ModelContour& model_contour, int num_iterations = 5, boost::optional<int> num_shape_coefficients_to_fit = boost::none, float lambda = 50.0f)
+inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(const morphablemodel::MorphableModel& morphable_model, const std::vector<morphablemodel::Blendshape>& blendshapes, const core::LandmarkCollection<cv::Vec2f>& landmarks, const core::LandmarkMapper& landmark_mapper, int image_width, int image_height, const morphablemodel::EdgeTopology& edge_topology, const fitting::ContourLandmarks& contour_landmarks, const fitting::ModelContour& model_contour, int num_iterations = 5, boost::optional<int> num_shape_coefficients_to_fit = boost::none, float lambda = 50.0f, std::vector<float> landmarks_standard_deviations = std::vector<float>())
 {
 	std::vector<float> pca_coeffs;
 	std::vector<float> blendshape_coeffs;
 	std::vector<cv::Vec2f> fitted_image_points;
-	return fit_shape_and_pose(morphable_model, blendshapes, landmarks, landmark_mapper, image_width, image_height, edge_topology, contour_landmarks, model_contour, num_iterations, num_shape_coefficients_to_fit, lambda, boost::none, pca_coeffs, blendshape_coeffs, fitted_image_points);
+	return fit_shape_and_pose(morphable_model, blendshapes, landmarks, landmark_mapper, image_width, image_height, edge_topology, contour_landmarks, model_contour, num_iterations, num_shape_coefficients_to_fit, lambda, landmarks_standard_deviations, boost::none, pca_coeffs, blendshape_coeffs, fitted_image_points);
 };
 	} /* namespace fitting */
 } /* namespace eos */

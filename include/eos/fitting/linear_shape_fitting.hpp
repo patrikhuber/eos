@@ -53,13 +53,14 @@ namespace eos {
  * @param[in] base_face The base or reference face from where the fitting is started. Usually this would be the models mean face, which is what will be used if the parameter is not explicitly specified.
  * @param[in] lambda The regularisation parameter (weight of the prior towards the mean).
  * @param[in] num_coefficients_to_fit How many shape-coefficients to fit (all others will stay 0). Should be bigger than zero, or boost::none to fit all coefficients.
- * @param[in] detector_standard_deviation The standard deviation of the 2D landmarks given (e.g. of the detector used), in pixels.
+ * @param[in] landmarks_standard_deviation The standard deviation of the 2D landmarks given (e.g. of the detector used), in pixels.
  * @param[in] model_standard_deviation The standard deviation of the 3D vertex points in the 3D model, projected to 2D (so the value is in pixels).
  * @return The estimated shape-coefficients (alphas).
  */
-inline std::vector<float> fit_shape_to_landmarks_linear(const morphablemodel::MorphableModel& morphable_model, cv::Mat affine_camera_matrix, const std::vector<cv::Vec2f>& landmarks, const std::vector<int>& vertex_ids, Eigen::VectorXf base_face=Eigen::VectorXf(), float lambda=3.0f, boost::optional<int> num_coefficients_to_fit=boost::optional<int>(), boost::optional<float> detector_standard_deviation=boost::optional<float>(), boost::optional<float> model_standard_deviation=boost::optional<float>())
+inline std::vector<float> fit_shape_to_landmarks_linear(const morphablemodel::MorphableModel& morphable_model, cv::Mat affine_camera_matrix, const std::vector<cv::Vec2f>& landmarks, const std::vector<int>& vertex_ids, Eigen::VectorXf base_face=Eigen::VectorXf(), float lambda=3.0f, boost::optional<int> num_coefficients_to_fit=boost::optional<int>(), std::vector<float> landmarks_standard_deviation=std::vector<float>(), boost::optional<float> model_standard_deviation=boost::optional<float>())
 {
 	assert(landmarks.size() == vertex_ids.size());
+    assert(landmarks_standard_deviation.size() == landmarks.size() || landmarks_standard_deviation.empty());
 
 	using Eigen::VectorXf;
 	using Eigen::MatrixXf;
@@ -77,7 +78,7 @@ inline std::vector<float> fit_shape_to_landmarks_linear(const morphablemodel::Mo
 	MatrixXf V_hat_h = MatrixXf::Zero(4 * num_landmarks, num_coeffs_to_fit);
 	int row_index = 0;
 	for (int i = 0; i < num_landmarks; ++i) {
-		MatrixXf basis_rows_ = morphable_model.get_shape_model().get_rescaled_pca_basis_at_point(vertex_ids[i]); // In the paper, the orthonormal basis might be used? I'm not sure, check it. It's even a mess in the paper. PH 26.5.2014: I think the rescaled basis is fine/better.
+		const MatrixXf basis_rows_ = morphable_model.get_shape_model().get_rescaled_pca_basis_at_point(vertex_ids[i]); // In the paper, the orthonormal basis might be used? I'm not sure, check it. It's even a mess in the paper. PH 26.5.2014: I think the rescaled basis is fine/better.
 		V_hat_h.block(row_index, 0, 3, V_hat_h.cols()) = basis_rows_.block(0, 0, basis_rows_.rows(), num_coeffs_to_fit);
 		row_index += 4; // replace 3 rows and skip the 4th one, it has all zeros
 	}
@@ -92,9 +93,20 @@ inline std::vector<float> fit_shape_to_landmarks_linear(const morphablemodel::Mo
 	// 2D (detector) standard deviation: In pixel, we follow [1] and choose sqrt(3) as the default value.
 	// 3D (model) variance: 0.0f. It only makes sense to set it to something when we have a different variance for different vertices.
 	// The 3D variance has to be projected to 2D (for details, see paper [1]) so the units do match up.
-	float sigma_squared_2D = std::pow(detector_standard_deviation.get_value_or(std::sqrt(3.0f)), 2) + std::pow(model_standard_deviation.get_value_or(0.0f), 2);
+    //float sigma_squared_2D = std::pow(detector_standard_deviation.get_value_or(std::sqrt(3.0f)), 2) + std::pow(model_standard_deviation.get_value_or(0.0f), 2);
 	// We use a VectorXf, and later use .asDiagonal():
-	VectorXf Omega = VectorXf::Constant(3 * num_landmarks, 1.0f / sigma_squared_2D);
+    VectorXf Omega(3 * num_landmarks);
+    if (landmarks_standard_deviation.empty()) {
+        const float sigma_squared_2D = std::pow(std::sqrt(3.0f), 2) + std::pow(model_standard_deviation.value_or(0.0f), 2);
+        Omega.setConstant(3 * num_landmarks, 1.0f / sigma_squared_2D);
+    } else {
+        const float model_sdev = std::pow(model_standard_deviation.value_or(0.0f), 2);
+        for (int i = 0; i < num_landmarks; ++i) {
+            Omega(3 * i + 0) = 1.0f / (std::pow(landmarks_standard_deviation[i], 2) + model_sdev);
+            Omega(3 * i + 1) = 1.0f / (std::pow(landmarks_standard_deviation[i], 2) + model_sdev);
+            Omega(3 * i + 2) = 1.0f / (std::pow(landmarks_standard_deviation[i], 2) + model_sdev);
+        }
+    }
 	// Earlier, we set Sigma in a for-loop and then computed Omega, but it was really unnecessary:
 	// Sigma(i, i) = sqrt(sigma_squared_2D), but then Omega is Sigma.t() * Sigma (squares the diagonal) - so we just assign 1/sigma_squared_2D to Omega here.
 
