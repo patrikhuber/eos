@@ -288,8 +288,10 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(co
 		model_points.emplace_back(vertex);
 		vertex_indices.emplace_back(vertex_idx);
 		image_points.emplace_back(landmarks[i].coordinates);
-        // copy the appropriate weighting (sdev):
-        used_landmarks_standard_deviations.emplace_back(landmarks_standard_deviations[i]);
+                // copy the appropriate weighting (sdev):
+                if (!landmarks_standard_deviations.empty()) {
+                    used_landmarks_standard_deviations.emplace_back(landmarks_standard_deviations[i]);
+                }
 	}
 
 	// Need to do an initial pose fit to do the contour fitting inside the loop.
@@ -347,11 +349,13 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(co
 		{
 			model_points.push_back({ current_mesh.vertices[v][0], current_mesh.vertices[v][1], current_mesh.vertices[v][2], current_mesh.vertices[v][3] });
 		}
-        // Set the standard deviation for the additional contour points to a default value:
-        const auto num_additional_contour_landmarks = image_points.size() - fixed_landmarks_standard_deviations.size();
-        for (int j = 0; j < num_additional_contour_landmarks; ++j) {
-            landmarks_standard_deviations.push_back(std::sqrt(3.0f)); 
-        }
+                // Set the standard deviation for the additional contour points to a default value:
+                if (!landmarks_standard_deviations.empty()) {
+                    const auto num_additional_contour_landmarks = image_points.size() - fixed_landmarks_standard_deviations.size();
+                    for (int j = 0; j < num_additional_contour_landmarks; ++j) {
+                        landmarks_standard_deviations.push_back(std::sqrt(3.0f));
+                    }
+                }
 
 		// Re-estimate the pose, using all correspondences:
 		current_pose = fitting::estimate_orthographic_projection_linear(image_points, model_points, true, image_height);
