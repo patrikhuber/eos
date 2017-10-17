@@ -181,6 +181,7 @@ inline std::vector<float> fit_blendshapes_to_landmarks_nnls(const std::vector<mo
         if (landmarks_standard_deviation.empty()) {
             //const float sigma_squared_2D = std::pow(std::sqrt(3.0f), 2) + std::pow(model_standard_deviation.value_or(0.0f), 2);
             //Omega.setConstant(3 * num_landmarks, 1.0f / sigma_squared_2D);
+	    // If there are no standard deviations given, we leave Omega empty. If Omega is empty, Eigen::NNLS<>::solve will not use it.
         }
         else {
             Omega = VectorXf(3 * num_landmarks);
