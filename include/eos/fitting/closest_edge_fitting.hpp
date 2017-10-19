@@ -122,11 +122,11 @@ inline std::vector<int> occluding_boundary_vertices(const core::Mesh& mesh, cons
 {
 	// Rotate the mesh:
 	std::vector<glm::vec4> rotated_vertices;
-	std::for_each(begin(mesh.vertices), end(mesh.vertices), [&rotated_vertices, &R](auto&& v) { rotated_vertices.push_back(R * glm::vec4(v[0], v[1], v[2], v[3])); });
+	std::for_each(begin(mesh.vertices), end(mesh.vertices), [&rotated_vertices, &R](const auto& v) { rotated_vertices.push_back(R * glm::vec4(v[0], v[1], v[2], 1.0f)); });
 
 	// Compute the face normals of the rotated mesh:
 	std::vector<glm::vec3> facenormals;
-	for (auto&& f : mesh.tvi) { // for each face (triangle):
+	for (const auto& f : mesh.tvi) { // for each face (triangle):
 		const auto n = render::compute_face_normal(glm::vec3(rotated_vertices[f[0]]), glm::vec3(rotated_vertices[f[1]]), glm::vec3(rotated_vertices[f[2]]));
 		facenormals.push_back(n);
 	}
@@ -154,7 +154,7 @@ inline std::vector<int> occluding_boundary_vertices(const core::Mesh& mesh, cons
 	// Select the vertices lying at the two ends of the occluding edges and remove duplicates:
 	// (This is what EdgeTopology::adjacent_vertices is needed for).
 	std::vector<int> occluding_vertices; // The model's contour vertices
-	for (auto&& edge_idx : occluding_edges_indices)
+	for (auto edge_idx : occluding_edges_indices)
 	{
 		// Changing from 1-based indexing to 0-based!
 		occluding_vertices.push_back(edge_topology.adjacent_vertices[edge_idx][0] - 1);
@@ -166,11 +166,11 @@ inline std::vector<int> occluding_boundary_vertices(const core::Mesh& mesh, cons
 
 	// Perform ray-casting to find out which vertices are not visible (i.e. self-occluded):
 	std::vector<bool> visibility;
-	for (const auto& vertex_idx : occluding_vertices)
+	for (auto vertex_idx : occluding_vertices)
 	{
 		bool visible = true;
 		// For every tri of the rotated mesh:
-		for (auto&& tri : mesh.tvi)
+		for (const auto& tri : mesh.tvi)
 		{
 			auto& v0 = rotated_vertices[tri[0]];
 			auto& v1 = rotated_vertices[tri[1]];
@@ -178,7 +178,7 @@ inline std::vector<int> occluding_boundary_vertices(const core::Mesh& mesh, cons
 
 			const glm::vec3 ray_origin(rotated_vertices[vertex_idx]);
 			const glm::vec3 ray_direction(0.0f, 0.0f, 1.0f); // we shoot the ray from the vertex towards the camera
-			auto intersect = ray_triangle_intersect(ray_origin, ray_direction, glm::vec3(v0), glm::vec3(v1), glm::vec3(v2), false);
+			const auto intersect = ray_triangle_intersect(ray_origin, ray_direction, glm::vec3(v0), glm::vec3(v1), glm::vec3(v2), false);
 			// first is bool intersect, second is the distance t
 			if (intersect.first == true)
 			{
@@ -340,7 +340,7 @@ inline std::pair<std::vector<Eigen::Vector2f>, std::vector<int>> find_occluding_
 	using Eigen::Vector2f;
 
 	// Compute vertices that lye on occluding boundaries:
-	auto occluding_vertices = occluding_boundary_vertices(mesh, edge_topology, glm::mat4x4(rendering_parameters.get_rotation()));
+	const auto occluding_vertices = occluding_boundary_vertices(mesh, edge_topology, glm::mat4x4(rendering_parameters.get_rotation()));
 
 	// Project these occluding boundary vertices from 3D to 2D:
 	vector<Vector2f> model_edges_projected;

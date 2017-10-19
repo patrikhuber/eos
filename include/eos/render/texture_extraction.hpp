@@ -203,9 +203,9 @@ inline core::Image4u extract_texture(const core::Mesh& mesh, Eigen::Matrix<float
 			// - Use render(), or as in render(...), transfer the vertices once, not in a loop over all triangles (vertices are getting transformed multiple times)
 			// - We transform them later (below) a second time. Only do it once.
 
-			const Vector4f v0_as_Vector4f(mesh.vertices[triangle_indices[0]][0], mesh.vertices[triangle_indices[0]][1], mesh.vertices[triangle_indices[0]][2], mesh.vertices[triangle_indices[0]][3]);
-                        const Vector4f v1_as_Vector4f(mesh.vertices[triangle_indices[1]][0], mesh.vertices[triangle_indices[1]][1], mesh.vertices[triangle_indices[1]][2], mesh.vertices[triangle_indices[1]][3]);
-                        const Vector4f v2_as_Vector4f(mesh.vertices[triangle_indices[2]][0], mesh.vertices[triangle_indices[2]][1], mesh.vertices[triangle_indices[2]][2], mesh.vertices[triangle_indices[2]][3]);
+			const Vector4f v0_as_Vector4f(mesh.vertices[triangle_indices[0]][0], mesh.vertices[triangle_indices[0]][1], mesh.vertices[triangle_indices[0]][2], 1.0f);
+                        const Vector4f v1_as_Vector4f(mesh.vertices[triangle_indices[1]][0], mesh.vertices[triangle_indices[1]][1], mesh.vertices[triangle_indices[1]][2], 1.0f);
+                        const Vector4f v2_as_Vector4f(mesh.vertices[triangle_indices[2]][0], mesh.vertices[triangle_indices[2]][1], mesh.vertices[triangle_indices[2]][2], 1.0f);
 
 			// Project the triangle vertices to screen coordinates, and use the depthbuffer to check whether the triangle is visible:
 			const Vector4f v0 = affine_camera_matrix_with_z * v0_as_Vector4f;
@@ -302,10 +302,10 @@ inline core::Image4u extract_texture(const core::Mesh& mesh, Eigen::Matrix<float
 							const Vector2f src_texel_lower_left = warp_mat_org_inv * homogenous_dst_lower_left;
 							const Vector2f src_texel_lower_right = warp_mat_org_inv * homogenous_dst_lower_right;
 
-							float min_a = min(min(src_texel_upper_left[0], src_texel_upper_right[0]), min(src_texel_lower_left[0], src_texel_lower_right[0]));
-							float max_a = max(max(src_texel_upper_left[0], src_texel_upper_right[0]), max(src_texel_lower_left[0], src_texel_lower_right[0]));
-							float min_b = min(min(src_texel_upper_left[1], src_texel_upper_right[1]), min(src_texel_lower_left[1], src_texel_lower_right[1]));
-							float max_b = max(max(src_texel_upper_left[1], src_texel_upper_right[1]), max(src_texel_lower_left[1], src_texel_lower_right[1]));
+							const float min_a = min(min(src_texel_upper_left[0], src_texel_upper_right[0]), min(src_texel_lower_left[0], src_texel_lower_right[0]));
+                                                        const float max_a = max(max(src_texel_upper_left[0], src_texel_upper_right[0]), max(src_texel_lower_left[0], src_texel_lower_right[0]));
+                                                        const float min_b = min(min(src_texel_upper_left[1], src_texel_upper_right[1]), min(src_texel_lower_left[1], src_texel_lower_right[1]));
+                                                        const float max_b = max(max(src_texel_upper_left[1], src_texel_upper_right[1]), max(src_texel_lower_left[1], src_texel_lower_right[1]));
 
 							Eigen::Vector3i color; // std::uint8_t actually.
 							int num_texels = 0;

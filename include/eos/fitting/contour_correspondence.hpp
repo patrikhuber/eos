@@ -310,7 +310,7 @@ inline std::tuple<std::vector<Eigen::Vector2f>, std::vector<Eigen::Vector4f>, st
 		const auto min_ele_idx = std::distance(begin(distances_2d), min_ele);
 		const auto the_3dmm_vertex_id_that_is_closest = model_contour_indices[min_ele_idx];
 
-		const Eigen::Vector4f vertex(mesh.vertices[the_3dmm_vertex_id_that_is_closest][0], mesh.vertices[the_3dmm_vertex_id_that_is_closest][1], mesh.vertices[the_3dmm_vertex_id_that_is_closest][2], mesh.vertices[the_3dmm_vertex_id_that_is_closest][3]);
+		const Eigen::Vector4f vertex(mesh.vertices[the_3dmm_vertex_id_that_is_closest][0], mesh.vertices[the_3dmm_vertex_id_that_is_closest][1], mesh.vertices[the_3dmm_vertex_id_that_is_closest][2], 1.0f);
 		model_points_cnt.emplace_back(vertex);
 		vertex_indices_cnt.emplace_back(the_3dmm_vertex_id_that_is_closest);
 		image_points_cnt.emplace_back(screen_point_2d_contour_landmark);
