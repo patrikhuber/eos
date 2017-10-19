@@ -31,10 +31,13 @@ namespace eos {
 	namespace core {
 
 /**
- * @brief Short.
+ * @brief Representation of an image with \p num_channels channels.
  * 
- * Long.
- * Col-major storage order.
+ * This is a quickly hacked-together implementation of an image class, to be able
+ * to represent 1 and 3-channel images. The class was mainly created to be able to
+ * remove OpenCV and cv::Mat as a dependency for the core of the eos headers.
+ * 
+ * The class currently uses col-major storage order.
  * 
  * Note: Ideally we'd have a template param for row and col major too?
  *       And then we could do stuff like strides and all too but then we'd end up with a matrix class like Eigen::Matrix...?
