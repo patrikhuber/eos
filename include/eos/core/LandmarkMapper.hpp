@@ -101,7 +101,7 @@ public:
 			return landmark_name;
 		}
 
-		auto&& converted_landmark = landmark_mappings.find(landmark_name);
+		const auto& converted_landmark = landmark_mappings.find(landmark_name);
 		if (converted_landmark != std::end(landmark_mappings)) {
 			// landmark mapping found, return it
 			return converted_landmark->second;
