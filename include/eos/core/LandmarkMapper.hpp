@@ -24,13 +24,13 @@
 
 #include "toml.hpp"
 
+#include <optional>
+#include <stdexcept>
 #include <string>
 #include <unordered_map>
-#include <stdexcept>
-#include <optional>
 
 namespace eos {
-	namespace core {
+namespace core {
 
 /**
  * @brief Represents a mapping from one kind of landmarks
@@ -48,84 +48,92 @@ namespace eos {
  * - Converting one set of 2D landmarks into another set of 2D
  *   landmarks with different identifiers.
  */
-class LandmarkMapper {
+class LandmarkMapper
+{
 public:
-	/**
-	 * @brief Constructs a new landmark mapper that performs an identity
-	 * mapping, that is, its output is the same as the input.
-	 */
-	LandmarkMapper() = default;
+    /**
+     * @brief Constructs a new landmark mapper that performs an identity
+     * mapping, that is, its output is the same as the input.
+     */
+    LandmarkMapper() = default;
 
-	/**
-	 * @brief Constructs a new landmark mapper from a file containing
-	 * mappings from one set of landmark identifiers to another.
-	 *
-	 * In case the file contains no mappings, a landmark mapper
-	 * that performs an identity mapping is constructed.
-	 *
-	 * @param[in] filename A file with landmark mappings.
-	 * @throws runtime_error or toml::exception if there is an error loading the mappings from the file.
-	 */
-	LandmarkMapper(std::string filename)
-	{
-		// parse() as well as extracting the data can throw std::runtime error or toml::exception,
-		// so ideally you'd want to call this c'tor within a try-catch.
-		const auto data = toml::parse(filename);
+    /**
+     * @brief Constructs a new landmark mapper from a file containing
+     * mappings from one set of landmark identifiers to another.
+     *
+     * In case the file contains no mappings, a landmark mapper
+     * that performs an identity mapping is constructed.
+     *
+     * @param[in] filename A file with landmark mappings.
+     * @throws runtime_error or toml::exception if there is an error loading the mappings from the file.
+     */
+    LandmarkMapper(std::string filename)
+    {
+        // parse() as well as extracting the data can throw std::runtime error or toml::exception,
+        // so ideally you'd want to call this c'tor within a try-catch.
+        const auto data = toml::parse(filename);
 
-		const auto mappings_table = toml::get<toml::Table>(data.at("landmark_mappings"));
-		// The key in the config is always a string. The value however may be a string or an integer, so we check for that and convert to a string.
-		for (const auto& mapping : mappings_table)
-		{
-			std::string f = mapping.first;
-			std::string value;
-			switch (mapping.second.type()) {
-				case toml::value_t::Integer: value = std::to_string(toml::get<int>(mapping.second)); break;
-				case toml::value_t::String: value = toml::get<std::string>(mapping.second); break;
-				default: throw std::runtime_error("unexpected type : " + toml::stringize(mapping.second.type()));
-			}
+        const auto mappings_table = toml::get<toml::Table>(data.at("landmark_mappings"));
+        // The key in the config is always a string. The value however may be a string or an integer, so we
+        // check for that and convert to a string.
+        for (const auto& mapping : mappings_table)
+        {
+            std::string f = mapping.first;
+            std::string value;
+            switch (mapping.second.type())
+            {
+            case toml::value_t::Integer:
+                value = std::to_string(toml::get<int>(mapping.second));
+                break;
+            case toml::value_t::String:
+                value = toml::get<std::string>(mapping.second);
+                break;
+            default:
+                throw std::runtime_error("unexpected type : " + toml::stringize(mapping.second.type()));
+            }
 
-			landmark_mappings.emplace(mapping.first, value);
-		}
-	};
+            landmark_mappings.emplace(mapping.first, value);
+        }
+    };
 
-	/**
-	 * @brief Converts the given landmark name to the mapped name.
-	 *
-	 * @param[in] landmark_name A landmark name to convert.
-	 * @return The mapped landmark name if a mapping exists, an empty optional otherwise.
-	 */
-	std::optional<std::string> convert(std::string landmark_name) const
-	{
-		if (landmark_mappings.empty()) {
-			// perform identity mapping, i.e. return the input
-			return landmark_name;
-		}
+    /**
+     * @brief Converts the given landmark name to the mapped name.
+     *
+     * @param[in] landmark_name A landmark name to convert.
+     * @return The mapped landmark name if a mapping exists, an empty optional otherwise.
+     */
+    std::optional<std::string> convert(std::string landmark_name) const
+    {
+        if (landmark_mappings.empty())
+        {
+            // perform identity mapping, i.e. return the input
+            return landmark_name;
+        }
 
-		const auto& converted_landmark = landmark_mappings.find(landmark_name);
-		if (converted_landmark != std::end(landmark_mappings)) {
-			// landmark mapping found, return it
-			return converted_landmark->second;
-		}
-		else { // landmark_name does not match the key of any element in the map
-			return std::nullopt;
-		}
-	};
+        const auto& converted_landmark = landmark_mappings.find(landmark_name);
+        if (converted_landmark != std::end(landmark_mappings))
+        {
+            // landmark mapping found, return it
+            return converted_landmark->second;
+        } else
+        { // landmark_name does not match the key of any element in the map
+            return std::nullopt;
+        }
+    };
 
-	/**
-	 * @brief Returns the number of loaded landmark mappings.
-	 *
-	 * @return The number of landmark mappings.
-	 */
-	auto num_mappings() const
-	{
-		return landmark_mappings.size();
-	};
+    /**
+     * @brief Returns the number of loaded landmark mappings.
+     *
+     * @return The number of landmark mappings.
+     */
+    auto num_mappings() const { return landmark_mappings.size(); };
 
 private:
-	std::unordered_map<std::string, std::string> landmark_mappings; ///< Mapping from one landmark name to a name in a different format.
+    std::unordered_map<std::string, std::string>
+        landmark_mappings; ///< Mapping from one landmark name to a name in a different format.
 };
 
-	} /* namespace core */
+} /* namespace core */
 } /* namespace eos */
 
 #endif /* LANDMARKMAPPER_HPP_ */
