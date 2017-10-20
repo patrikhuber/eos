@@ -19,9 +19,6 @@
 [submodule "3rdparty/eigen"]
 	path = 3rdparty/eigen
 	url = https://github.com/patrikhuber/eigen.git
-[submodule "3rdparty/cxxopts"]
-	path = 3rdparty/cxxopts
-	url = https://github.com/jarro2783/cxxopts.git
 [submodule "3rdparty/toml11"]
 	path = 3rdparty/toml11
 	url = https://github.com/ToruNiina/toml11.git
