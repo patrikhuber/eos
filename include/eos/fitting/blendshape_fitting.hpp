@@ -54,7 +54,7 @@ namespace eos {
  * @param[in] lambda A regularisation parameter, constraining the L2-norm of the coefficients.
  * @return The estimated blendshape-coefficients.
  */
-inline std::vector<float> fit_blendshapes_to_landmarks_linear(const std::vector<eos::morphablemodel::Blendshape>& blendshapes, const Eigen::VectorXf& face_instance, Eigen::Matrix<float, 3, 4> affine_camera_matrix, const std::vector<Eigen::Vector2f>& landmarks, const std::vector<int>& vertex_ids, float lambda=500.0f)
+inline std::vector<float> fit_blendshapes_to_landmarks_linear(const std::vector<morphablemodel::Blendshape>& blendshapes, const Eigen::VectorXf& face_instance, Eigen::Matrix<float, 3, 4> affine_camera_matrix, const std::vector<Eigen::Vector2f>& landmarks, const std::vector<int>& vertex_ids, float lambda=500.0f)
 {
 	assert(landmarks.size() == vertex_ids.size());
 
@@ -65,7 +65,7 @@ inline std::vector<float> fit_blendshapes_to_landmarks_linear(const std::vector<
 	const int num_landmarks = static_cast<int>(landmarks.size());
 
 	// Copy all blendshapes into a "basis" matrix with each blendshape being a column:
-	MatrixXf blendshapes_as_basis = morphablemodel::to_matrix(blendshapes);
+	const MatrixXf blendshapes_as_basis = morphablemodel::to_matrix(blendshapes);
 
 	// $\hat{V} \in R^{3N\times m-1}$, subselect the rows of the eigenvector matrix $V$ associated with the $N$ feature points
 	// And we insert a row of zeros after every third row, resulting in matrix $\hat{V}_h \in R^{4N\times m-1}$:
@@ -125,7 +125,7 @@ inline std::vector<float> fit_blendshapes_to_landmarks_linear(const std::vector<
  * @param[in] vertex_ids The vertex ids in the model that correspond to the 2D points.
  * @return The estimated blendshape-coefficients.
  */
-inline std::vector<float> fit_blendshapes_to_landmarks_nnls(const std::vector<eos::morphablemodel::Blendshape>& blendshapes, const Eigen::VectorXf& face_instance, Eigen::Matrix<float, 3, 4> affine_camera_matrix, const std::vector<Eigen::Vector2f>& landmarks, const std::vector<int>& vertex_ids)
+inline std::vector<float> fit_blendshapes_to_landmarks_nnls(const std::vector<morphablemodel::Blendshape>& blendshapes, const Eigen::VectorXf& face_instance, Eigen::Matrix<float, 3, 4> affine_camera_matrix, const std::vector<Eigen::Vector2f>& landmarks, const std::vector<int>& vertex_ids)
 {
 	assert(landmarks.size() == vertex_ids.size());
 
@@ -136,7 +136,7 @@ inline std::vector<float> fit_blendshapes_to_landmarks_nnls(const std::vector<eo
 	const int num_landmarks = static_cast<int>(landmarks.size());
 
 	// Copy all blendshapes into a "basis" matrix with each blendshape being a column:
-	MatrixXf blendshapes_as_basis = morphablemodel::to_matrix(blendshapes);
+	const MatrixXf blendshapes_as_basis = morphablemodel::to_matrix(blendshapes);
 
 	// $\hat{V} \in R^{3N\times m-1}$, subselect the rows of the eigenvector matrix $V$ associated with the $N$ feature points
 	// And we insert a row of zeros after every third row, resulting in matrix $\hat{V}_h \in R^{4N\times m-1}$:

@@ -62,8 +62,8 @@ inline std::vector<float> fit_shape_to_landmarks_linear(const morphablemodel::Mo
 	using Eigen::VectorXf;
 	using Eigen::MatrixXf;
 
-	int num_coeffs_to_fit = num_coefficients_to_fit.value_or(morphable_model.get_shape_model().get_num_principal_components());
-	int num_landmarks = static_cast<int>(landmarks.size());
+	const int num_coeffs_to_fit = num_coefficients_to_fit.value_or(morphable_model.get_shape_model().get_num_principal_components());
+	const int num_landmarks = static_cast<int>(landmarks.size());
 
 	if (base_face.size() == 0)
 	{
@@ -75,7 +75,7 @@ inline std::vector<float> fit_shape_to_landmarks_linear(const morphablemodel::Mo
 	MatrixXf V_hat_h = MatrixXf::Zero(4 * num_landmarks, num_coeffs_to_fit);
 	int row_index = 0;
 	for (int i = 0; i < num_landmarks; ++i) {
-		MatrixXf basis_rows_ = morphable_model.get_shape_model().get_rescaled_pca_basis_at_point(vertex_ids[i]); // In the paper, the orthonormal basis might be used? I'm not sure, check it. It's even a mess in the paper. PH 26.5.2014: I think the rescaled basis is fine/better.
+		const MatrixXf basis_rows_ = morphable_model.get_shape_model().get_rescaled_pca_basis_at_point(vertex_ids[i]); // In the paper, the orthonormal basis might be used? I'm not sure, check it. It's even a mess in the paper. PH 26.5.2014: I think the rescaled basis is fine/better.
 		V_hat_h.block(row_index, 0, 3, V_hat_h.cols()) = basis_rows_.block(0, 0, basis_rows_.rows(), num_coeffs_to_fit);
 		row_index += 4; // replace 3 rows and skip the 4th one, it has all zeros
 	}
