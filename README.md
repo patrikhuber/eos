@@ -21,7 +21,7 @@ At the moment, it mainly provides the following functionality:
   * Expression fitting, and 6 linear expression blendshapes: anger, disgust, fear, happiness, sadness, surprise
   * Edge-fitting, heavily inspired by: A. Bas et al., _Fitting a 3D Morphable Model to Edges: A Comparison Between Hard and Soft Correspondences_, ACCVW 2016
 * Isomap texture extraction to obtain a pose-invariant representation of the face texture
-* (**New**): Python bindings for parts of the library, and Matlab bindings for the fitting
+* **Python bindings**: Much of eos's functionality is available as a python module (try `pip install eos-py`!)
 * (_Experimental_): Non-linear fitting cost functions using Ceres for shape, camera, blendshapes and the colour model (needs Ceres to be installed separately)
 
 An experimental model viewer to visualise 3D Morphable Models and blendshapes is available [here](https://github.com/patrikhuber/eos-model-viewer).
@@ -108,7 +108,7 @@ See [`demo.py`](https://github.com/patrikhuber/eos/blob/master/python/demo.py) f
 
 ## Matlab bindings
 
-_Experimental_: eos includes Matlab bindings for the `fit_shape_and_pose(...)` function, which means the fitting can be run from Matlab. Set `-DEOS_GENERATE_MATLAB_BINDINGS=on` when running `cmake` to build the required mex-file and run the `INSTALL` target to install everything. (Set `Matlab_ROOT_DIR` to point to your Matlab directory if it's not found automatically). More bindings (e.g. the MorphableModel itself) might be added in the future.
+_Experimental (not maintained currently)_: eos includes Matlab bindings for the `fit_shape_and_pose(...)` function, which means the fitting can be run from Matlab. Set `-DEOS_GENERATE_MATLAB_BINDINGS=on` when running `cmake` to build the required mex-file and run the `INSTALL` target to install everything. (Set `Matlab_ROOT_DIR` to point to your Matlab directory if it's not found automatically). More bindings (e.g. the MorphableModel itself) might be added in the future.
 
 Go to the `install/eos/matlab` directory and run [`demo.m`](https://github.com/patrikhuber/eos/blob/master/matlab/demo.m) to see how to run the fitting. The result is a mesh and rendering parameters (pose).
 
