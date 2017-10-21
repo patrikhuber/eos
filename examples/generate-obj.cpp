@@ -24,16 +24,17 @@
 
 #include "glm/gtc/matrix_transform.hpp"
 
-#include "cxxopts.hpp"
+#include "boost/program_options.hpp"
+#include "boost/filesystem.hpp"
 
 #include "opencv2/core/core.hpp"
 #include "opencv2/highgui/highgui.hpp"
 
 #include <iostream>
-#include <filesystem>
 
 using namespace eos;
-namespace fs = std::experimental::filesystem;
+namespace po = boost::program_options;
+namespace fs = boost::filesystem;
 using std::vector;
 using std::cout;
 using std::endl;
@@ -51,28 +52,31 @@ int main(int argc, char *argv[])
 	vector<float> shape_coefficients, color_coefficients;
 
 	try {
-		cxxopts::Options options("generate-obj");
-		options.add_options()
-			("help", "produce help message")
-			("model", "an eos .bin Morphable Model file",
-				cxxopts::value<std::string>(model_file))
-			("shape-coeffs", "optional parameter list of shape coefficients. All not specified will be set to zero. E.g.: '--shape-coeffs 0.0 1.5'. If omitted, the mean is used.",
-				cxxopts::value<vector<float>>(shape_coefficients)) // optional arg
-			("color-coeffs", "optional parameter list of colour coefficients. All not specified will be set to zero. E.g.: '--color-coeffs 0.0 1.5'. If omitted, the mean is used.",
-				cxxopts::value<vector<float>>(color_coefficients)) // optional arg
-			("output", "name of the output obj file (including .obj). Can be a full path.",
-				cxxopts::value<std::string>(output_file)->default_value("output.obj"))
-			;
+		po::options_description desc("Allowed options");
+		desc.add_options()
+		    ("help",
+		        "produce help message")
+		    ("model", po::value<std::string>(&model_file)->required(),
+		        "an eos .bin Morphable Model file")
+		    ("shape-coeffs", po::value<vector<float>>(&shape_coefficients)->multitoken(),
+		        "optional parameter list of shape coefficients. All not specified will be set to zero. E.g.: '--shape-coeffs 0.0 1.5'. If omitted, the mean is used.")
+		    ("color-coeffs", po::value<vector<float>>(&color_coefficients)->multitoken(),
+		        "optional parameter list of colour coefficients. All not specified will be set to zero. E.g.: '--colour-coeffs 0.0 1.5'. If omitted, the mean is used.")
+		    ("output", po::value<std::string>(&output_file)->default_value("output.obj"),
+		        "name of the output obj file (including .obj). Can be a full path.")
+		    ;
 
-		// Todo: Check how this works with cxxopts! It should work now in principle. And can we use it with short options as well or is there a problem then with negative values?
-		options.parse(argc, argv);
-		if (options.count("help")) {
-			cout << options.help() << endl;
-			return EXIT_SUCCESS;
-		}
-                cxxopts::check_required(options, { "model" });
+                po::variables_map vm;
+                // disabling short options to allow negative values for the coefficients, e.g. '--shape-coeffs 0.0 -1.5'
+                po::store(po::parse_command_line(argc, argv, desc, po::command_line_style::unix_style ^ po::command_line_style::allow_short), vm);
+                if (vm.count("help")) {
+                    cout << "Usage: generate-obj [options]" << endl;
+                    cout << desc;
+                    return EXIT_SUCCESS;
+                }
+                po::notify(vm);
 	}
-	catch (const cxxopts::OptionException& e) {
+	catch (const po::error& e) {
 		cout << "Error while parsing command-line arguments: " << e.what() << endl;
 		cout << "Use --help to display a list of options." << endl;
 		return EXIT_FAILURE;

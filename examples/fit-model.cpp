@@ -28,7 +28,8 @@
 
 #include "Eigen/Core"
 
-#include "cxxopts.hpp"
+#include "boost/program_options.hpp"
+#include "boost/filesystem.hpp"
 
 #include "opencv2/core/core.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
@@ -39,10 +40,10 @@
 #include <fstream>
 #include <string>
 #include <optional>
-#include <filesystem>
 
 using namespace eos;
-namespace fs = std::experimental::filesystem;
+namespace po = boost::program_options;
+namespace fs = boost::filesystem;
 using eos::core::Landmark;
 using eos::core::LandmarkCollection;
 using cv::Mat;
@@ -143,34 +144,37 @@ int main(int argc, char *argv[])
 {
 	string modelfile, isomapfile, imagefile, landmarksfile, mappingsfile, contourfile, edgetopologyfile, blendshapesfile, outputbasename;
 	try {
-		cxxopts::Options options("fit-model", "Fits a 3D Morphable Model to an image with landmarks.");
-		options.add_options()
-			("h,help", "display the help message")
-			("m,model", "a Morphable Model stored as cereal BinaryArchive",
-				cxxopts::value<string>(modelfile)->default_value("../share/sfm_shape_3448.bin"))
-			("i,image", "an input image",
-				cxxopts::value<string>(imagefile)->default_value("data/image_0010.png"))
-			("l,landmarks", "2D landmarks for the image, in ibug .pts format",
-				cxxopts::value<string>(landmarksfile)->default_value("data/image_0010.pts"))
-			("p,mapping", "landmark identifier to model vertex number mapping",
-				cxxopts::value<string>(mappingsfile)->default_value("../share/ibug_to_sfm.txt"))
-			("c,model-contour", "file with model contour indices",
-				cxxopts::value<string>(contourfile)->default_value("../share/model_contours.json"))
-			("e,edge-topology", "file with model's precomputed edge topology",
-				cxxopts::value<string>(edgetopologyfile)->default_value("../share/sfm_3448_edge_topology.json"))
-			("b,blendshapes", "file with blendshapes",
-				cxxopts::value<string>(blendshapesfile)->default_value("../share/expression_blendshapes_3448.bin"))
-			("o,output", "basename for the output rendering and obj files",
-				cxxopts::value<string>(outputbasename)->default_value("out"))
-			;
-		options.parse(argc, argv);
-		if (options.count("help"))
-		{
-			cout << options.help() << endl;
-			return EXIT_SUCCESS;
-		}
+		po::options_description desc("Allowed options");
+		desc.add_options()
+		    ("help,h",
+		        "display the help message")
+		    ("model,m", po::value<std::string>(&modelfile)->required()->default_value("../share/sfm_shape_3448.bin"),
+		        "a Morphable Model stored as cereal BinaryArchive")
+		    ("image,i", po::value<std::string>(&imagefile)->required()->default_value("data/image_0010.png"),
+		        "an input image")
+		    ("landmarks,l", po::value<std::string>(&landmarksfile)->required()->default_value("data/image_0010.pts"),
+		        "2D landmarks for the image, in ibug .pts format")
+		    ("mapping,p", po::value<std::string>(&mappingsfile)->required()->default_value("../share/ibug_to_sfm.txt"),
+		        "landmark identifier to model vertex number mapping")
+		    ("model-contour,c", po::value<std::string>(&contourfile)->required()->default_value("../share/model_contours.json"),
+		        "file with model contour indices")
+		    ("edge-topology,e", po::value<std::string>(&edgetopologyfile)->required()->default_value("../share/sfm_3448_edge_topology.json"),
+		        "file with model's precomputed edge topology")
+		    ("blendshapes,b", po::value<std::string>(&blendshapesfile)->required()->default_value("../share/expression_blendshapes_3448.bin"),
+		        "file with blendshapes")
+		    ("output,o", po::value<std::string>(&outputbasename)->required()->default_value("out"),
+			    "basename for the output rendering and obj files")
+		    ;
+                po::variables_map vm;
+                po::store(po::command_line_parser(argc, argv).options(desc).run(), vm);
+                if (vm.count("help")) {
+                    cout << "Usage: fit-model [options]" << endl;
+                    cout << desc;
+                    return EXIT_SUCCESS;
+                }
+                po::notify(vm);
 	}
-	catch (const cxxopts::OptionException& e) {
+	catch (const po::error& e) {
 		cout << "Error while parsing command-line arguments: " << e.what() << endl;
 		cout << "Use --help to display a list of options." << endl;
 		return EXIT_FAILURE;
