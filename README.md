@@ -11,8 +11,6 @@
 
 eos is a lightweight 3D Morphable Face Model fitting library that provides basic functionality to use face models, as well as camera and shape fitting functionality. It's written in modern C++11/14.
 
-### Warning: The `devel` branch is undergoing significant changes. It currently only compiles with the latest VS2017 Preview and CMake nightly (and only fit-model and the python bindings). Please use the master branch/tag v0.12.1, unless you know what you are doing.
-
 At the moment, it mainly provides the following functionality:
 
 * MorphableModel and PcaModel classes to represent 3DMMs, with basic operations like `draw_sample()`
@@ -30,8 +28,8 @@ An experimental model viewer to visualise 3D Morphable Models and blendshapes is
 
 ## Usage
 
-* Tested with the following compilers: >=gcc-5, >=clang-3.5, Visual Studio 2015
-* Needed dependencies for the library: Boost system (>=1.50.0), OpenCV core (>=2.4.3)
+* Tested with the following compilers: >=gcc-7, >=clang-5, Visual Studio 2017 Update 3.
+* The library and python bindings are free of any external dependencies. The example applications require Boost (>=1.50.0) and OpenCV (>=2.4.3).
 
 To use the library in your own project, just add the following directories to your include path:
 
@@ -41,12 +39,13 @@ To use the library in your own project, just add the following directories to yo
 * `eos/3rdparty/nanoflann/include`
 * `eos/3rdparty/eigen/Eigen`
 * `eos/3rdparty/eigen3-nnls/src`
+* `eos/3rdparty/toml11`
 
 **Make sure to clone with `--recursive` to download the required submodules!**
 
 ### Build the examples and tests
 
-* Needed dependencies for the example app: CMake (>=3.1.3), Boost system, filesystem, program_options (>=1.50.0), OpenCV core, imgproc, highgui (>=2.4.3).
+* Needed dependencies for the example app: CMake (>=3.8.2), Boost system, filesystem, program_options (>=1.50.0), OpenCV core, imgproc, highgui (>=2.4.3).
 
 To build:
 
