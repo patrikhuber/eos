@@ -22,9 +22,7 @@
 
 #include "boost/program_options.hpp"
 
-#include <vector>
 #include <iostream>
-#include <fstream>
 
 using namespace eos;
 namespace po = boost::program_options;
@@ -74,7 +72,7 @@ int main(int argc, char *argv[])
 	if (save_shape_only)
 	{
 		// Save only the shape model - to generate the public sfm_shape_3448.bin
-		morphablemodel::MorphableModel shape_only_model(morphable_model.get_shape_model(), morphablemodel::PcaModel(), morphable_model.get_texture_coordinates());
+		const morphablemodel::MorphableModel shape_only_model(morphable_model.get_shape_model(), morphablemodel::PcaModel(), morphable_model.get_texture_coordinates());
 		morphablemodel::save_model(shape_only_model, outputfile);
 	}
 	else {

@@ -175,7 +175,7 @@ int main(int argc, char *argv[])
 		triangle_list[i][2] = v2 - 1;
 	}
 
-	morphablemodel::PcaModel shape_model(mean_shape, orthonormal_pca_basis_shape, eigenvalues_shape, triangle_list);
+	const morphablemodel::PcaModel shape_model(mean_shape, orthonormal_pca_basis_shape, eigenvalues_shape, triangle_list);
 
 	// Reading the colour (albedo) model:
 	int num_vertices_color = 0;
@@ -221,7 +221,7 @@ int main(int argc, char *argv[])
 		eigenvalues_color(i) = value;
 	}
 
-	morphablemodel::PcaModel color_model(mean_color, orthonormal_pca_basis_color, eigenvalues_color, triangle_list);
+	const morphablemodel::PcaModel color_model(mean_color, orthonormal_pca_basis_color, eigenvalues_color, triangle_list);
 
 	file.close();
 
@@ -230,7 +230,7 @@ int main(int argc, char *argv[])
 		std::cout << "Warning: PCA shape model's data dimension is different from the number of texture coordinates given. The converted model is still saved, but does most likely not work correctly for texturing." << std::endl;
 	}
 
-	morphablemodel::MorphableModel morphable_model(shape_model, color_model, texture_coordinates);
+	const morphablemodel::MorphableModel morphable_model(shape_model, color_model, texture_coordinates);
 	morphablemodel::save_model(morphable_model, outputfile);
 
 	cout << "Saved eos .bin model as " << outputfile << "." << endl;
