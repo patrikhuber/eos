@@ -36,7 +36,6 @@
 #include "pybind11/pybind11.h"
 #include "pybind11/stl.h"
 #include "pybind11_Image.hpp"
-#include "pybind11_glm.hpp"
 
 #include "Eigen/Core"
 
