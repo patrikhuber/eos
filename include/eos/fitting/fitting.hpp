@@ -61,7 +61,7 @@ namespace eos {
  * @param[in] image_points 2D landmarks from an image to fit the model to.
  * @param[in] vertex_indices The vertex indices in the model that correspond to the 2D points.
  * @param[in] lambda Regularisation parameter of the PCA shape fitting.
- * @param[in] num_coefficients_to_fit How many shape-coefficients to fit (all others will stay 0). Should be bigger than zero, or boost::none to fit all coefficients.
+ * @param[in] num_coefficients_to_fit How many shape-coefficients to fit (all others will stay 0). Should be bigger than zero, or std::nullopt to fit all coefficients.
  * @param[out] pca_shape_coefficients Output parameter that will contain the resulting pca shape coefficients.
  * @param[out] blendshape_coefficients Output parameter that will contain the resulting blendshape coefficients.
  * @return The fitted model shape instance.
@@ -111,7 +111,7 @@ inline Eigen::VectorXf fit_shape(Eigen::Matrix<float, 3, 4> affine_camera_matrix
  * @param[in] image_points 2D landmarks from an image to fit the model to.
  * @param[in] vertex_indices The vertex indices in the model that correspond to the 2D points.
  * @param[in] lambda Regularisation parameter of the PCA shape fitting.
- * @param[in] num_coefficients_to_fit How many shape-coefficients to fit (all others will stay 0). Should be bigger than zero, or boost::none to fit all coefficients.
+ * @param[in] num_coefficients_to_fit How many shape-coefficients to fit (all others will stay 0). Should be bigger than zero, or std::nullopt to fit all coefficients.
  * @return The fitted model shape instance.
  */
 inline Eigen::VectorXf fit_shape(Eigen::Matrix<float ,3, 4> affine_camera_matrix, const morphablemodel::MorphableModel& morphable_model, const std::vector<morphablemodel::Blendshape>& blendshapes, const std::vector<Eigen::Vector2f>& image_points, const std::vector<int>& vertex_indices, float lambda = 3.0f, std::optional<int> num_coefficients_to_fit = std::optional<int>())
@@ -200,7 +200,7 @@ inline auto concat(const std::vector<T>& vec_a, const std::vector<T>& vec_b)
  * starting values in the fitting. When the function returns, they contain the coefficients from
  * the last iteration.
  *
- * Use render::Mesh fit_shape_and_pose(const morphablemodel::MorphableModel&, const std::vector<morphablemodel::Blendshape>&, const core::LandmarkCollection<cv::Vec2f>&, const core::LandmarkMapper&, int, int, const morphablemodel::EdgeTopology&, const fitting::ContourLandmarks&, const fitting::ModelContour&, int, boost::optional<int>, float).
+ * Use render::Mesh fit_shape_and_pose(const morphablemodel::MorphableModel&, const std::vector<morphablemodel::Blendshape>&, const core::LandmarkCollection<cv::Vec2f>&, const core::LandmarkMapper&, int, int, const morphablemodel::EdgeTopology&, const fitting::ContourLandmarks&, const fitting::ModelContour&, int, std::optional<int>, float).
  * for a simpler overload with reasonable defaults and no optional output.
  *
  * \p num_iterations: Results are good for even a single iteration. For single-image fitting and
@@ -222,7 +222,7 @@ inline auto concat(const std::vector<T>& vec_a, const std::vector<T>& vec_b)
  * @param[in] contour_landmarks 2D image contour ids of left or right side (for example for ibug landmarks).
  * @param[in] model_contour The model contour indices that should be considered to find the closest corresponding 3D vertex.
  * @param[in] num_iterations Number of iterations that the different fitting parts will be alternated for.
- * @param[in] num_shape_coefficients_to_fit How many shape-coefficients to fit (all others will stay 0). Should be bigger than zero, or boost::none to fit all coefficients.
+ * @param[in] num_shape_coefficients_to_fit How many shape-coefficients to fit (all others will stay 0). Should be bigger than zero, or std::nullopt to fit all coefficients.
  * @param[in] lambda Regularisation parameter of the PCA shape fitting.
  * @param[in] initial_rendering_params Currently ignored (not used).
  * @param[in,out] pca_shape_coefficients If given, will be used as initial PCA shape coefficients to start the fitting. Will contain the final estimated coefficients.
@@ -372,7 +372,7 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(co
  *
  * If you want to access the values of shape or blendshape coefficients, or want to set starting
  * values for them, use the following overload to this function:
- * std::pair<render::Mesh, fitting::RenderingParameters> fit_shape_and_pose(const morphablemodel::MorphableModel&, const std::vector<morphablemodel::Blendshape>&, const core::LandmarkCollection<cv::Vec2f>&, const core::LandmarkMapper&, int, int, const morphablemodel::EdgeTopology&, const fitting::ContourLandmarks&, const fitting::ModelContour&, int, boost::optional<int>, float, boost::optional<fitting::RenderingParameters>, std::vector<float>&, std::vector<float>&, std::vector<cv::Vec2f>&)
+ * std::pair<render::Mesh, fitting::RenderingParameters> fit_shape_and_pose(const morphablemodel::MorphableModel&, const std::vector<morphablemodel::Blendshape>&, const core::LandmarkCollection<cv::Vec2f>&, const core::LandmarkMapper&, int, int, const morphablemodel::EdgeTopology&, const fitting::ContourLandmarks&, const fitting::ModelContour&, int, std::optional<int>, float, std::optional<fitting::RenderingParameters>, std::vector<float>&, std::vector<float>&, std::vector<cv::Vec2f>&)
  *
  * Todo: Add a convergence criterion.
  *
@@ -393,7 +393,7 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(co
  * @param[in] contour_landmarks 2D image contour ids of left or right side (for example for ibug landmarks).
  * @param[in] model_contour The model contour indices that should be considered to find the closest corresponding 3D vertex.
  * @param[in] num_iterations Number of iterations that the different fitting parts will be alternated for.
- * @param[in] num_shape_coefficients_to_fit How many shape-coefficients to fit (all others will stay 0). Should be bigger than zero, or boost::none to fit all coefficients.
+ * @param[in] num_shape_coefficients_to_fit How many shape-coefficients to fit (all others will stay 0). Should be bigger than zero, or std::nullopt to fit all coefficients.
  * @param[in] lambda Regularisation parameter of the PCA shape fitting.
  * @return The fitted model shape instance and the final pose.
  */
