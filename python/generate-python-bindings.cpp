@@ -177,7 +177,7 @@ PYBIND11_MODULE(eos, eos_module)
     pca_module.def("pca", py::overload_cast<const Eigen::Ref<const Eigen::MatrixXf>, pca::Covariance>(&pca::pca), "Compute PCA on a mean-centred data matrix, and return the eigenvectors and respective eigenvalues.", py::arg("data"), py::arg("covariance_type") = pca::Covariance::AtA);
     pca_module.def(
         "pca", py::overload_cast<const Eigen::Ref<const Eigen::MatrixXf>, int, pca::Covariance>(&pca::pca), "Performs PCA and returns num_eigenvectors_to_keep eigenvectors and eigenvalues.", py::arg("data"), py::arg("num_eigenvectors_to_keep"), py::arg("covariance_type") = pca::Covariance::AtA);
-    pca_module.def("pca", py::overload_cast<const Eigen::Ref<const Eigen::MatrixXf>, float, pca::Covariance>(&pca::pca), "Performs PCA and returns the number of eigenvectors and eigenvalues to retain \p variance_to_keep variance of the original data.", py::arg("data"), py::arg("variance_to_keep"), py::arg("covariance_type") = pca::Covariance::AtA);
+    pca_module.def("pca", py::overload_cast<const Eigen::Ref<const Eigen::MatrixXf>, float, pca::Covariance>(&pca::pca), "Performs PCA and returns the number of eigenvectors and eigenvalues to retain 'variance_to_keep' variance of the original data.", py::arg("data"), py::arg("variance_to_keep"), py::arg("covariance_type") = pca::Covariance::AtA);
     pca_module.def("pca", py::overload_cast<const Eigen::Ref<const Eigen::MatrixXf>, std::vector<std::array<int, 3>>, pca::Covariance>(&pca::pca), "Performs PCA on the given data (including subtracting the mean) and returns the built PcaModel.", py::arg("data"), py::arg("triangle_list"), py::arg("covariance_type") = pca::Covariance::AtA);
 
     /**
