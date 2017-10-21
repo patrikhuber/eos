@@ -1,6 +1,6 @@
 environment:
   home: C:\projects
-  cmake: C:\projects\cmake-3.9.20170820-g953f0-win64-x64\bin\cmake.exe
+  cmake: C:\projects\cmake-3.10.0-rc3-win64-x64\bin\cmake.exe
 
 version: '{branch}-{build}'
 
@@ -11,8 +11,8 @@ install:
   - cmd: git submodule update --init --recursive # inside the repository directory
   # Get a recent CMake and our dependencies (Eigen, OpenCV, Boost):
   - cmd: cd %home%
-  - ps: wget https://cmake.org/files/dev/cmake-3.9.20170820-g953f0-win64-x64.zip -OutFile cmake.zip
-  - cmd: 7z x cmake.zip -o"C:\projects" -y > nul # will extract to cmake-3.9.20170820-g953f0-win64-x64\
+  - ps: wget https://cmake.org/files/v3.10/cmake-3.10.0-rc3-win64-x64.zip -OutFile cmake.zip
+  - cmd: 7z x cmake.zip -o"C:\projects" -y > nul # will extract to cmake-3.10.0-rc3-win64-x64\
   - cmd: '%cmake% --version'
   # Get OpenCV (my pre-built binaries of 3.3.0 for VS2017.3):
   - ps: wget "https://drive.google.com/uc?export=download&id=0B2FFdHlMfJl_eGVEZlI4bXZvUVE" -OutFile opencv-3.3.0-vc15-release-travis.rar
