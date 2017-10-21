@@ -20,13 +20,14 @@
 #include "eos/morphablemodel/MorphableModel.hpp"
 #include "eos/morphablemodel/io/cvssp.hpp"
 
-#include "cxxopts.hpp"
+#include "boost/program_options.hpp"
 
 #include <vector>
 #include <iostream>
 #include <fstream>
 
 using namespace eos;
+namespace po = boost::program_options;
 using std::cout;
 using std::endl;
 
@@ -39,25 +40,29 @@ int main(int argc, char *argv[])
 	std::string scmmodelfile, isomapfile, outputfile;
 	bool save_shape_only;
 	try {
-		cxxopts::Options options("scm-to-cereal");
-		options.add_options()
-			("help,h", "display the help message")
-			("model,m", "a CVSSP .scm Morphable Model file",
-				cxxopts::value<std::string>(scmmodelfile))
-			("isomap,t", "optional isomap containing the texture mapping coordinates",
-				cxxopts::value<std::string>(isomapfile)) // optional arg
-			("shape-only,s", "save only the shape-model part of the full 3DMM",
-				cxxopts::value<bool>(save_shape_only)->default_value(false)->implicit_value(true)) // optional arg
-			("output,o", "output filename for the Morphable Model in cereal binary format",
-				cxxopts::value<std::string>(outputfile)->default_value("converted_model.bin"))
-			;
-		options.parse(argc, argv);
-		if (options.count("help")) {
-			cout << options.help() << endl;
-			return EXIT_SUCCESS;
-		}
+		po::options_description desc("Allowed options");
+		desc.add_options()
+		    ("help,h",
+		        "display the help message")
+		    ("model,m", po::value<std::string>(&scmmodelfile)->required(),
+		        "a CVSSP .scm Morphable Model file")
+		    ("isomap,t", po::value<std::string>(&isomapfile),
+		        "optional isomap containing the texture mapping coordinates")
+		    ("shape-only,s", po::value<bool>(&save_shape_only)->default_value(false)->implicit_value(true),
+		        "save only the shape-model part of the full 3DMM")
+		    ("output,o", po::value<std::string>(&outputfile)->required()->default_value("converted_model.bin"),
+		        "output filename for the Morphable Model in cereal binary format")
+		    ;
+                po::variables_map vm;
+                po::store(po::command_line_parser(argc, argv).options(desc).run(), vm);
+                if (vm.count("help")) {
+                    cout << "Usage: scm-to-cereal [options]" << endl;
+                    cout << desc;
+                    return EXIT_SUCCESS;
+                }
+                po::notify(vm);
 	}
-	catch (const cxxopts::OptionException& e) {
+	catch (const po::error& e) {
 		cout << "Error while parsing command-line arguments: " << e.what() << endl;
 		cout << "Use --help to display a list of options." << endl;
 		return EXIT_FAILURE;

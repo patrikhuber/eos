@@ -21,7 +21,7 @@
 
 #include "Eigen/Core"
 
-#include "cxxopts.hpp"
+#include "boost/program_options.hpp"
 
 #include <array>
 #include <vector>
@@ -30,6 +30,7 @@
 #include <string>
 
 using namespace eos;
+namespace po = boost::program_options;
 using std::cout;
 using std::endl;
 using std::vector;
@@ -73,23 +74,26 @@ int main(int argc, char *argv[])
 	std::string bfm_file, obj_file, outputfile;
 	std::string file_type;
 	try {
-		cxxopts::Options options("bfm-binary-to-cereal");
-		options.add_options()
-			("h,help", "display the help message")
-			("i,input", "input raw binary model file from Matlab script",
-				cxxopts::value<std::string>(bfm_file))
-			("t,texture-coordinates", "optional .obj file to read texture coordinates from",
-				cxxopts::value<std::string>(obj_file)) // optional argument
-			("o,output", "output filename for the converted .bin file",
-				cxxopts::value<std::string>(outputfile)->default_value("bfm2009.bin"))
-			;
-		options.parse(argc, argv);
-		if (options.count("help")) {
-			cout << options.help() << endl;
-			return EXIT_SUCCESS;
-		}
+	    po::options_description desc("Allowed options");
+	    desc.add_options()
+		("help,h",
+	        	"display the help message")
+		("input,i", po::value<std::string>(&bfm_file)->required(),
+			"input raw binary model file from Matlab script")
+		("texture-coordinates,t", po::value<std::string>(&obj_file),
+			"optional .obj file to read texture coordinates from")
+		("output,o", po::value<std::string>(&outputfile)->required()->default_value("bfm2009.bin"),
+			"output filename for the converted .bin file")
+		;
+                po::variables_map vm;
+                po::store(po::command_line_parser(argc, argv).options(desc).run(), vm);
+                if (vm.count("help")) {
+                    cout << "Usage: bfm-binary-to-cereal [options]" << endl;
+                    cout << desc;
+                    return EXIT_SUCCESS;
+                }
 	}
-	catch (const cxxopts::OptionException& e) {
+	catch (const po::error& e) {
 		cout << "Error while parsing command-line arguments: " << e.what() << endl;
 		cout << "Use --help to display a list of options." << endl;
 		return EXIT_FAILURE;
