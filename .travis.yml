@@ -4,19 +4,19 @@ dist: trusty
 language: cpp
 
 env:
-  - C_COMPILER=gcc-5 CXX_COMPILER=g++-5
-  - C_COMPILER=clang-3.5 CXX_COMPILER=clang++-3.5
-  - C_COMPILER=clang-3.8 CXX_COMPILER=clang++-3.8
+  - C_COMPILER=gcc-7 CXX_COMPILER=g++-7
+  - C_COMPILER=clang-4.0 CXX_COMPILER=clang++-4.0
+  - C_COMPILER=clang-5.0 CXX_COMPILER=clang++-5.0
 
 before_install:
   - pyenv global system 3.5 # Workaround for travis-ci/issues/8363
   - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
   - wget -O - http://llvm.org/apt/llvm-snapshot.gpg.key | sudo apt-key add -
-  - echo "deb http://llvm.org/apt/trusty/ llvm-toolchain-trusty-3.5 main" | sudo tee -a /etc/apt/sources.list
-  - echo "deb http://llvm.org/apt/trusty/ llvm-toolchain-trusty-3.8 main" | sudo tee -a /etc/apt/sources.list
+  - echo "deb http://llvm.org/apt/trusty/ llvm-toolchain-trusty-4.0 main" | sudo tee -a /etc/apt/sources.list
+  - echo "deb http://llvm.org/apt/trusty/ llvm-toolchain-trusty-5.0 main" | sudo tee -a /etc/apt/sources.list
   - sudo apt-get update -q
-  - sudo apt-get install gcc-5 g++-5 -y
-  - sudo apt-get install clang-3.5 clang-3.8 -y
+  - sudo apt-get install gcc-7 g++-7 -y
+  - sudo apt-get install clang-4.0 clang-5.0 -y
   - sudo apt-get install libboost-all-dev libopencv-dev -y
   - wget https://cmake.org/files/v3.8/cmake-3.8.2-Linux-x86_64.tar.gz
   - tar -xvzf cmake-3.8.2-Linux-x86_64.tar.gz
