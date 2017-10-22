@@ -6,6 +6,7 @@ recursive-include 3rdparty/eigen/Eigen *
 recursive-include 3rdparty/eigen3-nnls/src *.h
 recursive-include 3rdparty/glm/glm *
 recursive-include 3rdparty/nanoflann/include *
+recursive-include 3rdparty/toml11 *.hpp
 recursive-include 3rdparty/pybind11 *
 recursive-include include *
 recursive-include python *
