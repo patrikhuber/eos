@@ -190,7 +190,14 @@ PYBIND11_MODULE(eos, eos_module)
     py::module fitting_module = eos_module.def_submodule("fitting", "Pose and shape fitting of a 3D Morphable Model.");
 
     py::class_<fitting::ScaledOrthoProjectionParameters>(fitting_module, "ScaledOrthoProjectionParameters", "Parameters of an estimated scaled orthographic projection.")
-        .def_readwrite("R", &fitting::ScaledOrthoProjectionParameters::R, "Rotation matrix")
+        .def_property_readonly("R",
+             [](const fitting::ScaledOrthoProjectionParameters& p) {
+            Eigen::Matrix3f R; // we could probably use Eigen::Map
+            for (int col = 0; col < 4; ++col)
+                for (int row = 0; row < 4; ++row)
+                    R(row, col) = p.R[col][row];
+            return R;
+    }, "Rotation matrix") // we can easily make this writable if ever required, just need to add a lambda function with the Eigen to glm matrix conversion.
         .def_readwrite("s", &fitting::ScaledOrthoProjectionParameters::s, "Scale")
         .def_readwrite("tx", &fitting::ScaledOrthoProjectionParameters::tx, "x translation")
         .def_readwrite("ty", &fitting::ScaledOrthoProjectionParameters::ty, "y translation");
@@ -203,10 +210,28 @@ PYBIND11_MODULE(eos, eos_module)
              },
              "Returns the rotation quaternion [x y z w].")
         .def("get_rotation_euler_angles",
-             [](const fitting::RenderingParameters& p) { return glm::eulerAngles(p.get_rotation()); },
+             [](const fitting::RenderingParameters& p) {
+                 const glm::vec3 euler_angles = glm::eulerAngles(p.get_rotation());
+                 return Eigen::Vector3f(euler_angles[0], euler_angles[1], euler_angles[2]);
+            },
              "Returns the rotation's Euler angles (in radians) as [pitch, yaw, roll].")
-        .def("get_modelview", &fitting::RenderingParameters::get_modelview, "Returns the 4x4 model-view matrix.")
-        .def("get_projection", &fitting::RenderingParameters::get_projection, "Returns the 4x4 projection matrix.");
+        .def("get_modelview",
+            [](const fitting::RenderingParameters& p) {
+                Eigen::Matrix4f model_view; // we could probably use Eigen::Map
+                for (int col = 0; col < 4; ++col)
+                    for (int row = 0; row < 4; ++row)
+                        model_view(row, col) = p.get_modelview()[col][row];
+                return model_view;
+            },
+            "Returns the 4x4 model-view matrix.")
+        .def("get_projection",
+            [](const fitting::RenderingParameters& p) {
+                Eigen::Matrix4f projection; // we could probably use Eigen::Map
+                for (int col = 0; col < 4; ++col)
+                    for (int row = 0; row < 4; ++row)
+                        projection(row, col) = p.get_projection()[col][row];
+                return projection;
+            }, "Returns the 4x4 projection matrix.");
 
     fitting_module.def("estimate_orthographic_projection_linear", &fitting::estimate_orthographic_projection_linear,
                        "This algorithm estimates the parameters of a scaled orthographic projection, given a set of corresponding 2D-3D points.",
