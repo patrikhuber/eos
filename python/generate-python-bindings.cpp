@@ -208,15 +208,9 @@ PYBIND11_MODULE(eos, eos_module)
         .def("get_modelview", &fitting::RenderingParameters::get_modelview, "Returns the 4x4 model-view matrix.")
         .def("get_projection", &fitting::RenderingParameters::get_projection, "Returns the 4x4 projection matrix.");
 
-    fitting_module.def("estimate_orthographic_projection_linear",
-                       [](std::vector<Eigen::Vector2f> image_points,
-                          std::vector<Eigen::Vector4f> model_points, bool is_viewport_upsidedown,
-                          int viewport_height) {
-                           const std::optional<int> viewport_height_opt = viewport_height == 0 ? std::nullopt : std::optional<int>(viewport_height);
-                           return fitting::estimate_orthographic_projection_linear(image_points, model_points, is_viewport_upsidedown, viewport_height_opt);
-                       },
+    fitting_module.def("estimate_orthographic_projection_linear", &fitting::estimate_orthographic_projection_linear,
                        "This algorithm estimates the parameters of a scaled orthographic projection, given a set of corresponding 2D-3D points.",
-                       py::arg("image_points"), py::arg("model_points"), py::arg("is_viewport_upsidedown"), py::arg("viewport_height") = 0);
+                       py::arg("image_points"), py::arg("model_points"), py::arg("is_viewport_upsidedown") = py::none(), py::arg("viewport_height") = 0);
 
     py::class_<fitting::ContourLandmarks>(fitting_module, "ContourLandmarks", "Defines which 2D landmarks comprise the right and left face contour.")
         .def_static("load", &fitting::ContourLandmarks::load, "Helper method to load contour landmarks from a text file with landmark mappings, like ibug_to_sfm.txt.", py::arg("filename"));
@@ -231,24 +225,21 @@ PYBIND11_MODULE(eos, eos_module)
            const core::LandmarkMapper& landmark_mapper, int image_width, int image_height,
            const morphablemodel::EdgeTopology& edge_topology,
            const fitting::ContourLandmarks& contour_landmarks, const fitting::ModelContour& model_contour,
-           int num_iterations, int num_shape_coefficients_to_fit, float lambda) {
+           int num_iterations, std::optional<int> num_shape_coefficients_to_fit, float lambda) {
             assert(landmarks.size() == landmark_ids.size());
             std::vector<float> pca_coeffs;
             std::vector<float> blendshape_coeffs;
             std::vector<Eigen::Vector2f> fitted_image_points;
-            // We can change this to std::optional as soon as we switch to VS2017 and pybind supports
-            // std::optional
-            const std::optional<int> num_shape_coefficients_opt = num_shape_coefficients_to_fit == -1 ? std::nullopt : std::optional<int>(num_shape_coefficients_to_fit);
             core::LandmarkCollection<Eigen::Vector2f> landmark_collection;
             for (int i = 0; i < landmarks.size(); ++i)
             {
                 landmark_collection.push_back(core::Landmark<Eigen::Vector2f>{ landmark_ids[i], Eigen::Vector2f(landmarks[i][0], landmarks[i][1]) });
             }
-            auto result = fitting::fit_shape_and_pose(morphable_model, blendshapes, landmark_collection, landmark_mapper, image_width, image_height, edge_topology, contour_landmarks, model_contour, num_iterations, num_shape_coefficients_opt, lambda, std::nullopt, pca_coeffs, blendshape_coeffs, fitted_image_points);
+            auto result = fitting::fit_shape_and_pose(morphable_model, blendshapes, landmark_collection, landmark_mapper, image_width, image_height, edge_topology, contour_landmarks, model_contour, num_iterations, num_shape_coefficients_to_fit, lambda, std::nullopt, pca_coeffs, blendshape_coeffs, fitted_image_points);
             return std::make_tuple(result.first, result.second, pca_coeffs, blendshape_coeffs);
         },
         "Fit the pose (camera), shape model, and expression blendshapes to landmarks, in an iterative way. Returns a tuple (mesh, rendering_parameters, shape_coefficients, blendshape_coefficients).",
-        py::arg("morphable_model"), py::arg("blendshapes"), py::arg("landmarks"), py::arg("landmark_ids"), py::arg("landmark_mapper"), py::arg("image_width"), py::arg("image_height"), py::arg("edge_topology"), py::arg("contour_landmarks"), py::arg("model_contour"), py::arg("num_iterations") = 5, py::arg("num_shape_coefficients_to_fit") = -1, py::arg("lambda") = 30.0f);
+        py::arg("morphable_model"), py::arg("blendshapes"), py::arg("landmarks"), py::arg("landmark_ids"), py::arg("landmark_mapper"), py::arg("image_width"), py::arg("image_height"), py::arg("edge_topology"), py::arg("contour_landmarks"), py::arg("model_contour"), py::arg("num_iterations") = 5, py::arg("num_shape_coefficients_to_fit") = py::none(), py::arg("lambda") = 30.0f);
 
     /**
      * Bindings for the eos::render namespace:
