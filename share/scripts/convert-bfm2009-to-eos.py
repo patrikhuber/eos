@@ -3,17 +3,17 @@ import eos
 import scipy.io
 
 # This script converts the Basel Face Model 2009 (BFM2009, [1]) to the eos model format,
-# specifically the file PublicMM1/01_MorphableModel.mat file from the BFM2009 distribution.
+# specifically the file PublicMM1/01_MorphableModel.mat from the BFM2009 distribution.
 #
 # The script does not use or convert the segments of the BFM2009, just the global PCA.
 # The BFM2009 also does not come with texture (uv-) coordinates. If you have texture coordinates for the BFM, they can be
 # added to the eos.morphablemodel.MorphableModel(...) constructor in the third argument. Note that eos only supports one
 # uv-coordinate per vertex.
 #
-# [1]: A 3D Face Model for Pose and Illumination Invariant Face
-# Recognition, P. Paysan, R. Knothe, B. Amberg, S. Romdhani, and T. Vetter,
-# AVSS 2009.
-# http://faces.cs.unibas.ch/bfm/main.php?nav=1-0&id=basel_face_model
+# [1]: A 3D Face Model for Pose and Illumination Invariant Face Recognition,
+#      P. Paysan, R. Knothe, B. Amberg, S. Romdhani, and T. Vetter,
+#      AVSS 2009.
+#      http://faces.cs.unibas.ch/bfm/main.php?nav=1-0&id=basel_face_model
 
 # Set this to the path of the PublicMM1/01_MorphableModel.mat file from the BFM2009 distribution:
 bfm2009_path = r"./PublicMM1/01_MorphableModel.mat"
@@ -46,7 +46,6 @@ color_pca_eigenvalues = np.square(color_pca_standard_deviations)
 color_model = eos.morphablemodel.PcaModel(color_mean, color_orthogonal_pca_basis, color_pca_eigenvalues, triangle_list.tolist())
 
 # Construct and save the BFM2009 model in the eos format:
-model = eos.morphablemodel.MorphableModel(shape_model, color_model, [])
+model = eos.morphablemodel.MorphableModel(shape_model, color_model, []) # uv-coordinates can be added here
 eos.morphablemodel.save_model(model, "bfm2009.bin")
-
 print("Converted and saved model as bfm2009.bin.")
