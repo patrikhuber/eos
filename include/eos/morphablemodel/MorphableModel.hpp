@@ -32,10 +32,6 @@
 #include "eos/morphablemodel/io/eigen_cerealisation.hpp"
 #include "cereal/archives/binary.hpp"
 
-#include "glm/vec2.hpp"
-#include "glm/vec3.hpp"
-#include "glm/vec4.hpp"
-
 #include "Eigen/Core"
 
 #include <array>
