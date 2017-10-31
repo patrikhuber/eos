@@ -17,7 +17,7 @@ import h5py
 # Set this to the path of the model2017-1_bfm_nomouth.h5 or model2017-1_face12_nomouth.h5 file from the BFM2017 download:
 bfm2017_file = r"./model2017-1_bfm_nomouth.h5"
 
-with h5py.File(bfm2017_file 'r') as hf:
+with h5py.File(bfm2017_file, 'r') as hf:
     # The PCA shape model:
     shape_mean = np.array(hf['shape/model/mean'])
     shape_orthogonal_pca_basis = np.array(hf['shape/model/pcaBasis'])
