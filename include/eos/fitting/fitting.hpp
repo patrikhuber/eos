@@ -85,7 +85,7 @@ inline Eigen::VectorXf fit_shape(Eigen::Matrix<float, 3, 4> affine_camera_matrix
 		last_pca_coeffs = current_pca_coeffs;
 		// Estimate the PCA shape coefficients with the current blendshape coefficients (0 in the first iteration):
 		const VectorXf mean_plus_blendshapes = morphable_model.get_shape_model().get_mean() + blendshapes_as_basis * Eigen::Map<const Eigen::VectorXf>(last_blendshape_coeffs.data(), last_blendshape_coeffs.size());
-		current_pca_coeffs = fitting::fit_shape_to_landmarks_linear(morphable_model, affine_camera_matrix, image_points, vertex_indices, mean_plus_blendshapes, lambda, num_coefficients_to_fit);
+		current_pca_coeffs = fitting::fit_shape_to_landmarks_linear(morphable_model.get_shape_model(), affine_camera_matrix, image_points, vertex_indices, mean_plus_blendshapes, lambda, num_coefficients_to_fit);
 
 		// Estimate the blendshape coefficients with the current PCA model estimate:
 		const VectorXf pca_model_shape = morphable_model.get_shape_model().draw_sample(current_pca_coeffs);
@@ -349,7 +349,7 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(co
 
 		// Estimate the PCA shape coefficients with the current blendshape coefficients:
 		const VectorXf mean_plus_blendshapes = morphable_model.get_shape_model().get_mean() + blendshapes_as_basis * Eigen::Map<const Eigen::VectorXf>(blendshape_coefficients.data(), blendshape_coefficients.size());
-		pca_shape_coefficients = fitting::fit_shape_to_landmarks_linear(morphable_model, affine_from_ortho, image_points, vertex_indices, mean_plus_blendshapes, lambda, num_shape_coefficients_to_fit);
+		pca_shape_coefficients = fitting::fit_shape_to_landmarks_linear(morphable_model.get_shape_model(), affine_from_ortho, image_points, vertex_indices, mean_plus_blendshapes, lambda, num_shape_coefficients_to_fit);
 
 		// Estimate the blendshape coefficients with the current PCA model estimate:
 		current_pca_shape = morphable_model.get_shape_model().draw_sample(pca_shape_coefficients);

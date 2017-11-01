@@ -22,7 +22,7 @@
 #ifndef LINEARSHAPEFITTING_HPP_
 #define LINEARSHAPEFITTING_HPP_
 
-#include "eos/morphablemodel/MorphableModel.hpp"
+#include "eos/morphablemodel/PcaModel.hpp"
 
 #include "Eigen/Core"
 #include "Eigen/QR"
@@ -55,19 +55,19 @@ namespace eos {
  * @param[in] model_standard_deviation The standard deviation of the 3D vertex points in the 3D model, projected to 2D (so the value is in pixels).
  * @return The estimated shape-coefficients (alphas).
  */
-inline std::vector<float> fit_shape_to_landmarks_linear(const morphablemodel::MorphableModel& morphable_model, Eigen::Matrix<float, 3, 4> affine_camera_matrix, const std::vector<Eigen::Vector2f>& landmarks, const std::vector<int>& vertex_ids, Eigen::VectorXf base_face=Eigen::VectorXf(), float lambda=3.0f, std::optional<int> num_coefficients_to_fit= std::optional<int>(), std::optional<float> detector_standard_deviation= std::optional<float>(), std::optional<float> model_standard_deviation= std::optional<float>())
+inline std::vector<float> fit_shape_to_landmarks_linear(const morphablemodel::PcaModel& shape_model, Eigen::Matrix<float, 3, 4> affine_camera_matrix, const std::vector<Eigen::Vector2f>& landmarks, const std::vector<int>& vertex_ids, Eigen::VectorXf base_face=Eigen::VectorXf(), float lambda=3.0f, std::optional<int> num_coefficients_to_fit= std::optional<int>(), std::optional<float> detector_standard_deviation= std::optional<float>(), std::optional<float> model_standard_deviation= std::optional<float>())
 {
 	assert(landmarks.size() == vertex_ids.size());
 
 	using Eigen::VectorXf;
 	using Eigen::MatrixXf;
 
-	const int num_coeffs_to_fit = num_coefficients_to_fit.value_or(morphable_model.get_shape_model().get_num_principal_components());
+	const int num_coeffs_to_fit = num_coefficients_to_fit.value_or(shape_model.get_num_principal_components());
 	const int num_landmarks = static_cast<int>(landmarks.size());
 
 	if (base_face.size() == 0)
 	{
-		base_face = morphable_model.get_shape_model().get_mean();
+		base_face = shape_model.get_mean();
 	}
 
 	// $\hat{V} \in R^{3N\times m-1}$, subselect the rows of the eigenvector matrix $V$ associated with the $N$ feature points
@@ -75,7 +75,7 @@ inline std::vector<float> fit_shape_to_landmarks_linear(const morphablemodel::Mo
 	MatrixXf V_hat_h = MatrixXf::Zero(4 * num_landmarks, num_coeffs_to_fit);
 	int row_index = 0;
 	for (int i = 0; i < num_landmarks; ++i) {
-		const MatrixXf basis_rows_ = morphable_model.get_shape_model().get_rescaled_pca_basis_at_point(vertex_ids[i]); // In the paper, the orthonormal basis might be used? I'm not sure, check it. It's even a mess in the paper. PH 26.5.2014: I think the rescaled basis is fine/better.
+		const MatrixXf basis_rows_ = shape_model.get_rescaled_pca_basis_at_point(vertex_ids[i]); // In the paper, the orthonormal basis might be used? I'm not sure, check it. It's even a mess in the paper. PH 26.5.2014: I think the rescaled basis is fine/better.
 		V_hat_h.block(row_index, 0, 3, V_hat_h.cols()) = basis_rows_.block(0, 0, basis_rows_.rows(), num_coeffs_to_fit);
 		row_index += 4; // replace 3 rows and skip the 4th one, it has all zeros
 	}
