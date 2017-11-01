@@ -307,7 +307,8 @@ inline void save_model(MorphableModel model, std::string filename)
  * instances. Needs the vertex index lists as well to assemble the mesh -
  * and optional texture coordinates.
  *
- * If \c color is empty, it will create a mesh without vertex colouring.
+ * If \c color_instance is empty, it will create a mesh without vertex colouring.
+ * Colour values are assumed to be in the range [0, 1] and will be clamped to [0, 1].
  *
  * @param[in] shape_instance PCA shape model instance.
  * @param[in] color_instance PCA colour model instance.
@@ -346,10 +347,10 @@ inline core::Mesh sample_to_mesh(const Eigen::VectorXf& shape_instance, const Ei
         mesh.colors.resize(num_vertices);
         for (auto i = 0; i < num_vertices; ++i)
         {
-            mesh.colors[i] = Eigen::Vector3f(color_instance(i * 3 + 0), color_instance(i * 3 + 1),
-                                             color_instance(i * 3 + 2)); // We use RGB order everywhere. Note:
-                                                                         // This can probably be simplified
-                                                                         // now, Eigen on both sides!
+            mesh.colors[i] = Eigen::Vector3f(
+                std::clamp(color_instance(i * 3 + 0), 0.0f, 1.0f),
+                std::clamp(color_instance(i * 3 + 1), 0.0f, 1.0f),
+                std::clamp(color_instance(i * 3 + 2), 0.0f, 1.0f)); // We use RGB order everywhere.
         }
     }
 
