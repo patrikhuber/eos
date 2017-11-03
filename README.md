@@ -45,7 +45,7 @@ To use the library in your own project, just add the following directories to yo
 
 ### Build the examples and tests
 
-* Needed dependencies for the example app: CMake (>=3.8.2), Boost system, filesystem, program_options (>=1.50.0), OpenCV core, imgproc, highgui (>=2.4.3).
+* Needed dependencies for the example app: CMake (>=3.8.2, or 3.10.0-rc1 for VS2017), Boost system, filesystem, program_options (>=1.50.0), OpenCV core, imgproc, highgui (>=2.4.3).
 
 To build:
 
@@ -90,7 +90,7 @@ The full model is available at [http://www.cvssp.org/facemodel](http://www.cvssp
 
 eos includes python bindings for some of its functionality (and more can be added!). An experimental package is on PyPI: Try `pip install eos-py`. You will still need the data files from this repository.
 In case of issues, build the bindings manually: Clone the repository and set `-DEOS_GENERATE_PYTHON_BINDINGS=on` when running `cmake` (and optionally set `PYTHON_EXECUTABLE` to point to your python interpreter if it's not found automatically).
-Make sure that you've got >=gcc-7 or >=clang-5 as the default compiler on Linux (for example from the [ubuntu-toolchain-r/test](https://launchpad.net/~ubuntu-toolchain-r/+archive/ubuntu/test) repository) or do ``CC=`which gcc-7` CXX=`which g++-7` pip install eos-py``. Also make sure you've got >=cmake-3.8.2 in your path.
+Make sure that you've got >=gcc-7 or >=clang-5 as the default compiler on Linux (for example from the [ubuntu-toolchain-r/test](https://launchpad.net/~ubuntu-toolchain-r/+archive/ubuntu/test) repository) or do ``CC=`which gcc-7` CXX=`which g++-7` pip install eos-py``. Also make sure you've got >=cmake-3.8.2 (or >=cmake-3.10.0-rc1 for VS2017) in your path.
 
 After having obtained the bindings, they can be used like any python module:
 
