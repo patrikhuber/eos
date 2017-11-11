@@ -48,7 +48,7 @@ namespace eos {
  *
  * @param[in] blendshapes A vector with blendshapes to estimate the coefficients for.
  * @param[in] face_instance A shape instance from which the blendshape coefficients should be estimated (i.e. the current mesh without expressions, e.g. estimated from a previous PCA-model fitting). A 3m x 1 matrix.
- * @param[in] affine_camera_matrix A 3x4 affine camera matrix from model to screen-space (should probably be of type CV_32FC1 as all our calculations are done with float).
+ * @param[in] affine_camera_matrix A 3x4 affine camera matrix from model to screen-space.
  * @param[in] landmarks 2D landmarks from an image to fit the blendshapes to.
  * @param[in] vertex_ids The vertex ids in the model that correspond to the 2D points.
  * @param[in] lambda A regularisation parameter, constraining the L2-norm of the coefficients.
@@ -120,7 +120,7 @@ inline std::vector<float> fit_blendshapes_to_landmarks_linear(const std::vector<
  *
  * @param[in] blendshapes A vector with blendshapes to estimate the coefficients for.
  * @param[in] face_instance A shape instance from which the blendshape coefficients should be estimated (i.e. the current mesh without expressions, e.g. estimated from a previous PCA-model fitting). A 3m x 1 matrix.
- * @param[in] affine_camera_matrix A 3x4 affine camera matrix from model to screen-space (should probably be of type CV_32FC1 as all our calculations are done with float).
+ * @param[in] affine_camera_matrix A 3x4 affine camera matrix from model to screen-space.
  * @param[in] landmarks 2D landmarks from an image to fit the blendshapes to.
  * @param[in] vertex_ids The vertex ids in the model that correspond to the 2D points.
  * @return The estimated blendshape-coefficients.
