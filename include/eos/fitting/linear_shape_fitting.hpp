@@ -45,7 +45,7 @@ namespace eos {
  * Note: The standard deviations given should be a vector, i.e. different for each landmark. This is not implemented yet.
  *
  * @param[in] morphable_model The Morphable Model whose shape (coefficients) are estimated.
- * @param[in] affine_camera_matrix A 3x4 affine camera matrix from model to screen-space (should probably be of type CV_32FC1 as all our calculations are done with float).
+ * @param[in] affine_camera_matrix A 3x4 affine camera matrix from model to screen-space.
  * @param[in] landmarks 2D landmarks from an image to fit the model to.
  * @param[in] vertex_ids The vertex ids in the model that correspond to the 2D points.
  * @param[in] base_face The base or reference face from where the fitting is started. Usually this would be the models mean face, which is what will be used if the parameter is not explicitly specified.
