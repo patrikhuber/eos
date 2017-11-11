@@ -74,7 +74,7 @@ set(HEADERS
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/morphablemodel/coefficients.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/morphablemodel/EdgeTopology.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/morphablemodel/io/cvssp.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/morphablemodel/io/mat_cerealisation.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/morphablemodel/io/eigen_cerealisation.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/pca/pca.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/affine_camera_estimation.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/orthographic_camera_estimation_linear.hpp
