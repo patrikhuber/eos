@@ -46,7 +46,6 @@ namespace eos {
  */
 struct Frustum
 {
-//	float l, r, b, t;
 	Frustum() {};
 	Frustum(float l, float r, float b, float t) : l(l), r(r), b(b), t(t) {};
 	//Frustum(float l, float r, float b, float t, float n, float f) : l(l), r(r), b(b), t(t), n(n), f(f) {};
@@ -54,14 +53,14 @@ struct Frustum
 	float r = 1.0f;
 	float b = -1.0f;
 	float t = 1.0f;
-	//boost::optional<float> n; // These are not needed yet but probably will in the future,
-	//boost::optional<float> f; // and then it's good if the old serialised files stay compatible.
+	//std::optional<float> n; // These are not needed yet but probably will in the future,
+	//std::optional<float> f; // and then it's good if the old serialised files stay compatible.
 
 	friend class cereal::access;
 	/**
 	 * Serialises this class using cereal.
 	 *
-	 * @param[in] ar The archive to serialise to (or to serialise from).
+	 * @param[in] archive The archive to serialise to (or to serialise from).
 	 */
 	template<class Archive>
 	void serialize(Archive& archive)
