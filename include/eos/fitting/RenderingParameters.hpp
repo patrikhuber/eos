@@ -105,7 +105,7 @@ class RenderingParameters
 {
 public:
 	// Creates with default frustum...
-	RenderingParameters() {};
+	RenderingParameters() = default;
 
 	// Initialisation for Eigen::LevMarq
 	// This creates the correct rotation quaternion in the case the angles were estimated/given by R*P*Y*v.
@@ -113,20 +113,20 @@ public:
 	// Note: If you subsequently use RP::get_rotation() and glm::eulerAngles() on it, the angles you get out will be slightly different from the ones you put in here.
 	// But they will describe the same rotation! Just in a different order. (i.e. the rotation matrix or quaternion for both of these two sets of angles is identical.)
 	RenderingParameters(CameraType camera_type, Frustum camera_frustum, float r_x, float r_y, float r_z, float tx, float ty, int screen_width, int screen_height) : camera_type(camera_type), frustum(camera_frustum), t_x(tx), t_y(ty), screen_width(screen_width), screen_height(screen_height) {
-		auto rot_mtx_x = glm::rotate(glm::mat4(1.0f), r_x, glm::vec3{ 1.0f, 0.0f, 0.0f });
-		auto rot_mtx_y = glm::rotate(glm::mat4(1.0f), r_y, glm::vec3{ 0.0f, 1.0f, 0.0f });
-		auto rot_mtx_z = glm::rotate(glm::mat4(1.0f), r_z, glm::vec3{ 0.0f, 0.0f, 1.0f });
-		auto zxy_rotation_matrix = rot_mtx_z * rot_mtx_x * rot_mtx_y;
-		rotation = glm::quat(zxy_rotation_matrix);
-	};
+            const auto rot_mtx_x = glm::rotate(glm::mat4(1.0f), r_x, glm::vec3{1.0f, 0.0f, 0.0f});
+            const auto rot_mtx_y = glm::rotate(glm::mat4(1.0f), r_y, glm::vec3{0.0f, 1.0f, 0.0f});
+            const auto rot_mtx_z = glm::rotate(glm::mat4(1.0f), r_z, glm::vec3{0.0f, 0.0f, 1.0f});
+            const auto zxy_rotation_matrix = rot_mtx_z * rot_mtx_x * rot_mtx_y;
+            rotation = glm::quat(zxy_rotation_matrix);
+        };
 
-	// This assumes estimate_sop was run on points with OpenCV viewport! I.e. y flipped.
+        // This assumes estimate_sop was run on points with OpenCV viewport! I.e. y flipped.
 	RenderingParameters(ScaledOrthoProjectionParameters ortho_params, int screen_width, int screen_height) : camera_type(CameraType::Orthographic), t_x(ortho_params.tx), t_y(ortho_params.ty), screen_width(screen_width), screen_height(screen_height) {
 		rotation = glm::quat(ortho_params.R);
-		const auto l = 0.0;
-		const auto r = screen_width / ortho_params.s;
-		const auto b = 0.0; // The b and t values are not tested for what happens if the SOP parameters
-		const auto t = screen_height / ortho_params.s; // were estimated on a non-flipped viewport.
+		const float l = 0.0f;
+		const float r = screen_width / ortho_params.s;
+		const float b = 0.0f; // The b and t values are not tested for what happens if the SOP parameters
+		const float t = screen_height / ortho_params.s; // were estimated on a non-flipped viewport.
 		frustum = Frustum(l, r, b, t);
 	};
 
