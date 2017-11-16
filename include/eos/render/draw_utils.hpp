@@ -25,10 +25,8 @@
 #include "eos/core/Mesh.hpp"
 #include "eos/render/detail/render_detail.hpp"
 
-//#include "glm/vec3.hpp"
 #include "glm/vec4.hpp"
 #include "glm/mat4x4.hpp"
-//#include "glm/geometric.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 
 #include "opencv2/core/core.hpp"
@@ -47,9 +45,9 @@ namespace eos {
  * @param[in] modelview Model-view matrix to draw the mesh.
  * @param[in] projection Projection matrix to draw the mesh.
  * @param[in] viewport Viewport to draw the mesh.
- * @param[in] colour Colour of the mesh to be drawn.
+ * @param[in] color Colour of the mesh to be drawn.
  */
-void draw_wireframe(cv::Mat image, const core::Mesh& mesh, glm::mat4x4 modelview, glm::mat4x4 projection, glm::vec4 viewport, cv::Scalar colour = cv::Scalar(0, 255, 0, 255))
+inline void draw_wireframe(cv::Mat image, const core::Mesh& mesh, glm::mat4x4 modelview, glm::mat4x4 projection, glm::vec4 viewport, cv::Scalar color = cv::Scalar(0, 255, 0, 255))
 {
 	for (const auto& triangle : mesh.tvi)
 	{
@@ -58,9 +56,9 @@ void draw_wireframe(cv::Mat image, const core::Mesh& mesh, glm::mat4x4 modelview
 		const auto p3 = glm::project({ mesh.vertices[triangle[2]][0], mesh.vertices[triangle[2]][1], mesh.vertices[triangle[2]][2] }, modelview, projection, viewport);
 		if (render::detail::are_vertices_ccw_in_screen_space(glm::vec2(p1), glm::vec2(p2), glm::vec2(p3)))
 		{
-			cv::line(image, cv::Point(p1.x, p1.y), cv::Point(p2.x, p2.y), colour);
-			cv::line(image, cv::Point(p2.x, p2.y), cv::Point(p3.x, p3.y), colour);
-			cv::line(image, cv::Point(p3.x, p3.y), cv::Point(p1.x, p1.y), colour);
+			cv::line(image, cv::Point(p1.x, p1.y), cv::Point(p2.x, p2.y), color);
+			cv::line(image, cv::Point(p2.x, p2.y), cv::Point(p3.x, p3.y), color);
+			cv::line(image, cv::Point(p3.x, p3.y), cv::Point(p1.x, p1.y), color);
 		}
 	}
 };
