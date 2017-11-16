@@ -26,6 +26,7 @@
 
 #include "Eigen/Core"
 #include "Eigen/QR"
+#include "Eigen/Sparse"
 
 #include <vector>
 #include <cassert>
@@ -75,23 +76,31 @@ inline std::vector<float> fit_shape_to_landmarks_linear(const morphablemodel::Pc
 	MatrixXf V_hat_h = MatrixXf::Zero(4 * num_landmarks, num_coeffs_to_fit);
 	int row_index = 0;
 	for (int i = 0; i < num_landmarks; ++i) {
-		const MatrixXf basis_rows_ = shape_model.get_rescaled_pca_basis_at_point(vertex_ids[i]); // In the paper, the orthonormal basis might be used? I'm not sure, check it. It's even a mess in the paper. PH 26.5.2014: I think the rescaled basis is fine/better.
-		V_hat_h.block(row_index, 0, 3, V_hat_h.cols()) = basis_rows_.block(0, 0, basis_rows_.rows(), num_coeffs_to_fit);
+		const auto& basis_rows = shape_model.get_rescaled_pca_basis_at_point(vertex_ids[i]); // In the paper, the orthonormal basis might be used? I'm not sure, check it. It's even a mess in the paper. PH 26.5.2014: I think the rescaled basis is fine/better.
+	        V_hat_h.block(row_index, 0, 3, V_hat_h.cols()) = basis_rows.block(0, 0, basis_rows.rows(), num_coeffs_to_fit);
 		row_index += 4; // replace 3 rows and skip the 4th one, it has all zeros
 	}
-	// Form a block diagonal matrix $P \in R^{3N\times 4N}$ in which the camera matrix C (P_Affine, affine_camera_matrix) is placed on the diagonal:
-	MatrixXf P = MatrixXf::Zero(3 * num_landmarks, 4 * num_landmarks);
-	for (int i = 0; i < num_landmarks; ++i) {
-		P.block<3, 4>(3 * i, 4 * i) = affine_camera_matrix;
-	}
-	// The variances: Add the 2D and 3D standard deviations.
+	
+        // Form a block diagonal matrix $P \in R^{3N\times 4N}$ in which the camera matrix C (P_Affine, affine_camera_matrix) is placed on the diagonal:
+        Eigen::SparseMatrix<float> P(3 * num_landmarks, 4 * num_landmarks);
+        std::vector<Eigen::Triplet<float>> P_coefficients; // list of non-zeros coefficients
+        for (int i = 0; i < num_landmarks; ++i) { // Note: could make this the inner-most loop.
+            for (int x = 0; x < affine_camera_matrix.rows(); ++x) {
+                for (int y = 0; y < affine_camera_matrix.cols(); ++y) {
+                    P_coefficients.push_back(Eigen::Triplet<float>(3 * i + x, 4 * i + y, affine_camera_matrix(x, y)));
+                }
+            }
+        }
+        P.setFromTriplets(P_coefficients.begin(), P_coefficients.end());
+	
+        // The variances: Add the 2D and 3D standard deviations.
 	// If the user doesn't provide them, we choose the following:
 	// 2D (detector) standard deviation: In pixel, we follow [1] and choose sqrt(3) as the default value.
 	// 3D (model) variance: 0.0f. It only makes sense to set it to something when we have a different variance for different vertices.
 	// The 3D variance has to be projected to 2D (for details, see paper [1]) so the units do match up.
-	float sigma_squared_2D = std::pow(detector_standard_deviation.value_or(std::sqrt(3.0f)), 2) + std::pow(model_standard_deviation.value_or(0.0f), 2);
+	const float sigma_squared_2D = std::pow(detector_standard_deviation.value_or(std::sqrt(3.0f)), 2) + std::pow(model_standard_deviation.value_or(0.0f), 2);
 	// We use a VectorXf, and later use .asDiagonal():
-	VectorXf Omega = VectorXf::Constant(3 * num_landmarks, 1.0f / sigma_squared_2D);
+	const VectorXf Omega = VectorXf::Constant(3 * num_landmarks, 1.0f / sigma_squared_2D);
 	// Earlier, we set Sigma in a for-loop and then computed Omega, but it was really unnecessary:
 	// Sigma(i, i) = sqrt(sigma_squared_2D), but then Omega is Sigma.t() * Sigma (squares the diagonal) - so we just assign 1/sigma_squared_2D to Omega here.
 
@@ -102,7 +111,8 @@ inline std::vector<float> fit_shape_to_landmarks_linear(const morphablemodel::Pc
 		y((3 * i) + 1) = landmarks[i][1];
 		//y((3 * i) + 2) = 1; // already 1, stays (homogeneous coordinate)
 	}
-	// The mean, with an added homogeneous coordinate (x_1, y_1, z_1, 1, x_2, ...)^t
+	
+        // The mean, with an added homogeneous coordinate (x_1, y_1, z_1, 1, x_2, ...)^t
 	VectorXf v_bar = VectorXf::Ones(4 * num_landmarks);
 	for (int i = 0; i < num_landmarks; ++i) {
 		v_bar(4 * i) = base_face(vertex_ids[i] * 3);
