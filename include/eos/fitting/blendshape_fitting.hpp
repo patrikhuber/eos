@@ -26,6 +26,7 @@
 
 #include "Eigen/Core"
 #include "Eigen/QR"
+#include "Eigen/Sparse"
 #include "nnls.h"
 
 #include <vector>
