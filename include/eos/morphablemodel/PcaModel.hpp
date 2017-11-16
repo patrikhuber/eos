@@ -213,11 +213,12 @@ public:
      * vectors, but only the block that is relevant for the vertex \p vertex_id.
      *
      * Todo: Can we return a const & view that points into the original data?
-	 *       I think actually .block returns a const, and by not defining our function
-	 *       const, we might copy the data here actually?
+     *       I think it's not that easy - if we return e.g. "const auto&", then the compiler complains about
+     *       returning a reference to a temporary.
+     *       This will probably help: https://eigen.tuxfamily.org/dox/classEigen_1_1Block.html
      *
      * @param[in] vertex_id A vertex index. Make sure it is valid.
-     * @return A 1x3? 3x1? matrix that points to the rows in the original basis.
+     * @return A 3 x num_principal_components matrix of the relevant rows of the original basis.
      */
     Eigen::MatrixXf get_rescaled_pca_basis_at_point(int vertex_id) const
     {
@@ -247,7 +248,7 @@ public:
      * vectors, but only the block that is relevant for the vertex \p vertex_id.
      *
      * @param[in] vertex_id A vertex index. Make sure it is valid.
-     * @return A matrix that points to the rows in the original basis.
+     * @return A 3 x num_principal_components matrix of the relevant rows of the original basis.
      */
     Eigen::MatrixXf get_orthonormal_pca_basis_at_point(int vertex_id) const
     {
