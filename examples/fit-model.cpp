@@ -185,11 +185,11 @@ int main(int argc, char *argv[])
 	vector<morphablemodel::Blendshape> blendshapes = morphablemodel::load_blendshapes(blendshapesfile);
 
 	// These two are used to fit the front-facing contour to the ibug contour landmarks:
-	fitting::ModelContour model_contour = contourfile.empty() ? fitting::ModelContour() : fitting::ModelContour::load(contourfile);
-	fitting::ContourLandmarks ibug_contour = fitting::ContourLandmarks::load(mappingsfile);
+        const fitting::ModelContour model_contour = contourfile.empty() ? fitting::ModelContour() : fitting::ModelContour::load(contourfile);
+        const fitting::ContourLandmarks ibug_contour = fitting::ContourLandmarks::load(mappingsfile);
 
 	// The edge topology is used to speed up computation of the occluding face contour fitting:
-	morphablemodel::EdgeTopology edge_topology = morphablemodel::load_edge_topology(edgetopologyfile);
+        const morphablemodel::EdgeTopology edge_topology = morphablemodel::load_edge_topology(edgetopologyfile);
 
 	// Draw the loaded landmarks:
 	Mat outimg = image.clone();
