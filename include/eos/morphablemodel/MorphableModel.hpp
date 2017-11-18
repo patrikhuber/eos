@@ -371,12 +371,19 @@ private:
     template <class Archive>
     void serialize(Archive& archive, const std::uint32_t version)
     {
-        if (version != 1)
+        if (version < 1)
         {
             throw std::runtime_error("The model file you are trying to load is in an old format. Please "
                                      "download the most recent model files.");
         }
-        archive(CEREAL_NVP(shape_model), CEREAL_NVP(color_model), CEREAL_NVP(expression_model), CEREAL_NVP(texture_coordinates));
+        if (version == 1)
+        {
+            archive(CEREAL_NVP(shape_model), CEREAL_NVP(color_model), CEREAL_NVP(texture_coordinates));
+        }
+        else
+        {
+            archive(CEREAL_NVP(shape_model), CEREAL_NVP(color_model), CEREAL_NVP(expression_model), CEREAL_NVP(texture_coordinates));
+        }
     };
 };
 
