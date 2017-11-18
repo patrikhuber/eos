@@ -184,6 +184,8 @@ int main(int argc, char *argv[])
 	// The expression blendshapes:
 	vector<morphablemodel::Blendshape> blendshapes = morphablemodel::load_blendshapes(blendshapesfile);
 
+        morphablemodel::MorphableModel morphable_model_with_expressions(morphable_model.get_shape_model(), blendshapes, morphable_model.get_color_model(), morphable_model.get_texture_coordinates());
+
 	// These two are used to fit the front-facing contour to the ibug contour landmarks:
         const fitting::ModelContour model_contour = contourfile.empty() ? fitting::ModelContour() : fitting::ModelContour::load(contourfile);
         const fitting::ContourLandmarks ibug_contour = fitting::ContourLandmarks::load(mappingsfile);
@@ -200,7 +202,7 @@ int main(int argc, char *argv[])
 	// Fit the model, get back a mesh and the pose:
 	core::Mesh mesh;
 	fitting::RenderingParameters rendering_params;
-	std::tie(mesh, rendering_params) = fitting::fit_shape_and_pose(morphable_model, blendshapes, landmarks, landmark_mapper, image.cols, image.rows, edge_topology, ibug_contour, model_contour, 5, std::nullopt, 30.0f);
+	std::tie(mesh, rendering_params) = fitting::fit_shape_and_pose(morphable_model_with_expressions, landmarks, landmark_mapper, image.cols, image.rows, edge_topology, ibug_contour, model_contour, 5, std::nullopt, 30.0f);
 
 	// The 3D head pose can be recovered as follows:
 	float yaw_angle = glm::degrees(glm::yaw(rendering_params.get_rotation()));

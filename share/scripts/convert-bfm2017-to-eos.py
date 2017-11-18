@@ -38,14 +38,13 @@ with h5py.File(bfm2017_file, 'r') as hf:
     color_model = eos.morphablemodel.PcaModel(color_mean, color_orthogonal_pca_basis, color_pca_variance, triangle_list.transpose().tolist())
 
     # PCA expression model:
-    # The eos master branch does not support PCA expression models yet - thus we don't convert the expression model for now.
-    #expression_mean = np.array(hf['expression/model/mean'])
-    #expression_pca_basis = np.array(hf['expression/model/pcaBasis'])
-    #expression_pca_variance = np.array(hf['expression/model/pcaVariance'])
+    expression_mean = np.array(hf['expression/model/mean'])
+    expression_pca_basis = np.array(hf['expression/model/pcaBasis'])
+    expression_pca_variance = np.array(hf['expression/model/pcaVariance'])
 
-    #expression_model = eos.morphablemodel.PcaModel(expression_mean, expression_pca_basis, expression_pca_variance, triangle_list)
+    expression_model = eos.morphablemodel.PcaModel(expression_mean, expression_pca_basis, expression_pca_variance, triangle_list.transpose().tolist())
 
     # Construct and save an eos model from the BFM data:
-    model = eos.morphablemodel.MorphableModel(shape_model, color_model, []) # uv-coordinates can be added here
+    model = eos.morphablemodel.MorphableModel(shape_model, expression_model, color_model, []) # uv-coordinates can be added here
     eos.morphablemodel.save_model(model, "bfm2017-1_bfm_nomouth.bin")
     print("Converted and saved model as bfm2017-1_bfm_nomouth.bin.")

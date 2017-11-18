@@ -24,11 +24,14 @@
 
 #include "eos/core/Mesh.hpp"
 #include "eos/morphablemodel/PcaModel.hpp"
+#include "Blendshape.hpp"
 
 #include "cereal/access.hpp"
 #include "cereal/cereal.hpp"
 #include "cereal/types/array.hpp"
 #include "cereal/types/vector.hpp"
+#include "cereal/types/optional.hpp"
+#include "cereal/types/variant.hpp"
 #include "eos/morphablemodel/io/eigen_cerealisation.hpp"
 #include "cereal/archives/binary.hpp"
 
@@ -38,6 +41,9 @@
 #include <cstdint>
 #include <vector>
 #include <fstream>
+#include <algorithm>
+#include <optional>
+#include <variant>
 
 namespace eos {
 namespace morphablemodel {
@@ -47,6 +53,13 @@ core::Mesh sample_to_mesh(
     const Eigen::VectorXf& shape_instance, const Eigen::VectorXf& color_instance,
     const std::vector<std::array<int, 3>>& tvi, const std::vector<std::array<int, 3>>& tci,
     const std::vector<std::array<double, 2>>& texture_coordinates = std::vector<std::array<double, 2>>());
+
+/**
+ * @brief Type alias to represent an expression model, which can either consist of blendshapes or a PCA model.
+ *
+ * Defining a type alias so that we don't have to spell out the type everywhere.
+ */
+using ExpressionModel = std::variant<PcaModel, Blendshapes>;
 
 /**
  * @brief A class representing a 3D Morphable Model, consisting
@@ -73,6 +86,15 @@ public:
         std::vector<std::array<double, 2>> texture_coordinates = std::vector<std::array<double, 2>>())
         : shape_model(shape_model), color_model(color_model), texture_coordinates(texture_coordinates){};
 
+    MorphableModel(
+        PcaModel shape_model, ExpressionModel expression_model, PcaModel color_model,
+        std::vector<std::array<double, 2>> texture_coordinates = std::vector<std::array<double, 2>>())
+        : shape_model(shape_model), color_model(color_model), texture_coordinates(texture_coordinates)
+    {
+        // Note: We may want to check/assert that the dimensions all match?
+        this->expression_model = expression_model;
+    };
+
     /**
      * Returns the PCA shape model of this Morphable Model.
      *
@@ -94,7 +116,24 @@ public:
     };
 
     /**
+     * Returns the shape expression model, if this Morphable Model has one.
+     *
+     * Returns an empty std::optional if the Morphable Model does not have a separate expression
+     * model (check with MorphableModel::has_separate_expression_model()).
+     * If it does have an expression model, an std::variant<PcaModel, Blendshapes> is returned -
+     * that is, either a PcaModel (if it is an expression PCA model), or Blendshapes.
+     *
+     * @return The expression model or an empty optional.
+     */
+    const auto& get_expression_model() const
+    {
+        return expression_model;
+    }
+
+    /**
      * Returns the mean of the shape- and colour model as a Mesh.
+     *
+     * If the model contains a separate PCA expression model, that mean is not added here.
      *
      * @return An mesh instance of the mean of the Morphable Model.
      */
@@ -207,6 +246,77 @@ public:
         return mesh;
     };
 
+    // Todo: Documentation.
+    // If you call this method on a MorphableModel that doesn't contain an expression model, it'll throw an exception.
+    core::Mesh draw_sample(std::vector<float> shape_coefficients, std::vector<float> expression_coefficients, std::vector<float> color_coefficients) const
+    {
+        assert(shape_model.get_data_dimension() == color_model.get_data_dimension() ||
+               !has_color_model()); // The number of vertices (= model.getDataDimension() / 3) has to be equal
+                                    // for both models, or, alternatively, it has to be a shape-only model.
+        assert(has_separate_expression_model());
+
+        Eigen::VectorXf shape_sample;
+        Eigen::VectorXf expression_sample;
+        Eigen::VectorXf color_sample;
+
+        if (shape_coefficients.empty())
+        {
+            shape_sample = shape_model.get_mean();
+        } else
+        {
+            shape_sample = shape_model.draw_sample(shape_coefficients);
+        }
+        // Get a sample of the expression model, depending on whether it's a PcaModel or Blendshapes:
+        if (has_separate_expression_model() && std::holds_alternative<PcaModel>(expression_model.value())) {
+            const auto& pca_expression_model = std::get<PcaModel>(expression_model.value());
+            assert(pca_expression_model.get_data_dimension() == shape_model.get_data_dimension());
+            if (expression_coefficients.empty())
+            {
+                expression_sample = pca_expression_model.get_mean();
+            } else
+            {
+                expression_sample = pca_expression_model.draw_sample(expression_coefficients);
+            }
+        } else if (has_separate_expression_model() && std::holds_alternative<Blendshapes>(expression_model.value()))
+        {
+            const auto& expression_blendshapes = std::get<Blendshapes>(expression_model.value());
+            assert(expression_blendshapes.size() > 0);
+            assert(expression_blendshapes[0].deformation.rows() == shape_model.get_data_dimension());
+            if (expression_coefficients.empty())
+            {
+                expression_sample.setZero(expression_blendshapes[0].deformation.rows());
+            }
+            else
+            {
+                expression_sample = to_matrix(expression_blendshapes) * Eigen::Map<const Eigen::VectorXf>(expression_coefficients.data(), expression_coefficients.size());
+            }
+        } else
+        {
+            throw std::runtime_error("This MorphableModel doesn't contain an expression model in the form of a PcaModel or Blendshapes.");
+        }
+        shape_sample += expression_sample;
+
+        if (color_coefficients.empty())
+        {
+            color_sample = color_model.get_mean();
+        } else
+        {
+            color_sample = color_model.draw_sample(color_coefficients);
+        }
+
+        core::Mesh mesh;
+        if (has_texture_coordinates())
+        {
+            mesh = sample_to_mesh(shape_sample, color_sample, shape_model.get_triangle_list(),
+                                  color_model.get_triangle_list(), texture_coordinates);
+        } else
+        {
+            mesh = sample_to_mesh(shape_sample, color_sample, shape_model.get_triangle_list(),
+                                  color_model.get_triangle_list());
+        }
+        return mesh;
+    };
+
     /**
      * Returns true if this Morphable Model contains a colour
      * model. Returns false if it is a shape-only model.
@@ -217,6 +327,11 @@ public:
     {
         return (color_model.get_mean().size() > 0);
     };
+
+    bool has_separate_expression_model() const
+    {
+        return expression_model.has_value();
+    }
 
     /**
      * Returns the texture coordinates for all the vertices in the model.
@@ -229,9 +344,10 @@ public:
     };
 
 private:
-    PcaModel shape_model;                                   ///< A PCA model of the shape
-    PcaModel color_model;                                   ///< A PCA model of vertex colour information
-    std::vector<std::array<double, 2>> texture_coordinates; ///< uv-coordinates for every vertex
+    PcaModel shape_model; ///< A PCA model of the shape
+    PcaModel color_model; ///< A PCA model of vertex colour information
+    std::optional<std::variant<PcaModel, Blendshapes>> expression_model; ///< Blendshapes or PcaModel
+    std::vector<std::array<double, 2>> texture_coordinates;              ///< uv-coordinates for every vertex
 
     /**
      * Returns whether the model has texture mapping coordinates, i.e.
@@ -260,7 +376,7 @@ private:
             throw std::runtime_error("The model file you are trying to load is in an old format. Please "
                                      "download the most recent model files.");
         }
-        archive(CEREAL_NVP(shape_model), CEREAL_NVP(color_model), CEREAL_NVP(texture_coordinates));
+        archive(CEREAL_NVP(shape_model), CEREAL_NVP(color_model), CEREAL_NVP(expression_model), CEREAL_NVP(texture_coordinates));
     };
 };
 
@@ -376,6 +492,6 @@ inline core::Mesh sample_to_mesh(const Eigen::VectorXf& shape_instance, const Ei
 } /* namespace morphablemodel */
 } /* namespace eos */
 
-CEREAL_CLASS_VERSION(eos::morphablemodel::MorphableModel, 1);
+CEREAL_CLASS_VERSION(eos::morphablemodel::MorphableModel, 2);
 
 #endif /* MORPHABLEMODEL_HPP_ */
