@@ -27,11 +27,5 @@ add_executable(scm-to-cereal scm-to-cereal.cpp)
 target_link_libraries(scm-to-cereal eos ${OpenCV_LIBS} ${Boost_LIBRARIES})
 target_include_directories(scm-to-cereal PUBLIC ${OpenCV_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS})
 
-# Reads an edgestruct CSV file created from Matlab, and converts it to json:
-add_executable(edgestruct-csv-to-json edgestruct-csv-to-json.cpp)
-target_link_libraries(edgestruct-csv-to-json eos ${Boost_LIBRARIES})
-target_include_directories(edgestruct-csv-to-json PUBLIC ${Boost_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS})
-
 # Install targets:
 install(TARGETS scm-to-cereal DESTINATION bin)
-install(TARGETS edgestruct-csv-to-json DESTINATION bin)
