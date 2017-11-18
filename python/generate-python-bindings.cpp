@@ -158,9 +158,13 @@ PYBIND11_MODULE(eos, eos_module)
      *  - EdgeTopology
      *  - load_edge_topology()
      */
-    py::class_<morphablemodel::EdgeTopology>(morphablemodel_module, "EdgeTopology", "A struct containing a 3D shape model's edge topology.");
+    py::class_<morphablemodel::EdgeTopology>(morphablemodel_module, "EdgeTopology", "A struct containing a 3D shape model's edge topology.")
+        .def(py::init<std::vector<std::array<int, 2>>, std::vector<std::array<int, 2>>>(), "Construct a new EdgeTopology with given adjacent_faces and adjacent_vertices.", py::arg("adjacent_faces"), py::arg("adjacent_vertices"))
+        .def_readwrite("adjacent_faces", &morphablemodel::EdgeTopology::adjacent_faces, "A num_edges x 2 matrix storing faces adjacent to each edge.")
+        .def_readwrite("adjacent_vertices", &morphablemodel::EdgeTopology::adjacent_vertices, "A num_edges x 2 matrix storing vertices adjacent to each edge.");
 
     morphablemodel_module.def("load_edge_topology", &morphablemodel::load_edge_topology, "Load a 3DMM edge topology file from a json file.", py::arg("filename"));
+    morphablemodel_module.def("save_edge_topology", &morphablemodel::save_edge_topology, "Save a 3DMM edge topology file to a json file.", py::arg("edge_topology"), py::arg("filename"));
 
     /**
      * Bindings for the eos::pca namespace:
