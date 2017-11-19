@@ -19,8 +19,8 @@
  */
 #pragma once
 
-#ifndef IMAGE_HPP_
-#define IMAGE_HPP_
+#ifndef EOS_IMAGE_HPP_
+#define EOS_IMAGE_HPP_
 
 #include <vector>
 #include <array>
@@ -124,4 +124,4 @@ using Image1d = Image<double, 1>;
 	} /* namespace core */
 } /* namespace eos */
 
-#endif /* IMAGE_HPP_ */
+#endif /* EOS_IMAGE_HPP_ */
