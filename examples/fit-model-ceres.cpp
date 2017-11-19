@@ -147,7 +147,7 @@ int main(int argc, char *argv[])
 				"2D landmarks for the image, in ibug .pts format")
 			("mapping,p", po::value<fs::path>(&mappingsfile)->required()->default_value("../share/ibug_to_sfm.txt"),
 				"landmark identifier to model vertex number mapping")
-			("model-contour,c", po::value<fs::path>(&contourfile)->required()->default_value("../share/model_contours.json"),
+			("model-contour,c", po::value<fs::path>(&contourfile)->required()->default_value("../share/sfm_model_contours.json"),
 				"file with model contour indices")
 			("output,o", po::value<fs::path>(&outputfile)->required()->default_value("out"),
 				"basename for the output obj file")

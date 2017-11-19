@@ -129,7 +129,7 @@ int main(int argc, char *argv[])
 		        "2D landmarks for the image, in ibug .pts format")
 		    ("mapping,p", po::value<std::string>(&mappingsfile)->required()->default_value("../share/ibug_to_sfm.txt"),
 		        "landmark identifier to model vertex number mapping")
-		    ("model-contour,c", po::value<std::string>(&contourfile)->required()->default_value("../share/model_contours.json"),
+		    ("model-contour,c", po::value<std::string>(&contourfile)->required()->default_value("../share/sfm_model_contours.json"),
 		        "file with model contour indices")
 		    ("edge-topology,e", po::value<std::string>(&edgetopologyfile)->required()->default_value("../share/sfm_3448_edge_topology.json"),
 		        "file with model's precomputed edge topology")
