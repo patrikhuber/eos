@@ -65,22 +65,22 @@ using std::string;
  */
 int main(int argc, char *argv[])
 {
-	std::string modelfile, isomapfile, imagefile, landmarksfile, mappingsfile, outputbasename;
+	string modelfile, isomapfile, imagefile, landmarksfile, mappingsfile, outputbasename;
         try
         {
             po::options_description desc("Allowed options");
             desc.add_options()
                 ("help,h",
                     "display the help message")
-                ("model,m", po::value<std::string>(&modelfile)->required()->default_value("../share/sfm_shape_3448.bin"),
+                ("model,m", po::value<string>(&modelfile)->required()->default_value("../share/sfm_shape_3448.bin"),
                     "a Morphable Model stored as cereal BinaryArchive")
-                ("image,i", po::value<std::string>(&imagefile)->required()->default_value("data/image_0010.png"),
+                ("image,i", po::value<string>(&imagefile)->required()->default_value("data/image_0010.png"),
                     "an input image")
-                ("landmarks,l", po::value<std::string>(&landmarksfile)->required()->default_value("data/image_0010.pts"),
+                ("landmarks,l", po::value<string>(&landmarksfile)->required()->default_value("data/image_0010.pts"),
                     "2D landmarks for the image, in ibug .pts format")
-                ("mapping,p", po::value<std::string>(&mappingsfile)->required()->default_value("../share/ibug_to_sfm.txt"),
+                ("mapping,p", po::value<string>(&mappingsfile)->required()->default_value("../share/ibug_to_sfm.txt"),
                     "landmark identifier to model vertex number mapping")
-                ("output,o", po::value<std::string>(&outputbasename)->required()->default_value("out"),
+                ("output,o", po::value<string>(&outputbasename)->required()->default_value("out"),
                     "basename for the output rendering and obj files")
             ;
             po::variables_map vm;
@@ -155,18 +155,18 @@ int main(int argc, char *argv[])
 	fitting::RenderingParameters rendering_params(pose, image.cols, image.rows);
 
 	// The 3D head pose can be recovered as follows:
-	float yaw_angle = glm::degrees(glm::yaw(rendering_params.get_rotation()));
+	const float yaw_angle = glm::degrees(glm::yaw(rendering_params.get_rotation()));
 	// and similarly for pitch and roll.
 
 	// Estimate the shape coefficients by fitting the shape to the landmarks:
-	Eigen::Matrix<float, 3, 4> affine_from_ortho = fitting::get_3x4_affine_camera_matrix(rendering_params, image.cols, image.rows);
-	vector<float> fitted_coeffs = fitting::fit_shape_to_landmarks_linear(morphable_model.get_shape_model(), affine_from_ortho, image_points, vertex_indices);
+	const Eigen::Matrix<float, 3, 4> affine_from_ortho = fitting::get_3x4_affine_camera_matrix(rendering_params, image.cols, image.rows);
+	const vector<float> fitted_coeffs = fitting::fit_shape_to_landmarks_linear(morphable_model.get_shape_model(), affine_from_ortho, image_points, vertex_indices);
 
 	// Obtain the full mesh with the estimated coefficients:
-	core::Mesh mesh = morphable_model.draw_sample(fitted_coeffs, vector<float>());
+	const core::Mesh mesh = morphable_model.draw_sample(fitted_coeffs, vector<float>());
 
 	// Extract the texture from the image using given mesh and camera parameters:
-	core::Image4u isomap = render::extract_texture(mesh, affine_from_ortho, core::from_mat(image));
+	const core::Image4u isomap = render::extract_texture(mesh, affine_from_ortho, core::from_mat(image));
 
 	// Save the mesh as textured obj:
 	fs::path outputfile = outputbasename + ".obj";
