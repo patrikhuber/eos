@@ -131,7 +131,7 @@ int main(int argc, char *argv[])
 	}
 
 	// The expression blendshapes:
-	vector<morphablemodel::Blendshape> blendshapes = morphablemodel::load_blendshapes(blendshapesfile);
+	const vector<morphablemodel::Blendshape> blendshapes = morphablemodel::load_blendshapes(blendshapesfile);
 
 	// These two are used to fit the front-facing contour to the ibug contour landmarks:
         const fitting::ModelContour model_contour = contourfile.empty() ? fitting::ModelContour() : fitting::ModelContour::load(contourfile);
@@ -156,9 +156,8 @@ int main(int argc, char *argv[])
 	// and similarly for pitch and roll.
 
 	// Extract the texture from the image using given mesh and camera parameters:
-	Eigen::Matrix<float, 3, 4> affine_from_ortho = fitting::get_3x4_affine_camera_matrix(rendering_params, image.cols, image.rows);
-	core::Image4u isomap = render::extract_texture(mesh, affine_from_ortho, core::from_mat(image), true);
-	Mat isomap_from_Image = core::to_mat(isomap);
+	const Eigen::Matrix<float, 3, 4> affine_from_ortho = fitting::get_3x4_affine_camera_matrix(rendering_params, image.cols, image.rows);
+	const core::Image4u isomap = render::extract_texture(mesh, affine_from_ortho, core::from_mat(image), true);
 
 	// Draw the fitted mesh as wireframe, and save the image:
 	render::draw_wireframe(outimg, mesh, rendering_params.get_modelview(), rendering_params.get_projection(), fitting::get_opencv_viewport(image.cols, image.rows));

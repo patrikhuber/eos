@@ -92,7 +92,7 @@ int main(int argc, char *argv[])
 		color_coefficients.resize(morphable_model.get_color_model().get_num_principal_components());
 	}
 
-	core::Mesh sample_mesh = morphable_model.draw_sample(shape_coefficients, color_coefficients); // if one of the two vectors is empty, it uses get_mean()
+	const core::Mesh sample_mesh = morphable_model.draw_sample(shape_coefficients, color_coefficients); // if one of the two vectors is empty, it uses get_mean()
 
 	core::write_obj(sample_mesh, output_file);
 	core::Image4u rendering;
