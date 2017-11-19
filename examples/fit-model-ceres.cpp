@@ -20,6 +20,7 @@
 #define GLM_FORCE_UNRESTRICTED_GENTYPE
 #include "eos/core/Landmark.hpp"
 #include "eos/core/LandmarkMapper.hpp"
+#include "eos/core/read_pts_landmarks.hpp"
 #include "eos/morphablemodel/Blendshape.hpp"
 #include "eos/fitting/contour_correspondence.hpp"
 #include "eos/fitting/ceres_nonlinear.hpp"
@@ -41,7 +42,6 @@
 #include <vector>
 #include <chrono>
 #include <iostream>
-#include <fstream>
 
 using namespace eos;
 using namespace glm;
@@ -68,57 +68,6 @@ std::ostream& operator<< (std::ostream& out, const std::vector<T>& v) {
 		out << "\b\b]";
 	}
 	return out;
-};
-
-/**
- * Reads an ibug .pts landmark file and returns an ordered vector with
- * the 68 2D landmark coordinates.
- *
- * @param[in] filename Path to a .pts file.
- * @return An ordered vector with the 68 ibug landmarks.
- */
-LandmarkCollection<cv::Vec2f> read_pts_landmarks(std::string filename)
-{
-	using std::getline;
-	using cv::Vec2f;
-	using std::string;
-	LandmarkCollection<Vec2f> landmarks;
-	landmarks.reserve(68);
-
-	std::ifstream file(filename);
-	if (!file.is_open()) {
-		throw std::runtime_error(string("Could not open landmark file: " + filename));
-	}
-
-	string line;
-	// Skip the first 3 lines, they're header lines:
-	getline(file, line); // 'version: 1'
-	getline(file, line); // 'n_points : 68'
-	getline(file, line); // '{'
-
-	int ibugId = 1;
-	while (getline(file, line))
-	{
-		if (line == "}") { // end of the file
-			break;
-		}
-		std::stringstream lineStream(line);
-
-		Landmark<Vec2f> landmark;
-		landmark.name = std::to_string(ibugId);
-		if (!(lineStream >> landmark.coordinates[0] >> landmark.coordinates[1])) {
-			throw std::runtime_error(string("Landmark format error while parsing the line: " + line));
-		}
-		// From the iBug website:
-		// "Please note that the re-annotated data for this challenge are saved in the Matlab convention of 1 being
-		// the first index, i.e. the coordinates of the top left pixel in an image are x=1, y=1."
-		// ==> So we shift every point by 1:
-		landmark.coordinates[0] -= 1.0f;
-		landmark.coordinates[1] -= 1.0f;
-		landmarks.emplace_back(landmark);
-		++ibugId;
-	}
-	return landmarks;
 };
 
 /**
@@ -184,7 +133,7 @@ int main(int argc, char *argv[])
 	Mat image = cv::imread(imagefile.string());
 	LandmarkCollection<cv::Vec2f> landmarks;
 	try {
-		landmarks = read_pts_landmarks(landmarksfile.string());
+		landmarks = core::read_pts_landmarks(landmarksfile.string());
 	}
 	catch (const std::runtime_error& e) {
 		cout << "Error reading the landmarks: " << e.what() << endl;
