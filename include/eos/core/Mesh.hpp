@@ -121,7 +121,7 @@ inline void write_textured_obj(Mesh mesh, std::string filename)
     }
 
     // Takes a full path to a file and returns only the filename:
-    auto get_filename = [](const std::string& path) {
+    const auto get_filename = [](const std::string& path) {
         auto last_slash = path.find_last_of("/\\");
         if (last_slash == std::string::npos)
         {
