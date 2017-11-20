@@ -19,8 +19,8 @@
  */
 #pragma once
 
-#ifndef RECT_HPP_
-#define RECT_HPP_
+#ifndef EOS_RECT_HPP_
+#define EOS_RECT_HPP_
 
 namespace eos {
 namespace render {
@@ -28,15 +28,14 @@ namespace render {
 /**
  * @brief A simple type representing a rectangle.
  */
-template<typename T>
+template <typename T>
 struct Rect
 {
-	T x, y; // these are the top-left corner x and y
-	T width, height;
+    T x, y; // these are the top-left corner x and y
+    T width, height;
 };
-
 
 } /* namespace render */
 } /* namespace eos */
 
-#endif /* RECT_HPP_ */
+#endif /* EOS_RECT_HPP_ */

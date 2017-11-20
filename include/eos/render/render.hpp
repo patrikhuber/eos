@@ -28,15 +28,12 @@
 #include "eos/render/detail/render_detail.hpp"
 #include "eos/render/utils.hpp"
 
-#include "opencv2/core/core.hpp"
-
 #include <array>
-#include <vector>
-#include <memory>
 #include <optional>
+#include <vector>
 
 namespace eos {
-	namespace render {
+namespace render {
 
 /**
  * This file implements a software renderer conforming to OpenGL conventions. The
@@ -124,121 +121,157 @@ namespace eos {
  * @param[in] enable_far_clipping Whether vertices should be clipped against the far plane.
  * @return A pair with the colourbuffer as its first element and the depthbuffer as the second element.
  */
-inline std::pair<core::Image4u, core::Image1d> render(core::Mesh mesh, glm::tmat4x4<float> model_view_matrix, glm::tmat4x4<float> projection_matrix, int viewport_width, int viewport_height, const std::optional<Texture>& texture = std::nullopt, bool enable_backface_culling = false, bool enable_near_clipping = true, bool enable_far_clipping = true)
+inline std::pair<core::Image4u, core::Image1d>
+render(core::Mesh mesh, glm::tmat4x4<float> model_view_matrix, glm::tmat4x4<float> projection_matrix,
+       int viewport_width, int viewport_height, const std::optional<Texture>& texture = std::nullopt,
+       bool enable_backface_culling = false, bool enable_near_clipping = true,
+       bool enable_far_clipping = true)
 {
-	// Some internal documentation / old todos or notes:
-	// maybe change and pass depthBuffer as an optional arg (&?), because usually we never need it outside the renderer. Or maybe even a getDepthBuffer().
-	// modelViewMatrix goes to eye-space (camera space), projection does ortho or perspective proj.
-	// bool enable_texturing = false; Maybe re-add later, not sure
-	// take a cv::Mat texture instead and convert to Texture internally? no, we don't want to recreate mipmap levels on each render() call.
+    // Some internal documentation / old todos or notes:
+    // - maybe change and pass depthBuffer as an optional arg (&?), because usually we never need it outside
+    //   the renderer. Or maybe even a getDepthBuffer().
+    // - modelViewMatrix goes to eye-space (camera space), projection does ortho or perspective proj.
+    // - bool enable_texturing = false; Maybe re-add later, not sure
+    // - take a cv::Mat texture instead and convert to Texture internally? no, we don't want to recreate
+    //   mipmap levels on each render() call.
 
-	assert(mesh.vertices.size() == mesh.colors.size() || mesh.colors.empty()); // The number of vertices has to be equal for both shape and colour, or, alternatively, it has to be a shape-only model.
-	assert(mesh.vertices.size() == mesh.texcoords.size() || mesh.texcoords.empty()); // same for the texcoords
-	// another assert: If cv::Mat texture != empty, then we need texcoords?
+    assert(mesh.vertices.size() == mesh.colors.size() ||
+           mesh.colors.empty()); // The number of vertices has to be equal for both shape and colour, or,
+                                 // alternatively, it has to be a shape-only model.
+    assert(mesh.vertices.size() == mesh.texcoords.size() || mesh.texcoords.empty()); // same for the texcoords
+    // another assert: If cv::Mat texture != empty, then we need texcoords?
 
-	using std::vector;
+    using std::vector;
 
-	core::Image4u colorbuffer(viewport_height, viewport_width); // Make sure it's initialised with zeros - the current Image4u c'tor does it.
-	core::Image1d depthbuffer(viewport_height, viewport_width);
-	std::for_each(std::begin(depthbuffer.data), std::end(depthbuffer.data), [](auto& element) { element = std::numeric_limits<double>::max(); });
+    core::Image4u colorbuffer(
+        viewport_height,
+        viewport_width); // Make sure it's initialised with zeros - the current Image4u c'tor does it.
+    core::Image1d depthbuffer(viewport_height, viewport_width);
+    std::for_each(std::begin(depthbuffer.data), std::end(depthbuffer.data),
+                  [](auto& element) { element = std::numeric_limits<double>::max(); });
 
-	// Vertex shader:
-	//processedVertex = shade(Vertex); // processedVertex : pos, col, tex, texweight
-	// Assemble the vertices, project to clip space, and store as detail::Vertex (the internal representation):
-	vector<detail::Vertex<float>> clipspace_vertices;
-	clipspace_vertices.reserve(mesh.vertices.size());
-	for (int i = 0; i < mesh.vertices.size(); ++i) { // "previously": mesh.vertex
-                const glm::tvec4<float> vertex(mesh.vertices[i][0], mesh.vertices[i][1], mesh.vertices[i][2], 1.0f);
-                const glm::tvec4<float> clipspace_coords = projection_matrix * model_view_matrix * vertex;
-		glm::tvec3<float> vertex_colour;
-		if (mesh.colors.empty()) {
-			vertex_colour = glm::tvec3<float>(0.5f, 0.5f, 0.5f);
-		}
-		else {
-			vertex_colour = glm::tvec3<float>(mesh.colors[i][0], mesh.colors[i][1], mesh.colors[i][2]);
-		}
-		clipspace_vertices.push_back(detail::Vertex<float>{clipspace_coords, vertex_colour, glm::tvec2<float>(mesh.texcoords[i][0], mesh.texcoords[i][1])});
-	}
+    // Vertex shader:
+    // processedVertex = shade(Vertex); // processedVertex : pos, col, tex, texweight
+    // Assemble the vertices, project to clip space, and store as detail::Vertex (the internal
+    // representation):
+    vector<detail::Vertex<float>> clipspace_vertices;
+    clipspace_vertices.reserve(mesh.vertices.size());
+    for (int i = 0; i < mesh.vertices.size(); ++i)
+    { // "previously": mesh.vertex
+        const glm::tvec4<float> vertex(mesh.vertices[i][0], mesh.vertices[i][1], mesh.vertices[i][2], 1.0f);
+        const glm::tvec4<float> clipspace_coords = projection_matrix * model_view_matrix * vertex;
+        glm::tvec3<float> vertex_colour;
+        if (mesh.colors.empty())
+        {
+            vertex_colour = glm::tvec3<float>(0.5f, 0.5f, 0.5f);
+        } else
+        {
+            vertex_colour = glm::tvec3<float>(mesh.colors[i][0], mesh.colors[i][1], mesh.colors[i][2]);
+        }
+        clipspace_vertices.push_back(detail::Vertex<float>{
+            clipspace_coords, vertex_colour, glm::tvec2<float>(mesh.texcoords[i][0], mesh.texcoords[i][1])});
+    }
 
-	// All vertices are in clip-space now.
-	// Prepare the rasterisation stage.
-	// For every vertex/tri:
-	vector<detail::TriangleToRasterize> triangles_to_raster;
-	for (const auto& tri_indices : mesh.tvi) {
-		// Todo: Split this whole stuff up. Make a "clip" function, ... rename "processProspective..".. what is "process"... get rid of "continue;"-stuff by moving stuff inside process...
-		// classify vertices visibility with respect to the planes of the view frustum
-		// we're in clip-coords (NDC), so just check if outside [-1, 1] x ...
-		// Actually we're in clip-coords and it's not the same as NDC. We're only in NDC after the division by w.
-		// We should do the clipping in clip-coords though. See http://www.songho.ca/opengl/gl_projectionmatrix.html for more details.
-		// However, when comparing against w_c below, we might run into the trouble of the sign again in the affine case.
-		// 'w' is always positive, as it is -z_camspace, and all z_camspace are negative.
-		unsigned char visibility_bits[3];
-		for (unsigned char k = 0; k < 3; k++)
-		{
-			visibility_bits[k] = 0;
-                        const float x_cc = clipspace_vertices[tri_indices[k]].position[0];
-                        const float y_cc = clipspace_vertices[tri_indices[k]].position[1];
-                        const float z_cc = clipspace_vertices[tri_indices[k]].position[2];
-                        const float w_cc = clipspace_vertices[tri_indices[k]].position[3];
-			if (x_cc < -w_cc)			// true if outside of view frustum. False if on or inside the plane.
-				visibility_bits[k] |= 1;	// set bit if outside of frustum
-			if (x_cc > w_cc)
-				visibility_bits[k] |= 2;
-			if (y_cc < -w_cc)
-				visibility_bits[k] |= 4;
-			if (y_cc > w_cc)
-				visibility_bits[k] |= 8;
-			if (enable_near_clipping && z_cc < -w_cc) // near plane frustum clipping
-				visibility_bits[k] |= 16;
-			if (enable_far_clipping && z_cc > w_cc) // far plane frustum clipping
-				visibility_bits[k] |= 32;
-		} // if all bits are 0, then it's inside the frustum
-		// all vertices are not visible - reject the triangle.
-		if ((visibility_bits[0] & visibility_bits[1] & visibility_bits[2]) > 0)
-		{
-			continue;
-		}
-		// all vertices are visible - pass the whole triangle to the rasterizer. = All bits of all 3 triangles are 0.
-		if ((visibility_bits[0] | visibility_bits[1] | visibility_bits[2]) == 0)
-		{
-			std::optional<detail::TriangleToRasterize> t = detail::process_prospective_tri(clipspace_vertices[tri_indices[0]], clipspace_vertices[tri_indices[1]], clipspace_vertices[tri_indices[2]], viewport_width, viewport_height, enable_backface_culling);
-			if (t) {
-				triangles_to_raster.push_back(*t);
-			}
-			continue;
-		}
-		// at this moment the triangle is known to be intersecting one of the view frustum's planes
-		std::vector<detail::Vertex<float>> vertices;
-		vertices.push_back(clipspace_vertices[tri_indices[0]]);
-		vertices.push_back(clipspace_vertices[tri_indices[1]]);
-		vertices.push_back(clipspace_vertices[tri_indices[2]]);
-		// split the triangle if it intersects the near plane:
-		if (enable_near_clipping)
-		{
-			vertices = detail::clip_polygon_to_plane_in_4d(vertices, glm::tvec4<float>(0.0f, 0.0f, -1.0f, -1.0f)); // "Normal" (or "4D hyperplane") of the near-plane. I tested it and it works like this but I'm a little bit unsure because Songho says the normal of the near-plane is (0,0,-1,1) (maybe I have to switch around the < 0 checks in the function?)
-		}
+    // All vertices are in clip-space now.
+    // Prepare the rasterisation stage.
+    // For every vertex/tri:
+    vector<detail::TriangleToRasterize> triangles_to_raster;
+    for (const auto& tri_indices : mesh.tvi)
+    {
+        // Todo: Split this whole stuff up. Make a "clip" function, ... rename "processProspective..".. what
+        // is "process"... get rid of "continue;"-stuff by moving stuff inside process...
+        // classify vertices visibility with respect to the planes of the view frustum
+        // we're in clip-coords (NDC), so just check if outside [-1, 1] x ...
+        // Actually we're in clip-coords and it's not the same as NDC. We're only in NDC after the division by w.
+        // We should do the clipping in clip-coords though. See
+        // http://www.songho.ca/opengl/gl_projectionmatrix.html for more details.
+        // However, when comparing against w_c below, we might run into the trouble of the sign again in the
+        // affine case.
 
-		// triangulation of the polygon formed of vertices array
-		if (vertices.size() >= 3)
-		{
-			for (unsigned char k = 0; k < vertices.size() - 2; k++)
-			{
-				std::optional<detail::TriangleToRasterize> t = detail::process_prospective_tri(vertices[0], vertices[1 + k], vertices[2 + k], viewport_width, viewport_height, enable_backface_culling);
-				if (t) {
-					triangles_to_raster.push_back(*t);
-				}
-			}
-		}
-	}
+        // 'w' is always positive, as it is -z_camspace, and all z_camspace are negative.
+        unsigned char visibility_bits[3];
+        for (unsigned char k = 0; k < 3; k++)
+        {
+            visibility_bits[k] = 0;
+            const float x_cc = clipspace_vertices[tri_indices[k]].position[0];
+            const float y_cc = clipspace_vertices[tri_indices[k]].position[1];
+            const float z_cc = clipspace_vertices[tri_indices[k]].position[2];
+            const float w_cc = clipspace_vertices[tri_indices[k]].position[3];
+            if (x_cc < -w_cc)            // true if outside of view frustum. False if on or inside the plane.
+                visibility_bits[k] |= 1; // set bit if outside of frustum
+            if (x_cc > w_cc)
+                visibility_bits[k] |= 2;
+            if (y_cc < -w_cc)
+                visibility_bits[k] |= 4;
+            if (y_cc > w_cc)
+                visibility_bits[k] |= 8;
+            if (enable_near_clipping && z_cc < -w_cc) // near plane frustum clipping
+                visibility_bits[k] |= 16;
+            if (enable_far_clipping && z_cc > w_cc) // far plane frustum clipping
+                visibility_bits[k] |= 32;
+        } // if all bits are 0, then it's inside the frustum
+        // all vertices are not visible - reject the triangle.
+        if ((visibility_bits[0] & visibility_bits[1] & visibility_bits[2]) > 0)
+        {
+            continue;
+        }
+        // all vertices are visible - pass the whole triangle to the rasterizer. = All bits of all 3 triangles
+        // are 0.
+        if ((visibility_bits[0] | visibility_bits[1] | visibility_bits[2]) == 0)
+        {
+            std::optional<detail::TriangleToRasterize> t = detail::process_prospective_tri(
+                clipspace_vertices[tri_indices[0]], clipspace_vertices[tri_indices[1]],
+                clipspace_vertices[tri_indices[2]], viewport_width, viewport_height, enable_backface_culling);
+            if (t)
+            {
+                triangles_to_raster.push_back(*t);
+            }
+            continue;
+        }
+        // at this moment the triangle is known to be intersecting one of the view frustum's planes
+        std::vector<detail::Vertex<float>> vertices;
+        vertices.push_back(clipspace_vertices[tri_indices[0]]);
+        vertices.push_back(clipspace_vertices[tri_indices[1]]);
+        vertices.push_back(clipspace_vertices[tri_indices[2]]);
+        // split the triangle if it intersects the near plane:
+        if (enable_near_clipping)
+        {
+            vertices = detail::clip_polygon_to_plane_in_4d(
+                vertices, glm::tvec4<float>(0.0f, 0.0f, -1.0f, -1.0f)); // "Normal" (or "4D hyperplane") of
+                                                                        // the near-plane. I tested it and it
+                                                                        // works like this but I'm a little
+                                                                        // bit unsure because Songho says the
+                                                                        // normal of the near-plane is
+                                                                        // (0,0,-1,1) (maybe I have to switch
+                                                                        // around the < 0 checks in the
+                                                                        // function?)
+        }
 
-	// Fragment/pixel shader: Colour the pixel values
-	for (const auto& tri : triangles_to_raster) {
-		detail::raster_triangle(tri, colorbuffer, depthbuffer, texture, enable_far_clipping);
-	}
-	return std::make_pair(colorbuffer, depthbuffer);
+        // triangulation of the polygon formed of vertices array
+        if (vertices.size() >= 3)
+        {
+            for (unsigned char k = 0; k < vertices.size() - 2; k++)
+            {
+                std::optional<detail::TriangleToRasterize> t =
+                    detail::process_prospective_tri(vertices[0], vertices[1 + k], vertices[2 + k],
+                                                    viewport_width, viewport_height, enable_backface_culling);
+                if (t)
+                {
+                    triangles_to_raster.push_back(*t);
+                }
+            }
+        }
+    }
+
+    // Fragment/pixel shader: Colour the pixel values
+    for (const auto& tri : triangles_to_raster)
+    {
+        detail::raster_triangle(tri, colorbuffer, depthbuffer, texture, enable_far_clipping);
+    }
+    return std::make_pair(colorbuffer, depthbuffer);
 };
 
-	} /* namespace render */
+} /* namespace render */
 } /* namespace eos */
 
 #endif /* RENDER_HPP_ */

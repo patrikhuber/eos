@@ -17,15 +17,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "eos/core/Mesh.hpp"
-#include "eos/core/Image_opencv_interop.hpp"
-#include "eos/fitting/RenderingParameters.hpp"
-#include "eos/render/texture_extraction.hpp"
 #include "eos/render/render.hpp"
+#include "eos/core/Image_opencv_interop.hpp"
+#include "eos/core/Mesh.hpp"
+#include "eos/fitting/RenderingParameters.hpp"
 #include "eos/render/Texture.hpp"
+#include "eos/render/texture_extraction.hpp"
 
-#include "mexplus_opencv.hpp"
 #include "mexplus_eos_types.hpp"
+#include "mexplus_opencv.hpp"
 
 #include "mexplus.h"
 #include "mexplus/dispatch.h"
@@ -67,24 +67,24 @@ MEX_DEFINE(extract_texture)(int nlhs, mxArray* plhs[], int nrhs, const mxArray* 
     const auto isomap =
         render::extract_texture(mesh, affine_from_ortho, core::from_mat(image), compute_view_angle,
                                 render::TextureInterpolation::NearestNeighbour, isomap_resolution);
-	const auto isomap_mat = core::to_mat(isomap);
-    
-	// Return the extracted texture map:
+    const auto isomap_mat = core::to_mat(isomap);
+
+    // Return the extracted texture map:
     OutputArguments output(nlhs, plhs, 1);
     output.set(0, isomap_mat);
 };
 
 MEX_DEFINE(render)(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
 {
-	// Check for proper number of input and output arguments:
-	if (nrhs != 6)
-	{
-		mexErrMsgIdAndTxt("eos:render:nargin", "render requires 6 input arguments.");
-	}
-	if (nlhs != 2)
-	{
-		mexErrMsgIdAndTxt("eos:render:nargout", "render returns two output arguments.");
-	}
+    // Check for proper number of input and output arguments:
+    if (nrhs != 6)
+    {
+        mexErrMsgIdAndTxt("eos:render:nargin", "render requires 6 input arguments.");
+    }
+    if (nlhs != 2)
+    {
+        mexErrMsgIdAndTxt("eos:render:nargout", "render returns two output arguments.");
+    }
 
     InputArguments input(nrhs, prhs, 6);
     const auto mesh = input.get<core::Mesh>(0);
@@ -94,15 +94,15 @@ MEX_DEFINE(render)(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
     const auto image_height = input.get<int>(4);
     const auto texture = input.get<cv::Mat>(5);
 
-	core::Image4u colorbuffer;
-	core::Image1d depthbuffer;
+    core::Image4u colorbuffer;
+    core::Image1d depthbuffer;
     std::tie(colorbuffer, depthbuffer) =
         render::render(mesh, modelview_matrix, projection_matrix, image_width, image_height,
                        render::create_mipmapped_texture(texture), true, false,
                        false); // backface culling = true, near & far plane clipping = false
 
-	const cv::Mat colorbuffer_mat = core::to_mat(colorbuffer);
-	const cv::Mat depthbuffer_mat = core::to_mat(depthbuffer);
+    const cv::Mat colorbuffer_mat = core::to_mat(colorbuffer);
+    const cv::Mat depthbuffer_mat = core::to_mat(depthbuffer);
 
     OutputArguments output(nlhs, plhs, 2);
     output.set(0, colorbuffer_mat);

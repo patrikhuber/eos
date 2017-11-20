@@ -25,15 +25,15 @@
 #include "eos/core/Mesh.hpp"
 #include "eos/render/detail/render_detail.hpp"
 
-#include "glm/vec4.hpp"
-#include "glm/mat4x4.hpp"
 #include "glm/gtc/matrix_transform.hpp"
+#include "glm/mat4x4.hpp"
+#include "glm/vec4.hpp"
 
 #include "opencv2/core/core.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 
 namespace eos {
-	namespace render {
+namespace render {
 
 /**
  * Draws the given mesh as wireframe into the image.
@@ -47,20 +47,28 @@ namespace eos {
  * @param[in] viewport Viewport to draw the mesh.
  * @param[in] color Colour of the mesh to be drawn.
  */
-inline void draw_wireframe(cv::Mat image, const core::Mesh& mesh, glm::mat4x4 modelview, glm::mat4x4 projection, glm::vec4 viewport, cv::Scalar color = cv::Scalar(0, 255, 0, 255))
+inline void draw_wireframe(cv::Mat image, const core::Mesh& mesh, glm::mat4x4 modelview,
+                           glm::mat4x4 projection, glm::vec4 viewport,
+                           cv::Scalar color = cv::Scalar(0, 255, 0, 255))
 {
-	for (const auto& triangle : mesh.tvi)
-	{
-		const auto p1 = glm::project({ mesh.vertices[triangle[0]][0], mesh.vertices[triangle[0]][1], mesh.vertices[triangle[0]][2] }, modelview, projection, viewport);
-		const auto p2 = glm::project({ mesh.vertices[triangle[1]][0], mesh.vertices[triangle[1]][1], mesh.vertices[triangle[1]][2] }, modelview, projection, viewport);
-		const auto p3 = glm::project({ mesh.vertices[triangle[2]][0], mesh.vertices[triangle[2]][1], mesh.vertices[triangle[2]][2] }, modelview, projection, viewport);
-		if (render::detail::are_vertices_ccw_in_screen_space(glm::vec2(p1), glm::vec2(p2), glm::vec2(p3)))
-		{
-			cv::line(image, cv::Point(p1.x, p1.y), cv::Point(p2.x, p2.y), color);
-			cv::line(image, cv::Point(p2.x, p2.y), cv::Point(p3.x, p3.y), color);
-			cv::line(image, cv::Point(p3.x, p3.y), cv::Point(p1.x, p1.y), color);
-		}
-	}
+    for (const auto& triangle : mesh.tvi)
+    {
+        const auto p1 = glm::project(
+            {mesh.vertices[triangle[0]][0], mesh.vertices[triangle[0]][1], mesh.vertices[triangle[0]][2]},
+            modelview, projection, viewport);
+        const auto p2 = glm::project(
+            {mesh.vertices[triangle[1]][0], mesh.vertices[triangle[1]][1], mesh.vertices[triangle[1]][2]},
+            modelview, projection, viewport);
+        const auto p3 = glm::project(
+            {mesh.vertices[triangle[2]][0], mesh.vertices[triangle[2]][1], mesh.vertices[triangle[2]][2]},
+            modelview, projection, viewport);
+        if (render::detail::are_vertices_ccw_in_screen_space(glm::vec2(p1), glm::vec2(p2), glm::vec2(p3)))
+        {
+            cv::line(image, cv::Point(p1.x, p1.y), cv::Point(p2.x, p2.y), color);
+            cv::line(image, cv::Point(p2.x, p2.y), cv::Point(p3.x, p3.y), color);
+            cv::line(image, cv::Point(p3.x, p3.y), cv::Point(p1.x, p1.y), color);
+        }
+    }
 };
 
 /**
@@ -77,22 +85,35 @@ inline void draw_wireframe(cv::Mat image, const core::Mesh& mesh, glm::mat4x4 mo
  */
 inline cv::Mat draw_texcoords(core::Mesh mesh, cv::Mat image = cv::Mat())
 {
-	using cv::Point2f;
-	using cv::Scalar;
-	if (image.empty())
-	{
-		image = cv::Mat(512, 512, CV_8UC4, Scalar(0.0f, 0.0f, 0.0f, 255.0f));
-	}
+    using cv::Point2f;
+    using cv::Scalar;
+    if (image.empty())
+    {
+        image = cv::Mat(512, 512, CV_8UC4, Scalar(0.0f, 0.0f, 0.0f, 255.0f));
+    }
 
-	for (const auto& triIdx : mesh.tvi) {
-		cv::line(image, Point2f(mesh.texcoords[triIdx[0]][0] * image.cols, mesh.texcoords[triIdx[0]][1] * image.rows), Point2f(mesh.texcoords[triIdx[1]][0] * image.cols, mesh.texcoords[triIdx[1]][1] * image.rows), Scalar(255.0f, 0.0f, 0.0f));
-		cv::line(image, Point2f(mesh.texcoords[triIdx[1]][0] * image.cols, mesh.texcoords[triIdx[1]][1] * image.rows), Point2f(mesh.texcoords[triIdx[2]][0] * image.cols, mesh.texcoords[triIdx[2]][1] * image.rows), Scalar(255.0f, 0.0f, 0.0f));
-		cv::line(image, Point2f(mesh.texcoords[triIdx[2]][0] * image.cols, mesh.texcoords[triIdx[2]][1] * image.rows), Point2f(mesh.texcoords[triIdx[0]][0] * image.cols, mesh.texcoords[triIdx[0]][1] * image.rows), Scalar(255.0f, 0.0f, 0.0f));
-	}
-	return image;
+    for (const auto& triIdx : mesh.tvi)
+    {
+        cv::line(
+            image,
+            Point2f(mesh.texcoords[triIdx[0]][0] * image.cols, mesh.texcoords[triIdx[0]][1] * image.rows),
+            Point2f(mesh.texcoords[triIdx[1]][0] * image.cols, mesh.texcoords[triIdx[1]][1] * image.rows),
+            Scalar(255.0f, 0.0f, 0.0f));
+        cv::line(
+            image,
+            Point2f(mesh.texcoords[triIdx[1]][0] * image.cols, mesh.texcoords[triIdx[1]][1] * image.rows),
+            Point2f(mesh.texcoords[triIdx[2]][0] * image.cols, mesh.texcoords[triIdx[2]][1] * image.rows),
+            Scalar(255.0f, 0.0f, 0.0f));
+        cv::line(
+            image,
+            Point2f(mesh.texcoords[triIdx[2]][0] * image.cols, mesh.texcoords[triIdx[2]][1] * image.rows),
+            Point2f(mesh.texcoords[triIdx[0]][0] * image.cols, mesh.texcoords[triIdx[0]][1] * image.rows),
+            Scalar(255.0f, 0.0f, 0.0f));
+    }
+    return image;
 };
 
-	} /* namespace render */
+} /* namespace render */
 } /* namespace eos */
 
 #endif /* RENDER_DRAW_UTILS_HPP_ */

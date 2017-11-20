@@ -55,13 +55,13 @@ public:
     };
 
     /**
-      * @brief Todo.
-      *
-      * X
-      *
-      * @param[in] vertex X.
-      * @ return X.
-      */
+     * @brief Todo.
+     *
+     * X
+     *
+     * @param[in] vertex X.
+     * @ return X.
+     */
     template <typename T, glm::precision P = glm::defaultp>
     void raster_triangle(const detail::Vertex<T, P>& point_a, const detail::Vertex<T, P>& point_b,
                          const detail::Vertex<T, P>& point_c, const boost::optional<Texture>& texture)

@@ -48,7 +48,7 @@
 #include <cmath>
 
 namespace eos {
-	namespace render {
+namespace render {
 
 /* This function is copied from OpenCV,	originally under BSD licence.
  * imgwarp.cpp from OpenCV-3.2.0.
@@ -72,47 +72,54 @@ namespace eos {
  *   cij - matrix coefficients
  */
 // Note: The original functions used doubles.
-Eigen::Matrix<float, 2, 3> get_affine_transform(const std::array<Eigen::Vector2f, 3>& src, const std::array<Eigen::Vector2f, 3>& dst)
+Eigen::Matrix<float, 2, 3> get_affine_transform(const std::array<Eigen::Vector2f, 3>& src,
+                                                const std::array<Eigen::Vector2f, 3>& dst)
 {
-	using Eigen::Matrix;
-	assert(src.size() == dst.size() && src.size() == 3);
-	
-	Matrix<float, 6, 6> A;
-	Matrix<float, 6, 1> b;
+    using Eigen::Matrix;
+    assert(src.size() == dst.size() && src.size() == 3);
 
-    for( int i = 0; i < 3; i++ )
+    Matrix<float, 6, 6> A;
+    Matrix<float, 6, 1> b;
+
+    for (int i = 0; i < 3; i++)
     {
-		A.block<1, 2>(2 * i, 0) = src[i]; // the odd rows
-		A.block<1, 2>((2 * i) + 1, 3) = src[i]; // even rows
-		A(2 * i, 2) = 1.0f;
-		A((2 * i) + 1, 5) = 1.0f;
-		A.block<1, 3>(2 * i, 3).setZero();
-		A.block<1, 3>((2 * i) + 1, 0).setZero();
-		b.segment<2>(2 * i) = dst[i];
+        A.block<1, 2>(2 * i, 0) = src[i];       // the odd rows
+        A.block<1, 2>((2 * i) + 1, 3) = src[i]; // even rows
+        A(2 * i, 2) = 1.0f;
+        A((2 * i) + 1, 5) = 1.0f;
+        A.block<1, 3>(2 * i, 3).setZero();
+        A.block<1, 3>((2 * i) + 1, 0).setZero();
+        b.segment<2>(2 * i) = dst[i];
     }
 
-	Matrix<float, 6, 1> X = A.colPivHouseholderQr().solve(b);
+    Matrix<float, 6, 1> X = A.colPivHouseholderQr().solve(b);
 
-	Matrix<float, 2, 3> transform_matrix;
-	transform_matrix.block<1, 3>(0, 0) = X.segment<3>(0);
-	transform_matrix.block<1, 3>(1, 0) = X.segment<3>(3);
+    Matrix<float, 2, 3> transform_matrix;
+    transform_matrix.block<1, 3>(0, 0) = X.segment<3>(0);
+    transform_matrix.block<1, 3>(1, 0) = X.segment<3>(3);
 
-	return transform_matrix;
+    return transform_matrix;
 };
 
 /**
  * The interpolation types that can be used to map the
  * texture from the original image to the isomap.
  */
-enum class TextureInterpolation {
-	NearestNeighbour,
-	Bilinear,
-	Area
+enum class TextureInterpolation
+{
+    NearestNeighbour,
+    Bilinear,
+    Area
 };
 
 // Forward declarations:
-core::Image4u extract_texture(const core::Mesh& mesh, Eigen::Matrix<float, 3, 4> affine_camera_matrix, const core::Image3u& image, const core::Image1d& depthbuffer, bool compute_view_angle, TextureInterpolation mapping_type, int isomap_resolution);
-namespace detail { core::Image4u interpolate_black_line(core::Image4u& isomap); }
+core::Image4u extract_texture(const core::Mesh& mesh, Eigen::Matrix<float, 3, 4> affine_camera_matrix,
+                              const core::Image3u& image, const core::Image1d& depthbuffer,
+                              bool compute_view_angle, TextureInterpolation mapping_type,
+                              int isomap_resolution);
+namespace detail {
+core::Image4u interpolate_black_line(core::Image4u& isomap);
+}
 
 /**
  * Extracts the texture of the face from the given image
@@ -136,15 +143,22 @@ namespace detail { core::Image4u interpolate_black_line(core::Image4u& isomap); 
  * @param[in] isomap_resolution The resolution of the generated isomap. Defaults to 512x512.
  * @return The extracted texture as isomap (texture map).
  */
-inline core::Image4u extract_texture(const core::Mesh& mesh, Eigen::Matrix<float, 3, 4> affine_camera_matrix, const core::Image3u& image, bool compute_view_angle = false, TextureInterpolation mapping_type = TextureInterpolation::NearestNeighbour, int isomap_resolution = 512)
+inline core::Image4u
+extract_texture(const core::Mesh& mesh, Eigen::Matrix<float, 3, 4> affine_camera_matrix,
+                const core::Image3u& image, bool compute_view_angle = false,
+                TextureInterpolation mapping_type = TextureInterpolation::NearestNeighbour,
+                int isomap_resolution = 512)
 {
-	// Render the model to get a depth buffer:
-	core::Image1d depthbuffer;
-	std::tie(std::ignore, depthbuffer) = render::render_affine(mesh, affine_camera_matrix, image.cols, image.rows);
-	// Note: There's potential for optimisation here - we don't need to do everything that is done in render_affine to just get the depthbuffer.
+    // Render the model to get a depth buffer:
+    core::Image1d depthbuffer;
+    std::tie(std::ignore, depthbuffer) =
+        render::render_affine(mesh, affine_camera_matrix, image.cols, image.rows);
+    // Note: There's potential for optimisation here - we don't need to do everything that is done in
+    // render_affine to just get the depthbuffer.
 
-	// Now forward the call to the actual texture extraction function:
-	return extract_texture(mesh, affine_camera_matrix, image, depthbuffer, compute_view_angle, mapping_type, isomap_resolution);
+    // Now forward the call to the actual texture extraction function:
+    return extract_texture(mesh, affine_camera_matrix, image, depthbuffer, compute_view_angle, mapping_type,
+                           isomap_resolution);
 };
 
 /**
@@ -167,245 +181,346 @@ inline core::Image4u extract_texture(const core::Mesh& mesh, Eigen::Matrix<float
  * @param[in] isomap_resolution The resolution of the generated isomap. Defaults to 512x512.
  * @return The extracted texture as isomap (texture map).
  */
-inline core::Image4u extract_texture(const core::Mesh& mesh, Eigen::Matrix<float, 3, 4> affine_camera_matrix, const core::Image3u& image, const core::Image1d& depthbuffer, bool compute_view_angle = false, TextureInterpolation mapping_type = TextureInterpolation::NearestNeighbour, int isomap_resolution = 512)
+inline core::Image4u
+extract_texture(const core::Mesh& mesh, Eigen::Matrix<float, 3, 4> affine_camera_matrix,
+                const core::Image3u& image, const core::Image1d& depthbuffer, bool compute_view_angle = false,
+                TextureInterpolation mapping_type = TextureInterpolation::NearestNeighbour,
+                int isomap_resolution = 512)
 {
-	assert(mesh.vertices.size() == mesh.texcoords.size());
+    assert(mesh.vertices.size() == mesh.texcoords.size());
 
-	using Eigen::Vector2f;
-	using Eigen::Vector3f;
-	using Eigen::Vector4f;
-	using std::min;
-	using std::max;
-	using std::floor;
-	using std::ceil;
-	using std::round;
-	using std::sqrt;
-	using std::pow;
+    using Eigen::Vector2f;
+    using Eigen::Vector3f;
+    using Eigen::Vector4f;
+    using std::ceil;
+    using std::floor;
+    using std::max;
+    using std::min;
+    using std::pow;
+    using std::round;
+    using std::sqrt;
 
-	Eigen::Matrix<float, 4, 4> affine_camera_matrix_with_z = detail::calculate_affine_z_direction(affine_camera_matrix);
+    Eigen::Matrix<float, 4, 4> affine_camera_matrix_with_z =
+        detail::calculate_affine_z_direction(affine_camera_matrix);
 
-	// Todo: We should handle gray images, but output a 4-channel isomap nevertheless I think.
-	core::Image4u isomap(isomap_resolution, isomap_resolution); // We should initialise with zeros. Incidentially, the current Image4u c'tor does that.
+    // Todo: We should handle gray images, but output a 4-channel isomap nevertheless I think.
+    core::Image4u isomap(isomap_resolution, isomap_resolution); // We should initialise with zeros.
+                                                                // Incidentially, the current Image4u c'tor
+                                                                // does that.
 
-	std::vector<std::future<void>> results;
-	for (const auto& triangle_indices : mesh.tvi) {
+    std::vector<std::future<void>> results;
+    for (const auto& triangle_indices : mesh.tvi)
+    {
 
-		// Note: If there's a performance problem, there's no need to capture the whole mesh - we could capture only the three required vertices with their texcoords.
-		auto extract_triangle = [&mesh, &affine_camera_matrix_with_z, &triangle_indices, &depthbuffer, &isomap, &mapping_type, &image, &compute_view_angle]() {
+        // Note: If there's a performance problem, there's no need to capture the whole mesh - we could
+        // capture only the three required vertices with their texcoords.
+        auto extract_triangle = [&mesh, &affine_camera_matrix_with_z, &triangle_indices, &depthbuffer,
+                                 &isomap, &mapping_type, &image, &compute_view_angle]() {
 
-			// Find out if the current triangle is visible:
-			// We do a second rendering-pass here. We use the depth-buffer of the final image, and then, here,
-			// check if each pixel in a triangle is visible. If the whole triangle is visible, we use it to extract
-			// the texture.
-			// Possible improvement: - If only part of the triangle is visible, split it
+            // Find out if the current triangle is visible:
+            // We do a second rendering-pass here. We use the depth-buffer of the final image, and then, here,
+            // check if each pixel in a triangle is visible. If the whole triangle is visible, we use it to
+            // extract the texture.
+            // Possible improvement: - If only part of the triangle is visible, split it
 
-			// This could be optimized in 2 ways though:
-			// - Use render(), or as in render(...), transfer the vertices once, not in a loop over all triangles (vertices are getting transformed multiple times)
-			// - We transform them later (below) a second time. Only do it once.
+            // This could be optimized in 2 ways though:
+            // - Use render(), or as in render(...), transfer the vertices once, not in a loop over all
+            //   triangles (vertices are getting transformed multiple times)
+            // - We transform them later (below) a second time. Only do it once.
 
-			const Vector4f v0_as_Vector4f(mesh.vertices[triangle_indices[0]][0], mesh.vertices[triangle_indices[0]][1], mesh.vertices[triangle_indices[0]][2], 1.0f);
-                        const Vector4f v1_as_Vector4f(mesh.vertices[triangle_indices[1]][0], mesh.vertices[triangle_indices[1]][1], mesh.vertices[triangle_indices[1]][2], 1.0f);
-                        const Vector4f v2_as_Vector4f(mesh.vertices[triangle_indices[2]][0], mesh.vertices[triangle_indices[2]][1], mesh.vertices[triangle_indices[2]][2], 1.0f);
+            const Vector4f v0_as_Vector4f(mesh.vertices[triangle_indices[0]][0],
+                                          mesh.vertices[triangle_indices[0]][1],
+                                          mesh.vertices[triangle_indices[0]][2], 1.0f);
+            const Vector4f v1_as_Vector4f(mesh.vertices[triangle_indices[1]][0],
+                                          mesh.vertices[triangle_indices[1]][1],
+                                          mesh.vertices[triangle_indices[1]][2], 1.0f);
+            const Vector4f v2_as_Vector4f(mesh.vertices[triangle_indices[2]][0],
+                                          mesh.vertices[triangle_indices[2]][1],
+                                          mesh.vertices[triangle_indices[2]][2], 1.0f);
 
-			// Project the triangle vertices to screen coordinates, and use the depthbuffer to check whether the triangle is visible:
-			const Vector4f v0 = affine_camera_matrix_with_z * v0_as_Vector4f;
-			const Vector4f v1 = affine_camera_matrix_with_z * v1_as_Vector4f;
-			const Vector4f v2 = affine_camera_matrix_with_z * v2_as_Vector4f;
+            // Project the triangle vertices to screen coordinates, and use the depthbuffer to check whether
+            // the triangle is visible:
+            const Vector4f v0 = affine_camera_matrix_with_z * v0_as_Vector4f;
+            const Vector4f v1 = affine_camera_matrix_with_z * v1_as_Vector4f;
+            const Vector4f v2 = affine_camera_matrix_with_z * v2_as_Vector4f;
 
-			if (!detail::is_triangle_visible(glm::tvec4<float>(v0[0], v0[1], v0[2], v0[3]), glm::tvec4<float>(v1[0], v1[1], v1[2], v1[3]), glm::tvec4<float>(v2[0], v2[1], v2[2], v2[3]), depthbuffer))
-			{
-				//continue;
-				return;
-			}
+            if (!detail::is_triangle_visible(glm::tvec4<float>(v0[0], v0[1], v0[2], v0[3]),
+                                             glm::tvec4<float>(v1[0], v1[1], v1[2], v1[3]),
+                                             glm::tvec4<float>(v2[0], v2[1], v2[2], v2[3]), depthbuffer))
+            {
+                // continue;
+                return;
+            }
 
-			float alpha_value;
-			if (compute_view_angle)
-			{
-				// Calculate how well visible the current triangle is:
-				// (in essence, the dot product of the viewing direction (0, 0, 1) and the face normal)
-				const Vector3f face_normal = compute_face_normal(v0_as_Vector4f, v1_as_Vector4f, v2_as_Vector4f);
-				// Transform the normal to "screen" (kind of "eye") space using the upper 3x3 part of the affine camera matrix (=the translation can be ignored):
-				Vector3f face_normal_transformed = affine_camera_matrix_with_z.block<3, 3>(0, 0) * face_normal;
-				face_normal_transformed.normalize(); // normalise to unit length
-				// Implementation notes regarding the affine camera matrix and the sign:
-				// If the matrix given were the model_view matrix, the sign would be correct.
-				// However, affine_camera_matrix includes glm::ortho, which includes a z-flip.
-				// So we need to flip one of the two signs.
-				// * viewing_direction(0.0f, 0.0f, 1.0f) is correct if affine_camera_matrix were only a model_view matrix
-				// * affine_camera_matrix includes glm::ortho, which flips z, so we flip the sign of viewing_direction.
-				// We don't need the dot product since viewing_direction.xy are 0 and .z is 1:
-				const float angle = -face_normal_transformed[2]; // flip sign, see above
-				assert(angle >= -1.f && angle <= 1.f);
-				// angle is [-1, 1].
-				//  * +1 means   0° (same direction)
-				//  *  0 means  90°
-				//  * -1 means 180° (facing opposite directions)
-				// It's a linear relation, so +0.5 is 45° etc.
-				// An angle larger than 90° means the vertex won't be rendered anyway (because it's back-facing) so we encode 0° to 90°.
-				if (angle < 0.0f) {
-					alpha_value = 0.0f;
-				} else {
-					alpha_value = angle * 255.0f;
-				}
-			}
-			else {
-				// no visibility angle computation - if the triangle/pixel is visible, set the alpha chan to 255 (fully visible pixel).
-				alpha_value = 255.0f;
-			}
+            float alpha_value;
+            if (compute_view_angle)
+            {
+                // Calculate how well visible the current triangle is:
+                // (in essence, the dot product of the viewing direction (0, 0, 1) and the face normal)
+                const Vector3f face_normal =
+                    compute_face_normal(v0_as_Vector4f, v1_as_Vector4f, v2_as_Vector4f);
+                // Transform the normal to "screen" (kind of "eye") space using the upper 3x3 part of the
+                // affine camera matrix (=the translation can be ignored):
+                Vector3f face_normal_transformed =
+                    affine_camera_matrix_with_z.block<3, 3>(0, 0) * face_normal;
+                face_normal_transformed.normalize(); // normalise to unit length
+                // Implementation notes regarding the affine camera matrix and the sign:
+                // If the matrix given were the model_view matrix, the sign would be correct.
+                // However, affine_camera_matrix includes glm::ortho, which includes a z-flip.
+                // So we need to flip one of the two signs.
+                // * viewing_direction(0.0f, 0.0f, 1.0f) is correct if affine_camera_matrix were only a model_view matrix
+                // * affine_camera_matrix includes glm::ortho, which flips z, so we flip the sign of viewing_direction.
+                // We don't need the dot product since viewing_direction.xy are 0 and .z is 1:
+                const float angle = -face_normal_transformed[2]; // flip sign, see above
+                assert(angle >= -1.f && angle <= 1.f);
+                // angle is [-1, 1].
+                //  * +1 means   0° (same direction)
+                //  *  0 means  90°
+                //  * -1 means 180° (facing opposite directions)
+                // It's a linear relation, so +0.5 is 45° etc.
+                // An angle larger than 90° means the vertex won't be rendered anyway (because it's
+                // back-facing) so we encode 0° to 90°.
+                if (angle < 0.0f)
+                {
+                    alpha_value = 0.0f;
+                } else
+                {
+                    alpha_value = angle * 255.0f;
+                }
+            } else
+            {
+                // no visibility angle computation - if the triangle/pixel is visible, set the alpha chan to
+                // 255 (fully visible pixel).
+                alpha_value = 255.0f;
+            }
 
-			// Todo: Documentation
-			std::array<Vector2f, 3> src_tri;
-			std::array<Vector2f, 3> dst_tri;
+            // Todo: Documentation
+            std::array<Vector2f, 3> src_tri;
+            std::array<Vector2f, 3> dst_tri;
 
-			Vector4f vec(mesh.vertices[triangle_indices[0]][0], mesh.vertices[triangle_indices[0]][1], mesh.vertices[triangle_indices[0]][2], 1.0f);
-			Vector4f res = affine_camera_matrix_with_z * vec;
-			src_tri[0] = Vector2f(res[0], res[1]);
+            Vector4f vec(mesh.vertices[triangle_indices[0]][0], mesh.vertices[triangle_indices[0]][1],
+                         mesh.vertices[triangle_indices[0]][2], 1.0f);
+            Vector4f res = affine_camera_matrix_with_z * vec;
+            src_tri[0] = Vector2f(res[0], res[1]);
 
-			vec = Vector4f(mesh.vertices[triangle_indices[1]][0], mesh.vertices[triangle_indices[1]][1], mesh.vertices[triangle_indices[1]][2], 1.0f);
-			res = affine_camera_matrix_with_z * vec;
-			src_tri[1] = Vector2f(res[0], res[1]);
+            vec = Vector4f(mesh.vertices[triangle_indices[1]][0], mesh.vertices[triangle_indices[1]][1],
+                           mesh.vertices[triangle_indices[1]][2], 1.0f);
+            res = affine_camera_matrix_with_z * vec;
+            src_tri[1] = Vector2f(res[0], res[1]);
 
-			vec = Vector4f(mesh.vertices[triangle_indices[2]][0], mesh.vertices[triangle_indices[2]][1], mesh.vertices[triangle_indices[2]][2], 1.0f);
-			res = affine_camera_matrix_with_z * vec;
-			src_tri[2] = Vector2f(res[0], res[1]);
+            vec = Vector4f(mesh.vertices[triangle_indices[2]][0], mesh.vertices[triangle_indices[2]][1],
+                           mesh.vertices[triangle_indices[2]][2], 1.0f);
+            res = affine_camera_matrix_with_z * vec;
+            src_tri[2] = Vector2f(res[0], res[1]);
 
-			dst_tri[0] = Vector2f((isomap.cols - 0.5)*mesh.texcoords[triangle_indices[0]][0], (isomap.rows - 0.5)*mesh.texcoords[triangle_indices[0]][1]);
-			dst_tri[1] = Vector2f((isomap.cols - 0.5)*mesh.texcoords[triangle_indices[1]][0], (isomap.rows - 0.5)*mesh.texcoords[triangle_indices[1]][1]);
-			dst_tri[2] = Vector2f((isomap.cols - 0.5)*mesh.texcoords[triangle_indices[2]][0], (isomap.rows - 0.5)*mesh.texcoords[triangle_indices[2]][1]);
+            dst_tri[0] = Vector2f((isomap.cols - 0.5) * mesh.texcoords[triangle_indices[0]][0],
+                                  (isomap.rows - 0.5) * mesh.texcoords[triangle_indices[0]][1]);
+            dst_tri[1] = Vector2f((isomap.cols - 0.5) * mesh.texcoords[triangle_indices[1]][0],
+                                  (isomap.rows - 0.5) * mesh.texcoords[triangle_indices[1]][1]);
+            dst_tri[2] = Vector2f((isomap.cols - 0.5) * mesh.texcoords[triangle_indices[2]][0],
+                                  (isomap.rows - 0.5) * mesh.texcoords[triangle_indices[2]][1]);
 
-			// We now have the source triangles in the image and the source triangle in the isomap
-			// We use the inverse/ backward mapping approach, so we want to find the corresponding texel (texture-pixel) for each pixel in the isomap
+            // We now have the source triangles in the image and the source triangle in the isomap
+            // We use the inverse/ backward mapping approach, so we want to find the corresponding texel
+            // (texture-pixel) for each pixel in the isomap
 
-			// Get the inverse Affine Transform from original image: from dst (pixel in isomap) to src (in image)
-			Eigen::Matrix<float, 2, 3> warp_mat_org_inv = get_affine_transform(dst_tri, src_tri);
+            // Get the inverse Affine Transform from original image: from dst (pixel in isomap) to src (in
+            // image)
+            Eigen::Matrix<float, 2, 3> warp_mat_org_inv = get_affine_transform(dst_tri, src_tri);
 
-			// We now loop over all pixels in the triangle and select, depending on the mapping type, the corresponding texel(s) in the source image
-			for (int x = min(dst_tri[0][0], min(dst_tri[1][0], dst_tri[2][0])); x < max(dst_tri[0][0], max(dst_tri[1][0], dst_tri[2][0])); ++x) {
-				for (int y = min(dst_tri[0][1], min(dst_tri[1][1], dst_tri[2][1])); y < max(dst_tri[0][1], max(dst_tri[1][1], dst_tri[2][1])); ++y) {
-					if (detail::is_point_in_triangle(Vector2f(x, y), dst_tri[0], dst_tri[1], dst_tri[2])) {
+            // We now loop over all pixels in the triangle and select, depending on the mapping type, the
+            // corresponding texel(s) in the source image
+            for (int x = min(dst_tri[0][0], min(dst_tri[1][0], dst_tri[2][0]));
+                 x < max(dst_tri[0][0], max(dst_tri[1][0], dst_tri[2][0])); ++x)
+            {
+                for (int y = min(dst_tri[0][1], min(dst_tri[1][1], dst_tri[2][1]));
+                     y < max(dst_tri[0][1], max(dst_tri[1][1], dst_tri[2][1])); ++y)
+                {
+                    if (detail::is_point_in_triangle(Vector2f(x, y), dst_tri[0], dst_tri[1], dst_tri[2]))
+                    {
 
-						// As the coordinates of the transformed pixel in the image will most likely not lie on a texel, we have to choose how to
-						// calculate the pixel colors depending on the next texels
-						// there are three different texture interpolation methods: area, bilinear and nearest neighbour
+                        // As the coordinates of the transformed pixel in the image will most likely not lie
+                        // on a texel, we have to choose how to calculate the pixel colors depending on the
+                        // next texels
 
-						// Area mapping: calculate mean color of texels in transformed pixel area
-						if (mapping_type == TextureInterpolation::Area) {
+                        // There are three different texture interpolation methods: area, bilinear and nearest
+                        // neighbour
 
-							// calculate positions of 4 corners of pixel in image (src)
-							const Vector3f homogenous_dst_upper_left(x - 0.5f, y - 0.5f, 1.0f);
-							const Vector3f homogenous_dst_upper_right(x + 0.5f, y - 0.5f, 1.0f);
-							const Vector3f homogenous_dst_lower_left(x - 0.5f, y + 0.5f, 1.0f);
-							const Vector3f homogenous_dst_lower_right(x + 0.5f, y + 0.5f, 1.0f);
+                        // Area mapping: calculate mean color of texels in transformed pixel area
+                        if (mapping_type == TextureInterpolation::Area)
+                        {
 
-							const Vector2f src_texel_upper_left = warp_mat_org_inv * homogenous_dst_upper_left;
-							const Vector2f src_texel_upper_right = warp_mat_org_inv * homogenous_dst_upper_right;
-							const Vector2f src_texel_lower_left = warp_mat_org_inv * homogenous_dst_lower_left;
-							const Vector2f src_texel_lower_right = warp_mat_org_inv * homogenous_dst_lower_right;
+                            // calculate positions of 4 corners of pixel in image (src)
+                            const Vector3f homogenous_dst_upper_left(x - 0.5f, y - 0.5f, 1.0f);
+                            const Vector3f homogenous_dst_upper_right(x + 0.5f, y - 0.5f, 1.0f);
+                            const Vector3f homogenous_dst_lower_left(x - 0.5f, y + 0.5f, 1.0f);
+                            const Vector3f homogenous_dst_lower_right(x + 0.5f, y + 0.5f, 1.0f);
 
-							const float min_a = min(min(src_texel_upper_left[0], src_texel_upper_right[0]), min(src_texel_lower_left[0], src_texel_lower_right[0]));
-                                                        const float max_a = max(max(src_texel_upper_left[0], src_texel_upper_right[0]), max(src_texel_lower_left[0], src_texel_lower_right[0]));
-                                                        const float min_b = min(min(src_texel_upper_left[1], src_texel_upper_right[1]), min(src_texel_lower_left[1], src_texel_lower_right[1]));
-                                                        const float max_b = max(max(src_texel_upper_left[1], src_texel_upper_right[1]), max(src_texel_lower_left[1], src_texel_lower_right[1]));
+                            const Vector2f src_texel_upper_left =
+                                warp_mat_org_inv * homogenous_dst_upper_left;
+                            const Vector2f src_texel_upper_right =
+                                warp_mat_org_inv * homogenous_dst_upper_right;
+                            const Vector2f src_texel_lower_left =
+                                warp_mat_org_inv * homogenous_dst_lower_left;
+                            const Vector2f src_texel_lower_right =
+                                warp_mat_org_inv * homogenous_dst_lower_right;
 
-							Eigen::Vector3i color; // std::uint8_t actually.
-							int num_texels = 0;
+                            const float min_a = min(min(src_texel_upper_left[0], src_texel_upper_right[0]),
+                                                    min(src_texel_lower_left[0], src_texel_lower_right[0]));
+                            const float max_a = max(max(src_texel_upper_left[0], src_texel_upper_right[0]),
+                                                    max(src_texel_lower_left[0], src_texel_lower_right[0]));
+                            const float min_b = min(min(src_texel_upper_left[1], src_texel_upper_right[1]),
+                                                    min(src_texel_lower_left[1], src_texel_lower_right[1]));
+                            const float max_b = max(max(src_texel_upper_left[1], src_texel_upper_right[1]),
+                                                    max(src_texel_lower_left[1], src_texel_lower_right[1]));
 
-							// loop over square in which quadrangle out of the four corners of pixel is
-							for (int a = ceil(min_a); a <= floor(max_a); ++a)
-							{
-								for (int b = ceil(min_b); b <= floor(max_b); ++b)
-								{
-									// check if texel is in quadrangle
-									if (detail::is_point_in_triangle(Vector2f(a, b), src_texel_upper_left, src_texel_lower_left, src_texel_upper_right) || detail::is_point_in_triangle(Vector2f(a, b), src_texel_lower_left, src_texel_upper_right, src_texel_lower_right)) {
-										if (a < image.cols && b < image.rows) { // check if texel is in image
-											num_texels++;
-											color += Eigen::Vector3i(image(b, a)[0], image(b, a)[1], image(b, a)[2]);
-										}
-									}
-								}
-							}
-							if (num_texels > 0)
-								color = color / num_texels;
-							else { // if no corresponding texel found, nearest neighbour interpolation
-								// calculate corresponding position of dst_coord pixel center in image (src)
-								Vector3f homogenous_dst_coord(x, y, 1.0f);
-								Vector2f src_texel = warp_mat_org_inv * homogenous_dst_coord;
+                            Eigen::Vector3i color; // std::uint8_t actually.
+                            int num_texels = 0;
 
-								if ((round(src_texel[1]) < image.rows) && round(src_texel[0]) < image.cols) {
-									const int y = round(src_texel[1]);
-									const int x = round(src_texel[0]);
-									color = Eigen::Vector3i(image(y, x)[0], image(y, x)[1], image(y, x)[2]);
-								}
-							}
-							isomap(y, x) = { static_cast<std::uint8_t>(color[0]), static_cast<std::uint8_t>(color[1]), static_cast<std::uint8_t>(color[2]), static_cast<std::uint8_t>(alpha_value) };
-						}
-						// Bilinear mapping: calculate pixel color depending on the four neighbouring texels
-						else if (mapping_type == TextureInterpolation::Bilinear) {
+                            // loop over square in which quadrangle out of the four corners of pixel is
+                            for (int a = ceil(min_a); a <= floor(max_a); ++a)
+                            {
+                                for (int b = ceil(min_b); b <= floor(max_b); ++b)
+                                {
+                                    // check if texel is in quadrangle
+                                    if (detail::is_point_in_triangle(Vector2f(a, b), src_texel_upper_left,
+                                                                     src_texel_lower_left,
+                                                                     src_texel_upper_right) ||
+                                        detail::is_point_in_triangle(Vector2f(a, b), src_texel_lower_left,
+                                                                     src_texel_upper_right,
+                                                                     src_texel_lower_right))
+                                    {
+                                        if (a < image.cols && b < image.rows)
+                                        { // check if texel is in image
+                                            num_texels++;
+                                            color += Eigen::Vector3i(image(b, a)[0], image(b, a)[1],
+                                                                     image(b, a)[2]);
+                                        }
+                                    }
+                                }
+                            }
+                            if (num_texels > 0)
+                                color = color / num_texels;
+                            else
+                            { // if no corresponding texel found, nearest neighbour interpolation
+                                // calculate corresponding position of dst_coord pixel center in image (src)
+                                Vector3f homogenous_dst_coord(x, y, 1.0f);
+                                Vector2f src_texel = warp_mat_org_inv * homogenous_dst_coord;
 
-							// calculate corresponding position of dst_coord pixel center in image (src)
-							const Vector3f homogenous_dst_coord(x, y, 1.0f);
-							const Vector2f src_texel = warp_mat_org_inv * homogenous_dst_coord;
+                                if ((round(src_texel[1]) < image.rows) && round(src_texel[0]) < image.cols)
+                                {
+                                    const int y = round(src_texel[1]);
+                                    const int x = round(src_texel[0]);
+                                    color = Eigen::Vector3i(image(y, x)[0], image(y, x)[1], image(y, x)[2]);
+                                }
+                            }
+                            isomap(y, x) = {
+                                static_cast<std::uint8_t>(color[0]), static_cast<std::uint8_t>(color[1]),
+                                static_cast<std::uint8_t>(color[2]), static_cast<std::uint8_t>(alpha_value)};
+                        }
+                        // Bilinear mapping: calculate pixel color depending on the four neighbouring texels
+                        else if (mapping_type == TextureInterpolation::Bilinear)
+                        {
 
-							// calculate euclidean distances to next 4 texels
-							float distance_upper_left = sqrt(pow(src_texel[0] - floor(src_texel[0]), 2) + pow(src_texel[1] - floor(src_texel[1]), 2));
-							float distance_upper_right = sqrt(pow(src_texel[0] - floor(src_texel[0]), 2) + pow(src_texel[1] - ceil(src_texel[1]), 2));
-							float distance_lower_left = sqrt(pow(src_texel[0] - ceil(src_texel[0]), 2) + pow(src_texel[1] - floor(src_texel[1]), 2));
-							float distance_lower_right = sqrt(pow(src_texel[0] - ceil(src_texel[0]), 2) + pow(src_texel[1] - ceil(src_texel[1]), 2));
+                            // calculate corresponding position of dst_coord pixel center in image (src)
+                            const Vector3f homogenous_dst_coord(x, y, 1.0f);
+                            const Vector2f src_texel = warp_mat_org_inv * homogenous_dst_coord;
 
-							// normalise distances that the sum of all distances is 1
-							const float sum_distances = distance_lower_left + distance_lower_right + distance_upper_left + distance_upper_right;
-							distance_lower_left /= sum_distances;
-							distance_lower_right /= sum_distances;
-							distance_upper_left /= sum_distances;
-							distance_upper_right /= sum_distances;
+                            // calculate euclidean distances to next 4 texels
+                            float distance_upper_left = sqrt(pow(src_texel[0] - floor(src_texel[0]), 2) +
+                                                             pow(src_texel[1] - floor(src_texel[1]), 2));
+                            float distance_upper_right = sqrt(pow(src_texel[0] - floor(src_texel[0]), 2) +
+                                                              pow(src_texel[1] - ceil(src_texel[1]), 2));
+                            float distance_lower_left = sqrt(pow(src_texel[0] - ceil(src_texel[0]), 2) +
+                                                             pow(src_texel[1] - floor(src_texel[1]), 2));
+                            float distance_lower_right = sqrt(pow(src_texel[0] - ceil(src_texel[0]), 2) +
+                                                              pow(src_texel[1] - ceil(src_texel[1]), 2));
 
-							// set color depending on distance from next 4 texels
-							// (we map the data from std::array<uint8_t, 3> to an Eigen::Map, then cast that to float to multiply with the float-scalar distance.)
-							// (this is untested!)
-							const Vector3f color_upper_left = Eigen::Map<const Eigen::Matrix<std::uint8_t, 1, 3>>(image(floor(src_texel[1]), floor(src_texel[0])).data(), 3).cast<float>() * distance_upper_left;
-							const Vector3f color_upper_right = Eigen::Map<const Eigen::Matrix<std::uint8_t, 1, 3>>(image(floor(src_texel[1]), ceil(src_texel[0])).data(), 3).cast<float>() * distance_upper_right;
-							const Vector3f color_lower_left = Eigen::Map<const Eigen::Matrix<std::uint8_t, 1, 3>>(image(ceil(src_texel[1]), floor(src_texel[0])).data(), 3).cast<float>() * distance_lower_left;
-							const Vector3f color_lower_right = Eigen::Map<const Eigen::Matrix<std::uint8_t, 1, 3>>(image(ceil(src_texel[1]), ceil(src_texel[0])).data(), 3).cast<float>() * distance_lower_right;
+                            // normalise distances that the sum of all distances is 1
+                            const float sum_distances = distance_lower_left + distance_lower_right +
+                                                        distance_upper_left + distance_upper_right;
+                            distance_lower_left /= sum_distances;
+                            distance_lower_right /= sum_distances;
+                            distance_upper_left /= sum_distances;
+                            distance_upper_right /= sum_distances;
 
-							//isomap(y, x)[color] = color_upper_left + color_upper_right + color_lower_left + color_lower_right;
-							isomap(y, x)[0] = static_cast<std::uint8_t>(glm::clamp(color_upper_left[0] + color_upper_right[0] + color_lower_left[0] + color_lower_right[0], 0.f, 255.0f));
-							isomap(y, x)[1] = static_cast<std::uint8_t>(glm::clamp(color_upper_left[1] + color_upper_right[1] + color_lower_left[1] + color_lower_right[1], 0.f, 255.0f));
-							isomap(y, x)[2] = static_cast<std::uint8_t>(glm::clamp(color_upper_left[2] + color_upper_right[2] + color_lower_left[2] + color_lower_right[2], 0.f, 255.0f));
-							isomap(y, x)[3] = static_cast<std::uint8_t>(alpha_value); // pixel is visible
-						}
-						// NearestNeighbour mapping: set color of pixel to color of nearest texel
-						else if (mapping_type == TextureInterpolation::NearestNeighbour) {
+                            // set color depending on distance from next 4 texels
+                            // (we map the data from std::array<uint8_t, 3> to an Eigen::Map, then cast that
+                            // to float to multiply with the float-scalar distance.)
+                            // (this is untested!)
+                            const Vector3f color_upper_left =
+                                Eigen::Map<const Eigen::Matrix<std::uint8_t, 1, 3>>(
+                                    image(floor(src_texel[1]), floor(src_texel[0])).data(), 3)
+                                    .cast<float>() *
+                                distance_upper_left;
+                            const Vector3f color_upper_right =
+                                Eigen::Map<const Eigen::Matrix<std::uint8_t, 1, 3>>(
+                                    image(floor(src_texel[1]), ceil(src_texel[0])).data(), 3)
+                                    .cast<float>() *
+                                distance_upper_right;
+                            const Vector3f color_lower_left =
+                                Eigen::Map<const Eigen::Matrix<std::uint8_t, 1, 3>>(
+                                    image(ceil(src_texel[1]), floor(src_texel[0])).data(), 3)
+                                    .cast<float>() *
+                                distance_lower_left;
+                            const Vector3f color_lower_right =
+                                Eigen::Map<const Eigen::Matrix<std::uint8_t, 1, 3>>(
+                                    image(ceil(src_texel[1]), ceil(src_texel[0])).data(), 3)
+                                    .cast<float>() *
+                                distance_lower_right;
 
-							// calculate corresponding position of dst_coord pixel center in image (src)
-							const Vector3f homogenous_dst_coord(x, y, 1.0f);
-							const Vector2f src_texel = warp_mat_org_inv * homogenous_dst_coord;
+                            // isomap(y, x)[color] = color_upper_left + color_upper_right + color_lower_left +
+                            // color_lower_right;
+                            isomap(y, x)[0] = static_cast<std::uint8_t>(
+                                glm::clamp(color_upper_left[0] + color_upper_right[0] + color_lower_left[0] +
+                                               color_lower_right[0],
+                                           0.f, 255.0f));
+                            isomap(y, x)[1] = static_cast<std::uint8_t>(
+                                glm::clamp(color_upper_left[1] + color_upper_right[1] + color_lower_left[1] +
+                                               color_lower_right[1],
+                                           0.f, 255.0f));
+                            isomap(y, x)[2] = static_cast<std::uint8_t>(
+                                glm::clamp(color_upper_left[2] + color_upper_right[2] + color_lower_left[2] +
+                                               color_lower_right[2],
+                                           0.f, 255.0f));
+                            isomap(y, x)[3] = static_cast<std::uint8_t>(alpha_value); // pixel is visible
+                        }
+                        // NearestNeighbour mapping: set color of pixel to color of nearest texel
+                        else if (mapping_type == TextureInterpolation::NearestNeighbour)
+                        {
 
-							if ((round(src_texel[1]) < image.rows) && (round(src_texel[0]) < image.cols) && round(src_texel[0]) > 0 && round(src_texel[1]) > 0)
-							{
-								isomap(y, x)[0] = image(round(src_texel[1]), round(src_texel[0]))[0];
-								isomap(y, x)[1] = image(round(src_texel[1]), round(src_texel[0]))[1];
-								isomap(y, x)[2] = image(round(src_texel[1]), round(src_texel[0]))[2];
-								isomap(y, x)[3] = static_cast<std::uint8_t>(alpha_value); // pixel is visible
-							}
-						}
-					}
-				}
-			}
-		}; // end lambda auto extract_triangle();
-		results.emplace_back(std::async(extract_triangle));
-	} // end for all mesh.tvi
-	// Collect all the launched tasks:
-	for (auto&& r : results) {
-		r.get();
-	}
+                            // calculate corresponding position of dst_coord pixel center in image (src)
+                            const Vector3f homogenous_dst_coord(x, y, 1.0f);
+                            const Vector2f src_texel = warp_mat_org_inv * homogenous_dst_coord;
 
-	// Workaround for the black line in the isomap (see GitHub issue #4):
-/*	if (mesh.texcoords.size() <= 3448)
-	{
-		isomap = detail::interpolate_black_line(isomap);
-	}
-*/
-	return isomap;
+                            if ((round(src_texel[1]) < image.rows) && (round(src_texel[0]) < image.cols) &&
+                                round(src_texel[0]) > 0 && round(src_texel[1]) > 0)
+                            {
+                                isomap(y, x)[0] = image(round(src_texel[1]), round(src_texel[0]))[0];
+                                isomap(y, x)[1] = image(round(src_texel[1]), round(src_texel[0]))[1];
+                                isomap(y, x)[2] = image(round(src_texel[1]), round(src_texel[0]))[2];
+                                isomap(y, x)[3] = static_cast<std::uint8_t>(alpha_value); // pixel is visible
+                            }
+                        }
+                    }
+                }
+            }
+        }; // end lambda auto extract_triangle();
+        results.emplace_back(std::async(extract_triangle));
+    } // end for all mesh.tvi
+    // Collect all the launched tasks:
+    for (auto&& r : results)
+    {
+        r.get();
+    }
+
+    // Workaround for the black line in the isomap (see GitHub issue #4):
+  /*if (mesh.texcoords.size() <= 3448)
+    {
+        isomap = detail::interpolate_black_line(isomap);
+    } */
+
+    return isomap;
 };
 
 /* New texture extraction, will replace above one at some point: */
@@ -559,62 +674,77 @@ namespace detail {
 // pixels. See GitHub issue #4.
 inline core::Image4u interpolate_black_line(core::Image4u& isomap)
 {
-	// Replace the vertical black line ("missing data"):
-	using RGBAType = Eigen::Matrix<std::uint8_t, 1, 4>;
-	using Eigen::Map;
-        const int col = isomap.cols / 2;
-	for (int row = 0; row < isomap.rows; ++row)
-	{
-		if (isomap(row, col) == std::array<std::uint8_t, 4>{ 0, 0, 0, 0 })
-		{
-			Eigen::Vector4f pixel_val = Map<const RGBAType>(isomap(row, col - 1).data(), 4).cast<float>() * 0.5f + Map<const RGBAType>(isomap(row, col + 1).data(), 4).cast<float>() * 0.5f;
-			isomap(row, col) = { static_cast<std::uint8_t>(pixel_val[0]), static_cast<std::uint8_t>(pixel_val[1]), static_cast<std::uint8_t>(pixel_val[2]), static_cast<std::uint8_t>(pixel_val[3]) };
-			
-		}
-	}
+    // Replace the vertical black line ("missing data"):
+    using RGBAType = Eigen::Matrix<std::uint8_t, 1, 4>;
+    using Eigen::Map;
+    const int col = isomap.cols / 2;
+    for (int row = 0; row < isomap.rows; ++row)
+    {
+        if (isomap(row, col) == std::array<std::uint8_t, 4>{0, 0, 0, 0})
+        {
+            Eigen::Vector4f pixel_val =
+                Map<const RGBAType>(isomap(row, col - 1).data(), 4).cast<float>() * 0.5f +
+                Map<const RGBAType>(isomap(row, col + 1).data(), 4).cast<float>() * 0.5f;
+            isomap(row,
+                   col) = {static_cast<std::uint8_t>(pixel_val[0]), static_cast<std::uint8_t>(pixel_val[1]),
+                           static_cast<std::uint8_t>(pixel_val[2]), static_cast<std::uint8_t>(pixel_val[3])};
+        }
+    }
 
-	// Replace the horizontal line around the mouth that occurs in the
-	// isomaps of resolution 512x512 and higher:
-	if (isomap.rows == 512) // num cols is 512 as well
-	{
-                const int r = 362;
-		for (int c = 206; c <= 306; ++c)
-		{
-			if (isomap(r, c) == std::array<std::uint8_t, 4>{ 0, 0, 0, 0 })
-			{
-				Eigen::Vector4f pixel_val = Map<const RGBAType>(isomap(r - 1, c).data(), 4).cast<float>() * 0.5f + Map<const RGBAType>(isomap(r + 1, c).data(), 4).cast<float>() * 0.5f;
-				isomap(r, c) = { static_cast<std::uint8_t>(pixel_val[0]), static_cast<std::uint8_t>(pixel_val[1]), static_cast<std::uint8_t>(pixel_val[2]), static_cast<std::uint8_t>(pixel_val[3]) };
-			}
-		}
-	}
-	if (isomap.rows == 1024) // num cols is 1024 as well
-	{
-		int r = 724;
-		for (int c = 437; c <= 587; ++c)
-		{
-			if (isomap(r, c) == std::array<std::uint8_t, 4>{ 0, 0, 0, 0 })
-			{
-				Eigen::Vector4f pixel_val = Map<const RGBAType>(isomap(r - 1, c).data(), 4).cast<float>() * 0.5f + Map<const RGBAType>(isomap(r + 1, c).data(), 4).cast<float>() * 0.5f;
-				isomap(r, c) = { static_cast<std::uint8_t>(pixel_val[0]), static_cast<std::uint8_t>(pixel_val[1]), static_cast<std::uint8_t>(pixel_val[2]), static_cast<std::uint8_t>(pixel_val[3]) };
-			}
-		}
-		r = 725;
-		for (int c = 411; c <= 613; ++c)
-		{
-			if (isomap(r, c) == std::array<std::uint8_t, 4>{ 0, 0, 0, 0 })
-			{
-				Eigen::Vector4f pixel_val = Map<const RGBAType>(isomap(r - 1, c).data(), 4).cast<float>() * 0.5f + Map<const RGBAType>(isomap(r + 1, c).data(), 4).cast<float>() * 0.5f;
-				isomap(r, c) = { static_cast<std::uint8_t>(pixel_val[0]), static_cast<std::uint8_t>(pixel_val[1]), static_cast<std::uint8_t>(pixel_val[2]), static_cast<std::uint8_t>(pixel_val[3]) };
-			}
-		}
-	}
-	// Higher resolutions are probably affected as well but not used so far in practice.
+    // Replace the horizontal line around the mouth that occurs in the
+    // isomaps of resolution 512x512 and higher:
+    if (isomap.rows == 512) // num cols is 512 as well
+    {
+        const int r = 362;
+        for (int c = 206; c <= 306; ++c)
+        {
+            if (isomap(r, c) == std::array<std::uint8_t, 4>{0, 0, 0, 0})
+            {
+                Eigen::Vector4f pixel_val =
+                    Map<const RGBAType>(isomap(r - 1, c).data(), 4).cast<float>() * 0.5f +
+                    Map<const RGBAType>(isomap(r + 1, c).data(), 4).cast<float>() * 0.5f;
+                isomap(r, c) = {
+                    static_cast<std::uint8_t>(pixel_val[0]), static_cast<std::uint8_t>(pixel_val[1]),
+                    static_cast<std::uint8_t>(pixel_val[2]), static_cast<std::uint8_t>(pixel_val[3])};
+            }
+        }
+    }
+    if (isomap.rows == 1024) // num cols is 1024 as well
+    {
+        int r = 724;
+        for (int c = 437; c <= 587; ++c)
+        {
+            if (isomap(r, c) == std::array<std::uint8_t, 4>{0, 0, 0, 0})
+            {
+                Eigen::Vector4f pixel_val =
+                    Map<const RGBAType>(isomap(r - 1, c).data(), 4).cast<float>() * 0.5f +
+                    Map<const RGBAType>(isomap(r + 1, c).data(), 4).cast<float>() * 0.5f;
+                isomap(r, c) = {
+                    static_cast<std::uint8_t>(pixel_val[0]), static_cast<std::uint8_t>(pixel_val[1]),
+                    static_cast<std::uint8_t>(pixel_val[2]), static_cast<std::uint8_t>(pixel_val[3])};
+            }
+        }
+        r = 725;
+        for (int c = 411; c <= 613; ++c)
+        {
+            if (isomap(r, c) == std::array<std::uint8_t, 4>{0, 0, 0, 0})
+            {
+                Eigen::Vector4f pixel_val =
+                    Map<const RGBAType>(isomap(r - 1, c).data(), 4).cast<float>() * 0.5f +
+                    Map<const RGBAType>(isomap(r + 1, c).data(), 4).cast<float>() * 0.5f;
+                isomap(r, c) = {
+                    static_cast<std::uint8_t>(pixel_val[0]), static_cast<std::uint8_t>(pixel_val[1]),
+                    static_cast<std::uint8_t>(pixel_val[2]), static_cast<std::uint8_t>(pixel_val[3])};
+            }
+        }
+    }
+    // Higher resolutions are probably affected as well but not used so far in practice.
 
-	return isomap;
+    return isomap;
 };
 } /* namespace detail */
 
-	} /* namespace render */
+} /* namespace render */
 } /* namespace eos */
 
 #endif /* TEXTURE_EXTRACTION_HPP_ */
