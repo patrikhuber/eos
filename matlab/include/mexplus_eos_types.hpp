@@ -27,18 +27,18 @@
 
 #include "mexplus/mxarray.h"
 
+#include "glm/gtc/quaternion.hpp"
+#include "glm/mat4x4.hpp"
 #include "glm/vec2.hpp"
 #include "glm/vec3.hpp"
 #include "glm/vec4.hpp"
-#include "glm/gtc/quaternion.hpp"
-#include "glm/mat4x4.hpp"
 
 #include "Eigen/Core"
 
 #include "mex.h"
 
-#include <cstdint>
 #include <array>
+#include <cstdint>
 #include <vector>
 
 /**
@@ -62,14 +62,15 @@ namespace mexplus {
  * @param[in] quat The quaternion to convert.
  * @return An 1x4 Matlab vector.
  */
-template<>
+template <>
 mxArray* MxArray::from(const glm::tquat<float>& quat)
 {
-	MxArray out_array(MxArray::Numeric<double>(1, 4));
-	for (int c = 0; c < 4; ++c) {
-		out_array.set(c, quat[c]);
-	}
-	return out_array.release();
+    MxArray out_array(MxArray::Numeric<double>(1, 4));
+    for (int c = 0; c < 4; ++c)
+    {
+        out_array.set(c, quat[c]);
+    }
+    return out_array.release();
 };
 
 /**
@@ -78,16 +79,18 @@ mxArray* MxArray::from(const glm::tquat<float>& quat)
  * @param[in] mat The matrix to convert.
  * @return A 4x4 Matlab matrix.
  */
-template<>
+template <>
 mxArray* MxArray::from(const glm::tmat4x4<float>& mat)
 {
-	MxArray out_array(MxArray::Numeric<double>(4, 4));
-	for (int r = 0; r < 4; ++r) {
-		for (int c = 0; c < 4; ++c) {
-			out_array.set(r, c, mat[c][r]);
-		}
-	}
-	return out_array.release();
+    MxArray out_array(MxArray::Numeric<double>(4, 4));
+    for (int r = 0; r < 4; ++r)
+    {
+        for (int c = 0; c < 4; ++c)
+        {
+            out_array.set(r, c, mat[c][r]);
+        }
+    }
+    return out_array.release();
 };
 
 /**
@@ -109,8 +112,10 @@ void MxArray::to(const mxArray* in_array, glm::tmat4x4<float>* mat)
         mexErrMsgIdAndTxt("eos:matlab", "Given array has to have 4 rows and 4 cols.");
     }
 
-    for (int c = 0; c < 4; ++c) {
-        for (int r = 0; r < 4; ++r) {
+    for (int c = 0; c < 4; ++c)
+    {
+        for (int r = 0; r < 4; ++r)
+        {
             (*mat)[c][r] = arr.at<double>(mwIndex(r), mwIndex(c));
         }
     }
@@ -131,16 +136,18 @@ void MxArray::to(const mxArray* in_array, glm::tmat4x4<float>* mat)
  * @param[in] data The data to convert.
  * @return An n x 2 Matlab matrix.
  */
-template<>
+template <>
 mxArray* MxArray::from(const std::vector<glm::tvec2<float>>& data)
 {
-	MxArray out_array(MxArray::Numeric<double>(data.size(), 2));
-	for (int r = 0; r < data.size(); ++r) {
-		for (int c = 0; c < 2; ++c) {
-			out_array.set(r, c, data[r][c]);
-		}
-	}
-	return out_array.release();
+    MxArray out_array(MxArray::Numeric<double>(data.size(), 2));
+    for (int r = 0; r < data.size(); ++r)
+    {
+        for (int c = 0; c < 2; ++c)
+        {
+            out_array.set(r, c, data[r][c]);
+        }
+    }
+    return out_array.release();
 };
 
 /**
@@ -166,7 +173,8 @@ void MxArray::to(const mxArray* in_array, std::vector<glm::vec2>* data)
     }
     if (arr.cols() != 2)
     {
-        mexErrMsgIdAndTxt("eos:matlab", "Given array has to have 2 elements in the second dimension, i.e. n x 2.");
+        mexErrMsgIdAndTxt("eos:matlab",
+                          "Given array has to have 2 elements in the second dimension, i.e. n x 2.");
     }
     if (!arr.isDouble())
     {
@@ -196,16 +204,18 @@ void MxArray::to(const mxArray* in_array, std::vector<glm::vec2>* data)
  * @param[in] data The data to convert.
  * @return An n x 3 Matlab matrix.
  */
-template<>
+template <>
 mxArray* MxArray::from(const std::vector<glm::tvec3<float>>& data)
 {
-	MxArray out_array(MxArray::Numeric<double>(data.size(), 3));
-	for (int r = 0; r < data.size(); ++r) {
-		for (int c = 0; c < 3; ++c) {
-			out_array.set(r, c, data[r][c]);
-		}
-	}
-	return out_array.release();
+    MxArray out_array(MxArray::Numeric<double>(data.size(), 3));
+    for (int r = 0; r < data.size(); ++r)
+    {
+        for (int c = 0; c < 3; ++c)
+        {
+            out_array.set(r, c, data[r][c]);
+        }
+    }
+    return out_array.release();
 };
 
 /**
@@ -221,16 +231,18 @@ mxArray* MxArray::from(const std::vector<glm::tvec3<float>>& data)
  * @param[in] data The data to convert.
  * @return An n x 4 Matlab matrix.
  */
-template<>
+template <>
 mxArray* MxArray::from(const std::vector<glm::tvec4<float>>& data)
 {
-	MxArray out_array(MxArray::Numeric<double>(data.size(), 4));
-	for (int r = 0; r < data.size(); ++r) {
-		for (int c = 0; c < 4; ++c) {
-			out_array.set(r, c, data[r][c]);
-		}
-	}
-	return out_array.release();
+    MxArray out_array(MxArray::Numeric<double>(data.size(), 4));
+    for (int r = 0; r < data.size(); ++r)
+    {
+        for (int c = 0; c < 4; ++c)
+        {
+            out_array.set(r, c, data[r][c]);
+        }
+    }
+    return out_array.release();
 };
 
 /**
@@ -256,7 +268,8 @@ void MxArray::to(const mxArray* in_array, std::vector<glm::vec4>* data)
     }
     if (arr.cols() != 4)
     {
-        mexErrMsgIdAndTxt("eos:matlab", "Given array has to have 4 elements in the second dimension, i.e. n x 4.");
+        mexErrMsgIdAndTxt("eos:matlab",
+                          "Given array has to have 4 elements in the second dimension, i.e. n x 4.");
     }
     if (!arr.isDouble())
     {
@@ -289,16 +302,18 @@ void MxArray::to(const mxArray* in_array, std::vector<glm::vec4>* data)
  * @param[in] data The data to convert.
  * @return An n x 3 Matlab matrix.
  */
-template<>
+template <>
 mxArray* MxArray::from(const std::vector<std::array<int, 3>>& data)
 {
-	MxArray out_array(MxArray::Numeric<int>(data.size(), 3));
-	for (int r = 0; r < data.size(); ++r) {
-		for (int c = 0; c < 3; ++c) {
-			out_array.set(r, c, data[r][c]);
-		}
-	}
-	return out_array.release();
+    MxArray out_array(MxArray::Numeric<int>(data.size(), 3));
+    for (int r = 0; r < data.size(); ++r)
+    {
+        for (int c = 0; c < 3; ++c)
+        {
+            out_array.set(r, c, data[r][c]);
+        }
+    }
+    return out_array.release();
 };
 
 /**
@@ -324,7 +339,8 @@ void MxArray::to(const mxArray* in_array, std::vector<std::array<int, 3>>* data)
     }
     if (arr.cols() != 3)
     {
-        mexErrMsgIdAndTxt("eos:matlab", "Given array has to have 3 elements in the second dimension, i.e. n x 3.");
+        mexErrMsgIdAndTxt("eos:matlab",
+                          "Given array has to have 3 elements in the second dimension, i.e. n x 3.");
     }
     if (!arr.isInt32())
     {
@@ -350,33 +366,37 @@ void MxArray::to(const mxArray* in_array, std::vector<std::array<int, 3>>* data)
  * @param[in] mesh The Mesh that will be returned to Matlab.
  * @return An mxArray containing a Matlab struct with all vertex, colour, texcoords and triangle data.
  */
-template<>
+template <>
 mxArray* MxArray::from(const eos::core::Mesh& mesh)
 {
-	// C++ counts the vertex indices starting at zero, Matlab starts counting
-	// at one - therefore, add +1 to all triangle indices:
-	auto tvi_1based = mesh.tvi;
-	for (auto&& t : tvi_1based) {
-		for (auto&& idx : t) {
-			idx += 1;
-		}
-	}
-	// Same for tci:
-	auto tci_1based = mesh.tci;
-	for (auto&& t : tci_1based) {
-		for (auto&& idx : t) {
-			idx += 1;
-		}
-	}
+    // C++ counts the vertex indices starting at zero, Matlab starts counting
+    // at one - therefore, add +1 to all triangle indices:
+    auto tvi_1based = mesh.tvi;
+    for (auto&& t : tvi_1based)
+    {
+        for (auto&& idx : t)
+        {
+            idx += 1;
+        }
+    }
+    // Same for tci:
+    auto tci_1based = mesh.tci;
+    for (auto&& t : tci_1based)
+    {
+        for (auto&& idx : t)
+        {
+            idx += 1;
+        }
+    }
 
-	MxArray out_array(MxArray::Struct());
-	out_array.set("vertices", mesh.vertices);
-	out_array.set("colors", mesh.colors);
-	out_array.set("texcoords", mesh.texcoords);
-	out_array.set("tvi", tvi_1based);
-	out_array.set("tci", tci_1based);
+    MxArray out_array(MxArray::Struct());
+    out_array.set("vertices", mesh.vertices);
+    out_array.set("colors", mesh.colors);
+    out_array.set("texcoords", mesh.texcoords);
+    out_array.set("tvi", tvi_1based);
+    out_array.set("tci", tci_1based);
 
-	return out_array.release();
+    return out_array.release();
 };
 
 /**
@@ -468,50 +488,52 @@ void MxArray::to(const mxArray* in_array, eos::fitting::Frustum* frustum)
  * @brief Define a template specialisation for eos::fitting::RenderingParameters.
  *
  * This converts an eos::fitting::RenderingParameters into a Matlab struct.
- * 
+ *
  * @param[in] rendering_parameters The RenderingParameters that will be returned to Matlab.
  * @return An mxArray containing a Matlab struct with all required parameters.
  */
-template<>
-mxArray* MxArray::from(const eos::fitting::RenderingParameters& rendering_parameters) {
+template <>
+mxArray* MxArray::from(const eos::fitting::RenderingParameters& rendering_parameters)
+{
 
-	MxArray out_array(MxArray::Struct());
-	
-	const std::string camera_type = [&rendering_parameters]() {
-		if (rendering_parameters.get_camera_type() == eos::fitting::CameraType::Orthographic)
-		{
-			return "Orthographic";
-		}
-		else if (rendering_parameters.get_camera_type() == eos::fitting::CameraType::Perspective) {
-			return "Perspective";
-		}
-		else {
-			return "unknown";
-		}
-	}();
+    MxArray out_array(MxArray::Struct());
 
-	// Since we don't expose get_opencv_viewport(), and Matlab doesn't have glm::project()
-	// anyway, we'll make a 4x4 viewport matrix available. Matlab seems to have the same
-	// convention as OpenCV (top-left is the image origin).
-	auto viewport = eos::fitting::get_opencv_viewport(rendering_parameters.get_screen_width(), rendering_parameters.get_screen_height());
-	glm::mat4x4 viewport_matrix; // Identity matrix
-	viewport_matrix[0][0] = 0.5f * viewport[2];
-	viewport_matrix[3][0] = 0.5f * viewport[2] + viewport[0];
-	viewport_matrix[1][1] = 0.5f * viewport[3];
-	viewport_matrix[3][1] = 0.5f * viewport[3] + viewport[1];
-	viewport_matrix[2][2] = 0.5f;
-	viewport_matrix[3][2] = 0.5f;
+    const std::string camera_type = [&rendering_parameters]() {
+        if (rendering_parameters.get_camera_type() == eos::fitting::CameraType::Orthographic)
+        {
+            return "Orthographic";
+        } else if (rendering_parameters.get_camera_type() == eos::fitting::CameraType::Perspective)
+        {
+            return "Perspective";
+        } else
+        {
+            return "unknown";
+        }
+    }();
 
-	out_array.set("camera_type", camera_type);
-	out_array.set("frustum", rendering_parameters.get_frustum());
-	out_array.set("rotation_quaternion", rendering_parameters.get_rotation());
-	out_array.set("modelview", rendering_parameters.get_modelview());
-	out_array.set("projection", rendering_parameters.get_projection());
-	out_array.set("viewport", viewport_matrix);
-	out_array.set("screen_width", rendering_parameters.get_screen_width());
-	out_array.set("screen_height", rendering_parameters.get_screen_height());
+    // Since we don't expose get_opencv_viewport(), and Matlab doesn't have glm::project()
+    // anyway, we'll make a 4x4 viewport matrix available. Matlab seems to have the same
+    // convention as OpenCV (top-left is the image origin).
+    auto viewport = eos::fitting::get_opencv_viewport(rendering_parameters.get_screen_width(),
+                                                      rendering_parameters.get_screen_height());
+    glm::mat4x4 viewport_matrix; // Identity matrix
+    viewport_matrix[0][0] = 0.5f * viewport[2];
+    viewport_matrix[3][0] = 0.5f * viewport[2] + viewport[0];
+    viewport_matrix[1][1] = 0.5f * viewport[3];
+    viewport_matrix[3][1] = 0.5f * viewport[3] + viewport[1];
+    viewport_matrix[2][2] = 0.5f;
+    viewport_matrix[3][2] = 0.5f;
 
-	return out_array.release();
+    out_array.set("camera_type", camera_type);
+    out_array.set("frustum", rendering_parameters.get_frustum());
+    out_array.set("rotation_quaternion", rendering_parameters.get_rotation());
+    out_array.set("modelview", rendering_parameters.get_modelview());
+    out_array.set("projection", rendering_parameters.get_projection());
+    out_array.set("viewport", viewport_matrix);
+    out_array.set("screen_width", rendering_parameters.get_screen_width());
+    out_array.set("screen_height", rendering_parameters.get_screen_height());
+
+    return out_array.release();
 };
 
 /**
@@ -534,8 +556,9 @@ void MxArray::to(const mxArray* in_array, eos::fitting::RenderingParameters* ren
     if (!array.hasField("frustum") || !array.hasField("modelview") || !array.hasField("projection") ||
         !array.hasField("screen_width") || !array.hasField("screen_height"))
     {
-        mexErrMsgIdAndTxt("eos:matlab", "Given rendering parameters struct must contain at least the fields "
-                                        "'frustum', 'modelview', 'projection', 'screen_width' and 'screen_height'.");
+        mexErrMsgIdAndTxt("eos:matlab",
+                          "Given rendering parameters struct must contain at least the fields "
+                          "'frustum', 'modelview', 'projection', 'screen_width' and 'screen_height'.");
     }
 
     auto frustum = array.at<eos::fitting::Frustum>("frustum");

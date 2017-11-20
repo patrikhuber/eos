@@ -49,9 +49,12 @@ void deepcopy_and_transpose(const cv::Mat& in, MxArray& out)
     const std::size_t num_chans = in.channels();
     out = MxArray::Numeric<OutputScalar>({num_rows, num_cols, num_chans});
 
-    for (std::size_t c = 0; c < num_cols; ++c) { // outer loop over rows would be faster if OpenCV stores data row-major?
-        for (std::size_t r = 0; r < num_rows; ++r) {
-            for (std::size_t chan = 0; chan < num_chans; ++chan) {
+    for (std::size_t c = 0; c < num_cols; ++c)
+    { // outer loop over rows would be faster if OpenCV stores data row-major?
+        for (std::size_t r = 0; r < num_rows; ++r)
+        {
+            for (std::size_t chan = 0; chan < num_chans; ++chan)
+            {
                 out.set(std::vector<mwIndex>{r, c, chan}, in.ptr<InputScalar>(r, c)[chan]);
             }
         }
@@ -63,42 +66,47 @@ void deepcopy_and_transpose(const cv::Mat& in, MxArray& out)
 template <typename InputScalar, typename OutputScalar>
 void deepcopy_and_transpose(const MxArray& in, cv::Mat& out)
 {
-	auto r = in.rows();
-	auto c = in.cols(); // if dimensionSize() == 3, this returns cols * third_dim
-	auto d = in.dimensions();
-	auto ds = in.dimensionSize();
-	auto e = in.elementSize(); // Number of bytes required to store each data element
-	auto s = in.size();
-	auto n = in.isNumeric();
-	
-	const auto num_channels = [num_dims = in.dimensionSize(), dims = in.dimensions()]() {
-		if (num_dims == 1 || num_dims == 2)
-		{
-			return std::size_t(1);
-		}
-		else if (num_dims == 3) { // the dims vector has 3 entries, the 3rd entry tell us if there are 3 or 4 channels.
-			return dims[2];
-		}
-	}();
+    auto r = in.rows();
+    auto c = in.cols(); // if dimensionSize() == 3, this returns cols * third_dim
+    auto d = in.dimensions();
+    auto ds = in.dimensionSize();
+    auto e = in.elementSize(); // Number of bytes required to store each data element
+    auto s = in.size();
+    auto n = in.isNumeric();
 
-	const auto actual_cols = [&num_channels, num_cols = in.cols()]() {
-		if (num_channels == 3 || num_channels == 4) // aargh... simplify all this... just use in.dimensions()?
-		{
-			return num_cols / num_channels;
-		}
-		else {
-			return num_cols;
-		}
-	}();
+    const auto num_channels = [ num_dims = in.dimensionSize(), dims = in.dimensions() ]()
+    {
+        if (num_dims == 1 || num_dims == 2)
+        {
+            return std::size_t(1);
+        } else if (num_dims == 3)
+        { // the dims vector has 3 entries, the 3rd entry tell us if there are 3 or 4 channels.
+            return dims[2];
+        }
+    }
+    ();
+
+    const auto actual_cols = [&num_channels, num_cols = in.cols() ]()
+    {
+        if (num_channels == 3 || num_channels == 4) // aargh... simplify all this... just use in.dimensions()?
+        {
+            return num_cols / num_channels;
+        } else
+        {
+            return num_cols;
+        }
+    }
+    ();
 
     std::vector<cv::Mat> channels;
     for (size_t c = 0; c < num_channels; ++c)
     {
         cv::Mat outmat;
-		// Note: I think this doesn't actually copy the data, does it?
-		// We construct with (cols, rows) because it'll later get transposed.
+        // Note: I think this doesn't actually copy the data, does it?
+        // We construct with (cols, rows) because it'll later get transposed.
         cv::Mat inmat(actual_cols, in.rows(), cv::DataType<InputScalar>::type,
-            static_cast<void*>(const_cast<InputScalar*>(in.getData<InputScalar>() + actual_cols * in.rows() * c)));
+                      static_cast<void*>(
+                          const_cast<InputScalar*>(in.getData<InputScalar>() + actual_cols * in.rows() * c)));
         inmat.convertTo(outmat, cv::DataType<OutputScalar>::type);
         cv::transpose(outmat, outmat);
         channels.push_back(outmat);
@@ -118,16 +126,13 @@ mxArray* MxArray::from(const cv::Mat& opencv_matrix)
     if (opencv_matrix.depth() == CV_8U)
     {
         deepcopy_and_transpose<std::uint8_t, std::uint8_t>(opencv_matrix, out_array);
-    }
-	else if (opencv_matrix.depth() == CV_32F)
+    } else if (opencv_matrix.depth() == CV_32F)
     {
         deepcopy_and_transpose<float, float>(opencv_matrix, out_array);
-    }
-	else if (opencv_matrix.depth() == CV_64F)
+    } else if (opencv_matrix.depth() == CV_64F)
     {
         deepcopy_and_transpose<double, double>(opencv_matrix, out_array);
-    }
-	else
+    } else
     {
         mexErrMsgIdAndTxt("eos:matlab", "Can only convert CV_8U, CV_32F and CV_64F matrices at this point.");
     }
