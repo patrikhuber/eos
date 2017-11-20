@@ -22,8 +22,6 @@
 #ifndef RENDER_UTILS_HPP_
 #define RENDER_UTILS_HPP_
 
-#include "eos/core/Mesh.hpp"
-
 #include "glm/vec3.hpp"
 #include "glm/geometric.hpp"
 

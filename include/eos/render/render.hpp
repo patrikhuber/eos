@@ -28,11 +28,8 @@
 #include "eos/render/detail/render_detail.hpp"
 #include "eos/render/utils.hpp"
 
-#include "opencv2/core/core.hpp"
-
 #include <array>
 #include <vector>
-#include <memory>
 #include <optional>
 
 namespace eos {
