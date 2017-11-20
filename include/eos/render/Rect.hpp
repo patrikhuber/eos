@@ -28,13 +28,12 @@ namespace render {
 /**
  * @brief A simple type representing a rectangle.
  */
-template<typename T>
+template <typename T>
 struct Rect
 {
-	T x, y; // these are the top-left corner x and y
-	T width, height;
+    T x, y; // these are the top-left corner x and y
+    T width, height;
 };
-
 
 } /* namespace render */
 } /* namespace eos */

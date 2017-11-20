@@ -64,11 +64,11 @@ public:
      * @ return RGBA... in [0, 1]?
      */
     template <typename T, glm::precision P = glm::defaultp>
-    glm::tvec4<T, P>
-    shade_triangle_pixel(int x, int y, const detail::Vertex<T, P>& point_a,
-                         const detail::Vertex<T, P>& point_b, const detail::Vertex<T, P>& point_c,
-                         const glm::tvec3<T, P>& lambda, const boost::optional<Texture>& texture, float dudx,
-                         float dudy, float dvdx, float dvdy)
+    glm::tvec4<T, P> shade_triangle_pixel(int x, int y, const detail::Vertex<T, P>& point_a,
+                                          const detail::Vertex<T, P>& point_b,
+                                          const detail::Vertex<T, P>& point_c, const glm::tvec3<T, P>& lambda,
+                                          const boost::optional<Texture>& texture, float dudx, float dudy,
+                                          float dvdx, float dvdy)
     {
         // attributes interpolation
         glm::tvec3<T, P> color_persp =
@@ -94,11 +94,11 @@ public:
      * @ return RGBA... in [0, 1]?
      */
     template <typename T, glm::precision P = glm::defaultp>
-    glm::tvec4<T, P>
-    shade_triangle_pixel(int x, int y, const detail::Vertex<T, P>& point_a,
-                         const detail::Vertex<T, P>& point_b, const detail::Vertex<T, P>& point_c,
-                         const glm::tvec3<T, P>& lambda, const boost::optional<eos::render::Texture>& texture,
-                         float dudx, float dudy, float dvdx, float dvdy)
+    glm::tvec4<T, P> shade_triangle_pixel(int x, int y, const detail::Vertex<T, P>& point_a,
+                                          const detail::Vertex<T, P>& point_b,
+                                          const detail::Vertex<T, P>& point_c, const glm::tvec3<T, P>& lambda,
+                                          const boost::optional<eos::render::Texture>& texture, float dudx,
+                                          float dudy, float dvdx, float dvdy)
     {
         glm::tvec2<T, P> texcoords_persp =
             lambda[0] * point_a.texcoords + lambda[1] * point_b.texcoords + lambda[2] * point_c.texcoords;
@@ -163,11 +163,11 @@ public:
      * @return X.
      */
     template <typename T, glm::precision P = glm::defaultp>
-    glm::tvec4<T, P>
-    shade_triangle_pixel(int x, int y, const detail::Vertex<T, P>& point_a,
-                         const detail::Vertex<T, P>& point_b, const detail::Vertex<T, P>& point_c,
-                         const glm::tvec3<T, P>& lambda, const boost::optional<Texture>& texture, float dudx,
-                         float dudy, float dvdx, float dvdy)
+    glm::tvec4<T, P> shade_triangle_pixel(int x, int y, const detail::Vertex<T, P>& point_a,
+                                          const detail::Vertex<T, P>& point_b,
+                                          const detail::Vertex<T, P>& point_c, const glm::tvec3<T, P>& lambda,
+                                          const boost::optional<Texture>& texture, float dudx, float dudy,
+                                          float dvdx, float dvdy)
     {
         auto corrected_lambda = compute_inverse_perspectively_correct_lambda(
             lambda, point_a.position.w, point_b.position.w, point_c.position.w);

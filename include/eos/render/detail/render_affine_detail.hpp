@@ -38,8 +38,8 @@
  * This file contains things specific to the affine rendering.
  */
 namespace eos {
-	namespace render {
-		namespace detail {
+namespace render {
+namespace detail {
 
 /**
  * Takes a 3x4 affine camera matrix estimated with fitting::estimate_affine_camera
@@ -51,26 +51,31 @@ namespace eos {
  * @param[in] affine_camera_matrix A 3x4 affine camera matrix.
  * @return The matrix with a third row inserted.
  */
-inline Eigen::Matrix<float, 4, 4> calculate_affine_z_direction(Eigen::Matrix<float, 3, 4> affine_camera_matrix)
+inline Eigen::Matrix<float, 4, 4>
+calculate_affine_z_direction(Eigen::Matrix<float, 3, 4> affine_camera_matrix)
 {
-	// Take the cross product of row 0 with row 1 to get the direction perpendicular to the viewing plane (= the viewing direction).
-	// Todo: We should check if we look/project into the right direction - the sign could be wrong?
-	Eigen::Vector4f affine_cam_z_rotation = affine_camera_matrix.row(0).transpose().cross3(affine_camera_matrix.row(1).transpose());
-	affine_cam_z_rotation.normalize(); // The 4th component is zero, so it does not influence the normalisation.
+    // Take the cross product of row 0 with row 1 to get the direction perpendicular to the viewing plane (=
+    // the viewing direction). Todo: We should check if we look/project into the right direction - the sign
+    // could be wrong?
+    Eigen::Vector4f affine_cam_z_rotation =
+        affine_camera_matrix.row(0).transpose().cross3(affine_camera_matrix.row(1).transpose());
+    affine_cam_z_rotation
+        .normalize(); // The 4th component is zero, so it does not influence the normalisation.
 
-	// The 4x4 affine camera matrix
-	Eigen::Matrix<float, 4, 4> affine_cam_4x4 = Eigen::Matrix<float, 4, 4>::Zero();
+    // The 4x4 affine camera matrix
+    Eigen::Matrix<float, 4, 4> affine_cam_4x4 = Eigen::Matrix<float, 4, 4>::Zero();
 
-	// Copy the first 2 rows from the input matrix
-	affine_cam_4x4.block<2, 4>(0, 0) = affine_camera_matrix.block<2, 4>(0, 0);
+    // Copy the first 2 rows from the input matrix
+    affine_cam_4x4.block<2, 4>(0, 0) = affine_camera_matrix.block<2, 4>(0, 0);
 
-	// Replace the third row with the camera-direction (z)
-	affine_cam_4x4.block<1, 3>(2, 0) = affine_cam_z_rotation.head<3>().transpose(); // Set first 3 components. 4th component stays 0.
+    // Replace the third row with the camera-direction (z)
+    affine_cam_4x4.block<1, 3>(2, 0) =
+        affine_cam_z_rotation.head<3>().transpose(); // Set first 3 components. 4th component stays 0.
 
-	// The 4th row is (0, 0, 0, 1):
-	affine_cam_4x4(3, 3) = 1.0f;
+    // The 4th row is (0, 0, 0, 1):
+    affine_cam_4x4(3, 3) = 1.0f;
 
-	return affine_cam_4x4;
+    return affine_cam_4x4;
 };
 
 /**
@@ -93,57 +98,74 @@ inline Eigen::Matrix<float, 4, 4> calculate_affine_z_direction(Eigen::Matrix<flo
  * @param[in] colourbuffer The colour buffer to draw into.
  * @param[in] depthbuffer The depth buffer to draw into and use for the depth test.
  */
-inline void raster_triangle_affine(TriangleToRasterize triangle, core::Image4u& colourbuffer, core::Image1d& depthbuffer)
+inline void raster_triangle_affine(TriangleToRasterize triangle, core::Image4u& colourbuffer,
+                                   core::Image1d& depthbuffer)
 {
-	for (int yi = triangle.min_y; yi <= triangle.max_y; ++yi)
-	{
-		for (int xi = triangle.min_x; xi <= triangle.max_x; ++xi)
-		{
-			// we want centers of pixels to be used in computations. Todo: Do we?
-			const float x = static_cast<float>(xi) + 0.5f;
-			const float y = static_cast<float>(yi) + 0.5f;
+    for (int yi = triangle.min_y; yi <= triangle.max_y; ++yi)
+    {
+        for (int xi = triangle.min_x; xi <= triangle.max_x; ++xi)
+        {
+            // we want centers of pixels to be used in computations. Todo: Do we?
+            const float x = static_cast<float>(xi) + 0.5f;
+            const float y = static_cast<float>(yi) + 0.5f;
 
-			// these will be used for barycentric weights computation
-			const double one_over_v0ToLine12 = 1.0 / implicit_line(triangle.v0.position[0], triangle.v0.position[1], triangle.v1.position, triangle.v2.position);
-			const double one_over_v1ToLine20 = 1.0 / implicit_line(triangle.v1.position[0], triangle.v1.position[1], triangle.v2.position, triangle.v0.position);
-			const double one_over_v2ToLine01 = 1.0 / implicit_line(triangle.v2.position[0], triangle.v2.position[1], triangle.v0.position, triangle.v1.position);
-			// affine barycentric weights
-			const double alpha = implicit_line(x, y, triangle.v1.position, triangle.v2.position) * one_over_v0ToLine12;
-			const double beta = implicit_line(x, y, triangle.v2.position, triangle.v0.position) * one_over_v1ToLine20;
-			const double gamma = implicit_line(x, y, triangle.v0.position, triangle.v1.position) * one_over_v2ToLine01;
+            // these will be used for barycentric weights computation
+            const double one_over_v0ToLine12 =
+                1.0 / implicit_line(triangle.v0.position[0], triangle.v0.position[1], triangle.v1.position,
+                                    triangle.v2.position);
+            const double one_over_v1ToLine20 =
+                1.0 / implicit_line(triangle.v1.position[0], triangle.v1.position[1], triangle.v2.position,
+                                    triangle.v0.position);
+            const double one_over_v2ToLine01 =
+                1.0 / implicit_line(triangle.v2.position[0], triangle.v2.position[1], triangle.v0.position,
+                                    triangle.v1.position);
+            // affine barycentric weights
+            const double alpha =
+                implicit_line(x, y, triangle.v1.position, triangle.v2.position) * one_over_v0ToLine12;
+            const double beta =
+                implicit_line(x, y, triangle.v2.position, triangle.v0.position) * one_over_v1ToLine20;
+            const double gamma =
+                implicit_line(x, y, triangle.v0.position, triangle.v1.position) * one_over_v2ToLine01;
 
-			// if pixel (x, y) is inside the triangle or on one of its edges
-			if (alpha >= 0 && beta >= 0 && gamma >= 0)
-			{
-				const int pixel_index_row = yi;
-				const int pixel_index_col = xi;
+            // if pixel (x, y) is inside the triangle or on one of its edges
+            if (alpha >= 0 && beta >= 0 && gamma >= 0)
+            {
+                const int pixel_index_row = yi;
+                const int pixel_index_col = xi;
 
-				const double z_affine = alpha*static_cast<double>(triangle.v0.position[2]) + beta*static_cast<double>(triangle.v1.position[2]) + gamma*static_cast<double>(triangle.v2.position[2]);
-				if (z_affine < depthbuffer(pixel_index_row, pixel_index_col))
-				{
-					// attributes interpolation
-					// pixel_color is in RGB, v.color are RGB
-					glm::tvec3<float> pixel_color = static_cast<float>(alpha)*triangle.v0.color + static_cast<float>(beta)*triangle.v1.color + static_cast<float>(gamma)*triangle.v2.color;
+                const double z_affine = alpha * static_cast<double>(triangle.v0.position[2]) +
+                                        beta * static_cast<double>(triangle.v1.position[2]) +
+                                        gamma * static_cast<double>(triangle.v2.position[2]);
+                if (z_affine < depthbuffer(pixel_index_row, pixel_index_col))
+                {
+                    // attributes interpolation
+                    // pixel_color is in RGB, v.color are RGB
+                    glm::tvec3<float> pixel_color = static_cast<float>(alpha) * triangle.v0.color +
+                                                    static_cast<float>(beta) * triangle.v1.color +
+                                                    static_cast<float>(gamma) * triangle.v2.color;
 
-					// clamp bytes to 255
-					const unsigned char red = static_cast<unsigned char>(255.0f * std::min(pixel_color[0], 1.0f)); // Todo: Proper casting (rounding?)
-					const unsigned char green = static_cast<unsigned char>(255.0f * std::min(pixel_color[1], 1.0f));
-					const unsigned char blue = static_cast<unsigned char>(255.0f * std::min(pixel_color[2], 1.0f));
+                    // clamp bytes to 255
+                    const unsigned char red = static_cast<unsigned char>(
+                        255.0f * std::min(pixel_color[0], 1.0f)); // Todo: Proper casting (rounding?)
+                    const unsigned char green =
+                        static_cast<unsigned char>(255.0f * std::min(pixel_color[1], 1.0f));
+                    const unsigned char blue =
+                        static_cast<unsigned char>(255.0f * std::min(pixel_color[2], 1.0f));
 
-					// update buffers
-					colourbuffer(pixel_index_row, pixel_index_col)[0] = blue;
-					colourbuffer(pixel_index_row, pixel_index_col)[1] = green;
-					colourbuffer(pixel_index_row, pixel_index_col)[2] = red;
-					colourbuffer(pixel_index_row, pixel_index_col)[3] = 255; // alpha channel
-					depthbuffer(pixel_index_row, pixel_index_col) = z_affine;
-				}
-			}
-		}
-	}
+                    // update buffers
+                    colourbuffer(pixel_index_row, pixel_index_col)[0] = blue;
+                    colourbuffer(pixel_index_row, pixel_index_col)[1] = green;
+                    colourbuffer(pixel_index_row, pixel_index_col)[2] = red;
+                    colourbuffer(pixel_index_row, pixel_index_col)[3] = 255; // alpha channel
+                    depthbuffer(pixel_index_row, pixel_index_col) = z_affine;
+                }
+            }
+        }
+    }
 };
 
-		} /* namespace detail */
-	} /* namespace render */
+} /* namespace detail */
+} /* namespace render */
 } /* namespace eos */
 
 #endif /* RENDER_AFFINE_DETAIL_HPP_ */

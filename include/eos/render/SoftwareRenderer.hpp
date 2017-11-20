@@ -112,8 +112,8 @@ public:
                mesh.texcoords.empty()); // same for the texcoords
         // Add another assert: If cv::Mat texture != empty (and/or texturing=true?), then we need texcoords?
 
-        using detail::divide_by_w;
         using cv::Mat;
+        using detail::divide_by_w;
         using std::vector;
 
         vector<glm::tvec4<T, P>> clipspace_vertices;
@@ -218,11 +218,11 @@ public:
                 // If we're here, the triangle is CCW in screen space and the bbox is inside the viewport!
                 triangles_to_raster.push_back(
                     Triangle<T, P>{detail::Vertex<T, P>{prospective_tri[0], mesh.colors[tri_indices[0]],
-                                                            mesh.texcoords[tri_indices[0]]},
+                                                        mesh.texcoords[tri_indices[0]]},
                                    detail::Vertex<T, P>{prospective_tri[1], mesh.colors[tri_indices[1]],
-                                                            mesh.texcoords[tri_indices[1]]},
+                                                        mesh.texcoords[tri_indices[1]]},
                                    detail::Vertex<T, P>{prospective_tri[2], mesh.colors[tri_indices[2]],
-                                                            mesh.texcoords[tri_indices[2]]}});
+                                                        mesh.texcoords[tri_indices[2]]}});
                 continue; // Triangle was either added or not added. Continue with next triangle.
             }
             // At this point, the triangle is known to be intersecting one of the view frustum's planes
@@ -232,14 +232,14 @@ public:
             std::vector<detail::Vertex<T, P>> vertices;
             vertices.reserve(3);
             vertices.push_back(detail::Vertex<T, P>{clipspace_vertices[tri_indices[0]],
-                                                        mesh.colors[tri_indices[0]],
-                                                        mesh.texcoords[tri_indices[0]]});
+                                                    mesh.colors[tri_indices[0]],
+                                                    mesh.texcoords[tri_indices[0]]});
             vertices.push_back(detail::Vertex<T, P>{clipspace_vertices[tri_indices[1]],
-                                                        mesh.colors[tri_indices[1]],
-                                                        mesh.texcoords[tri_indices[1]]});
+                                                    mesh.colors[tri_indices[1]],
+                                                    mesh.texcoords[tri_indices[1]]});
             vertices.push_back(detail::Vertex<T, P>{clipspace_vertices[tri_indices[2]],
-                                                        mesh.colors[tri_indices[2]],
-                                                        mesh.texcoords[tri_indices[2]]});
+                                                    mesh.colors[tri_indices[2]],
+                                                    mesh.texcoords[tri_indices[2]]});
             // split the triangle if it intersects the near plane:
             if (enable_near_clipping)
             {
@@ -305,13 +305,12 @@ public:
                     }
 
                     // If we're here, the triangle is CCW in screen space and the bbox is inside the viewport!
-                    triangles_to_raster.push_back(
-                        Triangle<T, P>{detail::Vertex<T, P>{prospective_tri[0], vertices[0].color,
-                                                                vertices[0].texcoords},
-                                       detail::Vertex<T, P>{prospective_tri[1], vertices[1 + k].color,
-                                                                vertices[1 + k].texcoords},
-                                       detail::Vertex<T, P>{prospective_tri[2], vertices[2 + k].color,
-                                                                vertices[2 + k].texcoords}});
+                    triangles_to_raster.push_back(Triangle<T, P>{
+                        detail::Vertex<T, P>{prospective_tri[0], vertices[0].color, vertices[0].texcoords},
+                        detail::Vertex<T, P>{prospective_tri[1], vertices[1 + k].color,
+                                             vertices[1 + k].texcoords},
+                        detail::Vertex<T, P>{prospective_tri[2], vertices[2 + k].color,
+                                             vertices[2 + k].texcoords}});
                     // continue; // triangle was either added or not added. Continue with next triangle.
                     // COPY END
                 }

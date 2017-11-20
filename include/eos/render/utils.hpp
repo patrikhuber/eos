@@ -28,7 +28,7 @@
 #include "Eigen/Core"
 
 namespace eos {
-	namespace render {
+namespace render {
 
 /**
  * Transforms a point from clip space ([-1, 1] x [-1, 1]) to
@@ -49,17 +49,19 @@ namespace eos {
  */
 inline glm::vec2 clip_to_screen_space(const glm::vec2& clip_coordinates, int screen_width, int screen_height)
 {
-	// Window transform:
-	const float x_ss = (clip_coordinates[0] + 1.0f) * (screen_width / 2.0f);
-	const float y_ss = screen_height - (clip_coordinates[1] + 1.0f) * (screen_height / 2.0f); // also flip y; Qt: Origin top-left. OpenGL: bottom-left.
-	return glm::vec2(x_ss, y_ss);
-	/* Note: What we do here is equivalent to
-	   x_w = (x *  vW/2) + vW/2;
-	   However, Shirley says we should do:
-	   x_w = (x *  vW/2) + (vW-1)/2;
-	   (analogous for y)
-	   Todo: Check the consequences.
-	*/
+    // Window transform:
+    const float x_ss = (clip_coordinates[0] + 1.0f) * (screen_width / 2.0f);
+    const float y_ss =
+        screen_height - (clip_coordinates[1] + 1.0f) *
+                            (screen_height / 2.0f); // also flip y; Qt: Origin top-left. OpenGL: bottom-left.
+    return glm::vec2(x_ss, y_ss);
+    /* Note: What we do here is equivalent to
+       x_w = (x *  vW/2) + vW/2;
+       However, Shirley says we should do:
+       x_w = (x *  vW/2) + (vW-1)/2;
+       (analogous for y)
+       Todo: Check the consequences.
+    */
 };
 
 /**
@@ -75,18 +77,22 @@ inline glm::vec2 clip_to_screen_space(const glm::vec2& clip_coordinates, int scr
  */
 /*inline cv::Vec2f screen_to_clip_space(const cv::Vec2f& screen_coordinates, int screen_width, int screen_height)
 {
-	const float x_cs = screen_coordinates[0] / (screen_width / 2.0f) - 1.0f;
-	float y_cs = screen_coordinates[1] / (screen_height / 2.0f) - 1.0f;
-	y_cs *= -1.0f;
-	return cv::Vec2f(x_cs, y_cs);
+    const float x_cs = screen_coordinates[0] / (screen_width / 2.0f) - 1.0f;
+    float y_cs = screen_coordinates[1] / (screen_height / 2.0f) - 1.0f;
+    y_cs *= -1.0f;
+    return cv::Vec2f(x_cs, y_cs);
 };*/
 
-template<typename T, glm::precision P = glm::defaultp>
-glm::tvec2<T, P> clip_to_screen_space(const T clip_coord_x, const T clip_coord_y, int screen_width, int screen_height) {
-	// Todo: See/copy notes from utils.hpp/clip_to_screen_space.
-	const T x_ss = (clip_coord_x + T(1)) * (screen_width / 2.0);
-	const T y_ss = screen_height - (clip_coord_y + T(1)) * (screen_height / 2.0); // also flip y; Qt: Origin top-left. OpenGL: bottom-left.
-	return glm::tvec2<T, P>(x_ss, y_ss);
+template <typename T, glm::precision P = glm::defaultp>
+glm::tvec2<T, P> clip_to_screen_space(const T clip_coord_x, const T clip_coord_y, int screen_width,
+                                      int screen_height)
+{
+    // Todo: See/copy notes from utils.hpp/clip_to_screen_space.
+    const T x_ss = (clip_coord_x + T(1)) * (screen_width / 2.0);
+    const T y_ss =
+        screen_height - (clip_coord_y + T(1)) *
+                            (screen_height / 2.0); // also flip y; Qt: Origin top-left. OpenGL: bottom-left.
+    return glm::tvec2<T, P>(x_ss, y_ss);
 };
 
 /**
@@ -100,17 +106,19 @@ glm::tvec2<T, P> clip_to_screen_space(const T clip_coord_x, const T clip_coord_y
  * @param[in] v2 Third vertex.
  * @return The unit-length normal of the given triangle.
  */
-inline Eigen::Vector3f compute_face_normal(const Eigen::Vector3f& v0, const Eigen::Vector3f& v1, const Eigen::Vector3f& v2)
+inline Eigen::Vector3f compute_face_normal(const Eigen::Vector3f& v0, const Eigen::Vector3f& v1,
+                                           const Eigen::Vector3f& v2)
 {
-	Eigen::Vector3f n = (v1 - v0).cross(v2 - v0); // v0-to-v1 x v0-to-v2
-	return n.normalized();
+    Eigen::Vector3f n = (v1 - v0).cross(v2 - v0); // v0-to-v1 x v0-to-v2
+    return n.normalized();
 };
 
 // Todo: Doxygen. Actually this is the overload that's probably most used?
-inline Eigen::Vector3f compute_face_normal(const Eigen::Vector4f& v0, const Eigen::Vector4f& v1, const Eigen::Vector4f& v2)
+inline Eigen::Vector3f compute_face_normal(const Eigen::Vector4f& v0, const Eigen::Vector4f& v1,
+                                           const Eigen::Vector4f& v2)
 {
-	Eigen::Vector4f n = (v1 - v0).cross3(v2 - v0); // v0-to-v1 x v0-to-v2
-	return n.head<3>().normalized();
+    Eigen::Vector4f n = (v1 - v0).cross3(v2 - v0); // v0-to-v1 x v0-to-v2
+    return n.head<3>().normalized();
 };
 
 /**
@@ -126,12 +134,12 @@ inline Eigen::Vector3f compute_face_normal(const Eigen::Vector4f& v0, const Eige
  */
 inline glm::vec3 compute_face_normal(const glm::vec3& v0, const glm::vec3& v1, const glm::vec3& v2)
 {
-	glm::vec3 n = glm::cross(v1 - v0, v2 - v0); // v0-to-v1 x v0-to-v2
-	n = glm::normalize(n);
-	return n;
+    glm::vec3 n = glm::cross(v1 - v0, v2 - v0); // v0-to-v1 x v0-to-v2
+    n = glm::normalize(n);
+    return n;
 };
 
-	} /* namespace render */
+} /* namespace render */
 } /* namespace eos */
 
 #endif /* RENDER_UTILS_HPP_ */
