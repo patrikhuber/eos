@@ -40,16 +40,18 @@ int main(int argc, char* argv[])
     try
     {
         po::options_description desc("Allowed options");
-        desc.add_options()(
-            "help,h", "display the help message")(
-            "model,m", po::value<std::string>(&scmmodelfile)->required(),
-                "a CVSSP .scm Morphable Model file")(
-            "isomap,t", po::value<std::string>(&isomapfile),
-                "optional isomap containing the texture mapping coordinates")(
-            "shape-only,s", po::value<bool>(&save_shape_only)->default_value(false)->implicit_value(true),
-                "save only the shape-model part of the full 3DMM")(
-            "output,o", po::value<std::string>(&outputfile)->required()->default_value("converted_model.bin"),
+        // clang-format off
+        desc.add_options()
+            ("help,h", "display the help message")
+            ("model,m", po::value<std::string>(&scmmodelfile)->required(),
+                "a CVSSP .scm Morphable Model file")
+            ("isomap,t", po::value<std::string>(&isomapfile),
+                "optional isomap containing the texture mapping coordinates")
+            ("shape-only,s", po::value<bool>(&save_shape_only)->default_value(false)->implicit_value(true),
+                "save only the shape-model part of the full 3DMM")
+            ("output,o", po::value<std::string>(&outputfile)->required()->default_value("converted_model.bin"),
                 "output filename for the Morphable Model in cereal binary format");
+        // clang-format on
         po::variables_map vm;
         po::store(po::command_line_parser(argc, argv).options(desc).run(), vm);
         if (vm.count("help"))
