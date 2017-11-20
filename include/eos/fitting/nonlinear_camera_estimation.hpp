@@ -34,7 +34,7 @@
 #include <cassert>
 
 namespace eos {
-	namespace fitting {
+namespace fitting {
 
 /**
  * @brief This algorithm estimates the rotation angles and translation of the model, as
@@ -62,34 +62,44 @@ namespace eos {
  * @param[in] height Height of the image (or viewport).
  * @return The estimated model and camera parameters.
  */
-inline RenderingParameters estimate_orthographic_camera(std::vector<cv::Vec2f> image_points, std::vector<cv::Vec4f> model_points, int width, int height)
+inline RenderingParameters estimate_orthographic_camera(std::vector<cv::Vec2f> image_points,
+                                                        std::vector<cv::Vec4f> model_points, int width,
+                                                        int height)
 {
-	using cv::Mat;
-	assert(image_points.size() == model_points.size());
-	assert(image_points.size() >= 6); // Number of correspondence points given needs to be equal to or larger than 6
+    using cv::Mat;
+    assert(image_points.size() == model_points.size());
+    assert(image_points.size() >= 6); // Number of correspondence points given needs to be equal to or larger than 6
 
-	const float aspect = static_cast<float>(width) / height;
+    const float aspect = static_cast<float>(width) / height;
 
-	// Set up the initial parameter vector and the cost function:
-	int num_params = 6;
-	Eigen::VectorXd parameters; // [rot_x_pitch, rot_y_yaw, rot_z_roll, t_x, t_y, frustum_scale]
-	parameters.setConstant(num_params, 0.0); // Set all 6 values to zero (except frustum_scale, see next line)
-	parameters[5] = 110.0; // This is just a rough hand-chosen scaling estimate - we could do a lot better. But it works.
-	detail::OrthographicParameterProjection cost_function(image_points, model_points, width, height);
+    // Set up the initial parameter vector and the cost function:
+    int num_params = 6;
+    Eigen::VectorXd parameters;              // [rot_x_pitch, rot_y_yaw, rot_z_roll, t_x, t_y, frustum_scale]
+    parameters.setConstant(num_params, 0.0); // Set all 6 values to zero (except frustum_scale, see next line)
+    parameters[5] = 110.0; // This is just a rough hand-chosen scaling estimate - we could do a lot better. But it works.
+    detail::OrthographicParameterProjection cost_function(image_points, model_points, width, height);
 
-	// Note: we have analytical derivatives, so we should use them!
-	Eigen::NumericalDiff<detail::OrthographicParameterProjection> cost_function_with_derivative(cost_function, 0.0001);
-	// I had to change the default value of epsfcn, it works well around 0.0001. It couldn't produce the derivative with the default, I guess the changes in the gradient were too small.
+    // Note: we have analytical derivatives, so we should use them!
+    Eigen::NumericalDiff<detail::OrthographicParameterProjection> cost_function_with_derivative(cost_function,
+                                                                                                0.0001);
+    // I had to change the default value of epsfcn, it works well around 0.0001. It couldn't produce the
+    // derivative with the default, I guess the changes in the gradient were too small.
 
-	Eigen::LevenbergMarquardt<Eigen::NumericalDiff<detail::OrthographicParameterProjection>> lm(cost_function_with_derivative);
-	auto info = lm.minimize(parameters); // we could or should use the return value
-	// 'parameters' contains the solution now.
+    Eigen::LevenbergMarquardt<Eigen::NumericalDiff<detail::OrthographicParameterProjection>> lm(
+        cost_function_with_derivative);
+    auto info = lm.minimize(parameters); // we could or should use the return value
+    // 'parameters' contains the solution now.
 
-	Frustum camera_frustum{ -1.0f * aspect * static_cast<float>(parameters[5]), 1.0f * aspect * static_cast<float>(parameters[5]), -1.0f * static_cast<float>(parameters[5]), 1.0f * static_cast<float>(parameters[5]) };
-	return RenderingParameters(CameraType::Orthographic, camera_frustum, static_cast<float>(parameters[0]), static_cast<float>(parameters[1]), static_cast<float>(parameters[2]), static_cast<float>(parameters[3]), static_cast<float>(parameters[4]), width, height);
+    Frustum camera_frustum{
+        -1.0f * aspect * static_cast<float>(parameters[5]), 1.0f * aspect * static_cast<float>(parameters[5]),
+        -1.0f * static_cast<float>(parameters[5]), 1.0f * static_cast<float>(parameters[5])};
+    return RenderingParameters(CameraType::Orthographic, camera_frustum, static_cast<float>(parameters[0]),
+                               static_cast<float>(parameters[1]), static_cast<float>(parameters[2]),
+                               static_cast<float>(parameters[3]), static_cast<float>(parameters[4]), width,
+                               height);
 };
 
-	} /* namespace fitting */
+} /* namespace fitting */
 } /* namespace eos */
 
 #endif /* NONLINEARCAMERAESTIMATION_HPP_ */

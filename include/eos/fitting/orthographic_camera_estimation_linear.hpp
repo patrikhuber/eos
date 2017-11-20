@@ -34,15 +34,16 @@
 #include <optional>
 
 namespace eos {
-	namespace fitting {
+namespace fitting {
 
 /**
  * Parameters of an estimated scaled orthographic projection.
  */
-struct ScaledOrthoProjectionParameters {
-	glm::mat3x3 R;
-	double tx, ty;
-	double s;
+struct ScaledOrthoProjectionParameters
+{
+    glm::mat3x3 R;
+    double tx, ty;
+    double s;
 };
 
 /**
@@ -69,84 +70,89 @@ struct ScaledOrthoProjectionParameters {
  * @param[in] viewport_height Height of the viewport of the image points (needs to be given if is_viewport_upsidedown == true).
  * @return Rotation, translation and scaling of the estimated scaled orthographic projection.
  */
-inline ScaledOrthoProjectionParameters estimate_orthographic_projection_linear(std::vector<Eigen::Vector2f> image_points, std::vector<Eigen::Vector4f> model_points, bool is_viewport_upsidedown, std::optional<int> viewport_height = std::nullopt)
+inline ScaledOrthoProjectionParameters estimate_orthographic_projection_linear(
+    std::vector<Eigen::Vector2f> image_points, std::vector<Eigen::Vector4f> model_points,
+    bool is_viewport_upsidedown, std::optional<int> viewport_height = std::nullopt)
 {
-	using Eigen::Matrix;
-	assert(image_points.size() == model_points.size());
-	assert(image_points.size() >= 4); // Number of correspondence points given needs to be equal to or larger than 4
+    using Eigen::Matrix;
+    assert(image_points.size() == model_points.size());
+    assert(image_points.size() >= 4); // Number of correspondence points given needs to be equal to or larger than 4
 
-	const int num_correspondences = static_cast<int>(image_points.size());
+    const int num_correspondences = static_cast<int>(image_points.size());
 
-	if (is_viewport_upsidedown)
-	{
-		if (viewport_height == std::nullopt)
-		{
-			throw std::runtime_error("Error: If is_viewport_upsidedown is set to true, viewport_height needs to be given.");
-		}
-		for (auto&& ip : image_points)
-		{
-			ip[1] = viewport_height.value() - ip[1];
-		}
-	}
+    if (is_viewport_upsidedown)
+    {
+        if (viewport_height == std::nullopt)
+        {
+            throw std::runtime_error(
+                "Error: If is_viewport_upsidedown is set to true, viewport_height needs to be given.");
+        }
+        for (auto&& ip : image_points)
+        {
+            ip[1] = viewport_height.value() - ip[1];
+        }
+    }
 
-	Matrix<float, Eigen::Dynamic, 8> A = Matrix<float, Eigen::Dynamic, 8>::Zero(2 * num_correspondences, 8);
-	for (int i = 0; i < model_points.size(); ++i)
-	{
-		A.block<1, 4>(2 * i, 0) = model_points[i]; // even row - copy to left side (first row is row 0)
-		A.block<1, 4>((2 * i) + 1, 4) = model_points[i]; // odd row - copy to right side
-	} // 4th coord (homogeneous) is already 1
+    Matrix<float, Eigen::Dynamic, 8> A = Matrix<float, Eigen::Dynamic, 8>::Zero(2 * num_correspondences, 8);
+    for (int i = 0; i < model_points.size(); ++i)
+    {
+        A.block<1, 4>(2 * i, 0) = model_points[i];       // even row - copy to left side (first row is row 0)
+        A.block<1, 4>((2 * i) + 1, 4) = model_points[i]; // odd row - copy to right side
+    } // 4th coord (homogeneous) is already 1
 
-	Matrix<float, Eigen::Dynamic, 1> b(2 * num_correspondences, 1);
-	for (int i = 0; i < image_points.size(); ++i)
-	{
-		b.segment<2>(2 * i) = image_points[i];
-	}
+    Matrix<float, Eigen::Dynamic, 1> b(2 * num_correspondences, 1);
+    for (int i = 0; i < image_points.size(); ++i)
+    {
+        b.segment<2>(2 * i) = image_points[i];
+    }
 
-	// The original implementation used SVD here to solve the linear system, but
-	// QR seems to do the job fine too.
-	const Matrix<float, 8, 1> k = A.colPivHouseholderQr().solve(b); // resulting affine matrix (8x1)
+    // The original implementation used SVD here to solve the linear system, but
+    // QR seems to do the job fine too.
+    const Matrix<float, 8, 1> k = A.colPivHouseholderQr().solve(b); // resulting affine matrix (8x1)
 
-	// Extract all values from the estimated affine parameters k:
-	const Eigen::Vector3f R1 = k.segment<3>(0);
-	const Eigen::Vector3f R2 = k.segment<3>(4);
-	const float sTx = k(3);
-	const float sTy = k(7);
-	const auto s = (R1.norm() + R2.norm()) / 2.0;
-	Eigen::Matrix3f R;
-	Eigen::Vector3f r1 = R1.normalized(); // Not sure why R1.normalize() (in-place) produces a compiler error.
-	Eigen::Vector3f r2 = R2.normalized();
-	R.block<1, 3>(0, 0) = r1;
-	R.block<1, 3>(1, 0) = r2;
-	R.block<1, 3>(2, 0) = r1.cross(r2);
-	
-	// Set R to the closest orthonormal matrix to the estimated affine transform:
-	Eigen::JacobiSVD<Eigen::Matrix3f, Eigen::NoQRPreconditioner> svd(R, Eigen::ComputeFullU | Eigen::ComputeFullV);
-	Eigen::Matrix3f U = svd.matrixU();
-	const Eigen::Matrix3f V = svd.matrixV();
-	Eigen::Matrix3f R_ortho = U * V.transpose();
+    // Extract all values from the estimated affine parameters k:
+    const Eigen::Vector3f R1 = k.segment<3>(0);
+    const Eigen::Vector3f R2 = k.segment<3>(4);
+    const float sTx = k(3);
+    const float sTy = k(7);
+    const auto s = (R1.norm() + R2.norm()) / 2.0;
+    Eigen::Matrix3f R;
+    Eigen::Vector3f r1 = R1.normalized(); // Not sure why R1.normalize() (in-place) produces a compiler error.
+    Eigen::Vector3f r2 = R2.normalized();
+    R.block<1, 3>(0, 0) = r1;
+    R.block<1, 3>(1, 0) = r2;
+    R.block<1, 3>(2, 0) = r1.cross(r2);
 
-	// The determinant of R must be 1 for it to be a valid rotation matrix
-	if (R_ortho.determinant() < 0)
-	{
-		U.block<1, 3>(2, 0) = -U.block<1, 3>(2, 0); // not tested
-		R_ortho = U * V.transpose();
-	}
+    // Set R to the closest orthonormal matrix to the estimated affine transform:
+    Eigen::JacobiSVD<Eigen::Matrix3f, Eigen::NoQRPreconditioner> svd(R, Eigen::ComputeFullU | Eigen::ComputeFullV);
+    Eigen::Matrix3f U = svd.matrixU();
+    const Eigen::Matrix3f V = svd.matrixV();
+    Eigen::Matrix3f R_ortho = U * V.transpose();
 
-	// Remove the scale from the translations:
-	const auto t1 = sTx / s;
-	const auto t2 = sTy / s;
+    // The determinant of R must be 1 for it to be a valid rotation matrix
+    if (R_ortho.determinant() < 0)
+    {
+        U.block<1, 3>(2, 0) = -U.block<1, 3>(2, 0); // not tested
+        R_ortho = U * V.transpose();
+    }
 
-	// Convert to a glm::mat4x4:
-	glm::mat3x3 R_glm; // identity
-	for (int r = 0; r < 3; ++r) {
-		for (int c = 0; c < 3; ++c) {
-			R_glm[c][r] = R_ortho(r, c);
-		}
-	}
-	return ScaledOrthoProjectionParameters{ R_glm, t1, t2, s };
+    // Remove the scale from the translations:
+    const auto t1 = sTx / s;
+    const auto t2 = sTy / s;
+
+    // Convert to a glm::mat4x4:
+    glm::mat3x3 R_glm; // identity
+    for (int r = 0; r < 3; ++r)
+    {
+        for (int c = 0; c < 3; ++c)
+        {
+            R_glm[c][r] = R_ortho(r, c);
+        }
+    }
+    return ScaledOrthoProjectionParameters{R_glm, t1, t2, s};
 };
 
-	} /* namespace fitting */
+} /* namespace fitting */
 } /* namespace eos */
 
 #endif /* ORTHOGRAPHICCAMERAESTIMATIONLINEAR_HPP_ */

@@ -43,7 +43,7 @@ namespace glm {
 template <class Archive>
 void serialize(Archive& ar, glm::quat& q)
 {
-	ar(q.w, q.x, q.y, q.z);
+    ar(q.w, q.x, q.y, q.z);
 };
 
 } /* namespace glm */
