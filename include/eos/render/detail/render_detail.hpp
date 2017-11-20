@@ -102,7 +102,7 @@ inline std::optional<TriangleToRasterize> process_prospective_tri(Vertex<float> 
     }
 
     // Get the bounding box of the triangle:
-    Rect<int> boundingBox =
+    const Rect<int> boundingBox =
         calculate_clipped_bounding_box(glm::tvec2<float>(t.v0.position), glm::tvec2<float>(t.v1.position),
                                        glm::tvec2<float>(t.v2.position), viewport_width, viewport_height);
     t.min_x = boundingBox.x;
@@ -200,7 +200,7 @@ inline void raster_triangle(TriangleToRasterize triangle, core::Image4u& colorbu
                     gamma *= d * triangle.one_over_z2;
 
                     // attributes interpolation
-                    glm::tvec3<float> color_persp =
+                    const glm::tvec3<float> color_persp =
                         static_cast<float>(alpha) * triangle.v0.color +
                         static_cast<float>(beta) * triangle.v1.color +
                         static_cast<float>(gamma) * triangle.v2.color; // Note: color might be empty if we use
@@ -208,9 +208,10 @@ inline void raster_triangle(TriangleToRasterize triangle, core::Image4u& colorbu
                                                                        // but it works nonetheless? I think I
                                                                        // set the vertex-colour to 127 in the
                                                                        // shape-only model.
-                    glm::tvec2<float> texcoords_persp = static_cast<float>(alpha) * triangle.v0.texcoords +
-                                                        static_cast<float>(beta) * triangle.v1.texcoords +
-                                                        static_cast<float>(gamma) * triangle.v2.texcoords;
+                    const glm::tvec2<float> texcoords_persp =
+                        static_cast<float>(alpha) * triangle.v0.texcoords +
+                        static_cast<float>(beta) * triangle.v1.texcoords +
+                        static_cast<float>(gamma) * triangle.v2.texcoords;
 
                     glm::tvec3<float> pixel_color;
                     // Pixel Shader:

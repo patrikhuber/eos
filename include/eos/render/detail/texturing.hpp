@@ -39,7 +39,10 @@ namespace detail {
 
 // used only in tex2D_linear_mipmap_linear
 // template?
-inline float clamp(float x, float a, float b) { return std::max(std::min(x, b), a); };
+inline float clamp(float x, float a, float b)
+{
+    return std::max(std::min(x, b), a);
+};
 
 inline glm::vec2 texcoord_wrap(const glm::vec2& texcoords)
 {
@@ -71,14 +74,14 @@ inline glm::vec3 tex2d_linear_mipmap_linear(const glm::vec2& texcoords, const Te
                                             float dudy, float dvdx, float dvdy)
 {
     using glm::vec2;
-    float px = std::sqrt(std::pow(dudx, 2) + std::pow(dvdx, 2));
-    float py = std::sqrt(std::pow(dudy, 2) + std::pow(dvdy, 2));
-    float lambda = std::log(std::max(px, py)) / CV_LOG2;
-    unsigned char mipmapIndex1 =
+    const float px = std::sqrt(std::pow(dudx, 2) + std::pow(dvdx, 2));
+    const float py = std::sqrt(std::pow(dudy, 2) + std::pow(dvdy, 2));
+    const float lambda = std::log(std::max(px, py)) / CV_LOG2;
+    const unsigned char mipmapIndex1 =
         detail::clamp((int)lambda, 0.0f, std::max(texture.widthLog, texture.heightLog) - 1);
-    unsigned char mipmapIndex2 = mipmapIndex1 + 1;
+    const unsigned char mipmapIndex2 = mipmapIndex1 + 1;
 
-    vec2 imageTexCoord = detail::texcoord_wrap(texcoords);
+    const vec2 imageTexCoord = detail::texcoord_wrap(texcoords);
     vec2 imageTexCoord1 = imageTexCoord;
     imageTexCoord1[0] *= texture.mipmaps[mipmapIndex1].cols;
     imageTexCoord1[1] *= texture.mipmaps[mipmapIndex1].rows;
@@ -99,16 +102,16 @@ inline glm::vec3 tex2d_linear_mipmap_linear(const glm::vec2& texcoords, const Te
 inline glm::vec3 tex2d_linear(const glm::vec2& imageTexCoord, unsigned char mipmap_index,
                               const Texture& texture)
 {
-    int x = (int)imageTexCoord[0];
-    int y = (int)imageTexCoord[1];
-    float alpha = imageTexCoord[0] - x;
-    float beta = imageTexCoord[1] - y;
-    float oneMinusAlpha = 1.0f - alpha;
-    float oneMinusBeta = 1.0f - beta;
-    float a = oneMinusAlpha * oneMinusBeta;
-    float b = alpha * oneMinusBeta;
-    float c = oneMinusAlpha * beta;
-    float d = alpha * beta;
+    const int x = (int)imageTexCoord[0];
+    const int y = (int)imageTexCoord[1];
+    const float alpha = imageTexCoord[0] - x;
+    const float beta = imageTexCoord[1] - y;
+    const float oneMinusAlpha = 1.0f - alpha;
+    const float oneMinusBeta = 1.0f - beta;
+    const float a = oneMinusAlpha * oneMinusBeta;
+    const float b = alpha * oneMinusBeta;
+    const float c = oneMinusAlpha * beta;
+    const float d = alpha * beta;
     glm::vec3 color;
 
     using cv::Vec4b;

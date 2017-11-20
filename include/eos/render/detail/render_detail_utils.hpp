@@ -23,10 +23,11 @@
 #define RENDER_DETAIL_UTILS_HPP_
 
 #include "eos/render/Rect.hpp"
-//#include "eos/render/utils.hpp"
 #include "eos/render/detail/Vertex.hpp"
 
-#include "glm/glm.hpp"
+#include "glm/vec2.hpp"
+#include "glm/vec4.hpp"
+#include "glm/geometric.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -68,10 +69,10 @@ Rect<int> calculate_clipped_bounding_box(const glm::tvec2<T, P>& v0, const glm::
     using std::max;
     using std::min;
     // Readded this comment after merge: What about rounding, or rather the conversion from double to int?
-    int minX = max(min(floor(v0[0]), min(floor(v1[0]), floor(v2[0]))), T(0));
-    int maxX = min(max(ceil(v0[0]), max(ceil(v1[0]), ceil(v2[0]))), static_cast<T>(viewport_width - 1));
-    int minY = max(min(floor(v0[1]), min(floor(v1[1]), floor(v2[1]))), T(0));
-    int maxY = min(max(ceil(v0[1]), max(ceil(v1[1]), ceil(v2[1]))), static_cast<T>(viewport_height - 1));
+    const int minX = max(min(floor(v0[0]), min(floor(v1[0]), floor(v2[0]))), T(0));
+    const int maxX = min(max(ceil(v0[0]), max(ceil(v1[0]), ceil(v2[0]))), static_cast<T>(viewport_width - 1));
+    const int minY = max(min(floor(v0[1]), min(floor(v1[1]), floor(v2[1]))), T(0));
+    const int maxY = min(max(ceil(v0[1]), max(ceil(v1[1]), ceil(v2[1]))), static_cast<T>(viewport_height - 1));
     return Rect<int>{minX, minY, maxX - minX, maxY - minY};
 };
 
@@ -119,25 +120,25 @@ inline std::vector<Vertex<float>> clip_polygon_to_plane_in_4d(const std::vector<
 
     for (unsigned int i = 0; i < vertices.size(); i++)
     {
-        int a = i;                         // the current vertex
-        int b = (i + 1) % vertices.size(); // the following vertex (wraps around 0)
+        const int a = i;                         // the current vertex
+        const int b = (i + 1) % vertices.size(); // the following vertex (wraps around 0)
 
-        float fa = glm::dot(vertices[a].position, plane_normal); // Note: Shouldn't they be unit length?
-        float fb = glm::dot(vertices[b].position,
+        const float fa = glm::dot(vertices[a].position, plane_normal); // Note: Shouldn't they be unit length?
+        const float fb = glm::dot(vertices[b].position,
                             plane_normal); // < 0 means on visible side, > 0 means on invisible side?
 
         if ((fa < 0 && fb > 0) || (fa > 0 && fb < 0)) // one vertex is on the visible side of the plane, one
                                                       // on the invisible? so we need to split?
         {
-            auto direction = vertices[b].position - vertices[a].position;
-            float t = -(glm::dot(plane_normal, vertices[a].position)) /
+            const auto direction = vertices[b].position - vertices[a].position;
+            const float t = -(glm::dot(plane_normal, vertices[a].position)) /
                       (glm::dot(plane_normal, direction)); // the parametric value on the line, where the line
                                                            // to draw intersects the plane?
 
             // generate a new vertex at the line-plane intersection point
-            auto position = vertices[a].position + t * direction;
-            auto color = vertices[a].color + t * (vertices[b].color - vertices[a].color);
-            auto texCoord =
+            const auto position = vertices[a].position + t * direction;
+            const auto color = vertices[a].color + t * (vertices[b].color - vertices[a].color);
+            const auto texCoord =
                 vertices[a].texcoords +
                 t * (vertices[b].texcoords -
                      vertices[a].texcoords); // We could omit that if we don't render with texture.
@@ -174,7 +175,7 @@ inline std::vector<Vertex<float>> clip_polygon_to_plane_in_4d(const std::vector<
 template <typename T, glm::precision P = glm::defaultp>
 glm::tvec4<T, P> divide_by_w(const glm::tvec4<T, P>& vertex)
 {
-    auto one_over_w = 1.0 / vertex.w;
+    const auto one_over_w = 1.0 / vertex.w;
     // divide by w: (if ortho, w will just be 1)
     glm::tvec4<T, P> v_ndc(vertex / vertex.w);
     // Set the w coord to 1/w (i.e. 1/w_clip). This is what OpenGL passes to the FragmentShader.

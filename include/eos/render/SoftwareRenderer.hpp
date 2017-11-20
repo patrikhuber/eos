@@ -37,7 +37,9 @@
 #include "boost/optional.hpp"
 
 #include <array>
+#include <cassert>
 #include <memory>
+#include <vector>
 
 /**
  * @file include/eos/render/SoftwareRenderer.hpp

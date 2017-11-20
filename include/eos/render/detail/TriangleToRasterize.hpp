@@ -82,7 +82,7 @@ public:
 
     void normalize()
     {
-        float length = std::sqrt(a * a + b * b + c * c);
+        const float length = std::sqrt(a * a + b * b + c * c);
 
         a /= length;
         b /= length;
