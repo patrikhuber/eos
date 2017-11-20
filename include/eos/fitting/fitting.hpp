@@ -600,7 +600,6 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
  * \p contour_landmarks and \p model_contour are used to fit the front-facing contour.
  *
  * @param[in] morphable_model The 3D Morphable Model used for the shape fitting.
- * @param[in] blendshapes A vector of blendshapes that are being fit to the landmarks in addition to the PCA model.
  * @param[in] landmarks 2D landmarks from an image to fit the model to.
  * @param[in] landmark_mapper Mapping info from the 2D landmark points to 3D vertex indices.
  * @param[in] image_width Width of the input image (needed for the camera model).
