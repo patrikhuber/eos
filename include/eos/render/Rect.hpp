@@ -19,8 +19,8 @@
  */
 #pragma once
 
-#ifndef RECT_HPP_
-#define RECT_HPP_
+#ifndef EOS_RECT_HPP_
+#define EOS_RECT_HPP_
 
 namespace eos {
 namespace render {
@@ -39,4 +39,4 @@ struct Rect
 } /* namespace render */
 } /* namespace eos */
 
-#endif /* RECT_HPP_ */
+#endif /* EOS_RECT_HPP_ */
