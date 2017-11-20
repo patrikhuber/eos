@@ -30,44 +30,40 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef CEREAL_TYPES_BOOST_OPTIONAL_HPP_
 #define CEREAL_TYPES_BOOST_OPTIONAL_HPP_
 
-#include <cereal/cereal.hpp>
 #include <boost/optional.hpp>
+#include <cereal/cereal.hpp>
 
-namespace cereal
+namespace cereal {
+//! Saving for boost::optional
+template <class Archive, class Optioned>
+inline void save(Archive& ar, ::boost::optional<Optioned> const& optional)
 {
-   //! Saving for boost::optional
-   template <class Archive, class Optioned> inline
-      void save(Archive & ar, ::boost::optional<Optioned> const & optional)
-   {
-      bool initFlag = (bool)optional;
-      if (initFlag)
-      {
-         ar(make_nvp("initialized", true));
-         ar(make_nvp("value", optional.get()));
-      }
-      else
-      {
-         ar(make_nvp("initialized", false));
-      }
-   }
+    bool initFlag = (bool)optional;
+    if (initFlag)
+    {
+        ar(make_nvp("initialized", true));
+        ar(make_nvp("value", optional.get()));
+    } else
+    {
+        ar(make_nvp("initialized", false));
+    }
+}
 
-   //! Loading for boost::optional
-   template <class Archive, class Optioned> inline
-      void load(Archive & ar, ::boost::optional<Optioned> & optional)
-   {
+//! Loading for boost::optional
+template <class Archive, class Optioned>
+inline void load(Archive& ar, ::boost::optional<Optioned>& optional)
+{
 
-      bool initFlag;
-      ar(make_nvp("initialized", initFlag));
-      if (initFlag)
-      {
-         Optioned val;
-         ar(make_nvp("value", val));
-         optional = val;
-      }
-      else
-         optional = ::boost::none; // this is all we need to do to reset the internal flag and value
-
-   }
+    bool initFlag;
+    ar(make_nvp("initialized", initFlag));
+    if (initFlag)
+    {
+        Optioned val;
+        ar(make_nvp("value", val));
+        optional = val;
+    } else
+        optional = ::boost::none; // this is all we need to do to reset the internal flag and value
+}
 } // namespace cereal
 
 #endif // CEREAL_TYPES_BOOST_OPTIONAL_HPP_

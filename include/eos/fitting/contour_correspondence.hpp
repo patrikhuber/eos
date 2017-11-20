@@ -40,14 +40,19 @@
 #include <tuple>
 
 namespace eos {
-	namespace fitting {
+namespace fitting {
 
 // Forward declarations of later used functions and types:
 struct ModelContour;
 struct ContourLandmarks;
-std::pair<std::vector<std::string>, std::vector<int>> select_contour(float yaw_angle, const ContourLandmarks& contour_landmarks, const ModelContour& model_contour);
-std::tuple<std::vector<Eigen::Vector2f>, std::vector<Eigen::Vector4f>, std::vector<int>> get_nearest_contour_correspondences(const core::LandmarkCollection<Eigen::Vector2f>& landmarks, const std::vector<std::string>& landmark_contour_identifiers, const std::vector<int>& model_contour_indices, const core::Mesh& mesh, const glm::mat4x4& view_model, const glm::mat4x4& ortho_projection, const glm::vec4& viewport);
-
+std::pair<std::vector<std::string>, std::vector<int>>
+select_contour(float yaw_angle, const ContourLandmarks& contour_landmarks, const ModelContour& model_contour);
+std::tuple<std::vector<Eigen::Vector2f>, std::vector<Eigen::Vector4f>, std::vector<int>>
+get_nearest_contour_correspondences(const core::LandmarkCollection<Eigen::Vector2f>& landmarks,
+                                    const std::vector<std::string>& landmark_contour_identifiers,
+                                    const std::vector<int>& model_contour_indices, const core::Mesh& mesh,
+                                    const glm::mat4x4& view_model, const glm::mat4x4& ortho_projection,
+                                    const glm::vec4& viewport);
 
 /**
  * @brief Definition of the vertex indices that define the right and left model contour.
@@ -63,52 +68,55 @@ std::tuple<std::vector<Eigen::Vector2f>, std::vector<Eigen::Vector4f>, std::vect
  */
 struct ModelContour
 {
-	// starting from right side, eyebrow-height: (I think the order matters here)
-	std::vector<int> right_contour;
-	/* 23 = middle, below chin - not included in the contour here */
-	// starting from left side, eyebrow-height:
-	std::vector<int> left_contour;
+    // starting from right side, eyebrow-height: (I think the order matters here)
+    std::vector<int> right_contour;
+    /* 23 = middle, below chin - not included in the contour here */
+    // starting from left side, eyebrow-height:
+    std::vector<int> left_contour;
 
-	// We store r/l separately because we currently only fit to the contour facing the camera.
-	// Also if we were to fit to the whole contour: Be careful not to just fit to the closest. The 
-	// "invisible" ones behind might be closer on an e.g 90° angle. Store CNT for left/right side separately?
-	
-	/**
-	 * Helper method to load a ModelContour from
-	 * a json file from the hard drive.
-	 *
-	 * Note: Eventually, it might be included in the MorphableModel class.
-	 * Also, for consistency, we should probably switch to toml for this file.
-	 *
-	 * @param[in] filename Filename to a model.
-	 * @return The loaded ModelContour.
-	 * @throw std::runtime_error When the file given in \c filename fails to be opened (most likely because the file doesn't exist).
-	 */
-	static ModelContour load(std::string filename)
-	{
-		ModelContour contour;
+    // We store r/l separately because we currently only fit to the contour facing the camera.
+    // Also if we were to fit to the whole contour: Be careful not to just fit to the closest. The
+    // "invisible" ones behind might be closer on an e.g 90° angle. Store CNT for left/right side separately?
 
-		std::ifstream file(filename);
-		if (file.fail()) {
-			throw std::runtime_error("Error opening given file: " + filename);
-		}
-		cereal::JSONInputArchive input_archive(file);
-		input_archive(contour);
+    /**
+     * Helper method to load a ModelContour from
+     * a json file from the hard drive.
+     *
+     * Note: Eventually, it might be included in the MorphableModel class.
+     * Also, for consistency, we should probably switch to toml for this file.
+     *
+     * @param[in] filename Filename to a model.
+     * @return The loaded ModelContour.
+     * @throw std::runtime_error When the file given in \c filename fails to be opened (most likely because
+     * the file doesn't exist).
+     */
+    static ModelContour load(std::string filename)
+    {
+        ModelContour contour;
 
-		return contour;
-	};
+        std::ifstream file(filename);
+        if (file.fail())
+        {
+            throw std::runtime_error("Error opening given file: " + filename);
+        }
+        cereal::JSONInputArchive input_archive(file);
+        input_archive(contour);
 
-	friend class cereal::access;
-	/**
-	 * Serialises this class using cereal.
-	 *
-	 * @param[in] archive The archive to serialise to (or to serialise from).
-	 */
-	template<class Archive>
-	void serialize(Archive& archive)
-	{
-		archive(cereal::make_nvp("right_contour", right_contour), cereal::make_nvp("left_contour", left_contour));
-	};
+        return contour;
+    };
+
+    friend class cereal::access;
+    /**
+     * Serialises this class using cereal.
+     *
+     * @param[in] archive The archive to serialise to (or to serialise from).
+     */
+    template <class Archive>
+    void serialize(Archive& archive)
+    {
+        archive(cereal::make_nvp("right_contour", right_contour),
+                cereal::make_nvp("left_contour", left_contour));
+    };
 };
 
 /**
@@ -129,61 +137,75 @@ struct ModelContour
  */
 struct ContourLandmarks
 {
-	// starting from right side, eyebrow-height.
-	std::vector<std::string> right_contour;
-	// Chin point is not included in the contour here.
-	// starting from left side, eyebrow-height. Order doesn't matter here.
-	std::vector<std::string> left_contour;
+    // starting from right side, eyebrow-height.
+    std::vector<std::string> right_contour;
+    // Chin point is not included in the contour here.
+    // starting from left side, eyebrow-height. Order doesn't matter here.
+    std::vector<std::string> left_contour;
 
-	// Note: We store r/l separately because we currently only fit to the contour facing the camera.
-	
-	/**
-	 * Helper method to load contour landmarks from a text file with landmark
-	 * mappings, like ibug_to_sfm.txt.
-	 *
-	 * @param[in] filename Filename to a landmark-mapping file.
-	 * @return A ContourLandmarks instance with loaded 2D contour landmarks.
-	 * @throw std::runtime_error runtime_error or toml::exception if there is an error loading the landmarks from the file.
-	 */
-	static ContourLandmarks load(std::string filename)
-	{
-		// parse() as well as extracting the data can throw std::runtime error or toml::exception,
-		// so ideally you'd want to call this c'tor within a try-catch.
-		const auto data = toml::parse(filename);
+    // Note: We store r/l separately because we currently only fit to the contour facing the camera.
 
-		// Todo: Handle the case when '[contour_landmarks]' is empty - now it just throws. Use std::unordered_map::count.
-		const auto contour_table = toml::get<toml::Table>(data.at("contour_landmarks"));
+    /**
+     * Helper method to load contour landmarks from a text file with landmark
+     * mappings, like ibug_to_sfm.txt.
+     *
+     * @param[in] filename Filename to a landmark-mapping file.
+     * @return A ContourLandmarks instance with loaded 2D contour landmarks.
+     * @throw std::runtime_error runtime_error or toml::exception if there is an error loading the landmarks
+     * from the file.
+     */
+    static ContourLandmarks load(std::string filename)
+    {
+        // parse() as well as extracting the data can throw std::runtime error or toml::exception,
+        // so ideally you'd want to call this c'tor within a try-catch.
+        const auto data = toml::parse(filename);
 
-		ContourLandmarks contour;
-		// There might be a vector<string> or a vector<int>, we need to check for that and convert to vector<string>.
-		// Todo: Again, check whether the key exists first.
-		// Read all the "right" contour landmarks:
-		const auto right_contour = toml::get<std::vector<toml::value>>(contour_table.at("right"));
-		for (const auto& landmark : right_contour)
-		{
-			std::string value;
-			switch (landmark.type()) {
-				case toml::value_t::Integer: value = std::to_string(toml::get<int>(landmark)); break;
-				case toml::value_t::String: value = toml::get<std::string>(landmark); break;
-				default: throw std::runtime_error("unexpected type : " + toml::stringize(landmark.type()));
-			}
-			contour.right_contour.push_back(value);
-		}
-		// Now the same for all the "left" contour landmarks:
-		const auto left_contour = toml::get<std::vector<toml::value>>(contour_table.at("left"));
-		for (const auto& landmark : left_contour)
-		{
-			std::string value;
-			switch (landmark.type()) {
-				case toml::value_t::Integer: value = std::to_string(toml::get<int>(landmark)); break;
-				case toml::value_t::String: value = toml::get<std::string>(landmark); break;
-				default: throw std::runtime_error("unexpected type : " + toml::stringize(landmark.type()));
-			}
-			contour.left_contour.push_back(value);
-		}
+        // Todo: Handle the case when '[contour_landmarks]' is empty - now it just throws. Use
+        // std::unordered_map::count.
+        const auto contour_table = toml::get<toml::Table>(data.at("contour_landmarks"));
 
-		return contour;
-	};
+        ContourLandmarks contour;
+        // There might be a vector<string> or a vector<int>, we need to check for that and convert to vector<string>.
+        // Todo: Again, check whether the key exists first.
+        // Read all the "right" contour landmarks:
+        const auto right_contour = toml::get<std::vector<toml::value>>(contour_table.at("right"));
+        for (const auto& landmark : right_contour)
+        {
+            std::string value;
+            switch (landmark.type())
+            {
+            case toml::value_t::Integer:
+                value = std::to_string(toml::get<int>(landmark));
+                break;
+            case toml::value_t::String:
+                value = toml::get<std::string>(landmark);
+                break;
+            default:
+                throw std::runtime_error("unexpected type : " + toml::stringize(landmark.type()));
+            }
+            contour.right_contour.push_back(value);
+        }
+        // Now the same for all the "left" contour landmarks:
+        const auto left_contour = toml::get<std::vector<toml::value>>(contour_table.at("left"));
+        for (const auto& landmark : left_contour)
+        {
+            std::string value;
+            switch (landmark.type())
+            {
+            case toml::value_t::Integer:
+                value = std::to_string(toml::get<int>(landmark));
+                break;
+            case toml::value_t::String:
+                value = toml::get<std::string>(landmark);
+                break;
+            default:
+                throw std::runtime_error("unexpected type : " + toml::stringize(landmark.type()));
+            }
+            contour.left_contour.push_back(value);
+        }
+
+        return contour;
+    };
 };
 
 /**
@@ -209,16 +231,23 @@ struct ContourLandmarks
  * @param[in] viewport Current viewport to use.
  * @return A tuple with the 2D contour landmark points, the corresponding points in the 3D shape model and their vertex indices.
  */
-inline std::tuple<std::vector<Eigen::Vector2f>, std::vector<Eigen::Vector4f>, std::vector<int>> get_contour_correspondences(const core::LandmarkCollection<Eigen::Vector2f>& landmarks, const ContourLandmarks& contour_landmarks, const ModelContour& model_contour, float yaw_angle, const core::Mesh& mesh, const glm::mat4x4& view_model, const glm::mat4x4& ortho_projection, const glm::vec4& viewport)
+inline std::tuple<std::vector<Eigen::Vector2f>, std::vector<Eigen::Vector4f>, std::vector<int>>
+get_contour_correspondences(const core::LandmarkCollection<Eigen::Vector2f>& landmarks,
+                            const ContourLandmarks& contour_landmarks, const ModelContour& model_contour,
+                            float yaw_angle, const core::Mesh& mesh, const glm::mat4x4& view_model,
+                            const glm::mat4x4& ortho_projection, const glm::vec4& viewport)
 {
-	// Select which side of the contour we'll use:
-	std::vector<int> model_contour_indices;
-	std::vector<std::string> landmark_contour_identifiers;
-	std::tie(landmark_contour_identifiers, model_contour_indices) = select_contour(yaw_angle, contour_landmarks, model_contour);
+    // Select which side of the contour we'll use:
+    std::vector<int> model_contour_indices;
+    std::vector<std::string> landmark_contour_identifiers;
+    std::tie(landmark_contour_identifiers, model_contour_indices) =
+        select_contour(yaw_angle, contour_landmarks, model_contour);
 
-	// For each 2D contour landmark, get the corresponding 3D vertex point and vertex id:
-	// Note/Todo: Loop here instead of calling this function where we have no idea what it's doing? What does its documentation say?
-	return get_nearest_contour_correspondences(landmarks, landmark_contour_identifiers, model_contour_indices, mesh, view_model, ortho_projection, viewport);
+    // For each 2D contour landmark, get the corresponding 3D vertex point and vertex id:
+    // Note/Todo: Loop here instead of calling this function where we have no idea what it's doing? What does
+    // its documentation say?
+    return get_nearest_contour_correspondences(landmarks, landmark_contour_identifiers, model_contour_indices,
+                                               mesh, view_model, ortho_projection, viewport);
 };
 
 /**
@@ -238,24 +267,33 @@ inline std::tuple<std::vector<Eigen::Vector2f>, std::vector<Eigen::Vector4f>, st
  * @param[in] model_contour The model contour indices that should be used/considered to find the closest corresponding 3D vertex.
  * @return A pair with two vectors containing the selected 2D image contour landmark ids and the 3D model contour indices.
  */
-inline std::pair<std::vector<std::string>, std::vector<int>> select_contour(float yaw_angle, const ContourLandmarks& contour_landmarks, const ModelContour& model_contour)
+inline std::pair<std::vector<std::string>, std::vector<int>>
+select_contour(float yaw_angle, const ContourLandmarks& contour_landmarks, const ModelContour& model_contour)
 {
-	using std::begin;
-	using std::end;
-	std::vector<int> model_contour_indices;
-	std::vector<std::string> contour_landmark_identifiers;
-	if (yaw_angle >= -7.5f) { // positive yaw = subject looking to the left
-		// ==> we use the right cnt-lms
-		model_contour_indices.insert(end(model_contour_indices), begin(model_contour.right_contour), end(model_contour.right_contour));
-		contour_landmark_identifiers.insert(end(contour_landmark_identifiers), begin(contour_landmarks.right_contour), end(contour_landmarks.right_contour));
-	}
-	if (yaw_angle <= 7.5f) {
-		// ==> we use the left cnt-lms
-		model_contour_indices.insert(end(model_contour_indices), begin(model_contour.left_contour), end(model_contour.left_contour));
-		contour_landmark_identifiers.insert(end(contour_landmark_identifiers), begin(contour_landmarks.left_contour), end(contour_landmarks.left_contour));
-	}
-	// Note there's an overlap between the angles - if a subject is between +- 7.5°, both contours get added.
-	return std::make_pair(contour_landmark_identifiers, model_contour_indices);
+    using std::begin;
+    using std::end;
+    std::vector<int> model_contour_indices;
+    std::vector<std::string> contour_landmark_identifiers;
+    if (yaw_angle >= -7.5f) // positive yaw = subject looking to the left
+    {
+        // ==> we use the right cnt-lms
+        model_contour_indices.insert(end(model_contour_indices), begin(model_contour.right_contour),
+                                     end(model_contour.right_contour));
+        contour_landmark_identifiers.insert(end(contour_landmark_identifiers),
+                                            begin(contour_landmarks.right_contour),
+                                            end(contour_landmarks.right_contour));
+    }
+    if (yaw_angle <= 7.5f)
+    {
+        // ==> we use the left cnt-lms
+        model_contour_indices.insert(end(model_contour_indices), begin(model_contour.left_contour),
+                                     end(model_contour.left_contour));
+        contour_landmark_identifiers.insert(end(contour_landmark_identifiers),
+                                            begin(contour_landmarks.left_contour),
+                                            end(contour_landmarks.left_contour));
+    }
+    // Note there's an overlap between the angles - if a subject is between +- 7.5°, both contours get added.
+    return std::make_pair(contour_landmark_identifiers, model_contour_indices);
 };
 
 /**
@@ -278,48 +316,63 @@ inline std::pair<std::vector<std::string>, std::vector<int>> select_contour(floa
  * @param[in] viewport Current viewport to use.
  * @return A tuple with the 2D contour landmark points, the corresponding points in the 3D shape model and their vertex indices.
  */
-inline std::tuple<std::vector<Eigen::Vector2f>, std::vector<Eigen::Vector4f>, std::vector<int>> get_nearest_contour_correspondences(const core::LandmarkCollection<Eigen::Vector2f>& landmarks, const std::vector<std::string>& landmark_contour_identifiers, const std::vector<int>& model_contour_indices, const core::Mesh& mesh, const glm::mat4x4& view_model, const glm::mat4x4& ortho_projection, const glm::vec4& viewport)
+inline std::tuple<std::vector<Eigen::Vector2f>, std::vector<Eigen::Vector4f>, std::vector<int>>
+get_nearest_contour_correspondences(const core::LandmarkCollection<Eigen::Vector2f>& landmarks,
+                                    const std::vector<std::string>& landmark_contour_identifiers,
+                                    const std::vector<int>& model_contour_indices, const core::Mesh& mesh,
+                                    const glm::mat4x4& view_model, const glm::mat4x4& ortho_projection,
+                                    const glm::vec4& viewport)
 {
-	// These are the additional contour-correspondences we're going to find and then use!
-	std::vector<Eigen::Vector4f> model_points_cnt; // the points in the 3D shape model
-	std::vector<int> vertex_indices_cnt; // their vertex indices
-	std::vector<Eigen::Vector2f> image_points_cnt; // the corresponding 2D landmark points
+    // These are the additional contour-correspondences we're going to find and then use!
+    std::vector<Eigen::Vector4f> model_points_cnt; // the points in the 3D shape model
+    std::vector<int> vertex_indices_cnt;           // their vertex indices
+    std::vector<Eigen::Vector2f> image_points_cnt; // the corresponding 2D landmark points
 
-	// For each 2D-CNT-LM, find the closest 3DMM-CNT-LM and add to correspondences:
-	// Note: If we were to do this for all 3DMM vertices, then ray-casting (i.e. glm::unproject) would be quicker to find the closest vertex)
-	for (auto&& ibug_idx : landmark_contour_identifiers)
-	{
-		// Check if the contour landmark is amongst the landmarks given to us (from detector or ground truth):
-		// (Note: Alternatively, we could filter landmarks beforehand and then just loop over landmarks => means one less function param here. Separate filtering from actual algorithm.)
-		const auto result = std::find_if(begin(landmarks), end(landmarks), [&ibug_idx](auto&& e) { return e.name == ibug_idx; }); // => this can go outside the loop
-		// TODO Check for ::end!!! if it's not found!
-		const auto screen_point_2d_contour_landmark = result->coordinates;
+    // For each 2D-CNT-LM, find the closest 3DMM-CNT-LM and add to correspondences:
+    // Note: If we were to do this for all 3DMM vertices, then ray-casting (i.e. glm::unproject) would be
+    // quicker to find the closest vertex)
+    for (auto&& ibug_idx : landmark_contour_identifiers)
+    {
+        // Check if the contour landmark is amongst the landmarks given to us (from detector or ground truth):
+        // (Note: Alternatively, we could filter landmarks beforehand and then just loop over landmarks =>
+        // means one less function param here. Separate filtering from actual algorithm.)
+        const auto result = std::find_if(begin(landmarks), end(landmarks), [&ibug_idx](auto&& e) {
+            return e.name == ibug_idx;
+        }); // => this can go outside the loop
+        // TODO Check for ::end!!! if it's not found!
+        const auto screen_point_2d_contour_landmark = result->coordinates;
 
-		std::vector<float> distances_2d;
-		for (auto&& model_contour_vertex_idx : model_contour_indices) // we could actually pre-project them, i.e. only project them once, not for each landmark newly...
-		{
-                        const glm::vec3 vertex(mesh.vertices[model_contour_vertex_idx][0], mesh.vertices[model_contour_vertex_idx][1], mesh.vertices[model_contour_vertex_idx][2]);
-			const glm::vec3 proj = glm::project(vertex, view_model, ortho_projection, viewport);
-			const Eigen::Vector2f screen_point_model_contour(proj.x, proj.y);
+        std::vector<float> distances_2d;
+        for (auto&& model_contour_vertex_idx : model_contour_indices) // we could actually pre-project them,
+                                                                      // i.e. only project them once, not for
+                                                                      // each landmark newly...
+        {
+            const glm::vec3 vertex(mesh.vertices[model_contour_vertex_idx][0],
+                                   mesh.vertices[model_contour_vertex_idx][1],
+                                   mesh.vertices[model_contour_vertex_idx][2]);
+            const glm::vec3 proj = glm::project(vertex, view_model, ortho_projection, viewport);
+            const Eigen::Vector2f screen_point_model_contour(proj.x, proj.y);
 
-			const double dist = (screen_point_model_contour - screen_point_2d_contour_landmark).norm();
-			distances_2d.emplace_back(dist);
-		}
-		const auto min_ele = std::min_element(begin(distances_2d), end(distances_2d));
-		// Todo: Cover the case when cnt_indices_to_use.size() is 0.
-		const auto min_ele_idx = std::distance(begin(distances_2d), min_ele);
-		const auto the_3dmm_vertex_id_that_is_closest = model_contour_indices[min_ele_idx];
+            const double dist = (screen_point_model_contour - screen_point_2d_contour_landmark).norm();
+            distances_2d.emplace_back(dist);
+        }
+        const auto min_ele = std::min_element(begin(distances_2d), end(distances_2d));
+        // Todo: Cover the case when cnt_indices_to_use.size() is 0.
+        const auto min_ele_idx = std::distance(begin(distances_2d), min_ele);
+        const auto the_3dmm_vertex_id_that_is_closest = model_contour_indices[min_ele_idx];
 
-		const Eigen::Vector4f vertex(mesh.vertices[the_3dmm_vertex_id_that_is_closest][0], mesh.vertices[the_3dmm_vertex_id_that_is_closest][1], mesh.vertices[the_3dmm_vertex_id_that_is_closest][2], 1.0f);
-		model_points_cnt.emplace_back(vertex);
-		vertex_indices_cnt.emplace_back(the_3dmm_vertex_id_that_is_closest);
-		image_points_cnt.emplace_back(screen_point_2d_contour_landmark);
-	}
+        const Eigen::Vector4f vertex(mesh.vertices[the_3dmm_vertex_id_that_is_closest][0],
+                                     mesh.vertices[the_3dmm_vertex_id_that_is_closest][1],
+                                     mesh.vertices[the_3dmm_vertex_id_that_is_closest][2], 1.0f);
+        model_points_cnt.emplace_back(vertex);
+        vertex_indices_cnt.emplace_back(the_3dmm_vertex_id_that_is_closest);
+        image_points_cnt.emplace_back(screen_point_2d_contour_landmark);
+    }
 
-	return std::make_tuple(image_points_cnt, model_points_cnt, vertex_indices_cnt);
+    return std::make_tuple(image_points_cnt, model_points_cnt, vertex_indices_cnt);
 };
 
-	} /* namespace fitting */
+} /* namespace fitting */
 } /* namespace eos */
 
 #endif /* CONTOURCORRESPONDENCE_HPP_ */
