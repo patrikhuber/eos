@@ -45,7 +45,7 @@ namespace eos {
  * Note: Returns coefficients following standard normal distribution (i.e. all have similar magnitude). Why? Because we fit using the normalised basis?
  * Note: The standard deviations given should be a vector, i.e. different for each landmark. This is not implemented yet.
  *
- * @param[in] morphable_model The Morphable Model whose shape (coefficients) are estimated.
+ * @param[in] shape_model The Morphable Model whose shape (coefficients) are estimated.
  * @param[in] affine_camera_matrix A 3x4 affine camera matrix from model to screen-space.
  * @param[in] landmarks 2D landmarks from an image to fit the model to.
  * @param[in] vertex_ids The vertex ids in the model that correspond to the 2D points.
