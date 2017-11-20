@@ -19,19 +19,19 @@
  */
 #pragma once
 
-#ifndef MESH_HPP_
-#define MESH_HPP_
+#ifndef EOS_MESH_HPP_
+#define EOS_MESH_HPP_
 
 #include "Eigen/Core"
 
-#include <vector>
 #include <array>
-#include <string>
 #include <cassert>
 #include <fstream>
+#include <string>
+#include <vector>
 
 namespace eos {
-	namespace core {
+namespace core {
 
 /**
  * @brief This class represents a 3D mesh consisting of vertices, vertex colour
@@ -42,12 +42,12 @@ namespace eos {
  */
 struct Mesh
 {
-	std::vector<Eigen::Vector3f> vertices; ///< 3D vertex positions.
-	std::vector<Eigen::Vector3f> colors; ///< Colour information for each vertex. Expected to be in RGB order.
-	std::vector<Eigen::Vector2f> texcoords; ///< Texture coordinates for each vertex.
+    std::vector<Eigen::Vector3f> vertices;  ///< 3D vertex positions.
+    std::vector<Eigen::Vector3f> colors;    ///< Colour information for each vertex. Expected to be in RGB order.
+    std::vector<Eigen::Vector2f> texcoords; ///< Texture coordinates for each vertex.
 
-	std::vector<std::array<int, 3>> tvi; ///< Triangle vertex indices
-	std::vector<std::array<int, 3>> tci; ///< Triangle color indices
+    std::vector<std::array<int, 3>> tvi;    ///< Triangle vertex indices
+    std::vector<std::array<int, 3>> tci;    ///< Triangle color indices
 };
 
 /**
@@ -60,35 +60,42 @@ struct Mesh
  */
 inline void write_obj(Mesh mesh, std::string filename)
 {
-	assert(mesh.vertices.size() == mesh.colors.size() || mesh.colors.empty());
+    assert(mesh.vertices.size() == mesh.colors.size() || mesh.colors.empty());
 
-	std::ofstream obj_file(filename);
+    std::ofstream obj_file(filename);
 
-	if (mesh.colors.empty()) {
-		for (std::size_t i = 0; i < mesh.vertices.size(); ++i) {
-			obj_file << "v " << mesh.vertices[i][0] << " " << mesh.vertices[i][1] << " " << mesh.vertices[i][2] << std::endl;
-		}
-	}
-	else {
-		for (std::size_t i = 0; i < mesh.vertices.size(); ++i) {
-			obj_file << "v " << mesh.vertices[i][0] << " " << mesh.vertices[i][1] << " " << mesh.vertices[i][2] << " " << mesh.colors[i][0] << " " << mesh.colors[i][1] << " " << mesh.colors[i][2] << std::endl;
-		}
-	}
+    if (mesh.colors.empty())
+    {
+        for (std::size_t i = 0; i < mesh.vertices.size(); ++i)
+        {
+            obj_file << "v " << mesh.vertices[i][0] << " " << mesh.vertices[i][1] << " "
+                     << mesh.vertices[i][2] << std::endl;
+        }
+    } else
+    {
+        for (std::size_t i = 0; i < mesh.vertices.size(); ++i)
+        {
+            obj_file << "v " << mesh.vertices[i][0] << " " << mesh.vertices[i][1] << " "
+                     << mesh.vertices[i][2] << " " << mesh.colors[i][0] << " " << mesh.colors[i][1] << " "
+                     << mesh.colors[i][2] << std::endl;
+        }
+    }
 
-	if (!mesh.texcoords.empty())
-	{
-		for (auto&& tc : mesh.texcoords)
-		{
-			obj_file << "vt " << tc[0] << " " << tc[1] << std::endl;
-		}
-	}
+    if (!mesh.texcoords.empty())
+    {
+        for (auto&& tc : mesh.texcoords)
+        {
+            obj_file << "vt " << tc[0] << " " << tc[1] << std::endl;
+        }
+    }
 
-	for (auto&& v : mesh.tvi) {
-		// Add one because obj starts counting triangle indices at 1
-		obj_file << "f " << v[0] + 1 << " " << v[1] + 1 << " " << v[2] + 1 << std::endl;
-	}
+    for (auto&& v : mesh.tvi)
+    {
+        // Add one because obj starts counting triangle indices at 1
+        obj_file << "f " << v[0] + 1 << " " << v[1] + 1 << " " << v[2] + 1 << std::endl;
+    }
 
-	return;
+    return;
 }
 
 /**
@@ -104,69 +111,80 @@ inline void write_obj(Mesh mesh, std::string filename)
  */
 inline void write_textured_obj(Mesh mesh, std::string filename)
 {
-	assert((mesh.vertices.size() == mesh.colors.size() || mesh.colors.empty()) && !mesh.texcoords.empty());
+    assert((mesh.vertices.size() == mesh.colors.size() || mesh.colors.empty()) && !mesh.texcoords.empty());
 
-	if (filename.at(filename.size() - 4) != '.')
-	{
-		throw std::runtime_error("Error in given filename: Expected a dot and a 3-letter extension at the end (i.e. '.obj'). " + filename);
-	}
+    if (filename.at(filename.size() - 4) != '.')
+    {
+        throw std::runtime_error(
+            "Error in given filename: Expected a dot and a 3-letter extension at the end (i.e. '.obj'). " +
+            filename);
+    }
 
-	// Takes a full path to a file and returns only the filename:
-	auto get_filename = [](const std::string& path) {
-		auto last_slash = path.find_last_of("/\\");
-		if (last_slash == std::string::npos)
-		{
-			return path;
-		}
-		return path.substr(last_slash + 1, path.size());
-	};
+    // Takes a full path to a file and returns only the filename:
+    const auto get_filename = [](const std::string& path) {
+        auto last_slash = path.find_last_of("/\\");
+        if (last_slash == std::string::npos)
+        {
+            return path;
+        }
+        return path.substr(last_slash + 1, path.size());
+    };
 
-	std::ofstream obj_file(filename);
+    std::ofstream obj_file(filename);
 
-	std::string mtl_filename(filename);
-	// replace '.obj' at the end with '.mtl':
-	mtl_filename.replace(std::end(mtl_filename) - 4, std::end(mtl_filename), ".mtl");
+    std::string mtl_filename(filename);
+    // replace '.obj' at the end with '.mtl':
+    mtl_filename.replace(std::end(mtl_filename) - 4, std::end(mtl_filename), ".mtl");
 
-	obj_file << "mtllib " << get_filename(mtl_filename) << std::endl; // first line of the obj file
+    obj_file << "mtllib " << get_filename(mtl_filename) << std::endl; // first line of the obj file
 
-	// same as in write_obj():
-	if (mesh.colors.empty()) {
-		for (std::size_t i = 0; i < mesh.vertices.size(); ++i) {
-			obj_file << "v " << mesh.vertices[i][0] << " " << mesh.vertices[i][1] << " " << mesh.vertices[i][2] << " " << std::endl;
-		}
-	}
-	else {
-		for (std::size_t i = 0; i < mesh.vertices.size(); ++i) {
-			obj_file << "v " << mesh.vertices[i][0] << " " << mesh.vertices[i][1] << " " << mesh.vertices[i][2] << " " << mesh.colors[i][0] << " " << mesh.colors[i][1] << " " << mesh.colors[i][2] << " " << std::endl;
-		}
-	}
-	// end
+    // same as in write_obj():
+    if (mesh.colors.empty())
+    {
+        for (std::size_t i = 0; i < mesh.vertices.size(); ++i)
+        {
+            obj_file << "v " << mesh.vertices[i][0] << " " << mesh.vertices[i][1] << " "
+                     << mesh.vertices[i][2] << " " << std::endl;
+        }
+    } else
+    {
+        for (std::size_t i = 0; i < mesh.vertices.size(); ++i)
+        {
+            obj_file << "v " << mesh.vertices[i][0] << " " << mesh.vertices[i][1] << " "
+                     << mesh.vertices[i][2] << " " << mesh.colors[i][0] << " " << mesh.colors[i][1] << " "
+                     << mesh.colors[i][2] << " " << std::endl;
+        }
+    }
+    // end
 
-	for (std::size_t i = 0; i < mesh.texcoords.size(); ++i) {
-		obj_file << "vt " << mesh.texcoords[i][0] << " " << 1.0f - mesh.texcoords[i][1] << std::endl;
-		// We invert y because Meshlab's uv origin (0, 0) is on the bottom-left
-	}
+    for (std::size_t i = 0; i < mesh.texcoords.size(); ++i)
+    {
+        obj_file << "vt " << mesh.texcoords[i][0] << " " << 1.0f - mesh.texcoords[i][1] << std::endl;
+        // We invert y because Meshlab's uv origin (0, 0) is on the bottom-left
+    }
 
-	obj_file << "usemtl FaceTexture" << std::endl; // the name of our texture (material) will be 'FaceTexture'
+    obj_file << "usemtl FaceTexture" << std::endl; // the name of our texture (material) will be 'FaceTexture'
 
-	for (auto&& v : mesh.tvi) {
-		// This assumes mesh.texcoords.size() == mesh.vertices.size(). The texture indices could theoretically be different (for example in the cube-mapped 3D scan)
-		// Add one because obj starts counting triangle indices at 1
-		obj_file << "f " << v[0] + 1 << "/" << v[0] + 1 << " " << v[1] + 1 << "/" << v[1] + 1 << " " << v[2] + 1 << "/" << v[2] + 1 << std::endl;
-	}
+    for (auto&& v : mesh.tvi)
+    {
+        // This assumes mesh.texcoords.size() == mesh.vertices.size(). The texture indices could theoretically be different (for example in the cube-mapped 3D scan).
+        // Add one because obj starts counting triangle indices at 1
+        obj_file << "f " << v[0] + 1 << "/" << v[0] + 1 << " " << v[1] + 1 << "/" << v[1] + 1 << " "
+                 << v[2] + 1 << "/" << v[2] + 1 << std::endl;
+    }
 
-	std::ofstream mtl_file(mtl_filename);
-	std::string texture_filename(filename);
-	// replace '.obj' at the end with '.isomap.png':
-	texture_filename.replace(std::end(texture_filename) - 4, std::end(texture_filename), ".isomap.png");
+    std::ofstream mtl_file(mtl_filename);
+    std::string texture_filename(filename);
+    // replace '.obj' at the end with '.isomap.png':
+    texture_filename.replace(std::end(texture_filename) - 4, std::end(texture_filename), ".isomap.png");
 
-	mtl_file << "newmtl FaceTexture" << std::endl;
-	mtl_file << "map_Kd " << get_filename(texture_filename) << std::endl;
+    mtl_file << "newmtl FaceTexture" << std::endl;
+    mtl_file << "map_Kd " << get_filename(texture_filename) << std::endl;
 
-	return;
+    return;
 };
 
-	} /* namespace core */
+} /* namespace core */
 } /* namespace eos */
 
-#endif /* MESH_HPP_ */
+#endif /* EOS_MESH_HPP_ */

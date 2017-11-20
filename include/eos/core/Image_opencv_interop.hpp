@@ -31,50 +31,58 @@
 #include <stdexcept>
 
 namespace eos {
-	namespace core {
+namespace core {
 
 // We can support different types by making this a template and constexpr if? :-)
 inline cv::Mat to_mat(const Image4u& image)
 {
-	cv::Mat opencv_matrix(image.rows, image.cols, CV_8UC4);
-	for (int c = 0; c < image.cols; ++c) { // size_t
-		for (int r = 0; r < image.rows; ++r) {
-			//auto vals = image(r, c);
-			opencv_matrix.at<cv::Vec4b>(r, c) = cv::Vec4b(image(r, c)[0], image(r, c)[1], image(r, c)[2], image(r, c)[3]);
-		}
-	}
-	return opencv_matrix;
+    cv::Mat opencv_matrix(image.rows, image.cols, CV_8UC4);
+    for (int c = 0; c < image.cols; ++c)
+    { // size_t
+        for (int r = 0; r < image.rows; ++r)
+        {
+            // auto vals = image(r, c);
+            opencv_matrix.at<cv::Vec4b>(r, c) =
+                cv::Vec4b(image(r, c)[0], image(r, c)[1], image(r, c)[2], image(r, c)[3]);
+        }
+    }
+    return opencv_matrix;
 };
 
 inline cv::Mat to_mat(const Image1d& image)
 {
-	cv::Mat opencv_matrix(image.rows, image.cols, CV_64FC1);
-	for (int c = 0; c < image.cols; ++c) { // size_t
-		for (int r = 0; r < image.rows; ++r) {
-			//auto vals = image(r, c);
-			opencv_matrix.at<double>(r, c) = image(r, c);
-		}
-	}
-	return opencv_matrix;
+    cv::Mat opencv_matrix(image.rows, image.cols, CV_64FC1);
+    for (int c = 0; c < image.cols; ++c)
+    { // size_t
+        for (int r = 0; r < image.rows; ++r)
+        {
+            // auto vals = image(r, c);
+            opencv_matrix.at<double>(r, c) = image(r, c);
+        }
+    }
+    return opencv_matrix;
 };
 
 inline Image3u from_mat(const cv::Mat& image)
 {
-	if (image.type() != CV_8UC3)
-	{
-		throw std::runtime_error("Can only convert a CV_8UC3 cv::Mat to an eos::core::Image3u.");
-	}
+    if (image.type() != CV_8UC3)
+    {
+        throw std::runtime_error("Can only convert a CV_8UC3 cv::Mat to an eos::core::Image3u.");
+    }
 
-	Image3u converted(image.rows, image.cols);
-	for (int r=0; r < image.rows; ++r) {
-		for (int c = 0; c < image.cols; ++c) {
-			converted(r, c) = std::array<std::uint8_t, 3>{image.at<cv::Vec3b>(r, c)[0], image.at<cv::Vec3b>(r, c)[1], image.at<cv::Vec3b>(r, c)[2]};
-		}
-	}
-	return converted;
+    Image3u converted(image.rows, image.cols);
+    for (int r = 0; r < image.rows; ++r)
+    {
+        for (int c = 0; c < image.cols; ++c)
+        {
+            converted(r, c) = std::array<std::uint8_t, 3>{
+                image.at<cv::Vec3b>(r, c)[0], image.at<cv::Vec3b>(r, c)[1], image.at<cv::Vec3b>(r, c)[2]};
+        }
+    }
+    return converted;
 };
 
-	} /* namespace core */
+} /* namespace core */
 } /* namespace eos */
 
 #endif /* IMAGE_OPENCV_INTEROP_HPP_ */

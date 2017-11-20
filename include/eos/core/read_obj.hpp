@@ -26,13 +26,13 @@
 
 #include "Eigen/Core"
 
-#include <fstream>
-#include <string>
-#include <vector>
-#include <utility>
 #include <cassert>
-#include <tuple>
+#include <fstream>
 #include <optional>
+#include <string>
+#include <tuple>
+#include <utility>
+#include <vector>
 
 namespace eos {
 namespace core {
@@ -67,7 +67,7 @@ template <class ContainerType>
 void tokenize(const std::string& str, ContainerType& tokens, const std::string& delimiters = " ",
               bool trim_empty = false)
 {
-    std::string::size_type pos, last_pos = 0; 
+    std::string::size_type pos, last_pos = 0;
     const auto length = str.length();
 
     using value_type = typename ContainerType::value_type;
@@ -90,16 +90,16 @@ void tokenize(const std::string& str, ContainerType& tokens, const std::string& 
 
 /**
  * @brief Parse a line starting with 'v' from an obj file.
- * 
+ *
  * The 'v' will have already been stripped from the line.
- * 
+ *
  * These can contain vertex colours too actually. Can potentially have 3, 4, 6 or 7 elements...? (xyz, xyzw, xyzrgb, xyzwrgb)
  * assimp only deals with 3, 4 or 6 elements: https://github.com/assimp/assimp/blob/master/code/ObjFileParser.cpp#L138
  * For now, let's ignore homogeneous coordinates, and deal with the case when we have either 3 or 6 elements.
  * If it's homogeneous coords, we can also just divide by 'w', like assimp.
- * 
+ *
  * Another obj parser we can check: https://github.com/qnzhou/PyMesh/blob/master/src/IO/OBJParser.cpp (and same file with .h)
- * 
+ *
  * Todo: Consider using std::string_view for these instead of const string&.
  * And should change to glm::vec3, and just divide by 'w'. As soon as we change the Mesh to vec3.
  */
@@ -110,12 +110,12 @@ inline std::pair<Eigen::Vector4f, std::optional<Eigen::Vector3f>> parse_vertex(c
     assert(tokens.size() == 3 || tokens.size() == 6); // Maybe we should throw instead?
     const Eigen::Vector4f vertex(std::stof(tokens[0]), std::stof(tokens[1]), std::stof(tokens[2]), 1.0);
     std::optional<Eigen::Vector3f> vertex_color;
-    if (tokens.size() == 6) {
+    if (tokens.size() == 6)
+    {
         vertex_color = Eigen::Vector3f(std::stof(tokens[3]), std::stof(tokens[4]), std::stof(tokens[5]));
     }
-    return { vertex, vertex_color };
+    return {vertex, vertex_color};
 };
-
 
 inline Eigen::Vector2f parse_texcoords(const std::string& line)
 {
@@ -144,9 +144,9 @@ inline auto parse_face(const std::string& line)
     using std::vector;
 
     // Obj indices are 1-based.
-    vector<int> vertex_indices; // size() = 3 or 4
+    vector<int> vertex_indices;  // size() = 3 or 4
     vector<int> texture_indices; // size() = 3 or 4
-    vector<int> normal_indices; // size() = 3 or 4
+    vector<int> normal_indices;  // size() = 3 or 4
 
     vector<string> tokens;
     tokenize(line, tokens, " ");
@@ -157,8 +157,10 @@ inline auto parse_face(const std::string& line)
         vector<string> subtokens;
         tokenize(token, subtokens, "/"); // do we want trim_empty true or false?
         assert(subtokens.size() > 0 && subtokens.size() <= 3); // <= 3 correct or not?
-        // Ok, let's make our life easy, for now only support the 1/2/3 syntax of the FaceWarehouse scans. In fact the normal_indices are 0... we should check for that - zero-index = ignore, but note that it's probably a non-standard obj format extension.
-        assert(subtokens.size() == 3); // FaceWarehouse
+        // Ok, let's make our life easy, for now only support the 1/2/3 syntax of the FaceWarehouse scans. In
+        // fact the normal_indices are 0... we should check for that - zero-index = ignore, but note that, it's
+        // probably a non-standard obj format extension.
+        assert(subtokens.size() == 3);                         // FaceWarehouse
         vertex_indices.push_back(std::stoi(subtokens[0]) - 1); // obj indices are 1-based, so we subtract one.
         texture_indices.push_back(std::stoi(subtokens[1]) - 1);
         // subtokens[2] is zero, hence, no normal_indices.
@@ -167,7 +169,7 @@ inline auto parse_face(const std::string& line)
     return std::make_tuple(vertex_indices, texture_indices, normal_indices);
 };
 
-}
+} /* namespace detail */
 
 /**
  * @brief Reads the given Wavefront .obj file into a \c Mesh.
@@ -191,52 +193,64 @@ inline Mesh read_obj(std::string filename)
         return input.size() >= match.size() && std::equal(match.begin(), match.end(), input.begin());
     };
 
-/*    auto trim_left = [](const std::string& input, std::string pattern = " \t") {
-        auto first = input.find_first_not_of(pattern);
-        if (first == std::string::npos)
-        {
-            return input;
-        }
-        return input.substr(first, input.size());
-    }; */
+    /*    auto trim_left = [](const std::string& input, std::string pattern = " \t") {
+            auto first = input.find_first_not_of(pattern);
+            if (first == std::string::npos)
+            {
+                return input;
+            }
+            return input.substr(first, input.size());
+        }; */
 
     Mesh mesh;
 
     std::string line;
     while (getline(file, line))
     {
-        if (starts_with(line, "#")) {
+        if (starts_with(line, "#"))
+        {
             continue;
         }
 
-        if (starts_with(line, "v ")) { // matching with a space so that it doesn't match 'vt'
-            auto vertex_data = detail::parse_vertex(line.substr(2)); // pass the string without the first two characters
-            mesh.vertices.push_back(Eigen::Vector3f(vertex_data.first[0], vertex_data.first[1], vertex_data.first[2]));
-            if (vertex_data.second) { // there are vertex colours:
+        if (starts_with(line, "v "))
+        { // matching with a space so that it doesn't match 'vt'
+            auto vertex_data =
+                detail::parse_vertex(line.substr(2)); // pass the string without the first two characters
+            mesh.vertices.push_back(
+                Eigen::Vector3f(vertex_data.first[0], vertex_data.first[1], vertex_data.first[2]));
+            if (vertex_data.second)
+            { // there are vertex colours:
                 mesh.colors.push_back(vertex_data.second.value());
             }
         }
-        if (starts_with(line, "vt ")) {
+        if (starts_with(line, "vt "))
+        {
             const auto texcoords = detail::parse_texcoords(line.substr(3));
             mesh.texcoords.push_back(texcoords);
         }
-        if (starts_with(line, "vn ")) {
-            //detail::parse_vertex_normal(line.substr(3));
+        if (starts_with(line, "vn "))
+        {
+            // detail::parse_vertex_normal(line.substr(3));
             // Not handled yet, our Mesh class doesn't contain normals right now anyway.
         }
         // There's other things like "vp ", which we don't handle
-        if (starts_with(line, "f ")) {
+        if (starts_with(line, "f "))
+        {
             auto face_data = detail::parse_face(line.substr(2));
             if (std::get<0>(face_data).size() == 3) // 3 triangle indices, nothing to do:
             {
-                mesh.tvi.push_back({ std::get<0>(face_data)[0], std::get<0>(face_data)[1], std::get<0>(face_data)[2] });
+                mesh.tvi.push_back(
+                    {std::get<0>(face_data)[0], std::get<0>(face_data)[1], std::get<0>(face_data)[2]});
             }
             // If their sizes are 4, we convert the quad to two triangles:
-            // Actually I think MeshLab does the same, it shows the FaceWarehouse number of "Faces" as double the "f" entries in the obj.
-            else if (std::get<0>(face_data).size() == 4) {
+            // Actually I think MeshLab does the same, it shows the FaceWarehouse number of "Faces" as twice the "f" entries in the obj.
+            else if (std::get<0>(face_data).size() == 4)
+            {
                 // Just create two faces with (quad[0], quad[1], quad[2]) and (quad[0], quad[2], quad[3]).
-                mesh.tvi.push_back({ std::get<0>(face_data)[0], std::get<0>(face_data)[1], std::get<0>(face_data)[2] });
-                mesh.tvi.push_back({ std::get<0>(face_data)[0], std::get<0>(face_data)[2], std::get<0>(face_data)[3] });
+                mesh.tvi.push_back(
+                    {std::get<0>(face_data)[0], std::get<0>(face_data)[1], std::get<0>(face_data)[2]});
+                mesh.tvi.push_back(
+                    {std::get<0>(face_data)[0], std::get<0>(face_data)[2], std::get<0>(face_data)[3]});
             }
             // We don't handle normal_indices for now.
         }

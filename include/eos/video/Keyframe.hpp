@@ -28,6 +28,7 @@
 #include "eos/morphablemodel/MorphableModel.hpp"
 
 #include "opencv2/core/core.hpp"
+#include "opencv2/imgproc/imgproc.hpp"
 
 namespace eos {
 namespace video {
@@ -158,7 +159,7 @@ private:
  * @param[in] blendshapes The blendshapes with which the keyframes have been fitted.
  * @return Merged texture map (isomap), 3-channel uchar.
  */
-cv::Mat merge_weighted_mean(const std::vector<Keyframe>& keyframes,
+inline cv::Mat merge_weighted_mean(const std::vector<Keyframe>& keyframes,
                             const morphablemodel::MorphableModel& morphable_model,
                             const std::vector<morphablemodel::Blendshape>& blendshapes)
 {
@@ -236,7 +237,7 @@ cv::Mat merge_weighted_mean(const std::vector<Keyframe>& keyframes,
  * @param[in] image Input image or patch.
  * @return The computed variance of laplacian score.
  */
-double variance_of_laplacian(const cv::Mat& image)
+inline double variance_of_laplacian(const cv::Mat& image)
 {
     cv::Mat laplacian;
     cv::Laplacian(image, laplacian, CV_64F);
@@ -244,7 +245,7 @@ double variance_of_laplacian(const cv::Mat& image)
     cv::Scalar mu, sigma;
     cv::meanStdDev(laplacian, mu, sigma);
 
-    double focus_measure = sigma.val[0] * sigma.val[0];
+    const double focus_measure = sigma.val[0] * sigma.val[0];
     return focus_measure;
 };
 

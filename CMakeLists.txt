@@ -64,6 +64,7 @@ set(toml11_INCLUDE_DIR "${eos_3RDPARTY_DIR}/toml11")
 set(HEADERS
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/core/Landmark.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/core/LandmarkMapper.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/core/read_pts_landmarks.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/core/Image.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/core/Image_opencv_interop.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/core/Mesh.hpp
