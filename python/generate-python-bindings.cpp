@@ -69,6 +69,7 @@ PYBIND11_MODULE(eos, eos_module)
         .def("convert", &core::LandmarkMapper::convert, "Converts the given landmark name to the mapped name.", py::arg("landmark_name"));
 
     py::class_<core::Mesh>(core_module, "Mesh", "This class represents a 3D mesh consisting of vertices, vertex colour information and texture coordinates.")
+        .def(py::init<>(), "Creates an empty mesh.")
         .def_readwrite("vertices", &core::Mesh::vertices, "Vertices")
         .def_readwrite("tvi", &core::Mesh::tvi, "Triangle vertex indices")
         .def_readwrite("colors", &core::Mesh::colors, "Colour data")
@@ -122,6 +123,7 @@ PYBIND11_MODULE(eos, eos_module)
      *  - draw_sample()
      */
     py::class_<morphablemodel::Blendshape>(morphablemodel_module, "Blendshape", "A class representing a 3D blendshape.")
+        .def(py::init<>(), "Creates an empty blendshape.")
         .def_readwrite("name", &morphablemodel::Blendshape::name, "Name of the blendshape.")
         .def_readwrite("deformation", &morphablemodel::Blendshape::deformation, "A 3m x 1 col-vector (xyzxyz...)', where m is the number of model-vertices. Has the same format as PcaModel::mean.");
 
