@@ -63,13 +63,13 @@ PYBIND11_MODULE(eos, eos_module)
      */
     py::module core_module = eos_module.def_submodule("core", "Essential functions and classes to work with 3D face models and landmarks.");
     
-    py::class_<core::LandmarkMapper>(
-        core_module, "LandmarkMapper", "Represents a mapping from one kind of landmarks to a different format(e.g.model vertices).")
+    py::class_<core::LandmarkMapper>(core_module, "LandmarkMapper", "Represents a mapping from one kind of landmarks to a different format(e.g.model vertices).")
         .def(py::init<>(), "Constructs a new landmark mapper that performs an identity mapping, that is, its output is the same as the input.")
         .def(py::init<std::string>(), "Constructs a new landmark mapper from a file containing mappings from one set of landmark identifiers to another.", py::arg("filename"))
         .def("convert", &core::LandmarkMapper::convert, "Converts the given landmark name to the mapped name.", py::arg("landmark_name"));
 
     py::class_<core::Mesh>(core_module, "Mesh", "This class represents a 3D mesh consisting of vertices, vertex colour information and texture coordinates.")
+        .def(py::init<>(), "Creates an empty mesh.")
         .def_readwrite("vertices", &core::Mesh::vertices, "Vertices")
         .def_readwrite("tvi", &core::Mesh::tvi, "Triangle vertex indices")
         .def_readwrite("colors", &core::Mesh::colors, "Colour data")
@@ -89,6 +89,7 @@ PYBIND11_MODULE(eos, eos_module)
     py::module morphablemodel_module = eos_module.def_submodule("morphablemodel", "Functionality to represent a Morphable Model, its PCA models, and functions to load models and blendshapes.");
 
     py::class_<morphablemodel::Blendshape>(morphablemodel_module, "Blendshape", "A class representing a 3D blendshape.")
+        .def(py::init<>(), "Creates an empty blendshape.")
         .def_readwrite("name", &morphablemodel::Blendshape::name, "Name of the blendshape.")
         .def_readwrite("deformation", &morphablemodel::Blendshape::deformation, "A 3m x 1 col-vector (xyzxyz...)', where m is the number of model-vertices. Has the same format as PcaModel::mean.");
 
@@ -136,7 +137,7 @@ PYBIND11_MODULE(eos, eos_module)
      *  - load_edge_topology()
      */
     py::class_<morphablemodel::EdgeTopology>(morphablemodel_module, "EdgeTopology", "A struct containing a 3D shape model's edge topology.")
-        .def(py::init<std::vector<std::array<int, 2>>, std::vector<std::array<int, 2>>>(), "Construct a new EdgeTopology with given adjacent_faces and adjacent_vertices.", py::arg("adjacent_faces"), py::arg("adjacent_vertices"))
+        .def(py::init<std::vector<std::array<int, 2>>, std::vector<std::array<int, 2>>>(), "Construct a new EdgeTopology with given adjacent_faces and adjacent_vertices.", py::arg("adjacent_faces"), py::arg("adjacent_vertices")) // py::init<> uses brace-initialisation: http://pybind11.readthedocs.io/en/stable/advanced/classes.html#brace-initialization
         .def_readwrite("adjacent_faces", &morphablemodel::EdgeTopology::adjacent_faces, "A num_edges x 2 matrix storing faces adjacent to each edge.")
         .def_readwrite("adjacent_vertices", &morphablemodel::EdgeTopology::adjacent_vertices, "A num_edges x 2 matrix storing vertices adjacent to each edge.");
 

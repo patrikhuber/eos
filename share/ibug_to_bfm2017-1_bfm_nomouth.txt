@@ -1,0 +1,60 @@
+# Mapping from the 68-point ibug annotations to the BFM2017 head model (vertex indices).
+
+[landmark_mappings] # A mapping from input landmarks (ibug, lhs) to output landmarks (BFM, rhs)
+            # 1 to 8 are the right contour landmarks
+ 9 = 47846  # chin bottom
+            # 10 to 17 are the left contour landmarks
+#18 =       # right eyebrow outer-corner
+#20 =       # right eyebrow middle, vertical middle
+#22 =       # right eyebrow inner-corner
+#23 =       # left eyebrow inner-corner
+#25 =       # left eyebrow middle
+#27 =       # left eyebrow outer-corner
+31 =  8156  # nose-tip
+#34 =       # nose-lip junction
+37 =  2602  # right eye outer-corner
+40 =  5830  # right eye inner-corner
+43 = 10390  # left eye inner-corner
+46 = 13481  # left eye outer-corner
+49 =  5522  # right mouth corner
+50 =  6026  # upper lip right-right top
+51 =  7355  # upper lip middle-right top
+52 =  8181  # upper lip middle top
+53 =  9007  # upper lip middle-left top
+54 = 10329  # upper lip left-left top
+55 = 10857  # left mouth corner
+56 =  9730  #
+57 =  8670  #
+58 =  8199  # lower lip middle bottom
+59 =  7726  #
+60 =  6898  #
+61 =  6291  # right inner corner of the mouth
+62 =  7364  # upper lip right bottom outer
+63 =  8190  # upper lip middle bottom
+64 =  9016  # upper lip left bottom outer
+65 = 10088  # left inner corner of the mouth
+66 =  8663  # lower lip left top outer
+67 =  8191  # lower lip middle top
+68 =  7719  # lower lip right top outer
+
+
+# Definitions of which 2D landmarks make up the right and left face contours:
+[contour_landmarks]
+right = [  1,
+           2,
+           3,
+           4,
+           5,
+           6,
+           7,
+           8
+        ]
+left  = [ 10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17
+        ]
