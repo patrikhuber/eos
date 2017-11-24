@@ -63,8 +63,7 @@ PYBIND11_MODULE(eos, eos_module)
      */
     py::module core_module = eos_module.def_submodule("core", "Essential functions and classes to work with 3D face models and landmarks.");
     
-    py::class_<core::LandmarkMapper>(
-        core_module, "LandmarkMapper", "Represents a mapping from one kind of landmarks to a different format(e.g.model vertices).")
+    py::class_<core::LandmarkMapper>(core_module, "LandmarkMapper", "Represents a mapping from one kind of landmarks to a different format(e.g.model vertices).")
         .def(py::init<>(), "Constructs a new landmark mapper that performs an identity mapping, that is, its output is the same as the input.")
         .def(py::init<std::string>(), "Constructs a new landmark mapper from a file containing mappings from one set of landmark identifiers to another.", py::arg("filename"))
         .def("convert", &core::LandmarkMapper::convert, "Converts the given landmark name to the mapped name.", py::arg("landmark_name"));
