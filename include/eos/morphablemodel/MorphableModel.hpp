@@ -42,8 +42,15 @@
 #include <vector>
 #include <fstream>
 #include <algorithm>
-#include <optional>
 #include <variant>
+
+#ifdef __APPLE__
+  #include <experimental/optional>
+  namespace cpp17 = ::std::experimental;
+#else
+  #include <optional>
+  namespace cpp17 = ::std;
+#endif
 
 namespace eos {
 namespace morphablemodel {
@@ -346,8 +353,8 @@ public:
 private:
     PcaModel shape_model; ///< A PCA model of the shape
     PcaModel color_model; ///< A PCA model of vertex colour information
-    std::optional<std::variant<PcaModel, Blendshapes>> expression_model; ///< Blendshapes or PcaModel
-    std::vector<std::array<double, 2>> texture_coordinates;              ///< uv-coordinates for every vertex
+    cpp17::optional<std::variant<PcaModel, Blendshapes>> expression_model; ///< Blendshapes or PcaModel
+    std::vector<std::array<double, 2>> texture_coordinates; ///< uv-coordinates for every vertex
 
     /**
      * Returns whether the model has texture mapping coordinates, i.e.

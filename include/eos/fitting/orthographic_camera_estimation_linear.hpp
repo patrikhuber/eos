@@ -31,7 +31,14 @@
 
 #include <vector>
 #include <cassert>
-#include <optional>
+
+#ifdef __APPLE__
+  #include <experimental/optional>
+  namespace cpp17 = ::std::experimental;
+#else
+  #include <optional>
+  namespace cpp17 = ::std;
+#endif
 
 namespace eos {
 namespace fitting {
@@ -72,7 +79,7 @@ struct ScaledOrthoProjectionParameters
  */
 inline ScaledOrthoProjectionParameters estimate_orthographic_projection_linear(
     std::vector<Eigen::Vector2f> image_points, std::vector<Eigen::Vector4f> model_points,
-    bool is_viewport_upsidedown, std::optional<int> viewport_height = std::nullopt)
+    bool is_viewport_upsidedown, cpp17::optional<int> viewport_height = cpp17::nullopt)
 {
     using Eigen::Matrix;
     assert(image_points.size() == model_points.size());
@@ -82,7 +89,7 @@ inline ScaledOrthoProjectionParameters estimate_orthographic_projection_linear(
 
     if (is_viewport_upsidedown)
     {
-        if (viewport_height == std::nullopt)
+        if (viewport_height == cpp17::nullopt)
         {
             throw std::runtime_error(
                 "Error: If is_viewport_upsidedown is set to true, viewport_height needs to be given.");

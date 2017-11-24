@@ -24,10 +24,17 @@
 
 #include "toml.hpp"
 
-#include <optional>
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
+
+#ifdef __APPLE__
+  #include <experimental/optional>
+  namespace cpp17 = ::std::experimental;
+#else
+  #include <optional>
+  namespace cpp17 = ::std;
+#endif
 
 namespace eos {
 namespace core {
@@ -102,7 +109,7 @@ public:
      * @param[in] landmark_name A landmark name to convert.
      * @return The mapped landmark name if a mapping exists, an empty optional otherwise.
      */
-    std::optional<std::string> convert(std::string landmark_name) const
+    cpp17::optional<std::string> convert(std::string landmark_name) const
     {
         if (landmark_mappings.empty())
         {

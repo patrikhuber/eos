@@ -30,7 +30,14 @@
 
 #include <vector>
 #include <cassert>
-#include <optional>
+
+#ifdef __APPLE__
+  #include <experimental/optional>
+  namespace cpp17 = ::std::experimental;
+#else
+  #include <optional>
+  namespace cpp17 = ::std;
+#endif
 
 namespace eos {
 namespace fitting {
@@ -56,7 +63,7 @@ namespace fitting {
  * @param[in] model_standard_deviation The standard deviation of the 3D vertex points in the 3D model, projected to 2D (so the value is in pixels).
  * @return The estimated shape-coefficients (alphas).
  */
-inline std::vector<float> fit_shape_to_landmarks_linear(const morphablemodel::PcaModel& shape_model, Eigen::Matrix<float, 3, 4> affine_camera_matrix, const std::vector<Eigen::Vector2f>& landmarks, const std::vector<int>& vertex_ids, Eigen::VectorXf base_face=Eigen::VectorXf(), float lambda=3.0f, std::optional<int> num_coefficients_to_fit= std::optional<int>(), std::optional<float> detector_standard_deviation= std::optional<float>(), std::optional<float> model_standard_deviation= std::optional<float>())
+inline std::vector<float> fit_shape_to_landmarks_linear(const morphablemodel::PcaModel& shape_model, Eigen::Matrix<float, 3, 4> affine_camera_matrix, const std::vector<Eigen::Vector2f>& landmarks, const std::vector<int>& vertex_ids, Eigen::VectorXf base_face=Eigen::VectorXf(), float lambda=3.0f, cpp17::optional<int> num_coefficients_to_fit= cpp17::optional<int>(), cpp17::optional<float> detector_standard_deviation= cpp17::optional<float>(), cpp17::optional<float> model_standard_deviation= cpp17::optional<float>())
 {
     assert(landmarks.size() == vertex_ids.size());
 
