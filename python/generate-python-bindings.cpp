@@ -160,7 +160,7 @@ PYBIND11_MODULE(eos, eos_module)
      *  - load_edge_topology()
      */
     py::class_<morphablemodel::EdgeTopology>(morphablemodel_module, "EdgeTopology", "A struct containing a 3D shape model's edge topology.")
-        .def(py::init<std::vector<std::array<int, 2>>, std::vector<std::array<int, 2>>>(), "Construct a new EdgeTopology with given adjacent_faces and adjacent_vertices.", py::arg("adjacent_faces"), py::arg("adjacent_vertices")) // This works because pybind11 uses brace-init syntax, so it uses the implicit constructor of aggregate types (see pybind11/pull/1015).
+        .def(py::init<std::vector<std::array<int, 2>>, std::vector<std::array<int, 2>>>(), "Construct a new EdgeTopology with given adjacent_faces and adjacent_vertices.", py::arg("adjacent_faces"), py::arg("adjacent_vertices")) // py::init<> uses brace-initialisation: http://pybind11.readthedocs.io/en/stable/advanced/classes.html#brace-initialization
         .def_readwrite("adjacent_faces", &morphablemodel::EdgeTopology::adjacent_faces, "A num_edges x 2 matrix storing faces adjacent to each edge.")
         .def_readwrite("adjacent_vertices", &morphablemodel::EdgeTopology::adjacent_vertices, "A num_edges x 2 matrix storing vertices adjacent to each edge.");
 
