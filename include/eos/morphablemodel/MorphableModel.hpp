@@ -40,7 +40,6 @@
 #include <vector>
 #include <fstream>
 #include <algorithm>
-#include <variant>
 
 #ifdef __APPLE__
   #include <experimental/optional>

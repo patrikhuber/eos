@@ -38,9 +38,16 @@
 #include "opencv2/imgproc/imgproc.hpp"
 
 #include <iostream>
-#include <optional>
 #include <string>
 #include <vector>
+
+#ifdef __APPLE__
+  #include <experimental/optional>
+  namespace cpp17 = ::std::experimental;
+#else
+  #include <optional>
+  namespace cpp17 = ::std;
+#endif
 
 using namespace eos;
 namespace po = boost::program_options;
@@ -163,7 +170,7 @@ int main(int argc, char* argv[])
     fitting::RenderingParameters rendering_params;
     std::tie(mesh, rendering_params) = fitting::fit_shape_and_pose(
         morphable_model_with_expressions, landmarks, landmark_mapper, image.cols, image.rows, edge_topology,
-        ibug_contour, model_contour, 5, std::nullopt, 30.0f);
+        ibug_contour, model_contour, 5, cpp17::nullopt, 30.0f);
 
     // The 3D head pose can be recovered as follows:
     float yaw_angle = glm::degrees(glm::yaw(rendering_params.get_rotation()));

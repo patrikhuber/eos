@@ -124,7 +124,7 @@ public:
             return converted_landmark->second;
         } else
         { // landmark_name does not match the key of any element in the map
-            return std::nullopt;
+            return cpp17::nullopt;
         }
     };
 
