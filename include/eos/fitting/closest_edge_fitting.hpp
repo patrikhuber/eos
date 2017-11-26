@@ -204,7 +204,7 @@ inline std::vector<int> occluding_boundary_vertices(const core::Mesh& mesh,
             {
                 // We've hit a triangle. Ray hit its own triangle. If it's behind the ray origin, ignore the intersection: 
                 // Check if in front or behind?
-                if (intersect.second.value() <= 1e-4)
+                if (*(intersect.second) <= 1e-4)
                 {
                     continue; // the intersection is behind the vertex, we don't care about it
                 }

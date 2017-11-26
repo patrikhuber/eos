@@ -304,7 +304,7 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
 
     if (pca_shape_coefficients.empty())
     {
-        pca_shape_coefficients.resize(num_shape_coefficients_to_fit.value());
+        pca_shape_coefficients.resize(*num_shape_coefficients_to_fit);
     }
     // Todo: This leaves the following case open: num_coeffs given is empty or defined, but the
     // pca_shape_coefficients given is != num_coeffs or the model's max-coeffs. What to do then? Handle & document!
@@ -393,7 +393,7 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
         { // no mapping defined for the current landmark
             continue;
         }
-        int vertex_idx = std::stoi(converted_name.value());
+        int vertex_idx = std::stoi(*converted_name);
         Vector4f vertex(current_mesh.vertices[vertex_idx][0], current_mesh.vertices[vertex_idx][1],
                         current_mesh.vertices[vertex_idx][2], 1.0f);
         model_points.emplace_back(vertex);

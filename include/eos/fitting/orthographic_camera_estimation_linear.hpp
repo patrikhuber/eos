@@ -96,7 +96,7 @@ inline ScaledOrthoProjectionParameters estimate_orthographic_projection_linear(
         }
         for (auto&& ip : image_points)
         {
-            ip[1] = viewport_height.value() - ip[1];
+            ip[1] = *viewport_height - ip[1];
         }
     }
 
