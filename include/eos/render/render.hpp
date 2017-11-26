@@ -29,8 +29,15 @@
 #include "eos/render/utils.hpp"
 
 #include <array>
-#include <optional>
 #include <vector>
+
+#ifdef __APPLE__
+  #include <experimental/optional>
+  namespace cpp17 = ::std::experimental;
+#else
+  #include <optional>
+  namespace cpp17 = ::std;
+#endif
 
 namespace eos {
 namespace render {
@@ -123,7 +130,7 @@ namespace render {
  */
 inline std::pair<core::Image4u, core::Image1d>
 render(core::Mesh mesh, glm::tmat4x4<float> model_view_matrix, glm::tmat4x4<float> projection_matrix,
-       int viewport_width, int viewport_height, const std::optional<Texture>& texture = std::nullopt,
+       int viewport_width, int viewport_height, const cpp17::optional<Texture>& texture = cpp17::nullopt,
        bool enable_backface_culling = false, bool enable_near_clipping = true,
        bool enable_far_clipping = true)
 {
@@ -219,7 +226,7 @@ render(core::Mesh mesh, glm::tmat4x4<float> model_view_matrix, glm::tmat4x4<floa
         // are 0.
         if ((visibility_bits[0] | visibility_bits[1] | visibility_bits[2]) == 0)
         {
-            std::optional<detail::TriangleToRasterize> t = detail::process_prospective_tri(
+            cpp17::optional<detail::TriangleToRasterize> t = detail::process_prospective_tri(
                 clipspace_vertices[tri_indices[0]], clipspace_vertices[tri_indices[1]],
                 clipspace_vertices[tri_indices[2]], viewport_width, viewport_height, enable_backface_culling);
             if (t)
@@ -252,7 +259,7 @@ render(core::Mesh mesh, glm::tmat4x4<float> model_view_matrix, glm::tmat4x4<floa
         {
             for (unsigned char k = 0; k < vertices.size() - 2; k++)
             {
-                std::optional<detail::TriangleToRasterize> t =
+                cpp17::optional<detail::TriangleToRasterize> t =
                     detail::process_prospective_tri(vertices[0], vertices[1 + k], vertices[2 + k],
                                                     viewport_width, viewport_height, enable_backface_culling);
                 if (t)
