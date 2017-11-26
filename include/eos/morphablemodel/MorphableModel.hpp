@@ -30,8 +30,6 @@
 #include "cereal/cereal.hpp"
 #include "cereal/types/array.hpp"
 #include "cereal/types/vector.hpp"
-#include "cereal/types/optional.hpp"
-#include "cereal/types/variant.hpp"
 #include "eos/morphablemodel/io/eigen_cerealisation.hpp"
 #include "cereal/archives/binary.hpp"
 
@@ -62,13 +60,6 @@ core::Mesh sample_to_mesh(
     const std::vector<std::array<double, 2>>& texture_coordinates = std::vector<std::array<double, 2>>());
 
 /**
- * @brief Type alias to represent an expression model, which can either consist of blendshapes or a PCA model.
- *
- * Defining a type alias so that we don't have to spell out the type everywhere.
- */
-using ExpressionModel = std::variant<PcaModel, Blendshapes>;
-
-/**
  * @brief A class representing a 3D Morphable Model, consisting
  * of a shape- and colour (albedo) PCA model.
  *
@@ -94,12 +85,11 @@ public:
         : shape_model(shape_model), color_model(color_model), texture_coordinates(texture_coordinates){};
 
     MorphableModel(
-        PcaModel shape_model, ExpressionModel expression_model, PcaModel color_model,
+        PcaModel shape_model, PcaModel expression_model, PcaModel color_model,
         std::vector<std::array<double, 2>> texture_coordinates = std::vector<std::array<double, 2>>())
-        : shape_model(shape_model), color_model(color_model), texture_coordinates(texture_coordinates)
+        : shape_model(shape_model), color_model(color_model), expression_model(expression_model), texture_coordinates(texture_coordinates)
     {
-        // Note: We may want to check/assert that the dimensions all match?
-        this->expression_model = expression_model;
+        // Note: We may want to check/assert that the dimensions all match between the models?
     };
 
     /**
@@ -123,16 +113,11 @@ public:
     };
 
     /**
-     * Returns the shape expression model, if this Morphable Model has one.
+     * Returns the PCA shape expression model.
      *
-     * Returns an empty std::optional if the Morphable Model does not have a separate expression
-     * model (check with MorphableModel::has_separate_expression_model()).
-     * If it does have an expression model, an std::variant<PcaModel, Blendshapes> is returned -
-     * that is, either a PcaModel (if it is an expression PCA model), or Blendshapes.
-     *
-     * @return The expression model or an empty optional.
+     * @return The PCA expression model.
      */
-    const auto& get_expression_model() const
+    const PcaModel& get_expression_model() const
     {
         return expression_model;
     }
@@ -273,33 +258,14 @@ public:
         {
             shape_sample = shape_model.draw_sample(shape_coefficients);
         }
-        // Get a sample of the expression model, depending on whether it's a PcaModel or Blendshapes:
-        if (has_separate_expression_model() && std::holds_alternative<PcaModel>(expression_model.value())) {
-            const auto& pca_expression_model = std::get<PcaModel>(expression_model.value());
-            assert(pca_expression_model.get_data_dimension() == shape_model.get_data_dimension());
-            if (expression_coefficients.empty())
-            {
-                expression_sample = pca_expression_model.get_mean();
-            } else
-            {
-                expression_sample = pca_expression_model.draw_sample(expression_coefficients);
-            }
-        } else if (has_separate_expression_model() && std::holds_alternative<Blendshapes>(expression_model.value()))
+        // Get a sample of the PCA expression model:
+        assert(expression_model.get_data_dimension() == shape_model.get_data_dimension());
+        if (expression_coefficients.empty())
         {
-            const auto& expression_blendshapes = std::get<Blendshapes>(expression_model.value());
-            assert(expression_blendshapes.size() > 0);
-            assert(expression_blendshapes[0].deformation.rows() == shape_model.get_data_dimension());
-            if (expression_coefficients.empty())
-            {
-                expression_sample.setZero(expression_blendshapes[0].deformation.rows());
-            }
-            else
-            {
-                expression_sample = to_matrix(expression_blendshapes) * Eigen::Map<const Eigen::VectorXf>(expression_coefficients.data(), expression_coefficients.size());
-            }
+            expression_sample = expression_model.get_mean();
         } else
         {
-            throw std::runtime_error("This MorphableModel doesn't contain an expression model in the form of a PcaModel or Blendshapes.");
+            expression_sample = expression_model.draw_sample(expression_coefficients);
         }
         shape_sample += expression_sample;
 
@@ -337,7 +303,7 @@ public:
 
     bool has_separate_expression_model() const
     {
-        return expression_model.has_value();
+        return true;
     }
 
     /**
@@ -353,8 +319,8 @@ public:
 private:
     PcaModel shape_model; ///< A PCA model of the shape
     PcaModel color_model; ///< A PCA model of vertex colour information
-    cpp17::optional<std::variant<PcaModel, Blendshapes>> expression_model; ///< Blendshapes or PcaModel
-    std::vector<std::array<double, 2>> texture_coordinates; ///< uv-coordinates for every vertex
+    PcaModel expression_model; ///< Blendshapes or PcaModel
+    std::vector<std::array<double, 2>> texture_coordinates;              ///< uv-coordinates for every vertex
 
     /**
      * Returns whether the model has texture mapping coordinates, i.e.

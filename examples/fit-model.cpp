@@ -137,9 +137,10 @@ int main(int argc, char* argv[])
     }
 
     // The expression blendshapes:
-    const vector<morphablemodel::Blendshape> blendshapes = morphablemodel::load_blendshapes(blendshapesfile);
+    //const vector<morphablemodel::Blendshape> blendshapes = morphablemodel::load_blendshapes(blendshapesfile);
 
-    morphablemodel::MorphableModel morphable_model_with_expressions(morphable_model.get_shape_model(), blendshapes, morphable_model.get_color_model(), morphable_model.get_texture_coordinates());
+    //morphablemodel::MorphableModel morphable_model_with_expressions(morphable_model.get_shape_model(), blendshapes, morphable_model.get_color_model(), morphable_model.get_texture_coordinates());
+    const morphablemodel::MorphableModel morphable_model_with_expressions = morphable_model;
 
     // These two are used to fit the front-facing contour to the ibug contour landmarks:
     const fitting::ModelContour model_contour =
