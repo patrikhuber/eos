@@ -184,7 +184,7 @@ inline std::vector<int> occluding_boundary_vertices(const core::Mesh& mesh,
                              end(occluding_vertices));
 
     // Perform ray-casting to find out which vertices are not visible (i.e. self-occluded):
-    std::vector<bool> visibility;
+    /*std::vector<bool> visibility;
     for (auto vertex_idx : occluding_vertices)
     {
         bool visible = true;
@@ -224,8 +224,8 @@ inline std::vector<int> occluding_boundary_vertices(const core::Mesh& mesh,
         {
             final_vertex_ids.push_back(occluding_vertices[i]);
         }
-    }
-    return final_vertex_ids;
+    }*/
+    return occluding_vertices;
 };
 
 /** A simple vector-of-vectors adaptor for nanoflann, without duplicating the storage.
