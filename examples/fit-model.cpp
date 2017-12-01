@@ -177,10 +177,10 @@ int main(int argc, char* argv[])
     // and similarly for pitch and roll.
 
     // Extract the texture from the image using given mesh and camera parameters:
-    const Eigen::Matrix<float, 3, 4> affine_from_ortho =
-        fitting::get_3x4_affine_camera_matrix(rendering_params, image.cols, image.rows);
-    const core::Image4u isomap =
-        render::extract_texture(mesh, affine_from_ortho, core::from_mat(image), true);
+    //const Eigen::Matrix<float, 3, 4> affine_from_ortho =
+    //    fitting::get_3x4_affine_camera_matrix(rendering_params, image.cols, image.rows);
+    //const core::Image4u isomap =
+    //    render::extract_texture(mesh, affine_from_ortho, core::from_mat(image), true);
 
     // Draw the fitted mesh as wireframe, and save the image:
     render::draw_wireframe(outimg, mesh, rendering_params.get_modelview(), rendering_params.get_projection(),
@@ -190,11 +190,11 @@ int main(int argc, char* argv[])
 
     // Save the mesh as textured obj:
     outputfile.replace_extension(".obj");
-    core::write_textured_obj(mesh, outputfile.string());
+    core::write_obj(mesh, outputfile.string());
 
     // And save the isomap:
-    outputfile.replace_extension(".isomap.png");
-    cv::imwrite(outputfile.string(), core::to_mat(isomap));
+    //outputfile.replace_extension(".isomap.png");
+    //cv::imwrite(outputfile.string(), core::to_mat(isomap));
 
     cout << "Finished fitting and wrote result mesh and isomap to files with basename "
          << outputfile.stem().stem() << "." << endl;
