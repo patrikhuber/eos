@@ -263,7 +263,16 @@ inline auto concat(const std::vector<T>& vec_a, const std::vector<T>& vec_b)
  * @param[out] fitted_image_points Debug parameter: Returns all the 2D points that have been used for the fitting.
  * @return The fitted model shape instance and the final pose.
  */
-inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(const morphablemodel::MorphableModel& morphable_model, const std::vector<morphablemodel::Blendshape>& blendshapes, const core::LandmarkCollection<Eigen::Vector2f>& landmarks, const core::LandmarkMapper& landmark_mapper, int image_width, int image_height, const morphablemodel::EdgeTopology& edge_topology, const fitting::ContourLandmarks& contour_landmarks, const fitting::ModelContour& model_contour, int num_iterations, std::optional<int> num_shape_coefficients_to_fit, float lambda, std::optional<fitting::RenderingParameters> initial_rendering_params, std::vector<float>& pca_shape_coefficients, std::vector<float>& blendshape_coefficients, std::vector<Eigen::Vector2f>& fitted_image_points)
+inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
+    const morphablemodel::MorphableModel& morphable_model,
+    const std::vector<morphablemodel::Blendshape>& blendshapes,
+    const core::LandmarkCollection<Eigen::Vector2f>& landmarks, const core::LandmarkMapper& landmark_mapper,
+    int image_width, int image_height, const morphablemodel::EdgeTopology& edge_topology,
+    const fitting::ContourLandmarks& contour_landmarks, const fitting::ModelContour& model_contour,
+    int num_iterations, std::optional<int> num_shape_coefficients_to_fit, float lambda,
+    std::optional<fitting::RenderingParameters> initial_rendering_params,
+    std::vector<float>& pca_shape_coefficients, std::vector<float>& blendshape_coefficients,
+    std::vector<Eigen::Vector2f>& fitted_image_points)
 {
     assert(blendshapes.size() > 0);
     assert(landmarks.size() >= 4);
