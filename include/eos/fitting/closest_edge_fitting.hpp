@@ -354,6 +354,12 @@ find_occluding_edge_correspondences(const core::Mesh& mesh, const morphablemodel
     using Eigen::Vector2f;
     using std::vector;
 
+    // If there are no image_edges given, there's no point in computing anything:
+    if (image_edges.empty())
+    {
+        return {};
+    }
+
     // Compute vertices that lye on occluding boundaries:
     const auto occluding_vertices =
         occluding_boundary_vertices(mesh, edge_topology, glm::mat4x4(rendering_parameters.get_rotation()));
