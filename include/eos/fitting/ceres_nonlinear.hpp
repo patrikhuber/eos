@@ -25,12 +25,14 @@
 #include "eos/morphablemodel/MorphableModel.hpp"
 #include "eos/morphablemodel/Blendshape.hpp"
 
+#include "Eigen/Core"
+
 #include "glm/gtc/quaternion.hpp"
 #include "glm/gtx/transform.hpp"
 
 #include "ceres/cubic_interpolation.h"
 
-#include "opencv2/core/core.hpp" // for Vec2f
+#include "opencv2/core/core.hpp"
 
 #include <array>
 #include <vector>
@@ -116,7 +118,7 @@ struct LandmarkCost
      * @param[in] use_perspective Whether a perspective or an orthographic projection should be used.
      */
     LandmarkCost(const morphablemodel::PcaModel& shape_model,
-                 const std::vector<morphablemodel::Blendshape>& blendshapes, cv::Vec2f observed_landmark,
+                 const std::vector<morphablemodel::Blendshape>& blendshapes, Eigen::Vector2f observed_landmark,
                  int vertex_id, int image_width, int image_height, bool use_perspective)
         : shape_model(shape_model), blendshapes(blendshapes), observed_landmark(observed_landmark),
           vertex_id(vertex_id), image_width(image_width), image_height(image_height),
@@ -190,7 +192,7 @@ private:
     const morphablemodel::PcaModel&
         shape_model; // Or store as pointer (non-owning) or std::reference_wrapper?
     const std::vector<morphablemodel::Blendshape>& blendshapes;
-    const cv::Vec2f observed_landmark;
+    const Eigen::Vector2f observed_landmark;
     const int vertex_id;
     const int image_width;
     const int image_height;
