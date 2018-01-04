@@ -26,6 +26,8 @@
 #include "eos/fitting/fitting.hpp"
 #include "eos/morphablemodel/Blendshape.hpp"
 
+#include "Eigen/Core"
+
 #include "glm/ext.hpp"
 #include "glm/glm.hpp"
 
@@ -34,6 +36,7 @@
 #include "ceres/rotation.h"
 
 #include "opencv2/core/core.hpp"
+#include "opencv2/imgproc/imgproc.hpp"
 #include "opencv2/highgui/highgui.hpp"
 
 #include "boost/filesystem.hpp"
@@ -51,9 +54,7 @@ namespace fs = boost::filesystem;
 using eos::core::Landmark;
 using eos::core::LandmarkCollection;
 using cv::Mat;
-using cv::Vec2f;
-using cv::Vec3f;
-using cv::Vec4f;
+using Eigen::Vector2f;
 using std::cout;
 using std::endl;
 using std::string;
@@ -138,7 +139,7 @@ int main(int argc, char* argv[])
 
     // Load the image, landmarks, LandmarkMapper and the Morphable Model:
     Mat image = cv::imread(imagefile.string());
-    LandmarkCollection<cv::Vec2f> landmarks;
+    LandmarkCollection<Eigen::Vector2f> landmarks;
     try
     {
         landmarks = core::read_pts_landmarks(landmarksfile.string());
@@ -159,14 +160,14 @@ int main(int argc, char* argv[])
 
     // Note: Actually it's a required argument, so it'll never be empty.
     core::LandmarkMapper landmark_mapper =
-        mappingsfile.empty() ? core::LandmarkMapper() : core::LandmarkMapper(mappingsfile);
+        mappingsfile.empty() ? core::LandmarkMapper() : core::LandmarkMapper(mappingsfile.string());
 
     std::vector<eos::morphablemodel::Blendshape> blendshapes =
         eos::morphablemodel::load_blendshapes(blendshapesfile.string());
 
     // Draw the loaded landmarks:
     Mat outimg = image.clone();
-    for (auto&& lm : landmarks)
+    for (const auto& lm : landmarks)
     {
         cv::rectangle(outimg, cv::Point2f(lm.coordinates[0] - 2.0f, lm.coordinates[1] - 2.0f),
                       cv::Point2f(lm.coordinates[0] + 2.0f, lm.coordinates[1] + 2.0f), {255, 0, 0});
@@ -175,7 +176,7 @@ int main(int argc, char* argv[])
     constexpr bool use_perspective = false;
 
     // These will be the 2D image points and their corresponding 3D vertex id's used for the fitting:
-    vector<Vec2f> image_points; // the 2D landmark points
+    vector<Vector2f> image_points; // the 2D landmark points
     vector<int> vertex_indices; // their corresponding vertex indices
 
     // Sub-select all the landmarks which we have a mapping for (i.e. that are defined in the 3DMM):
@@ -186,7 +187,7 @@ int main(int argc, char* argv[])
         { // no mapping defined for the current landmark
             continue;
         }
-        int vertex_idx = std::stoi(converted_name.get());
+        int vertex_idx = std::stoi(converted_name.value());
         vertex_indices.emplace_back(vertex_idx);
         image_points.emplace_back(landmarks[i].coordinates);
     }
@@ -299,16 +300,16 @@ int main(int argc, char* argv[])
     const glm::dvec4 viewport(0, image.rows, image.cols, -image.rows); // OpenCV convention
 
     auto mean_mesh = morphable_model.get_mean();
-    for (auto&& idx : vertex_indices)
+    for (auto idx : vertex_indices)
     {
         glm::dvec3 point_3d(mean_mesh.vertices[idx][0], mean_mesh.vertices[idx][1],
                             mean_mesh.vertices[idx][2]); // The 3D model point
         glm::dvec3 projected_point = glm::project(point_3d, t_mtx * rot_mtx, projection_mtx, viewport);
         cv::circle(outimg, cv::Point2f(projected_point.x, projected_point.y), 3, {0.0f, 0.0f, 255.0f}); // red
     }
-    for (auto&& lm : image_points)
+    for (const auto& lm : image_points)
     {
-        cv::circle(outimg, cv::Point2f(lm), 3,
+        cv::circle(outimg, cv::Point2f(lm(0), lm(1)), 3,
                    {0.0f, 255.0f, 255.0f}); // yellow: subset of the detected LMs that we use
     }
     auto euler_angles = glm::eulerAngles(estimated_rotation); // returns [P, Y, R]
@@ -320,7 +321,7 @@ int main(int argc, char* argv[])
 
     // Contour fitting:
     // These are the additional contour-correspondences we're going to find and then use:
-    vector<Vec2f> image_points_contour; // the 2D landmark points
+    vector<Vector2f> image_points_contour; // the 2D landmark points
     vector<int> vertex_indices_contour; // their corresponding 3D vertex indices
     // For each 2D contour landmark, get the corresponding 3D vertex point and vertex id:
     std::tie(image_points_contour, std::ignore, vertex_indices_contour) =
@@ -454,7 +455,7 @@ int main(int argc, char* argv[])
         shape_ceres, morphable_model.get_color_model().draw_sample(colour_coefficients),
         morphable_model.get_shape_model().get_triangle_list(),
         morphable_model.get_color_model().get_triangle_list(), morphable_model.get_texture_coordinates());
-    for (auto&& idx : vertex_indices)
+    for (auto idx : vertex_indices)
     {
         glm::dvec3 point_3d(mesh.vertices[idx][0], mesh.vertices[idx][1],
                             mesh.vertices[idx][2]); // The 3D model point
@@ -462,9 +463,9 @@ int main(int argc, char* argv[])
         cv::circle(outimg, cv::Point2f(projected_point.x, projected_point.y), 3,
                    {0.0f, 76.0f, 255.0f}); // orange
     }
-    for (auto&& lm : image_points)
+    for (const auto& lm : image_points)
     {
-        cv::circle(outimg, cv::Point2f(lm), 3,
+        cv::circle(outimg, cv::Point2f(lm(0), lm(1)), 3,
                    {0.0f, 255.0f,
                     255.0f}); // yellow: subset of the detected LMs that we use (including contour landmarks)
     }
