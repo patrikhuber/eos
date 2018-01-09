@@ -308,6 +308,7 @@ inline std::vector<float> fit_expressions(const morphablemodel::ExpressionModel&
  */
 inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
     const morphablemodel::MorphableModel& morphable_model,
+    const std::vector<morphablemodel::Blendshape>& blendshapes,
     const core::LandmarkCollection<Eigen::Vector2f>& landmarks, const core::LandmarkMapper& landmark_mapper,
     int image_width, int image_height, const morphablemodel::EdgeTopology& edge_topology,
     const fitting::ContourLandmarks& contour_landmarks, const fitting::ModelContour& model_contour,

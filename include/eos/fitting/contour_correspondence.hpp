@@ -339,7 +339,12 @@ get_nearest_contour_correspondences(const core::LandmarkCollection<Eigen::Vector
         const auto result = std::find_if(begin(landmarks), end(landmarks), [&ibug_idx](auto&& e) {
             return e.name == ibug_idx;
         }); // => this can go outside the loop
-        // TODO Check for ::end!!! if it's not found!
+        if (result == std::end(landmarks))
+        {
+            continue; // This should be okay; So it's possible that the function will not return any
+                      // correspondences.
+        }
+
         const auto screen_point_2d_contour_landmark = result->coordinates;
 
         std::vector<float> distances_2d;
