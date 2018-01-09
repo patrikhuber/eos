@@ -72,7 +72,7 @@ It will load the face model, landmark-to-vertex mappings, blendshapes, and other
 
 If you are just getting started, it is recommended to have a look at `fit-model-simple` too, as it requires much fewer input, and only fits pose and shape, without any blendshapes or edge-fitting. Its full set of arguments is:
 
-`fit-model-simple -m ../share/sfm_shape_3448.bin -p ../share/ibug2did.txt -i data/image_0010.png -l data/image_0010.pts`
+`fit-model-simple -m ../share/sfm_shape_3448.bin -p ../share/ibug_to_sfm.txt -i data/image_0010.png -l data/image_0010.pts`
 
 The output in both cases is an `obj` file with the shape and a `png` with the extracted isomap. The estimated pose angles and shape coefficients are available in the code via the API.
 
