@@ -24,7 +24,7 @@ before_install:
 before_script:
   - mkdir build
   - cd build
-  - ../cmake-3.8.2-Linux-x86_64/bin/cmake -DCMAKE_C_COMPILER=${C_COMPILER} -DCMAKE_CXX_COMPILER=${CXX_COMPILER} -DEOS_BUILD_EXAMPLES=on -DEOS_BUILD_UTILS=on -DEOS_GENERATE_PYTHON_BINDINGS=on -DPYTHON_EXECUTABLE=`which python3.6` ..
+  - ../cmake-3.8.2-Linux-x86_64/bin/cmake -DCMAKE_C_COMPILER=${C_COMPILER} -DCMAKE_CXX_COMPILER=${CXX_COMPILER} -DEOS_BUILD_EXAMPLES=on -DEOS_BUILD_UTILS=on -DEOS_GENERATE_PYTHON_BINDINGS=on ..
 
 script:
   - make VERBOSE=1
