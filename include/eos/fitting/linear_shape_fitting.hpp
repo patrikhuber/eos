@@ -170,13 +170,15 @@ inline std::vector<float> fit_shape_to_landmarks_linear(const morphablemodel::Pc
 inline std::vector<float> fit_shape_to_landmarks_linear_multi(const morphablemodel::PcaModel& shape_model, const std::vector<Eigen::Matrix<float, 3, 4>>& affine_camera_matrices, const std::vector<std::vector<Eigen::Vector2f>>& landmarks, const std::vector<std::vector<int>>& vertex_ids, std::vector<Eigen::VectorXf> base_faces = std::vector<Eigen::VectorXf>(), float lambda = 3.0f, std::optional<int> num_coefficients_to_fit = std::optional<int>(), std::optional<float> detector_standard_deviation = std::optional<float>(), std::optional<float> model_standard_deviation = std::optional<float>())
 {
     assert(affine_camera_matrices.size() == landmarks.size() && landmarks.size() == vertex_ids.size()); // same number of instances (i.e. images/frames) for each of them
-    assert(landmarks.size() == vertex_ids.size()); // Why check for this again Philipp? Maybe we want to assert >=1 and then check [0]?
+    int num_images = static_cast<int>(affine_camera_matrices.size());
+    for (int j = 0; j < num_images; ++j) {
+        assert(landmarks[j].size() == vertex_ids[j].size());
+    }
 
     using Eigen::VectorXf;
     using Eigen::MatrixXf;
 
     int num_coeffs_to_fit = num_coefficients_to_fit.value_or(shape_model.get_num_principal_components());
-    int num_images = affine_camera_matrices.size();
 
     // the regularisation has to be adjusted when more than one image is given
     lambda *= num_images;

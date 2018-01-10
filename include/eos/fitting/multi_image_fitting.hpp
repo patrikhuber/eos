@@ -229,7 +229,7 @@ inline std::pair<std::vector<core::Mesh>, std::vector<fitting::RenderingParamete
             model_points[j].clear();
             for (const auto& v : vertex_indices[j])
             {
-                model_points[j].push_back({ current_meshs[j].vertices[v][0], current_meshs[j].vertices[v][1], current_meshs[j].vertices[v][2], current_meshs[j].vertices[v][3] });
+                model_points[j].push_back({ current_meshs[j].vertices[v][0], current_meshs[j].vertices[v][1], current_meshs[j].vertices[v][2], 1.0f });
             }
 
             // Re-estimate the pose, using all correspondences:
