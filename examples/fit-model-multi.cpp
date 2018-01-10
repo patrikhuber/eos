@@ -19,12 +19,17 @@
  */
 #include "eos/core/Landmark.hpp"
 #include "eos/core/LandmarkMapper.hpp"
+#include "eos/core/read_pts_landmarks.hpp"
+#include "eos/core/Image.hpp"
+#include "eos/core/Image_opencv_interop.hpp"
 #include "eos/morphablemodel/MorphableModel.hpp"
 #include "eos/morphablemodel/Blendshape.hpp"
 #include "eos/fitting/fitting.hpp"
+#include "eos/fitting/multi_image_fitting.hpp"
 #include "eos/render/utils.hpp"
 #include "eos/render/texture_extraction.hpp"
 #include "eos/render/render.hpp"
+#include "eos/render/draw_utils.hpp"
 
 #include "opencv2/core/core.hpp"
 #include "opencv2/highgui/highgui.hpp"
@@ -35,6 +40,7 @@
 #include <vector>
 #include <iostream>
 #include <fstream>
+#include <optional>
 
 using namespace eos;
 namespace po = boost::program_options;
@@ -42,92 +48,10 @@ namespace fs = boost::filesystem;
 using eos::core::Landmark;
 using eos::core::LandmarkCollection;
 using cv::Mat;
-using cv::Vec2f;
-using cv::Vec3f;
-using cv::Vec4f;
 using std::cout;
 using std::endl;
 using std::vector;
 using std::string;
-
-/**
- * Reads an ibug .pts landmark file and returns an ordered vector with
- * the 68 2D landmark coordinates.
- *
- * @param[in] filename Path to a .pts file.
- * @return An ordered vector with the 68 ibug landmarks.
- */
-LandmarkCollection<cv::Vec2f> read_pts_landmarks(std::string filename)
-{
-	using std::getline;
-	using cv::Vec2f;
-	using std::string;
-	LandmarkCollection<Vec2f> landmarks;
-	landmarks.reserve(68);
-
-	std::ifstream file(filename);
-	if (!file.is_open()) {
-		throw std::runtime_error(string("Could not open landmark file: " + filename));
-	}
-
-	string line;
-	// Skip the first 3 lines, they're header lines:
-	getline(file, line); // 'version: 1'
-	getline(file, line); // 'n_points : 68'
-	getline(file, line); // '{'
-
-	int ibugId = 1;
-	while (getline(file, line))
-	{
-		if (line == "}") { // end of the file
-			break;
-		}
-		std::stringstream lineStream(line);
-
-		Landmark<Vec2f> landmark;
-		landmark.name = std::to_string(ibugId);
-		if (!(lineStream >> landmark.coordinates[0] >> landmark.coordinates[1])) {
-			throw std::runtime_error(string("Landmark format error while parsing the line: " + line));
-		}
-		// From the iBug website:
-		// "Please note that the re-annotated data for this challenge are saved in the Matlab convention of 1 being
-		// the first index, i.e. the coordinates of the top left pixel in an image are x=1, y=1."
-		// ==> So we shift every point by 1:
-		landmark.coordinates[0] -= 1.0f;
-		landmark.coordinates[1] -= 1.0f;
-		landmarks.emplace_back(landmark);
-		++ibugId;
-	}
-	return landmarks;
-};
-
-/**
- * Draws the given mesh as wireframe into the image.
- *
- * It does backface culling, i.e. draws only vertices in CCW order.
- *
- * @param[in] image An image to draw into.
- * @param[in] mesh The mesh to draw.
- * @param[in] modelview Model-view matrix to draw the mesh.
- * @param[in] projection Projection matrix to draw the mesh.
- * @param[in] viewport Viewport to draw the mesh.
- * @param[in] colour Colour of the mesh to be drawn.
- */
-void draw_wireframe(cv::Mat image, const core::Mesh& mesh, glm::mat4x4 modelview, glm::mat4x4 projection, glm::vec4 viewport, cv::Scalar colour = cv::Scalar(0, 255, 0, 255))
-{
-	for (const auto& triangle : mesh.tvi)
-	{
-		const auto p1 = glm::project({ mesh.vertices[triangle[0]][0], mesh.vertices[triangle[0]][1], mesh.vertices[triangle[0]][2] }, modelview, projection, viewport);
-		const auto p2 = glm::project({ mesh.vertices[triangle[1]][0], mesh.vertices[triangle[1]][1], mesh.vertices[triangle[1]][2] }, modelview, projection, viewport);
-		const auto p3 = glm::project({ mesh.vertices[triangle[2]][0], mesh.vertices[triangle[2]][1], mesh.vertices[triangle[2]][2] }, modelview, projection, viewport);
-		if (render::detail::are_vertices_ccw_in_screen_space(glm::vec2(p1), glm::vec2(p2), glm::vec2(p3)))
-		{
-			cv::line(image, cv::Point(p1.x, p1.y), cv::Point(p2.x, p2.y), colour);
-			cv::line(image, cv::Point(p2.x, p2.y), cv::Point(p3.x, p3.y), colour);
-			cv::line(image, cv::Point(p3.x, p3.y), cv::Point(p1.x, p1.y), colour);
-		}
-	}
-};
 
 /**
  * @brief Merges isomaps from a live video with a weighted averaging, based
@@ -212,10 +136,12 @@ private:
  */
 int main(int argc, char *argv[])
 {
+    // Note: Could make these all std::string, see fit-model.cpp.
     fs::path modelfile, isomapfile, mappingsfile, contourfile, edgetopologyfile, blendshapesfile, outputfilebase;
     vector<fs::path> imagefiles, landmarksfiles;
 	try {
 		po::options_description desc("Allowed options");
+                // clang-format off
 		desc.add_options()
 			("help,h",
 				"display the help message")
@@ -237,6 +163,7 @@ int main(int argc, char *argv[])
             ("output,o", po::value<fs::path>(&outputfilebase)->required()->default_value("out"),
 				"basename for the output rendering and obj files")
 			;
+                // clang-format on
 		po::variables_map vm;
 		po::store(po::command_line_parser(argc, argv).options(desc).run(), vm);
 		if (vm.count("help")) {
@@ -266,10 +193,10 @@ int main(int argc, char *argv[])
     for (auto& imagefile : imagefiles){
         images.push_back(cv::imread(imagefile.string()));
     }
-    vector<LandmarkCollection<cv::Vec2f>> landmarkss;
+    vector<LandmarkCollection<Eigen::Vector2f>> landmarkss;
 	try {
         for (auto& landmarksfile : landmarksfiles){
-            landmarkss.push_back(read_pts_landmarks(landmarksfile.string()));
+            landmarkss.push_back(core::read_pts_landmarks(landmarksfile.string()));
         }
 	}
 	catch (const std::runtime_error& e) {
@@ -285,7 +212,7 @@ int main(int argc, char *argv[])
 		return EXIT_FAILURE;
 	}
 	// The landmark mapper is used to map ibug landmark identifiers to vertex ids:
-	core::LandmarkMapper landmark_mapper = mappingsfile.empty() ? core::LandmarkMapper() : core::LandmarkMapper(mappingsfile);
+	core::LandmarkMapper landmark_mapper = mappingsfile.empty() ? core::LandmarkMapper() : core::LandmarkMapper(mappingsfile.string());
 
 	// The expression blendshapes:
 	vector<morphablemodel::Blendshape> blendshapes = morphablemodel::load_blendshapes(blendshapesfile.string());
@@ -309,9 +236,9 @@ int main(int argc, char *argv[])
 
     std::vector<float> pca_shape_coefficients;
     std::vector<std::vector<float>> blendshape_coefficients;
-    std::vector<std::vector<cv::Vec2f>> fitted_image_points;
+    std::vector<std::vector<Eigen::Vector2f>> fitted_image_points;
 
-    std::tie(meshs, rendering_paramss) = fitting::fit_shape_and_pose_multi(morphable_model, blendshapes, landmarkss, landmark_mapper, image_widths, image_heights, edge_topology, ibug_contour, model_contour, 50, boost::none, 30.0f, boost::none, pca_shape_coefficients, blendshape_coefficients, fitted_image_points);
+    std::tie(meshs, rendering_paramss) = fitting::fit_shape_and_pose(morphable_model, blendshapes, landmarkss, landmark_mapper, image_widths, image_heights, edge_topology, ibug_contour, model_contour, 50, std::nullopt, 30.0f, std::nullopt, pca_shape_coefficients, blendshape_coefficients, fitted_image_points);
     //std::tie(meshs, rendering_paramss) = fitting::fit_shape_and_pose_multi(morphable_model, blendshapes, landmarks, landmark_mapper, image_width, image_height, edge_topology, contour_landmarks, model_contour, num_iterations, num_shape_coefficients_to_fit, lambda, boost::none, pca_shape_coefficients, blendshape_coefficients, fitted_image_points);
     //fit_shape_and_pose_multi(const morphablemodel::MorphableModel& morphable_model, const std::vector<morphablemodel::Blendshape>& blendshapes, const std::vector<core::LandmarkCollection<cv::Vec2f>>& landmarks, const core::LandmarkMapper& landmark_mapper, std::vector<int> image_width, std::vector<int> image_height, const morphablemodel::EdgeTopology& edge_topology, const fitting::ContourLandmarks& contour_landmarks, const fitting::ModelContour& model_contour, int num_iterations, boost::optional<int> num_shape_coefficients_to_fit, float lambda, boost::optional<fitting::RenderingParameters> initial_rendering_params, std::vector<float>& pca_shape_coefficients, std::vector<std::vector<float>>& blendshape_coefficients, std::vector<std::vector<cv::Vec2f>>& fitted_image_points)
 
@@ -330,8 +257,9 @@ int main(int argc, char *argv[])
         // and similarly for pitch and roll.
 
         // Extract the texture from the image using given mesh and camera parameters:
-        Mat affine_from_ortho = fitting::get_3x4_affine_camera_matrix(rendering_paramss[i], images[i].cols, images[i].rows);
-        Mat isomap = render::extract_texture(meshs[i], affine_from_ortho, images[i]);
+        Eigen::Matrix<float, 3, 4> affine_from_ortho = fitting::get_3x4_affine_camera_matrix(rendering_paramss[i], images[i].cols, images[i].rows);
+        // Have to fiddle around with converting between core::Image and cv::Mat
+        Mat isomap = core::to_mat(render::extract_texture(meshs[i], affine_from_ortho, core::from_mat(images[i])));
 
         // Draw the loaded landmarks:
         Mat outimg = images[i].clone();
@@ -340,19 +268,19 @@ int main(int argc, char *argv[])
         }
 
         // Draw the fitted mesh as wireframe, and save the image:
-        draw_wireframe(outimg, meshs[i], rendering_paramss[i].get_modelview(), rendering_paramss[i].get_projection(), fitting::get_opencv_viewport(images[i].cols, images[i].rows));
+        render::draw_wireframe(outimg, meshs[i], rendering_paramss[i].get_modelview(), rendering_paramss[i].get_projection(), fitting::get_opencv_viewport(images[i].cols, images[i].rows));
         fs::path outputfile = outputfilebase;
         outputfile += fs::path(imagefiles[i].stem());
         outputfile += fs::path(".png");
         cv::imwrite(outputfile.string(), outimg);
 
         //save frontal rendering with texture:
-        Mat frontal_rendering;
+        core::Image4u frontal_rendering;
         glm::mat4 modelview_frontal = glm::mat4( 1.0 );
         core::Mesh neutral_expression = morphablemodel::sample_to_mesh(morphable_model.get_shape_model().draw_sample(pca_shape_coefficients), morphable_model.get_color_model().get_mean(), morphable_model.get_shape_model().get_triangle_list(), morphable_model.get_color_model().get_triangle_list(), morphable_model.get_texture_coordinates());
         std::tie(frontal_rendering, std::ignore) = render::render(neutral_expression, modelview_frontal, glm::ortho(-130.0f, 130.0f, -130.0f, 130.0f), 256, 256, render::create_mipmapped_texture(isomap), true, false, false);
         outputfile.replace_extension(".frontal.png");
-        cv::imwrite(outputfile.string(), frontal_rendering);
+        cv::imwrite(outputfile.string(), core::to_mat(frontal_rendering));
         outputfile.replace_extension("");
 
         // And save the isomap:
@@ -370,12 +298,12 @@ int main(int argc, char *argv[])
     outputfile.replace_extension("");
 
     // save the frontal rendering with merged isomap:
-    Mat frontal_rendering;
+    core::Image4u frontal_rendering;
     glm::mat4 modelview_frontal = glm::mat4( 1.0 );
     core::Mesh neutral_expression = morphablemodel::sample_to_mesh(morphable_model.get_shape_model().draw_sample(pca_shape_coefficients), morphable_model.get_color_model().get_mean(), morphable_model.get_shape_model().get_triangle_list(), morphable_model.get_color_model().get_triangle_list(), morphable_model.get_texture_coordinates());
     std::tie(frontal_rendering, std::ignore) = render::render(neutral_expression, modelview_frontal, glm::ortho(-130.0f, 130.0f, -130.0f, 130.0f), 512, 512, render::create_mipmapped_texture(merged_isomap), true, false, false);
     outputfile.replace_extension(".frontal.png");
-    cv::imwrite(outputfile.string(), frontal_rendering);
+    cv::imwrite(outputfile.string(), core::to_mat(frontal_rendering));
     outputfile.replace_extension("");
 
     // Save the mesh as textured obj:
@@ -384,5 +312,5 @@ int main(int argc, char *argv[])
 
     cout << "Finished fitting and wrote result mesh and isomap to files with basename " << outputfilebase << "." << endl;
 
-	return EXIT_SUCCESS;
+    return EXIT_SUCCESS;
 }
