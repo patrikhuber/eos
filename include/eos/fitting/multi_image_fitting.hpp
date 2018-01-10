@@ -47,7 +47,8 @@ namespace fitting {
 
 /**
  * @brief Fit the pose (camera), shape model, and expression blendshapes to landmarks,
- * in an iterative way. Can fit to more than one set of landmarks, thus multiple images.
+ * in an iterative way. This function takes a set of images and landmarks and estimates
+ * per-frame pose and expressions, as well as identity shape jointly from all images.
  *
  * Convenience function that fits pose (camera), the shape model, and expression blendshapes
  * to landmarks, in an iterative (alternating) way. It fits both sides of the face contour as well.
@@ -56,13 +57,12 @@ namespace fitting {
  * starting values in the fitting. When the function returns, they contain the coefficients from
  * the last iteration.
  *
- * Use render::Mesh fit_shape_and_pose(const morphablemodel::MorphableModel&, const std::vector<morphablemodel::Blendshape>&, const core::LandmarkCollection<cv::Vec2f>&, const core::LandmarkMapper&, int, int, const morphablemodel::EdgeTopology&, const fitting::ContourLandmarks&, const fitting::ModelContour&, int, boost::optional<int>, float).
+ * Use render::Mesh fit_shape_and_pose(const morphablemodel::MorphableModel&, const std::vector<morphablemodel::Blendshape>&, const core::LandmarkCollection<Eigen::Vector2f>&, const core::LandmarkMapper&, int, int, const morphablemodel::EdgeTopology&, const fitting::ContourLandmarks&, const fitting::ModelContour&, int, std::optional<int>, float).
  * for a simpler overload with reasonable defaults and no optional output.
  *
- * \p num_iterations: Results are good for even a single iteration. For single-image fitting and
- * for full convergence of all parameters, it can take up to 300 iterations. In tracking,
- * particularly if initialising with the previous frame, it works well with as low as 1 to 5
- * iterations.
+ * \p num_iterations: Results are good for even a few iterations. For full convergence of all parameters,
+ * it can take up to 300 iterations. In tracking, particularly if initialising with the previous frame,
+ * it works well with as low as 1 to 5 iterations.
  * \p edge_topology is used for the occluding-edge face contour fitting.
  * \p contour_landmarks and \p model_contour are used to fit the front-facing contour.
  *
@@ -78,7 +78,7 @@ namespace fitting {
  * @param[in] contour_landmarks 2D image contour ids of left or right side (for example for ibug landmarks).
  * @param[in] model_contour The model contour indices that should be considered to find the closest corresponding 3D vertex.
  * @param[in] num_iterations Number of iterations that the different fitting parts will be alternated for.
- * @param[in] num_shape_coefficients_to_fit How many shape-coefficients to fit (all others will stay 0). Should be bigger than zero, or boost::none to fit all coefficients.
+ * @param[in] num_shape_coefficients_to_fit How many shape-coefficients to fit (all others will stay 0). Should be bigger than zero, or std::nullopt to fit all coefficients.
  * @param[in] lambda Regularisation parameter of the PCA shape fitting.
  * @param[in] initial_rendering_params Currently ignored (not used).
  * @param[in,out] pca_shape_coefficients If given, will be used as initial PCA shape coefficients to start the fitting. Will contain the final estimated coefficients.
@@ -145,7 +145,7 @@ inline std::pair<std::vector<core::Mesh>, std::vector<fitting::RenderingParamete
     // Current mesh - either from the given coefficients, or the mean:
     VectorXf current_pca_shape = morphable_model.get_shape_model().draw_sample(pca_shape_coefficients);
     vector<VectorXf> current_combined_shapes;
-    vector<core::Mesh> current_meshs;
+    vector<core::Mesh> current_meshes;
     for (int j = 0; j < num_images; ++j)
     {
         VectorXf current_combined_shape =
@@ -158,7 +158,7 @@ inline std::pair<std::vector<core::Mesh>, std::vector<fitting::RenderingParamete
             current_combined_shape, morphable_model.get_color_model().get_mean(),
             morphable_model.get_shape_model().get_triangle_list(),
             morphable_model.get_color_model().get_triangle_list(), morphable_model.get_texture_coordinates());
-        current_meshs.push_back(current_mesh);
+        current_meshes.push_back(current_mesh);
     }
 
     // The 2D and 3D point correspondences used for the fitting:
@@ -183,9 +183,9 @@ inline std::pair<std::vector<core::Mesh>, std::vector<fitting::RenderingParamete
                 continue;
             }
             int vertex_idx = std::stoi(converted_name.value());
-            Vector4f vertex(current_meshs[j].vertices[vertex_idx][0],
-                            current_meshs[j].vertices[vertex_idx][1],
-                            current_meshs[j].vertices[vertex_idx][2], 1.0f);
+            Vector4f vertex(current_meshes[j].vertices[vertex_idx][0],
+                            current_meshes[j].vertices[vertex_idx][1],
+                            current_meshes[j].vertices[vertex_idx][2], 1.0f);
             current_model_points.emplace_back(vertex);
             current_vertex_indices.emplace_back(vertex_idx);
             current_image_points.emplace_back(landmarks[j][i].coordinates);
@@ -218,7 +218,7 @@ inline std::pair<std::vector<core::Mesh>, std::vector<fitting::RenderingParamete
             current_pca_shape + morphablemodel::to_matrix(blendshapes) *
                                     Eigen::Map<const Eigen::VectorXf>(blendshape_coefficients[j].data(),
                                                                       blendshape_coefficients[j].size());
-        current_meshs[j] = morphablemodel::sample_to_mesh(
+        current_meshes[j] = morphablemodel::sample_to_mesh(
             current_combined_shapes[j], morphable_model.get_color_model().get_mean(),
             morphable_model.get_shape_model().get_triangle_list(),
             morphable_model.get_color_model().get_triangle_list(), morphable_model.get_texture_coordinates());
@@ -246,7 +246,7 @@ inline std::pair<std::vector<core::Mesh>, std::vector<fitting::RenderingParamete
             // For each 2D contour landmark, get the corresponding 3D vertex point and vertex id:
             std::tie(image_points_contour, std::ignore, vertex_indices_contour) =
                 fitting::get_contour_correspondences(
-                    landmarks[j], contour_landmarks, model_contour, yaw_angle, current_meshs[j],
+                    landmarks[j], contour_landmarks, model_contour, yaw_angle, current_meshes[j],
                     rendering_params[j].get_modelview(), rendering_params[j].get_projection(),
                     fitting::get_opencv_viewport(image_width[j], image_height[j]));
             // Add the contour correspondences to the set of landmarks that we use for the fitting:
@@ -274,7 +274,7 @@ inline std::pair<std::vector<core::Mesh>, std::vector<fitting::RenderingParamete
                     });
             }
             auto edge_correspondences = fitting::find_occluding_edge_correspondences(
-                current_meshs[j], edge_topology, rendering_params[j], occluding_contour_landmarks, 180.0f);
+                current_meshes[j], edge_topology, rendering_params[j], occluding_contour_landmarks, 180.0f);
             image_points[j] = fitting::concat(image_points[j], edge_correspondences.first);
             vertex_indices[j] = fitting::concat(vertex_indices[j], edge_correspondences.second);
 
@@ -282,8 +282,8 @@ inline std::pair<std::vector<core::Mesh>, std::vector<fitting::RenderingParamete
             model_points[j].clear();
             for (auto v : vertex_indices[j])
             {
-                model_points[j].push_back({current_meshs[j].vertices[v][0], current_meshs[j].vertices[v][1],
-                                           current_meshs[j].vertices[v][2], 1.0f});
+                model_points[j].push_back({current_meshes[j].vertices[v][0], current_meshes[j].vertices[v][1],
+                                           current_meshes[j].vertices[v][2], 1.0f});
             }
 
             // Re-estimate the pose, using all correspondences:
@@ -319,7 +319,7 @@ inline std::pair<std::vector<core::Mesh>, std::vector<fitting::RenderingParamete
                 current_pca_shape +
                 blendshapes_as_basis * Eigen::Map<const Eigen::VectorXf>(blendshape_coefficients[j].data(),
                                                                          blendshape_coefficients[j].size());
-            current_meshs[j] = morphablemodel::sample_to_mesh(
+            current_meshes[j] = morphablemodel::sample_to_mesh(
                 current_combined_shapes[j], morphable_model.get_color_model().get_mean(),
                 morphable_model.get_shape_model().get_triangle_list(),
                 morphable_model.get_color_model().get_triangle_list(),
@@ -328,45 +328,47 @@ inline std::pair<std::vector<core::Mesh>, std::vector<fitting::RenderingParamete
     }
 
     fitted_image_points = image_points;
-    return {current_meshs, rendering_params}; // I think we could also work with a Mat face_instance in this
+    return {current_meshes, rendering_params}; // I think we could also work with a Mat face_instance in this
                                               // function instead of a Mesh, but it would convolute the code
                                               // more (i.e. more complicated to access vertices).
 };
 
 /**
-* @brief Fit the pose (camera), shape model, and expression blendshapes to landmarks,
-* in an iterative way.  Can fit to more than one set of landmarks, thus multiple images.
-*
-* Convenience function that fits pose (camera), the shape model, and expression blendshapes
-* to landmarks, in an iterative (alternating) way. It fits both sides of the face contour as well.
-*
-* If you want to access the values of shape or blendshape coefficients, or want to set starting
-* values for them, use the following overload to this function:
-* std::pair<render::Mesh, fitting::RenderingParameters> fit_shape_and_pose(const morphablemodel::MorphableModel&, const std::vector<morphablemodel::Blendshape>&, const core::LandmarkCollection<cv::Vec2f>&, const core::LandmarkMapper&, int, int, const morphablemodel::EdgeTopology&, const fitting::ContourLandmarks&, const fitting::ModelContour&, int, boost::optional<int>, float, boost::optional<fitting::RenderingParameters>, std::vector<float>&, std::vector<float>&, std::vector<cv::Vec2f>&)
-*
-* Todo: Add a convergence criterion.
-*
-* \p num_iterations: Results are good for even a single iteration. For single-image fitting and
-* for full convergence of all parameters, it can take up to 300 iterations. In tracking,
-* particularly if initialising with the previous frame, it works well with as low as 1 to 5
-* iterations.
-* \p edge_topology is used for the occluding-edge face contour fitting.
-* \p contour_landmarks and \p model_contour are used to fit the front-facing contour.
-*
-* @param[in] morphable_model The 3D Morphable Model used for the shape fitting.
-* @param[in] blendshapes A vector of blendshapes that are being fit to the landmarks in addition to the PCA model.
-* @param[in] landmarks 2D landmarks from an image to fit the model to.
-* @param[in] landmark_mapper Mapping info from the 2D landmark points to 3D vertex indices.
-* @param[in] image_width Width of the input image (needed for the camera model).
-* @param[in] image_height Height of the input image (needed for the camera model).
-* @param[in] edge_topology Precomputed edge topology of the 3D model, needed for fast edge-lookup.
-* @param[in] contour_landmarks 2D image contour ids of left or right side (for example for ibug landmarks).
-* @param[in] model_contour The model contour indices that should be considered to find the closest corresponding 3D vertex.
-* @param[in] num_iterations Number of iterations that the different fitting parts will be alternated for.
-* @param[in] num_shape_coefficients_to_fit How many shape-coefficients to fit (all others will stay 0). Should be bigger than zero, or boost::none to fit all coefficients.
-* @param[in] lambda Regularisation parameter of the PCA shape fitting.
-* @return The fitted model shape instance and the final pose.
-*/
+ * @brief Fit the pose (camera), shape model, and expression blendshapes to landmarks,
+ * in an iterative way. This function takes a set of images and landmarks and estimates
+ * per-frame pose and expressions, as well as identity shape jointly from all images.
+ *
+ * Convenience function that fits pose (camera), the shape model, and expression blendshapes
+ * to landmarks, in an iterative (alternating) way. It fits both sides of the face contour as well.
+ *
+ * If \p pca_shape_coefficients and/or \p blendshape_coefficients are given, they are used as
+ * starting values in the fitting. When the function returns, they contain the coefficients from
+ * the last iteration.
+ *
+ * If you want to access the values of shape or blendshape coefficients, or want to set starting
+ * values for them, use the following overload to this function:
+ * std::pair<render::Mesh, fitting::RenderingParameters> fit_shape_and_pose(const morphablemodel::MorphableModel&, const std::vector<morphablemodel::Blendshape>&, const core::LandmarkCollection<Eigen::Vector2f>&, const core::LandmarkMapper&, int, int, const morphablemodel::EdgeTopology&, const fitting::ContourLandmarks&, const fitting::ModelContour&, int, std::optional<int>, float, std::optional<fitting::RenderingParameters>, std::vector<float>&, std::vector<float>&, std::vector<Eigen::Vector2f>&)
+ *
+ * \p num_iterations: Results are good for even a few iterations. For full convergence of all parameters,
+ * it can take up to 300 iterations. In tracking, particularly if initialising with the previous frame,
+ * it works well with as low as 1 to 5 iterations.
+ * \p edge_topology is used for the occluding-edge face contour fitting.
+ * \p contour_landmarks and \p model_contour are used to fit the front-facing contour.
+ *
+ * @param[in] morphable_model The 3D Morphable Model used for the shape fitting.
+ * @param[in] blendshapes A vector of blendshapes that are being fit to the landmarks in addition to the PCA model.
+ * @param[in] landmarks 2D landmarks from an image to fit the model to.
+ * @param[in] landmark_mapper Mapping info from the 2D landmark points to 3D vertex indices.
+ * @param[in] image_width Width of the input image (needed for the camera model).
+ * @param[in] image_height Height of the input image (needed for the camera model).
+ * @param[in] edge_topology Precomputed edge topology of the 3D model, needed for fast edge-lookup.
+ * @param[in] contour_landmarks 2D image contour ids of left or right side (for example for ibug landmarks).
+ * @param[in] model_contour The model contour indices that should be considered to find the closest corresponding 3D vertex.
+ * @param[in] num_iterations Number of iterations that the different fitting parts will be alternated for.
+ * @param[in] num_shape_coefficients_to_fit How many shape-coefficients to fit (all others will stay 0). Should be bigger than zero, or std::nullopt to fit all coefficients.
+ * @param[in] lambda Regularisation parameter of the PCA shape fitting.
+ * @return The fitted model shape instance and the final pose.
+ */
 inline std::pair<std::vector<core::Mesh>, std::vector<fitting::RenderingParameters>>
 fit_shape_and_pose(const morphablemodel::MorphableModel& morphable_model,
                    const std::vector<morphablemodel::Blendshape>& blendshapes,

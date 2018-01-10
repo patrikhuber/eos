@@ -186,7 +186,7 @@ fit_shape_to_landmarks_linear_multi(const morphablemodel::PcaModel& shape_model,
 {
     assert(affine_camera_matrices.size() == landmarks.size() &&
            landmarks.size() == vertex_ids.size()); // same number of instances (i.e. images/frames) for each of them
-    int num_images = static_cast<int>(affine_camera_matrices.size());
+    const int num_images = static_cast<int>(affine_camera_matrices.size());
     for (int j = 0; j < num_images; ++j) {
         assert(landmarks[j].size() == vertex_ids[j].size());
     }
@@ -194,7 +194,7 @@ fit_shape_to_landmarks_linear_multi(const morphablemodel::PcaModel& shape_model,
     using Eigen::VectorXf;
     using Eigen::MatrixXf;
 
-    int num_coeffs_to_fit = num_coefficients_to_fit.value_or(shape_model.get_num_principal_components());
+    const int num_coeffs_to_fit = num_coefficients_to_fit.value_or(shape_model.get_num_principal_components());
 
     // the regularisation has to be adjusted when more than one image is given
     lambda *= num_images;
@@ -217,10 +217,10 @@ fit_shape_to_landmarks_linear_multi(const morphablemodel::PcaModel& shape_model,
     // 2D (detector) standard deviation: In pixel, we follow [1] and choose sqrt(3) as the default value.
     // 3D (model) variance: 0.0f. It only makes sense to set it to something when we have a different variance for different vertices.
     // The 3D variance has to be projected to 2D (for details, see paper [1]) so the units do match up.
-    float sigma_squared_2D = std::pow(detector_standard_deviation.value_or(std::sqrt(3.0f)), 2) +
-                             std::pow(model_standard_deviation.value_or(0.0f), 2);
+    const float sigma_squared_2D = std::pow(detector_standard_deviation.value_or(std::sqrt(3.0f)), 2) +
+                                   std::pow(model_standard_deviation.value_or(0.0f), 2);
     // We use a VectorXf, and later use .asDiagonal():
-    VectorXf Omega = VectorXf::Constant(3 * total_num_landmarks_dimension, 1.0f / sigma_squared_2D);
+    const VectorXf Omega = VectorXf::Constant(3 * total_num_landmarks_dimension, 1.0f / sigma_squared_2D);
     // The landmarks in matrix notation (in homogeneous coordinates), $3N\times 1$
     VectorXf y = VectorXf::Ones(3 * total_num_landmarks_dimension);
     int y_index = 0; // also runs the same as P_index. Should rename to "running_index"?
@@ -234,7 +234,7 @@ fit_shape_to_landmarks_linear_multi(const morphablemodel::PcaModel& shape_model,
         // For each image we have, set up the equations and add it to the matrices:
         assert(landmarks[k].size() == vertex_ids[k].size()); // has to be valid for each img
 
-        int num_landmarks = static_cast<int>(landmarks[k].size());
+        const int num_landmarks = static_cast<int>(landmarks[k].size());
 
         if (base_faces[k].size() == 0)
         {
@@ -246,7 +246,7 @@ fit_shape_to_landmarks_linear_multi(const morphablemodel::PcaModel& shape_model,
         //Mat V_hat_h = Mat::zeros(4 * num_landmarks, num_coeffs_to_fit, CV_32FC1);
         for (int i = 0; i < num_landmarks; ++i)
         {
-            MatrixXf basis_rows_ = shape_model.get_rescaled_pca_basis_at_point(
+            const MatrixXf basis_rows_ = shape_model.get_rescaled_pca_basis_at_point(
                 vertex_ids[k][i]); // In the paper, the orthonormal basis might be used? I'm not sure, check it.
                                    // It's even a mess in the paper. PH 26.5.2014: I think the rescaled basis is fine/better.
             V_hat_h.block(V_hat_h_row_index, 0, 3, V_hat_h.cols()) =

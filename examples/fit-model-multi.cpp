@@ -232,8 +232,8 @@ int main(int argc, char *argv[])
         morphablemodel::load_edge_topology(edgetopologyfile.string());
 
     // Fit the model, get back a mesh and the pose:
-    vector<core::Mesh> meshs;
-    vector<fitting::RenderingParameters> rendering_paramss;
+    vector<core::Mesh> per_frame_meshes;
+    vector<fitting::RenderingParameters> per_frame_rendering_params;
     vector<int> image_widths;
     vector<int> image_heights;
     for (auto& image : images)
@@ -246,7 +246,7 @@ int main(int argc, char *argv[])
     vector<vector<float>> blendshape_coefficients;
     vector<vector<Eigen::Vector2f>> fitted_image_points;
 
-    std::tie(meshs, rendering_paramss) = fitting::fit_shape_and_pose(
+    std::tie(per_frame_meshes, per_frame_rendering_params) = fitting::fit_shape_and_pose(
         morphable_model, blendshapes, landmarkss, landmark_mapper, image_widths, image_heights, edge_topology,
         ibug_contour, model_contour, 5, std::nullopt, 30.0f, std::nullopt, pca_shape_coefficients,
         blendshape_coefficients, fitted_image_points);
@@ -263,15 +263,15 @@ int main(int argc, char *argv[])
     for (unsigned i = 0; i < images.size(); ++i)
     {
         // The 3D head pose can be recovered as follows:
-        float yaw_angle = glm::degrees(glm::yaw(rendering_paramss[i].get_rotation()));
+        float yaw_angle = glm::degrees(glm::yaw(per_frame_rendering_params[i].get_rotation()));
         // and similarly for pitch and roll.
 
         // Extract the texture from the image using given mesh and camera parameters:
         Eigen::Matrix<float, 3, 4> affine_from_ortho =
-            fitting::get_3x4_affine_camera_matrix(rendering_paramss[i], images[i].cols, images[i].rows);
+            fitting::get_3x4_affine_camera_matrix(per_frame_rendering_params[i], images[i].cols, images[i].rows);
         // Have to fiddle around with converting between core::Image and cv::Mat
         Mat isomap =
-            core::to_mat(render::extract_texture(meshs[i], affine_from_ortho, core::from_mat(images[i])));
+            core::to_mat(render::extract_texture(per_frame_meshes[i], affine_from_ortho, core::from_mat(images[i])));
 
         // Draw the loaded landmarks:
         Mat outimg = images[i].clone();
@@ -282,8 +282,8 @@ int main(int argc, char *argv[])
         }
 
         // Draw the fitted mesh as wireframe, and save the image:
-        render::draw_wireframe(outimg, meshs[i], rendering_paramss[i].get_modelview(),
-                               rendering_paramss[i].get_projection(),
+        render::draw_wireframe(outimg, per_frame_meshes[i], per_frame_rendering_params[i].get_modelview(),
+                               per_frame_rendering_params[i].get_projection(),
                                fitting::get_opencv_viewport(images[i].cols, images[i].rows));
         fs::path outputfile = outputfilebase;
         outputfile += fs::path(imagefiles[i].stem());
