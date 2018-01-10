@@ -184,7 +184,7 @@ inline std::vector<float> fit_shape_to_landmarks_linear_multi(const morphablemod
     lambda *= num_images;
 
     int total_num_landmarks_dimension = 0;
-    for (auto&& l : landmarks) {
+    for (const auto& l : landmarks) {
         total_num_landmarks_dimension += l.size();
     }
 

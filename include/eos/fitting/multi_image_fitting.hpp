@@ -136,7 +136,7 @@ inline std::pair<std::vector<core::Mesh>, std::vector<fitting::RenderingParamete
         VectorXf current_combined_shape = current_pca_shape + blendshapes_as_basis * Eigen::Map<const Eigen::VectorXf>(blendshape_coefficients[j].data(), blendshape_coefficients[j].size());
         current_combined_shapes.push_back(current_combined_shape);
 
-        eos::core::Mesh current_mesh = morphablemodel::sample_to_mesh(current_combined_shape, morphable_model.get_color_model().get_mean(), morphable_model.get_shape_model().get_triangle_list(), morphable_model.get_color_model().get_triangle_list(), morphable_model.get_texture_coordinates());
+        core::Mesh current_mesh = morphablemodel::sample_to_mesh(current_combined_shape, morphable_model.get_color_model().get_mean(), morphable_model.get_shape_model().get_triangle_list(), morphable_model.get_color_model().get_triangle_list(), morphable_model.get_texture_coordinates());
         current_meshs.push_back(current_mesh);
     }
 
@@ -227,7 +227,7 @@ inline std::pair<std::vector<core::Mesh>, std::vector<fitting::RenderingParamete
 
             // Get the model points of the current mesh, for all correspondences that we've got:
             model_points[j].clear();
-            for (const auto& v : vertex_indices[j])
+            for (auto v : vertex_indices[j])
             {
                 model_points[j].push_back({ current_meshs[j].vertices[v][0], current_meshs[j].vertices[v][1], current_meshs[j].vertices[v][2], 1.0f });
             }

@@ -176,17 +176,17 @@ int main(int argc, char *argv[])
 	catch (const po::error& e) {
 		cout << "Error while parsing command-line arguments: " << e.what() << endl;
 		cout << "Use --help to display a list of options." << endl;
-		return EXIT_SUCCESS;
+		return EXIT_FAILURE;
 	}
 
     if (landmarksfiles.size() != imagefiles.size()) {
         cout << "Number of landmarksfiles not equal to number of images given: "<<landmarksfiles.size() <<"!=" <<imagefiles.size()<< endl;
-        return EXIT_SUCCESS;
+        return EXIT_FAILURE;
     }
 
     if (landmarksfiles.empty()) {
-        cout << "Please give at least 1 image and landmarkfile" << endl;
-        return EXIT_SUCCESS;
+        cout << "Please give at least 1 image and landmark file." << endl;
+        return EXIT_FAILURE;
     }
 	// Load the image, landmarks, LandmarkMapper and the Morphable Model:
     vector<Mat> images;
@@ -234,23 +234,21 @@ int main(int argc, char *argv[])
         image_heights.push_back(image.rows);
     }
 
-    std::vector<float> pca_shape_coefficients;
-    std::vector<std::vector<float>> blendshape_coefficients;
-    std::vector<std::vector<Eigen::Vector2f>> fitted_image_points;
+    vector<float> pca_shape_coefficients;
+    vector<vector<float>> blendshape_coefficients;
+    vector<vector<Eigen::Vector2f>> fitted_image_points;
 
-    std::tie(meshs, rendering_paramss) = fitting::fit_shape_and_pose(morphable_model, blendshapes, landmarkss, landmark_mapper, image_widths, image_heights, edge_topology, ibug_contour, model_contour, 50, std::nullopt, 30.0f, std::nullopt, pca_shape_coefficients, blendshape_coefficients, fitted_image_points);
-    //std::tie(meshs, rendering_paramss) = fitting::fit_shape_and_pose_multi(morphable_model, blendshapes, landmarks, landmark_mapper, image_width, image_height, edge_topology, contour_landmarks, model_contour, num_iterations, num_shape_coefficients_to_fit, lambda, boost::none, pca_shape_coefficients, blendshape_coefficients, fitted_image_points);
-    //fit_shape_and_pose_multi(const morphablemodel::MorphableModel& morphable_model, const std::vector<morphablemodel::Blendshape>& blendshapes, const std::vector<core::LandmarkCollection<cv::Vec2f>>& landmarks, const core::LandmarkMapper& landmark_mapper, std::vector<int> image_width, std::vector<int> image_height, const morphablemodel::EdgeTopology& edge_topology, const fitting::ContourLandmarks& contour_landmarks, const fitting::ModelContour& model_contour, int num_iterations, boost::optional<int> num_shape_coefficients_to_fit, float lambda, boost::optional<fitting::RenderingParameters> initial_rendering_params, std::vector<float>& pca_shape_coefficients, std::vector<std::vector<float>>& blendshape_coefficients, std::vector<std::vector<cv::Vec2f>>& fitted_image_points)
+    std::tie(meshs, rendering_paramss) = fitting::fit_shape_and_pose(morphable_model, blendshapes, landmarkss, landmark_mapper, image_widths, image_heights, edge_topology, ibug_contour, model_contour, 5, std::nullopt, 30.0f, std::nullopt, pca_shape_coefficients, blendshape_coefficients, fitted_image_points);
 
-    std::cout<<"final pca shape coefficients: ";
-    for (auto i: pca_shape_coefficients)
-      std::cout << i << ' ';
-    std::cout << std::endl;
+    cout << "Final pca shape coefficients: ";
+    for (auto i : pca_shape_coefficients)
+      cout << i << ' ';
+    cout << endl;
 
     WeightedIsomapAveraging isomap_averaging(60.f); // merge all triangles that are facing <60° towards the camera
     Mat merged_isomap;
 
-    for (unsigned i =0; i <images.size(); ++i) {
+    for (unsigned i = 0; i <images.size(); ++i) {
 
         // The 3D head pose can be recovered as follows:
         float yaw_angle = glm::degrees(glm::yaw(rendering_paramss[i].get_rotation()));
@@ -274,7 +272,7 @@ int main(int argc, char *argv[])
         outputfile += fs::path(".png");
         cv::imwrite(outputfile.string(), outimg);
 
-        //save frontal rendering with texture:
+        // Save frontal rendering with texture:
         core::Image4u frontal_rendering;
         glm::mat4 modelview_frontal = glm::mat4( 1.0 );
         core::Mesh neutral_expression = morphablemodel::sample_to_mesh(morphable_model.get_shape_model().draw_sample(pca_shape_coefficients), morphable_model.get_color_model().get_mean(), morphable_model.get_shape_model().get_triangle_list(), morphable_model.get_color_model().get_triangle_list(), morphable_model.get_texture_coordinates());
@@ -287,17 +285,17 @@ int main(int argc, char *argv[])
         outputfile.replace_extension(".isomap.png");
         cv::imwrite(outputfile.string(), isomap);
 
-        // merge the isomaps:
+        // Merge the isomaps:
         merged_isomap = isomap_averaging.add_and_merge(isomap);
     }
 
-    // save the merged isomap:
+    // Save the merged isomap:
     fs::path outputfile = outputfilebase;
     outputfile +=fs::path("merged.isomap.png");
     cv::imwrite(outputfile.string(), merged_isomap);
     outputfile.replace_extension("");
 
-    // save the frontal rendering with merged isomap:
+    // Save the frontal rendering with merged isomap:
     core::Image4u frontal_rendering;
     glm::mat4 modelview_frontal = glm::mat4( 1.0 );
     core::Mesh neutral_expression = morphablemodel::sample_to_mesh(morphable_model.get_shape_model().draw_sample(pca_shape_coefficients), morphable_model.get_color_model().get_mean(), morphable_model.get_shape_model().get_triangle_list(), morphable_model.get_color_model().get_triangle_list(), morphable_model.get_texture_coordinates());
