@@ -294,7 +294,7 @@ inline std::pair<std::vector<core::Mesh>, std::vector<fitting::RenderingParamete
 * @param[in] lambda Regularisation parameter of the PCA shape fitting.
 * @return The fitted model shape instance and the final pose.
 */
-inline std::pair<std::vector<core::Mesh>, std::vector<fitting::RenderingParameters>> fit_shape_and_pose_multi(const morphablemodel::MorphableModel& morphable_model, const std::vector<morphablemodel::Blendshape>& blendshapes, const std::vector<core::LandmarkCollection<Eigen::Vector2f>>& landmarks, const core::LandmarkMapper& landmark_mapper, std::vector<int> image_width, std::vector<int> image_height, const morphablemodel::EdgeTopology& edge_topology, const fitting::ContourLandmarks& contour_landmarks, const fitting::ModelContour& model_contour, int num_iterations = 5, std::optional<int> num_shape_coefficients_to_fit = std::nullopt, float lambda = 30.0f)
+inline std::pair<std::vector<core::Mesh>, std::vector<fitting::RenderingParameters>> fit_shape_and_pose(const morphablemodel::MorphableModel& morphable_model, const std::vector<morphablemodel::Blendshape>& blendshapes, const std::vector<core::LandmarkCollection<Eigen::Vector2f>>& landmarks, const core::LandmarkMapper& landmark_mapper, std::vector<int> image_width, std::vector<int> image_height, const morphablemodel::EdgeTopology& edge_topology, const fitting::ContourLandmarks& contour_landmarks, const fitting::ModelContour& model_contour, int num_iterations = 5, std::optional<int> num_shape_coefficients_to_fit = std::nullopt, float lambda = 30.0f)
 {
     using std::vector;
     vector<float> pca_shape_coefficients;
