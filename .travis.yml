@@ -8,7 +8,7 @@ env:
   - C_COMPILER=clang-5.0 CXX_COMPILER=clang++-5.0
 
 before_install:
-  - pyenv global system 3.6
+  - pyenv global system 3.6 # Workaround for travis-ci/issues/8363
   - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
   - wget -O - http://llvm.org/apt/llvm-snapshot.gpg.key | sudo apt-key add -
   - echo "deb http://llvm.org/apt/trusty/ llvm-toolchain-trusty-5.0 main" | sudo tee -a /etc/apt/sources.list
