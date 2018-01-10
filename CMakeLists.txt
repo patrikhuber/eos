@@ -88,6 +88,7 @@ set(HEADERS
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/blendshape_fitting.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/closest_edge_fitting.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/fitting.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/multi_image_fitting.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/ceres_nonlinear.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/RenderingParameters.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/utils.hpp
