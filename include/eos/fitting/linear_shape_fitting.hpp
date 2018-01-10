@@ -56,7 +56,13 @@ namespace fitting {
  * @param[in] model_standard_deviation The standard deviation of the 3D vertex points in the 3D model, projected to 2D (so the value is in pixels).
  * @return The estimated shape-coefficients (alphas).
  */
-inline std::vector<float> fit_shape_to_landmarks_linear(const morphablemodel::PcaModel& shape_model, Eigen::Matrix<float, 3, 4> affine_camera_matrix, const std::vector<Eigen::Vector2f>& landmarks, const std::vector<int>& vertex_ids, Eigen::VectorXf base_face=Eigen::VectorXf(), float lambda=3.0f, std::optional<int> num_coefficients_to_fit= std::optional<int>(), std::optional<float> detector_standard_deviation= std::optional<float>(), std::optional<float> model_standard_deviation= std::optional<float>())
+inline std::vector<float> fit_shape_to_landmarks_linear(
+    const morphablemodel::PcaModel& shape_model, Eigen::Matrix<float, 3, 4> affine_camera_matrix,
+    const std::vector<Eigen::Vector2f>& landmarks, const std::vector<int>& vertex_ids,
+    Eigen::VectorXf base_face = Eigen::VectorXf(), float lambda = 3.0f,
+    std::optional<int> num_coefficients_to_fit = std::optional<int>(),
+    std::optional<float> detector_standard_deviation = std::optional<float>(),
+    std::optional<float> model_standard_deviation = std::optional<float>())
 {
     assert(landmarks.size() == vertex_ids.size());
 
@@ -167,9 +173,19 @@ inline std::vector<float> fit_shape_to_landmarks_linear(const morphablemodel::Pc
 * @param[in] model_standard_deviation The standard deviation of the 3D vertex points in the 3D model, projected to 2D (so the value is in pixels).
 * @return The estimated shape-coefficients (alphas).
 */
-inline std::vector<float> fit_shape_to_landmarks_linear_multi(const morphablemodel::PcaModel& shape_model, const std::vector<Eigen::Matrix<float, 3, 4>>& affine_camera_matrices, const std::vector<std::vector<Eigen::Vector2f>>& landmarks, const std::vector<std::vector<int>>& vertex_ids, std::vector<Eigen::VectorXf> base_faces = std::vector<Eigen::VectorXf>(), float lambda = 3.0f, std::optional<int> num_coefficients_to_fit = std::optional<int>(), std::optional<float> detector_standard_deviation = std::optional<float>(), std::optional<float> model_standard_deviation = std::optional<float>())
+inline std::vector<float>
+fit_shape_to_landmarks_linear_multi(const morphablemodel::PcaModel& shape_model,
+                                    const std::vector<Eigen::Matrix<float, 3, 4>>& affine_camera_matrices,
+                                    const std::vector<std::vector<Eigen::Vector2f>>& landmarks,
+                                    const std::vector<std::vector<int>>& vertex_ids,
+                                    std::vector<Eigen::VectorXf> base_faces = std::vector<Eigen::VectorXf>(),
+                                    float lambda = 3.0f,
+                                    std::optional<int> num_coefficients_to_fit = std::optional<int>(),
+                                    std::optional<float> detector_standard_deviation = std::optional<float>(),
+                                    std::optional<float> model_standard_deviation = std::optional<float>())
 {
-    assert(affine_camera_matrices.size() == landmarks.size() && landmarks.size() == vertex_ids.size()); // same number of instances (i.e. images/frames) for each of them
+    assert(affine_camera_matrices.size() == landmarks.size() &&
+           landmarks.size() == vertex_ids.size()); // same number of instances (i.e. images/frames) for each of them
     int num_images = static_cast<int>(affine_camera_matrices.size());
     for (int j = 0; j < num_images; ++j) {
         assert(landmarks[j].size() == vertex_ids[j].size());
@@ -201,7 +217,8 @@ inline std::vector<float> fit_shape_to_landmarks_linear_multi(const morphablemod
     // 2D (detector) standard deviation: In pixel, we follow [1] and choose sqrt(3) as the default value.
     // 3D (model) variance: 0.0f. It only makes sense to set it to something when we have a different variance for different vertices.
     // The 3D variance has to be projected to 2D (for details, see paper [1]) so the units do match up.
-    float sigma_squared_2D = std::pow(detector_standard_deviation.value_or(std::sqrt(3.0f)), 2) + std::pow(model_standard_deviation.value_or(0.0f), 2);
+    float sigma_squared_2D = std::pow(detector_standard_deviation.value_or(std::sqrt(3.0f)), 2) +
+                             std::pow(model_standard_deviation.value_or(0.0f), 2);
     // We use a VectorXf, and later use .asDiagonal():
     VectorXf Omega = VectorXf::Constant(3 * total_num_landmarks_dimension, 1.0f / sigma_squared_2D);
     // The landmarks in matrix notation (in homogeneous coordinates), $3N\times 1$
@@ -227,9 +244,13 @@ inline std::vector<float> fit_shape_to_landmarks_linear_multi(const morphablemod
         // $\hat{V} \in R^{3N\times m-1}$, subselect the rows of the eigenvector matrix $V$ associated with the $N$ feature points
         // And we insert a row of zeros after every third row, resulting in matrix $\hat{V}_h \in R^{4N\times m-1}$:
         //Mat V_hat_h = Mat::zeros(4 * num_landmarks, num_coeffs_to_fit, CV_32FC1);
-        for (int i = 0; i < num_landmarks; ++i) {
-            MatrixXf basis_rows_ = shape_model.get_rescaled_pca_basis_at_point(vertex_ids[k][i]); // In the paper, the orthonormal basis might be used? I'm not sure, check it. It's even a mess in the paper. PH 26.5.2014: I think the rescaled basis is fine/better.
-            V_hat_h.block(V_hat_h_row_index, 0, 3, V_hat_h.cols()) = basis_rows_.block(0, 0, basis_rows_.rows(), num_coeffs_to_fit);
+        for (int i = 0; i < num_landmarks; ++i)
+        {
+            MatrixXf basis_rows_ = shape_model.get_rescaled_pca_basis_at_point(
+                vertex_ids[k][i]); // In the paper, the orthonormal basis might be used? I'm not sure, check it.
+                                   // It's even a mess in the paper. PH 26.5.2014: I think the rescaled basis is fine/better.
+            V_hat_h.block(V_hat_h_row_index, 0, 3, V_hat_h.cols()) =
+                basis_rows_.block(0, 0, basis_rows_.rows(), num_coeffs_to_fit);
             V_hat_h_row_index += 4; // replace 3 rows and skip the 4th one, it has all zeros
         }
 
@@ -237,7 +258,8 @@ inline std::vector<float> fit_shape_to_landmarks_linear_multi(const morphablemod
         for (int i = 0; i < num_landmarks; ++i) {
             for (int x = 0; x < affine_camera_matrices[k].rows(); ++x) {
                 for (int y = 0; y < affine_camera_matrices[k].cols(); ++y) {
-                    P_coefficients.push_back(Eigen::Triplet<float>(3 * P_index + x, 4 * P_index + y, affine_camera_matrices[k](x, y)));
+                    P_coefficients.push_back(Eigen::Triplet<float>(3 * P_index + x, 4 * P_index + y,
+                                                                   affine_camera_matrices[k](x, y)));
                 }
             }
             ++P_index;
@@ -267,7 +289,8 @@ inline std::vector<float> fit_shape_to_landmarks_linear_multi(const morphablemod
     // Bring into standard regularised quadratic form with diagonal distance matrix Omega:
     const MatrixXf A = P * V_hat_h; // camera matrix times the basis
     const MatrixXf b = P * v_bar - y; // camera matrix times the mean, minus the landmarks
-    const MatrixXf AtOmegaAReg = A.transpose() * Omega.asDiagonal() * A + lambda * Eigen::MatrixXf::Identity(num_coeffs_to_fit, num_coeffs_to_fit);
+    const MatrixXf AtOmegaAReg = A.transpose() * Omega.asDiagonal() * A +
+                                 lambda * Eigen::MatrixXf::Identity(num_coeffs_to_fit, num_coeffs_to_fit);
     const MatrixXf rhs = -A.transpose() * Omega.asDiagonal() * b; // It's -A^t*Omega^t*b, but we don't need to transpose Omega, since it's a diagonal matrix, and Omega^t = Omega.
 
     // c_s: The 'x' that we solve for. (The variance-normalised shape parameter vector, $c_s = [a_1/sigma_{s,1} , ..., a_m-1/sigma_{s,m-1}]^t$.)
