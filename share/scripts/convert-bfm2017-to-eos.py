@@ -43,7 +43,7 @@ with h5py.File(bfm2017_file, 'r') as hf:
     #expression_pca_basis = np.array(hf['expression/model/pcaBasis'])
     #expression_pca_variance = np.array(hf['expression/model/pcaVariance'])
 
-    #expression_model = eos.morphablemodel.PcaModel(expression_mean, expression_pca_basis, expression_pca_variance, triangle_list)
+    #expression_model = eos.morphablemodel.PcaModel(expression_mean, expression_pca_basis, expression_pca_variance, triangle_list.transpose().tolist())
 
     # Construct and save an eos model from the BFM data:
     model = eos.morphablemodel.MorphableModel(shape_model, color_model, []) # uv-coordinates can be added here
