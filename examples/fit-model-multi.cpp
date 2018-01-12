@@ -179,7 +179,7 @@ int main(int argc, char *argv[])
     }
 
     if (landmarksfiles.size() != imagefiles.size()) {
-        cout << "Number of landmarksfiles not equal to number of images given: " << landmarksfiles.size()
+        cout << "Number of landmarks files not equal to number of images given: " << landmarksfiles.size()
              << "!=" << imagefiles.size() << endl;
         return EXIT_FAILURE;
     }
