@@ -92,6 +92,20 @@ inline std::vector<Blendshape> load_blendshapes(std::string filename)
 };
 
 /**
+ * Helper method to save a set of blendshapes to the
+ * harddisk as a cereal::BinaryOutputArchive.
+ *
+ * @param[in] blendshapes The blendshapes to be saved.
+ * @param[in] filename Filename for the blendshapes.
+ */
+inline void save_blendshapes(const std::vector<Blendshape>& blendshapes, std::string filename)
+{
+    std::ofstream file(filename, std::ios::binary);
+    cereal::BinaryOutputArchive output_archive(file);
+    output_archive(blendshapes);
+};
+
+/**
  * @brief Copies the blendshapes into a matrix, with each column being a blendshape.
  *
  * @param[in] blendshapes Vector of blendshapes.

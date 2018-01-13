@@ -90,10 +90,12 @@ PYBIND11_MODULE(eos, eos_module)
 
     py::class_<morphablemodel::Blendshape>(morphablemodel_module, "Blendshape", "A class representing a 3D blendshape.")
         .def(py::init<>(), "Creates an empty blendshape.")
+        .def(py::init<std::string, Eigen::VectorXf>(), "Create a blendshape with given name and deformation vector.", py::arg("name"), py::arg("deformation"))
         .def_readwrite("name", &morphablemodel::Blendshape::name, "Name of the blendshape.")
         .def_readwrite("deformation", &morphablemodel::Blendshape::deformation, "A 3m x 1 col-vector (xyzxyz...)', where m is the number of model-vertices. Has the same format as PcaModel::mean.");
 
     morphablemodel_module.def("load_blendshapes", &morphablemodel::load_blendshapes, "Load a file with blendshapes from a cereal::BinaryInputArchive (.bin) from the harddisk.", py::arg("filename"));
+    morphablemodel_module.def("save_blendshapes", &morphablemodel::save_blendshapes, "Save a set of blendshapes to the harddisk as a cereal::BinaryOutputArchive (.bin).", py::arg("blendshapes"), py::arg("filename"));
 
     /**
      *  - PcaModel
