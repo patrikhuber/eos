@@ -120,6 +120,7 @@ public:
 };
 
 // Note: The num_channels number needs to be repeated, not so nice.
+using Image1u = Image<std::uint8_t, 1>;
 using Image3u = Image<std::array<std::uint8_t, 3>, 3>;
 using Image4u = Image<std::array<std::uint8_t, 4>, 4>;
 using Image1d = Image<double, 1>;

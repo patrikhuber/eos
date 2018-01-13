@@ -63,6 +63,20 @@ inline cv::Mat to_mat(const Image1d& image)
     return opencv_matrix;
 };
 
+inline cv::Mat to_mat(const Image1u& image)
+{
+    cv::Mat opencv_matrix(image.rows, image.cols, CV_8UC1);
+    for (int c = 0; c < image.cols; ++c)
+    { // size_t
+        for (int r = 0; r < image.rows; ++r)
+        {
+            // auto vals = image(r, c);
+            opencv_matrix.at<unsigned char>(r, c) = image(r, c);
+        }
+    }
+    return opencv_matrix;
+};
+
 inline Image3u from_mat(const cv::Mat& image)
 {
     if (image.type() != CV_8UC3)
