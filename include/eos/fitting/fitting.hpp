@@ -440,6 +440,7 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
 
     // Current mesh - either from the given coefficients, or the mean:
     VectorXf current_pca_shape = morphable_model.get_shape_model().draw_sample(pca_shape_coefficients);
+    assert(morphable_model.has_separate_expression_model()); // Note: We could also just skip the expression fitting in this case.
     // Note we don't check whether the shape and expression model dimensions match.
     VectorXf current_combined_shape =
         current_pca_shape +
@@ -478,7 +479,6 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
     fitting::RenderingParameters rendering_params(current_pose, image_width, image_height);
 
     const Eigen::Matrix<float, 3, 4> affine_from_ortho = fitting::get_3x4_affine_camera_matrix(rendering_params, image_width, image_height);
-    assert(morphable_model.has_separate_expression_model()); // Note: We could also just skip the expression fitting in this case.
     expression_coefficients = fit_expressions(morphable_model.get_expression_model().value(), current_pca_shape, affine_from_ortho, image_points, vertex_indices);
 
     // Mesh with same PCA coeffs as before, but new expression fit (this is relevant if no initial blendshape coeffs have been given):
