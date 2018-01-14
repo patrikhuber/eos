@@ -190,15 +190,15 @@ int main(int argc, char *argv[])
     }
     // Load the image, landmarks, LandmarkMapper and the Morphable Model:
     vector<Mat> images;
-    for (auto& imagefile : imagefiles){
+    for (const auto& imagefile : imagefiles){
         images.push_back(cv::imread(imagefile.string()));
     }
-    vector<LandmarkCollection<Eigen::Vector2f>> landmarkss;
+    vector<LandmarkCollection<Eigen::Vector2f>> per_frame_landmarks;
     try
     {
-        for (auto& landmarksfile : landmarksfiles)
+        for (const auto& landmarksfile : landmarksfiles)
         {
-            landmarkss.push_back(core::read_pts_landmarks(landmarksfile.string()));
+            per_frame_landmarks.push_back(core::read_pts_landmarks(landmarksfile.string()));
         }
     } catch (const std::runtime_error& e)
     {
@@ -236,7 +236,7 @@ int main(int argc, char *argv[])
     vector<fitting::RenderingParameters> per_frame_rendering_params;
     vector<int> image_widths;
     vector<int> image_heights;
-    for (auto& image : images)
+    for (const auto& image : images)
     {
         image_widths.push_back(image.cols);
         image_heights.push_back(image.rows);
@@ -247,7 +247,7 @@ int main(int argc, char *argv[])
     vector<vector<Eigen::Vector2f>> fitted_image_points;
 
     std::tie(per_frame_meshes, per_frame_rendering_params) = fitting::fit_shape_and_pose(
-        morphable_model, blendshapes, landmarkss, landmark_mapper, image_widths, image_heights, edge_topology,
+        morphable_model, blendshapes, per_frame_landmarks, landmark_mapper, image_widths, image_heights, edge_topology,
         ibug_contour, model_contour, 5, std::nullopt, 30.0f, std::nullopt, pca_shape_coefficients,
         blendshape_coefficients, fitted_image_points);
 
@@ -275,7 +275,7 @@ int main(int argc, char *argv[])
 
         // Draw the loaded landmarks:
         Mat outimg = images[i].clone();
-        for (auto&& lm : landmarkss[i])
+        for (const auto& lm : per_frame_landmarks[i])
         {
             cv::rectangle(outimg, cv::Point2f(lm.coordinates[0] - 2.0f, lm.coordinates[1] - 2.0f),
                           cv::Point2f(lm.coordinates[0] + 2.0f, lm.coordinates[1] + 2.0f), {255, 0, 0});
