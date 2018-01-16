@@ -95,7 +95,7 @@ struct ModelContour
         ModelContour contour;
 
         std::ifstream file(filename);
-        if (file.fail())
+        if (!file)
         {
             throw std::runtime_error("Error opening given file: " + filename);
         }

@@ -328,7 +328,7 @@ inline PcaModel load_pca_model(std::string filename)
     PcaModel model;
 
     std::ifstream file(filename, std::ios::binary);
-    if (file.fail())
+    if (!file)
     {
         throw std::runtime_error("Error opening given file: " + filename);
     }
@@ -348,6 +348,10 @@ inline PcaModel load_pca_model(std::string filename)
 inline void save_pca_model(PcaModel model, std::string filename)
 {
     std::ofstream file(filename, std::ios::binary);
+    if (!file)
+    {
+        throw std::runtime_error("Error creating given file: " + filename);
+    }
     cereal::BinaryOutputArchive output_archive(file);
     output_archive(model);
 };

@@ -81,7 +81,7 @@ inline std::vector<Blendshape> load_blendshapes(std::string filename)
     std::vector<Blendshape> blendshapes;
 
     std::ifstream file(filename, std::ios::binary);
-    if (file.fail())
+    if (!file)
     {
         throw std::runtime_error("Error opening given file: " + filename);
     }
@@ -101,6 +101,10 @@ inline std::vector<Blendshape> load_blendshapes(std::string filename)
 inline void save_blendshapes(const std::vector<Blendshape>& blendshapes, std::string filename)
 {
     std::ofstream file(filename, std::ios::binary);
+    if (!file)
+    {
+        throw std::runtime_error("Error creating given file: " + filename);
+    }
     cereal::BinaryOutputArchive output_archive(file);
     output_archive(blendshapes);
 };
