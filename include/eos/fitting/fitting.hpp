@@ -261,6 +261,45 @@ inline std::vector<float> fit_expressions(const morphablemodel::ExpressionModel&
     }
 };
 
+// Note that this doesn't check whether the shape and expression model dimensions match.
+// Note: We're calling this in a loop, and morphablemodel::to_matrix(expression_blendshapes) now gets called again in every fitting iteration.
+Eigen::VectorXf draw_expression_sample(
+    const std::variant<morphablemodel::PcaModel, morphablemodel::Blendshapes>& expression_model,
+    std::vector<float> expression_coefficients)
+{
+    using Eigen::VectorXf;
+    VectorXf expression_sample;
+    // Get a sample of the expression model, depending on whether it's a PcaModel or Blendshapes:
+    if (std::holds_alternative<morphablemodel::PcaModel>(expression_model))
+    {
+        const auto& pca_expression_model = std::get<morphablemodel::PcaModel>(expression_model);
+        if (expression_coefficients.empty())
+        {
+            expression_sample = pca_expression_model.get_mean();
+        } else
+        {
+            expression_sample = pca_expression_model.draw_sample(expression_coefficients);
+        }
+    } else if (std::holds_alternative<morphablemodel::Blendshapes>(expression_model))
+    {
+        const auto& expression_blendshapes = std::get<morphablemodel::Blendshapes>(expression_model);
+        assert(expression_blendshapes.size() > 0);
+        if (expression_coefficients.empty())
+        {
+            expression_sample.setZero(expression_blendshapes[0].deformation.rows());
+        } else
+        {
+            expression_sample =
+                morphablemodel::to_matrix(expression_blendshapes) *
+                Eigen::Map<const VectorXf>(expression_coefficients.data(), expression_coefficients.size());
+        }
+    } else
+    {
+        throw std::runtime_error("The given expression_model doesn't contain a PcaModel or Blendshapes.");
+    }
+    return expression_sample;
+};
+
 /**
  * @brief Fit the pose (camera), shape model, and expression blendshapes to landmarks,
  * in an iterative way.
@@ -398,44 +437,6 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
     };
     */
 
-    // Note that this doesn't check whether the shape and expression model dimensions match.
-    // Note: We're calling this in a loop, and morphablemodel::to_matrix(expression_blendshapes) now gets called again in every fitting iteration.
-    const auto draw_expression_sample =
-        [](const std::variant<morphablemodel::PcaModel, morphablemodel::Blendshapes>& expression_model,
-           vector<float> expression_coefficients) {
-            VectorXf expression_sample;
-            // Get a sample of the expression model, depending on whether it's a PcaModel or Blendshapes:
-            if (std::holds_alternative<morphablemodel::PcaModel>(expression_model))
-            {
-                const auto& pca_expression_model = std::get<morphablemodel::PcaModel>(expression_model);
-                if (expression_coefficients.empty())
-                {
-                    expression_sample = pca_expression_model.get_mean();
-                } else
-                {
-                    expression_sample = pca_expression_model.draw_sample(expression_coefficients);
-                }
-            } else if (std::holds_alternative<morphablemodel::Blendshapes>(expression_model))
-            {
-                const auto& expression_blendshapes = std::get<morphablemodel::Blendshapes>(expression_model);
-                assert(expression_blendshapes.size() > 0);
-                if (expression_coefficients.empty())
-                {
-                    expression_sample.setZero(expression_blendshapes[0].deformation.rows());
-                } else
-                {
-                    expression_sample = morphablemodel::to_matrix(expression_blendshapes) *
-                                        Eigen::Map<const VectorXf>(expression_coefficients.data(),
-                                                                   expression_coefficients.size());
-                }
-            } else
-            {
-                throw std::runtime_error(
-                    "The given expression_model doesn't contain a PcaModel or Blendshapes.");
-            }
-            return expression_sample;
-        };
-
     // const MatrixXf blendshapes_as_basis = morphablemodel::to_matrix(blendshapes);
 
     // Current mesh - either from the given coefficients, or the mean:
@@ -553,12 +554,12 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
             fitting::get_3x4_affine_camera_matrix(rendering_params, image_width, image_height);
 
         // Estimate the PCA shape coefficients with the current blendshape coefficients:
-        const VectorXf mean_plus_blendshapes =
+        const VectorXf mean_plus_expressions =
             morphable_model.get_shape_model().get_mean() +
             draw_expression_sample(morphable_model.get_expression_model().value(), expression_coefficients);
         pca_shape_coefficients = fitting::fit_shape_to_landmarks_linear(
             morphable_model.get_shape_model(), affine_from_ortho, image_points, vertex_indices,
-            mean_plus_blendshapes, lambda, num_shape_coefficients_to_fit);
+            mean_plus_expressions, lambda, num_shape_coefficients_to_fit);
 
         // Estimate the blendshape coefficients with the current PCA model estimate:
         current_pca_shape = morphable_model.get_shape_model().draw_sample(pca_shape_coefficients);
