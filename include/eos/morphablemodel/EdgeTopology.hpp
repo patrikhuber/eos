@@ -80,9 +80,9 @@ struct EdgeTopology
 inline void save_edge_topology(EdgeTopology edge_topology, std::string filename)
 {
     std::ofstream file(filename);
-    if (file.fail())
+    if (!file)
     {
-        throw std::runtime_error("Error opening file for writing: " + filename);
+        throw std::runtime_error("Error creating given file: " + filename);
     }
     cereal::JSONOutputArchive output_archive(file);
     output_archive(cereal::make_nvp("edge_topology", edge_topology));
@@ -99,7 +99,7 @@ inline EdgeTopology load_edge_topology(std::string filename)
 {
     EdgeTopology edge_topology;
     std::ifstream file(filename);
-    if (file.fail())
+    if (!file)
     {
         throw std::runtime_error("Error opening file for reading: " + filename);
     }

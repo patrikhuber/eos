@@ -71,7 +71,7 @@ inline MorphableModel load_scm_model(std::string model_filename, std::string iso
     }
 
     std::ifstream model_file(model_filename, std::ios::binary);
-    if (!model_file.is_open())
+    if (!model_file)
     {
         const std::string msg("Unable to open model file: " + model_filename);
         std::cout << msg << std::endl;
@@ -276,7 +276,7 @@ inline std::vector<std::array<double, 2>> load_isomap(std::string isomap_file)
     std::vector<float> x_coords, y_coords;
     string line;
     std::ifstream file(isomap_file);
-    if (!file.is_open())
+    if (!file)
     {
         const string error_msg("The isomap file could not be opened. Did you specify a correct filename? " + isomap_file);
         throw std::runtime_error(error_msg);

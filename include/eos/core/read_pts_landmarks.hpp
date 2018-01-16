@@ -50,7 +50,7 @@ inline LandmarkCollection<Eigen::Vector2f> read_pts_landmarks(std::string filena
     landmarks.reserve(68);
 
     std::ifstream file(filename);
-    if (!file.is_open())
+    if (!file)
     {
         throw std::runtime_error(string("Could not open landmark file: " + filename));
     }

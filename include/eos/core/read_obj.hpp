@@ -183,7 +183,7 @@ inline auto parse_face(const std::string& line)
 inline Mesh read_obj(std::string filename)
 {
     std::ifstream file(filename);
-    if (!file.is_open())
+    if (!file)
     {
         throw std::runtime_error(std::string("Could not open obj file: " + filename));
     }
