@@ -91,6 +91,7 @@ set(HEADERS
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/multi_image_fitting.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/ceres_nonlinear.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/RenderingParameters.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/FittingResult.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/utils.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/draw_utils.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/render.hpp
@@ -110,6 +111,7 @@ set(HEADERS
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/Texture.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/detail/Vertex.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/video/Keyframe.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/video/keyframe_merging.hpp
 )
 
 add_library(eos INTERFACE)
