@@ -19,3 +19,6 @@
 [submodule "3rdparty/toml11"]
 	path = 3rdparty/toml11
 	url = https://github.com/ToruNiina/toml11.git
+[submodule "3rdparty/eigen"]
+	path = 3rdparty/eigen
+	url = https://github.com/eigenteam/eigen-git-mirror.git
