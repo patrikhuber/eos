@@ -22,8 +22,7 @@
 #ifndef KEYFRAME_MERGING_HPP_
 #define KEYFRAME_MERGING_HPP_
 
-#include "eos/fitting/FittingResult.hpp"
-#include "eos/fitting/RenderingParameters.hpp"
+#include "eos/core/Image_opencv_interop.hpp"
 #include "eos/morphablemodel/Blendshape.hpp"
 #include "eos/morphablemodel/MorphableModel.hpp"
 #include "eos/video/Keyframe.hpp"
@@ -62,7 +61,7 @@ namespace video {
  * @param[in] blendshapes The blendshapes with which the keyframes have been fitted.
  * @return Merged texture map (isomap), 3-channel uchar.
  */
-inline cv::Mat merge_weighted_mean(const std::vector<Keyframe>& keyframes,
+inline cv::Mat merge_weighted_mean(const std::vector<Keyframe<cv::Mat>>& keyframes,
                             const morphablemodel::MorphableModel& morphable_model,
                             const std::vector<morphablemodel::Blendshape>& blendshapes)
 {
@@ -85,8 +84,8 @@ inline cv::Mat merge_weighted_mean(const std::vector<Keyframe>& keyframes,
                                            {}, morphable_model.get_texture_coordinates());
         const auto affine_camera_matrix = fitting::get_3x4_affine_camera_matrix(
             frame_data.fitting_result.rendering_parameters, frame_data.frame.cols, frame_data.frame.rows);
-        const Mat isomap = render::extract_texture(mesh, affine_camera_matrix, frame_data.frame, true,
-                                                   render::TextureInterpolation::NearestNeighbour, 1024);
+        const Mat isomap = core::to_mat(render::extract_texture(mesh, affine_camera_matrix, core::from_mat(frame_data.frame), true,
+                                                   render::TextureInterpolation::NearestNeighbour, 1024));
         isomaps.push_back(isomap);
     }
 
@@ -128,7 +127,7 @@ inline cv::Mat merge_weighted_mean(const std::vector<Keyframe>& keyframes,
     // accumulated_weight = (accumulated_weight / isomaps.size()) * 255;
 
     Mat merged_isomap;
-    cv::merge({b, g, r}, merged_isomap);
+    cv::merge(vector<Mat>{b, g, r}, merged_isomap);
     merged_isomap.convertTo(merged_isomap, CV_8UC3);
     return merged_isomap;
 };
