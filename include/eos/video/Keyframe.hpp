@@ -35,9 +35,10 @@ namespace video {
 template <class ImageType>
 struct Keyframe
 {
-    float score; // = 0.0f?
-    ImageType frame;
-    fitting::FittingResult fitting_result;
+    float score;                           ///< Frame quality score. Note: Maybe default this to 0.0f?
+    ImageType frame;                       ///< The actual image.
+    fitting::FittingResult fitting_result; ///< Fitting result for the keyframe (pose, shape identity and
+                                           ///< expression coefficients).
 };
 
 /**
@@ -53,11 +54,24 @@ template <class ImageType>
 struct PoseBinningKeyframeSelector
 {
 public:
+    /**
+     * Construct a pose-binning keyframe selector with \p frames_per_bin frames per bin.
+     *
+     * @param[in] frames_per_bin The number of frames per bin.
+     */
     PoseBinningKeyframeSelector(int frames_per_bin = 2) : frames_per_bin(frames_per_bin)
     {
         bins.resize(num_yaw_bins);
     };
 
+    /**
+     * Try to add the frame with the given score, and return whether the frame was added.
+     *
+     * @param[in] frame_score Quality score of the given image.
+     * @param[in] image The image to potentially add.
+     * @param[in] fitting_result Fitting result of the given image - used to compute the yaw angle.
+     * @return Whether the given image has been added as a keyframe.
+     */
     bool try_add(float frame_score, const ImageType& image, const fitting::FittingResult& fitting_result)
     {
         // Determine whether to add or not:
@@ -88,7 +102,11 @@ public:
         return true;
     };
 
-    // Returns the keyframes as a vector.
+    /**
+     * Return the keyframes as a vector.
+     *
+     * @return The keyframes as a vector.
+     */
     std::vector<Keyframe<ImageType>> get_keyframes() const
     {
         std::vector<Keyframe<ImageType>> keyframes;
@@ -108,8 +126,13 @@ private:
     const int num_yaw_bins = 9;
     int frames_per_bin;
 
-    // Converts a given yaw angle to an index in the internal bins vector.
-    // Assumes 9 bins and 20° intervals.
+    /**
+     * Converts the given yaw angle to an index in the internal bins vector.
+     * Assumes 9 bins and 20° intervals.
+     *
+     * @param[in] yaw_angle The yaw angle to convert to an index, in degree.
+     * @return The keyframes as a vector.
+     */
     static std::size_t angle_to_index(float yaw_angle)
     {
         if (yaw_angle <= -70.f)

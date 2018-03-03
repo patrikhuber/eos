@@ -41,9 +41,9 @@ namespace fitting {
  */
 struct ScaledOrthoProjectionParameters
 {
-    glm::mat3x3 R;
-    double tx, ty;
-    double s;
+    glm::mat3x3 R; ///< 3x3 rotation matrix
+    double tx, ty; ///< x and y translation
+    double s;      ///< Scaling
 };
 
 /**

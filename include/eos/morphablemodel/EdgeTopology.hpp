@@ -53,15 +53,15 @@ namespace morphablemodel {
 struct EdgeTopology
 {
     std::vector<std::array<int, 2>>
-        adjacent_faces; // num_edges x 2 matrix storing faces adjacent to each edge
+        adjacent_faces; ///< num_edges x 2 matrix storing faces adjacent to each edge
     std::vector<std::array<int, 2>>
-        adjacent_vertices; // num_edges x 2 matrix storing vertices adjacent to each edge
+        adjacent_vertices; ///< num_edges x 2 matrix storing vertices adjacent to each edge
 
     friend class cereal::access;
     /**
      * Serialises this class using cereal.
      *
-     * @param[in] ar The archive to serialise to (or to serialise from).
+     * @param[in] archive The archive to serialise to (or to serialise from).
      */
     template <class Archive>
     void serialize(Archive& archive)
