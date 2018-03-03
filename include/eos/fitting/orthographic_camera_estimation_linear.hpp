@@ -42,8 +42,8 @@ namespace fitting {
 struct ScaledOrthoProjectionParameters
 {
     glm::mat3x3 R; ///< 3x3 rotation matrix
-    double tx, ty; ///< x and y translation
-    double s;      ///< Scaling
+    float tx, ty; ///< x and y translation
+    float s;      ///< Scaling
 };
 
 /**
@@ -115,7 +115,7 @@ inline ScaledOrthoProjectionParameters estimate_orthographic_projection_linear(
     const Eigen::Vector3f R2 = k.segment<3>(4);
     const float sTx = k(3);
     const float sTy = k(7);
-    const auto s = (R1.norm() + R2.norm()) / 2.0;
+    const auto s = (R1.norm() + R2.norm()) / 2.0f;
     Eigen::Matrix3f R;
     Eigen::Vector3f r1 = R1.normalized(); // Not sure why R1.normalize() (in-place) produces a compiler error.
     Eigen::Vector3f r2 = R2.normalized();

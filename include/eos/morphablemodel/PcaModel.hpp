@@ -88,7 +88,7 @@ public:
     int get_num_principal_components() const
     {
         // Note: we could assert(rescaled_pca_basis.cols==orthonormal_pca_basis.cols)
-        return rescaled_pca_basis.cols();
+        return static_cast<int>(rescaled_pca_basis.cols());
     };
 
     /**
@@ -102,7 +102,7 @@ public:
     int get_data_dimension() const
     {
         // Note: we could assert(rescaled_pca_basis.rows==orthonormal_pca_basis.rows)
-        return rescaled_pca_basis.rows();
+        return static_cast<int>(rescaled_pca_basis.rows());
     };
 
     /**

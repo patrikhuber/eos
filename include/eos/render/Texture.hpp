@@ -104,7 +104,7 @@ inline Texture create_mipmapped_texture(cv::Mat image, unsigned int mipmapsNum =
     int currWidth = image.cols;
     int currHeight = image.rows;
     std::vector<cv::Mat> mipmaps;
-    for (int i = 0; i < texture.mipmaps_num; i++)
+    for (unsigned int i = 0; i < texture.mipmaps_num; i++)
     {
         if (i == 0)
         {

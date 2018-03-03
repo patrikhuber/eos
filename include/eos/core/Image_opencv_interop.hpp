@@ -36,7 +36,7 @@ namespace core {
 // We can support different types by making this a template and constexpr if? :-)
 inline cv::Mat to_mat(const Image4u& image)
 {
-    cv::Mat opencv_matrix(image.rows, image.cols, CV_8UC4);
+    cv::Mat opencv_matrix(static_cast<int>(image.rows), static_cast<int>(image.cols), CV_8UC4);
     for (int c = 0; c < image.cols; ++c)
     { // size_t
         for (int r = 0; r < image.rows; ++r)
@@ -51,7 +51,7 @@ inline cv::Mat to_mat(const Image4u& image)
 
 inline cv::Mat to_mat(const Image1d& image)
 {
-    cv::Mat opencv_matrix(image.rows, image.cols, CV_64FC1);
+    cv::Mat opencv_matrix(static_cast<int>(image.rows), static_cast<int>(image.cols), CV_64FC1);
     for (int c = 0; c < image.cols; ++c)
     { // size_t
         for (int r = 0; r < image.rows; ++r)
@@ -65,7 +65,7 @@ inline cv::Mat to_mat(const Image1d& image)
 
 inline cv::Mat to_mat(const Image1u& image)
 {
-    cv::Mat opencv_matrix(image.rows, image.cols, CV_8UC1);
+    cv::Mat opencv_matrix(static_cast<int>(image.rows), static_cast<int>(image.cols), CV_8UC1);
     for (int c = 0; c < image.cols; ++c)
     { // size_t
         for (int r = 0; r < image.rows; ++r)

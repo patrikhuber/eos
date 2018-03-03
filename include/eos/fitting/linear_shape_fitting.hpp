@@ -29,6 +29,7 @@
 #include "Eigen/Sparse"
 
 #include <vector>
+#include <cstdint>
 #include <cassert>
 #include <optional>
 
@@ -199,7 +200,7 @@ fit_shape_to_landmarks_linear_multi(const morphablemodel::PcaModel& shape_model,
     // the regularisation has to be adjusted when more than one image is given
     lambda *= num_images;
 
-    int total_num_landmarks_dimension = 0;
+    std::size_t total_num_landmarks_dimension = 0;
     for (const auto& l : landmarks) {
         total_num_landmarks_dimension += l.size();
     }
