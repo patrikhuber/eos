@@ -22,9 +22,10 @@
 #ifndef LANDMARKMAPPER_HPP_
 #define LANDMARKMAPPER_HPP_
 
+#include "eos/cpp17/optional.hpp"
+
 #include "toml.hpp"
 
-#include <optional>
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
@@ -102,7 +103,7 @@ public:
      * @param[in] landmark_name A landmark name to convert.
      * @return The mapped landmark name if a mapping exists, an empty optional otherwise.
      */
-    std::optional<std::string> convert(std::string landmark_name) const
+    cpp17::optional<std::string> convert(std::string landmark_name) const
     {
         if (landmark_mappings.empty())
         {
@@ -117,7 +118,7 @@ public:
             return converted_landmark->second;
         } else
         { // landmark_name does not match the key of any element in the map
-            return std::nullopt;
+            return cpp17::nullopt;
         }
     };
 

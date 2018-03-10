@@ -30,11 +30,10 @@
 #include "eos/render/detail/TriangleToRasterize.hpp"
 #include "eos/render/detail/render_detail_utils.hpp"
 #include "eos/render/detail/texturing.hpp"
+#include "eos/cpp17/optional.hpp"
 
 #include "glm/vec2.hpp"
 #include "glm/vec3.hpp"
-
-#include <optional>
 
 /**
  * Implementations of internal functions, not part of the
@@ -47,7 +46,7 @@ namespace detail {
 // Todo: Split this function into the general (core-part) and the texturing part.
 // Then, utils::extractTexture can re-use the core-part.
 // Note: Maybe a bit outdated "todo" above.
-inline std::optional<TriangleToRasterize> process_prospective_tri(Vertex<float> v0, Vertex<float> v1,
+inline cpp17::optional<TriangleToRasterize> process_prospective_tri(Vertex<float> v0, Vertex<float> v1,
                                                                   Vertex<float> v2, int viewport_width,
                                                                   int viewport_height,
                                                                   bool enable_backface_culling)
@@ -135,11 +134,11 @@ inline std::optional<TriangleToRasterize> process_prospective_tri(Vertex<float> 
     t.gamma_ffy = -t.gammaPlane.b * t.one_over_gamma_c;
 
     // Use t
-    return std::optional<TriangleToRasterize>(t);
+    return cpp17::optional<TriangleToRasterize>(t);
 };
 
 inline void raster_triangle(TriangleToRasterize triangle, core::Image4u& colorbuffer,
-                            core::Image1d& depthbuffer, std::optional<Texture> texture,
+                            core::Image1d& depthbuffer, cpp17::optional<Texture> texture,
                             bool enable_far_clipping)
 {
     for (int yi = triangle.min_y; yi <= triangle.max_y; ++yi)

@@ -34,12 +34,12 @@
 #include "eos/fitting/contour_correspondence.hpp"
 #include "eos/fitting/closest_edge_fitting.hpp"
 #include "eos/fitting/RenderingParameters.hpp"
+#include "eos/cpp17/optional.hpp"
 
 #include "Eigen/Core"
 
 #include <algorithm>
 #include <cassert>
-#include <optional>
 #include <vector>
 
 namespace eos {
@@ -71,7 +71,7 @@ inline Eigen::VectorXf fit_shape(Eigen::Matrix<float, 3, 4> affine_camera_matrix
                                  const std::vector<morphablemodel::Blendshape>& blendshapes,
                                  const std::vector<Eigen::Vector2f>& image_points,
                                  const std::vector<int>& vertex_indices, float lambda,
-                                 std::optional<int> num_coefficients_to_fit,
+                                 cpp17::optional<int> num_coefficients_to_fit,
                                  std::vector<float>& pca_shape_coefficients,
                                  std::vector<float>& blendshape_coefficients)
 {
@@ -142,7 +142,7 @@ inline Eigen::VectorXf fit_shape(Eigen::Matrix<float, 3, 4> affine_camera_matrix
                                  const std::vector<morphablemodel::Blendshape>& blendshapes,
                                  const std::vector<Eigen::Vector2f>& image_points,
                                  const std::vector<int>& vertex_indices, float lambda = 3.0f,
-                                 std::optional<int> num_coefficients_to_fit = std::optional<int>())
+                                 cpp17::optional<int> num_coefficients_to_fit = cpp17::optional<int>())
 {
     std::vector<float> unused;
     return fit_shape(affine_camera_matrix, morphable_model, blendshapes, image_points, vertex_indices, lambda,
@@ -233,7 +233,7 @@ inline auto concat(const std::vector<T>& vec_a, const std::vector<T>& vec_b)
  * starting values in the fitting. When the function returns, they contain the coefficients from
  * the last iteration.
  *
- * Use render::Mesh fit_shape_and_pose(const morphablemodel::MorphableModel&, const std::vector<morphablemodel::Blendshape>&, const core::LandmarkCollection<cv::Vec2f>&, const core::LandmarkMapper&, int, int, const morphablemodel::EdgeTopology&, const fitting::ContourLandmarks&, const fitting::ModelContour&, int, std::optional<int>, float).
+ * Use render::Mesh fit_shape_and_pose(const morphablemodel::MorphableModel&, const std::vector<morphablemodel::Blendshape>&, const core::LandmarkCollection<cv::Vec2f>&, const core::LandmarkMapper&, int, int, const morphablemodel::EdgeTopology&, const fitting::ContourLandmarks&, const fitting::ModelContour&, int, cpp17::optional<int>, float).
  * for a simpler overload with reasonable defaults and no optional output.
  *
  * \p num_iterations: Results are good for even a single iteration. For single-image fitting and
@@ -269,8 +269,8 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
     const core::LandmarkCollection<Eigen::Vector2f>& landmarks, const core::LandmarkMapper& landmark_mapper,
     int image_width, int image_height, const morphablemodel::EdgeTopology& edge_topology,
     const fitting::ContourLandmarks& contour_landmarks, const fitting::ModelContour& model_contour,
-    int num_iterations, std::optional<int> num_shape_coefficients_to_fit, float lambda,
-    std::optional<fitting::RenderingParameters> initial_rendering_params,
+    int num_iterations, cpp17::optional<int> num_shape_coefficients_to_fit, float lambda,
+    cpp17::optional<fitting::RenderingParameters> initial_rendering_params,
     std::vector<float>& pca_shape_coefficients, std::vector<float>& blendshape_coefficients,
     std::vector<Eigen::Vector2f>& fitted_image_points)
 {
@@ -458,7 +458,7 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
  *
  * If you want to access the values of shape or blendshape coefficients, or want to set starting
  * values for them, use the following overload to this function:
- * std::pair<render::Mesh, fitting::RenderingParameters> fit_shape_and_pose(const morphablemodel::MorphableModel&, const std::vector<morphablemodel::Blendshape>&, const core::LandmarkCollection<cv::Vec2f>&, const core::LandmarkMapper&, int, int, const morphablemodel::EdgeTopology&, const fitting::ContourLandmarks&, const fitting::ModelContour&, int, std::optional<int>, float, std::optional<fitting::RenderingParameters>, std::vector<float>&, std::vector<float>&, std::vector<cv::Vec2f>&)
+ * std::pair<render::Mesh, fitting::RenderingParameters> fit_shape_and_pose(const morphablemodel::MorphableModel&, const std::vector<morphablemodel::Blendshape>&, const core::LandmarkCollection<cv::Vec2f>&, const core::LandmarkMapper&, int, int, const morphablemodel::EdgeTopology&, const fitting::ContourLandmarks&, const fitting::ModelContour&, int, cpp17::optional<int>, float, cpp17::optional<fitting::RenderingParameters>, std::vector<float>&, std::vector<float>&, std::vector<cv::Vec2f>&)
  *
  * Todo: Add a convergence criterion.
  *
@@ -491,14 +491,14 @@ fit_shape_and_pose(const morphablemodel::MorphableModel& morphable_model,
                    const morphablemodel::EdgeTopology& edge_topology,
                    const fitting::ContourLandmarks& contour_landmarks,
                    const fitting::ModelContour& model_contour, int num_iterations = 5,
-                   std::optional<int> num_shape_coefficients_to_fit = std::nullopt, float lambda = 50.0f)
+                   cpp17::optional<int> num_shape_coefficients_to_fit = cpp17::nullopt, float lambda = 50.0f)
 {
     std::vector<float> pca_coeffs;
     std::vector<float> blendshape_coeffs;
     std::vector<Eigen::Vector2f> fitted_image_points;
     return fit_shape_and_pose(morphable_model, blendshapes, landmarks, landmark_mapper, image_width,
                               image_height, edge_topology, contour_landmarks, model_contour, num_iterations,
-                              num_shape_coefficients_to_fit, lambda, std::nullopt, pca_coeffs,
+                              num_shape_coefficients_to_fit, lambda, cpp17::nullopt, pca_coeffs,
                               blendshape_coeffs, fitted_image_points);
 };
 

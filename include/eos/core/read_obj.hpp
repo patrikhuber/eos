@@ -23,12 +23,12 @@
 #define READ_OBJ_HPP_
 
 #include "eos/core/Mesh.hpp"
+#include "eos/cpp17/optional.hpp"
 
 #include "Eigen/Core"
 
 #include <cassert>
 #include <fstream>
-#include <optional>
 #include <string>
 #include <tuple>
 #include <utility>
@@ -103,13 +103,13 @@ void tokenize(const std::string& str, ContainerType& tokens, const std::string& 
  * Todo: Consider using std::string_view for these instead of const string&.
  * And should change to glm::vec3, and just divide by 'w'. As soon as we change the Mesh to vec3.
  */
-inline std::pair<Eigen::Vector4f, std::optional<Eigen::Vector3f>> parse_vertex(const std::string& line)
+inline std::pair<Eigen::Vector4f, cpp17::optional<Eigen::Vector3f>> parse_vertex(const std::string& line)
 {
     std::vector<std::string> tokens;
     tokenize(line, tokens, " ");
     assert(tokens.size() == 3 || tokens.size() == 6); // Maybe we should throw instead?
     const Eigen::Vector4f vertex(std::stof(tokens[0]), std::stof(tokens[1]), std::stof(tokens[2]), 1.0);
-    std::optional<Eigen::Vector3f> vertex_color;
+    cpp17::optional<Eigen::Vector3f> vertex_color;
     if (tokens.size() == 6)
     {
         vertex_color = Eigen::Vector3f(std::stof(tokens[3]), std::stof(tokens[4]), std::stof(tokens[5]));

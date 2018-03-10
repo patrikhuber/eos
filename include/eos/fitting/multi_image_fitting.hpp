@@ -34,12 +34,12 @@
 #include "eos/fitting/contour_correspondence.hpp"
 #include "eos/fitting/closest_edge_fitting.hpp"
 #include "eos/fitting/RenderingParameters.hpp"
+#include "eos/cpp17/optional.hpp"
 
 #include "Eigen/Core"
 
 #include <algorithm>
 #include <cassert>
-#include <optional>
 #include <vector>
 
 namespace eos {
@@ -57,7 +57,7 @@ namespace fitting {
  * starting values in the fitting. When the function returns, they contain the coefficients from
  * the last iteration.
  *
- * Use render::Mesh fit_shape_and_pose(const morphablemodel::MorphableModel&, const std::vector<morphablemodel::Blendshape>&, const core::LandmarkCollection<Eigen::Vector2f>&, const core::LandmarkMapper&, int, int, const morphablemodel::EdgeTopology&, const fitting::ContourLandmarks&, const fitting::ModelContour&, int, std::optional<int>, float).
+ * Use render::Mesh fit_shape_and_pose(const morphablemodel::MorphableModel&, const std::vector<morphablemodel::Blendshape>&, const core::LandmarkCollection<Eigen::Vector2f>&, const core::LandmarkMapper&, int, int, const morphablemodel::EdgeTopology&, const fitting::ContourLandmarks&, const fitting::ModelContour&, int, cpp17::optional<int>, float).
  * for a simpler overload with reasonable defaults and no optional output.
  *
  * \p num_iterations: Results are good for even a few iterations. For full convergence of all parameters,
@@ -93,8 +93,8 @@ inline std::pair<std::vector<core::Mesh>, std::vector<fitting::RenderingParamete
     const core::LandmarkMapper& landmark_mapper, std::vector<int> image_width, std::vector<int> image_height,
     const morphablemodel::EdgeTopology& edge_topology, const fitting::ContourLandmarks& contour_landmarks,
     const fitting::ModelContour& model_contour, int num_iterations,
-    std::optional<int> num_shape_coefficients_to_fit, float lambda,
-    std::optional<fitting::RenderingParameters> initial_rendering_params,
+    cpp17::optional<int> num_shape_coefficients_to_fit, float lambda,
+    cpp17::optional<fitting::RenderingParameters> initial_rendering_params,
     std::vector<float>& pca_shape_coefficients, std::vector<std::vector<float>>& blendshape_coefficients,
     std::vector<std::vector<Eigen::Vector2f>>& fitted_image_points)
 {
@@ -347,7 +347,7 @@ inline std::pair<std::vector<core::Mesh>, std::vector<fitting::RenderingParamete
  *
  * If you want to access the values of shape or blendshape coefficients, or want to set starting
  * values for them, use the following overload to this function:
- * std::pair<render::Mesh, fitting::RenderingParameters> fit_shape_and_pose(const morphablemodel::MorphableModel&, const std::vector<morphablemodel::Blendshape>&, const core::LandmarkCollection<Eigen::Vector2f>&, const core::LandmarkMapper&, int, int, const morphablemodel::EdgeTopology&, const fitting::ContourLandmarks&, const fitting::ModelContour&, int, std::optional<int>, float, std::optional<fitting::RenderingParameters>, std::vector<float>&, std::vector<float>&, std::vector<Eigen::Vector2f>&)
+ * std::pair<render::Mesh, fitting::RenderingParameters> fit_shape_and_pose(const morphablemodel::MorphableModel&, const std::vector<morphablemodel::Blendshape>&, const core::LandmarkCollection<Eigen::Vector2f>&, const core::LandmarkMapper&, int, int, const morphablemodel::EdgeTopology&, const fitting::ContourLandmarks&, const fitting::ModelContour&, int, cpp17::optional<int>, float, cpp17::optional<fitting::RenderingParameters>, std::vector<float>&, std::vector<float>&, std::vector<Eigen::Vector2f>&)
  *
  * \p num_iterations: Results are good for even a few iterations. For full convergence of all parameters,
  * it can take up to 300 iterations. In tracking, particularly if initialising with the previous frame,
@@ -377,7 +377,7 @@ fit_shape_and_pose(const morphablemodel::MorphableModel& morphable_model,
                    std::vector<int> image_height, const morphablemodel::EdgeTopology& edge_topology,
                    const fitting::ContourLandmarks& contour_landmarks,
                    const fitting::ModelContour& model_contour, int num_iterations = 5,
-                   std::optional<int> num_shape_coefficients_to_fit = std::nullopt, float lambda = 30.0f)
+                   cpp17::optional<int> num_shape_coefficients_to_fit = cpp17::nullopt, float lambda = 30.0f)
 {
     using std::vector;
     vector<float> pca_shape_coefficients;

@@ -30,6 +30,7 @@
 #include "eos/render/texture_extraction.hpp"
 #include "eos/render/render.hpp"
 #include "eos/render/draw_utils.hpp"
+#include "eos/cpp17/optional.hpp"
 
 #include "opencv2/core/core.hpp"
 #include "opencv2/highgui/highgui.hpp"
@@ -40,7 +41,6 @@
 #include <vector>
 #include <iostream>
 #include <fstream>
-#include <optional>
 
 using namespace eos;
 namespace po = boost::program_options;
@@ -248,7 +248,7 @@ int main(int argc, char *argv[])
 
     std::tie(per_frame_meshes, per_frame_rendering_params) = fitting::fit_shape_and_pose(
         morphable_model, blendshapes, per_frame_landmarks, landmark_mapper, image_widths, image_heights, edge_topology,
-        ibug_contour, model_contour, 5, std::nullopt, 30.0f, std::nullopt, pca_shape_coefficients,
+        ibug_contour, model_contour, 5, cpp17::nullopt, 30.0f, cpp17::nullopt, pca_shape_coefficients,
         blendshape_coefficients, fitted_image_points);
 
     cout << "Final pca shape coefficients: ";

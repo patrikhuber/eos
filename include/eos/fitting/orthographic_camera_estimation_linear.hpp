@@ -22,6 +22,8 @@
 #ifndef ORTHOGRAPHICCAMERAESTIMATIONLINEAR_HPP_
 #define ORTHOGRAPHICCAMERAESTIMATIONLINEAR_HPP_
 
+#include "eos/cpp17/optional.hpp"
+
 #include "glm/mat3x3.hpp"
 
 #include "Eigen/Core"
@@ -31,7 +33,6 @@
 
 #include <vector>
 #include <cassert>
-#include <optional>
 
 namespace eos {
 namespace fitting {
@@ -72,7 +73,7 @@ struct ScaledOrthoProjectionParameters
  */
 inline ScaledOrthoProjectionParameters estimate_orthographic_projection_linear(
     std::vector<Eigen::Vector2f> image_points, std::vector<Eigen::Vector4f> model_points,
-    bool is_viewport_upsidedown, std::optional<int> viewport_height = std::nullopt)
+    bool is_viewport_upsidedown, cpp17::optional<int> viewport_height = cpp17::nullopt)
 {
     using Eigen::Matrix;
     assert(image_points.size() == model_points.size());
