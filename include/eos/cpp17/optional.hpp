@@ -25,9 +25,7 @@
 #ifdef __APPLE__
   #include "eos/cpp17/detail/akrzemi1_optional.hpp"
   namespace eos {
-    //namespace cpp17 = ::akrzemi1;
-      //namespace cpp17 = ::asdf::akrzemi1;
-      namespace cpp17 = ::std::experimental;
+      namespace cpp17 = ::akrzemi1;
   }
 #else
   #include <optional>
