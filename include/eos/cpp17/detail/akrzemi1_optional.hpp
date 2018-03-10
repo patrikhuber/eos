@@ -18,7 +18,7 @@
 # include <string>
 # include <stdexcept>
 
-# define TR2_OPTIONAL_REQUIRES(...) typename enable_if<__VA_ARGS__::value, bool>::type = false
+# define TR2_OPTIONAL_REQUIRES(...) typename std::enable_if<__VA_ARGS__::value, bool>::type = false
 
 # if defined __GNUC__ // NOTE: GNUC is also defined for Clang
 #   if (__GNUC__ == 4) && (__GNUC_MINOR__ >= 8)
@@ -256,9 +256,9 @@ constexpr nullopt_t nullopt{nullopt_t::init()};
 
 
 // 20.5.8, class bad_optional_access
-class bad_optional_access : public logic_error {
+class bad_optional_access : public std::logic_error {
 public:
-  explicit bad_optional_access(const string& what_arg) : logic_error{what_arg} {}
+  explicit bad_optional_access(const std::string& what_arg) : logic_error{what_arg} {}
   explicit bad_optional_access(const char* what_arg) : logic_error{what_arg} {}
 };
 
@@ -459,9 +459,9 @@ public:
 
   template <class U>
   auto operator=(U&& v)
-  -> typename enable_if
+  -> typename std::enable_if
   <
-    is_same<typename decay<U>::type, T>::value,
+    std::is_same<typename std::decay<U>::type, T>::value,
     optional&
   >::type
   {
@@ -479,7 +479,7 @@ public:
   }
   
   template <class U, class... Args>
-  void emplace(initializer_list<U> il, Args&&... args)
+  void emplace(std::initializer_list<U> il, Args&&... args)
   {
     clear();
     initialize<U, Args...>(il, std::forward<Args>(args)...);
@@ -647,9 +647,9 @@ public:
   
   template <typename U>
   auto operator=(U&& rhs) noexcept
-  -> typename enable_if
+  -> typename std::enable_if
   <
-    is_same<typename decay<U>::type, optional<T&>>::value,
+    std::is_same<typename std::decay<U>::type, optional<T&>>::value,
     optional&
   >::type
   {
@@ -659,9 +659,9 @@ public:
   
   template <typename U>
   auto operator=(U&& rhs) noexcept
-  -> typename enable_if
+  -> typename std::enable_if
   <
-    !is_same<typename decay<U>::type, optional<T&>>::value,
+    !std::is_same<typename std::decay<U>::type, optional<T&>>::value,
     optional&
   >::type
   = delete;
@@ -700,9 +700,9 @@ public:
   }
   
   template <class V>
-  constexpr typename decay<T>::type value_or(V&& v) const
+  constexpr typename std::decay<T>::type value_or(V&& v) const
   {
-    return *this ? **this : detail_::convert<typename decay<T>::type>(constexpr_forward<V>(v));
+    return *this ? **this : detail_::convert<typename std::decay<T>::type>(constexpr_forward<V>(v));
   }
 
   // x.x.x.x, modifiers
@@ -1006,13 +1006,13 @@ void swap(optional<T>& x, optional<T>& y) noexcept(noexcept(x.swap(y)))
 
 
 template <class T>
-constexpr optional<typename decay<T>::type> make_optional(T&& v)
+constexpr optional<typename std::decay<T>::type> make_optional(T&& v)
 {
-  return optional<typename decay<T>::type>(constexpr_forward<T>(v));
+  return optional<typename std::decay<T>::type>(constexpr_forward<T>(v));
 }
 
 template <class X>
-constexpr optional<X&> make_optional(reference_wrapper<X> v)
+constexpr optional<X&> make_optional(std::reference_wrapper<X> v)
 {
   return optional<X&>(v.get());
 }
