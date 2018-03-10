@@ -32,3 +32,8 @@
  * @namespace eos::video
  * @brief Video keyframe extraction and fusion.
  */
+
+ /**
+ * @namespace eos::cpp17
+ * @brief Replacement type for std::optional for compilers who don't have it (Apple at the moment).
+ */
