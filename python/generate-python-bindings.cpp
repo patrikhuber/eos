@@ -37,10 +37,12 @@
 #include "pybind11/stl.h"
 #include "pybind11_Image.hpp"
 
+#include "eos/cpp17/optional.hpp"
+#include "pybind11_optional.hpp"
+
 #include "Eigen/Core"
 
 #include <cassert>
-#include <optional>
 #include <string>
 
 namespace py = pybind11;
