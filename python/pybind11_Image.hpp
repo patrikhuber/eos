@@ -19,6 +19,9 @@
  */
 #pragma once
 
+#ifndef EOS_PYBIND11_IMAGE_HPP_
+#define EOS_PYBIND11_IMAGE_HPP_
+
 #include "pybind11/numpy.h"
 
 #include "Eigen/Core"
@@ -169,3 +172,5 @@ struct type_caster<eos::core::Image4u>
 
 NAMESPACE_END(detail)
 NAMESPACE_END(pybind11)
+
+#endif /* EOS_PYBIND11_IMAGE_HPP_ */
