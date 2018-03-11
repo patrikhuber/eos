@@ -97,7 +97,7 @@ inline cpp17::optional<TriangleToRasterize> process_prospective_tri(Vertex<float
         if (!are_vertices_ccw_in_screen_space(glm::tvec2<float>(t.v0.position),
                                               glm::tvec2<float>(t.v1.position),
                                               glm::tvec2<float>(t.v2.position)))
-            return std::nullopt;
+            return cpp17::nullopt;
     }
 
     // Get the bounding box of the triangle:
@@ -110,7 +110,7 @@ inline cpp17::optional<TriangleToRasterize> process_prospective_tri(Vertex<float
     t.max_y = boundingBox.y + boundingBox.height;
 
     if (t.max_x <= t.min_x || t.max_y <= t.min_y) // Note: Can the width/height of the bbox be negative? Maybe we only need to check for equality here?
-        return std::nullopt;
+        return cpp17::nullopt;
 
     // Which of these is for texturing, mipmapping, what for perspective?
     // for partial derivatives computation
