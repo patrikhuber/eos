@@ -386,7 +386,7 @@ fit_shape_and_pose(const morphablemodel::MorphableModel& morphable_model,
 
     return fit_shape_and_pose(morphable_model, blendshapes, landmarks, landmark_mapper, image_width,
                               image_height, edge_topology, contour_landmarks, model_contour, num_iterations,
-                              num_shape_coefficients_to_fit, lambda, std::nullopt, pca_shape_coefficients,
+                              num_shape_coefficients_to_fit, lambda, cpp17::nullopt, pca_shape_coefficients,
                               blendshape_coefficients, fitted_image_points);
 };
 

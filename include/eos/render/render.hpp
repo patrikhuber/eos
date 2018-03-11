@@ -122,7 +122,7 @@ namespace render {
  */
 inline std::pair<core::Image4u, core::Image1d>
 render(core::Mesh mesh, glm::tmat4x4<float> model_view_matrix, glm::tmat4x4<float> projection_matrix,
-       int viewport_width, int viewport_height, const cpp17::optional<Texture>& texture = std::nullopt,
+       int viewport_width, int viewport_height, const cpp17::optional<Texture>& texture = cpp17::nullopt,
        bool enable_backface_culling = false, bool enable_near_clipping = true,
        bool enable_far_clipping = true)
 {
