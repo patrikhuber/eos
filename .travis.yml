@@ -6,15 +6,15 @@ language: cpp
 
 matrix:
   include:
-    - env: C_COMPILER=gcc-7 CXX_COMPILER=g++-7
+    - env: C_COMPILER=gcc-7 CXX_COMPILER=g++-7 GENERATOR_NAME="Unix Makefiles"
       addons: { apt: { packages: ["g++-7"], sources: ["ubuntu-toolchain-r-test"] } }
 
-    - env: C_COMPILER=clang-5.0 CXX_COMPILER=clang++-5.0
+    - env: C_COMPILER=clang-5.0 CXX_COMPILER=clang++-5.0 GENERATOR_NAME="Unix Makefiles"
       addons: { apt: { packages: ["g++-7", "clang-5.0"], sources: ["llvm-toolchain-trusty-5.0", "ubuntu-toolchain-r-test"] } }
       # g++-7 is needed here - otherwise the build will fail because g++-4.8 libstdc++ is used.
 
     - os: osx
-      env: C_COMPILER=clang CXX_COMPILER=clang++
+      env: C_COMPILER=clang CXX_COMPILER=clang++ GENERATOR_NAME="Xcode"
       osx_image: xcode9.2
 
 install:
@@ -35,12 +35,7 @@ install:
 before_script:
   - mkdir build
   - cd build
-  - |
-    if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
-      ../cmake-3.8.2-Linux-x86_64/bin/cmake -DCMAKE_C_COMPILER=${C_COMPILER} -DCMAKE_CXX_COMPILER=${CXX_COMPILER} -DEOS_BUILD_EXAMPLES=on -DEOS_BUILD_UTILS=on -DEOS_GENERATE_PYTHON_BINDINGS=on -DPYTHON_EXECUTABLE=`which python3.6` ..
-    else
-      cmake -G "Xcode" -DCMAKE_C_COMPILER=${C_COMPILER} -DCMAKE_CXX_COMPILER=${CXX_COMPILER} -DEOS_BUILD_EXAMPLES=on -DEOS_BUILD_UTILS=on -DEOS_GENERATE_PYTHON_BINDINGS=on -DPYTHON_EXECUTABLE=`which python3.6` ..
-    fi
+  - cmake -G "${GENERATOR_NAME}" -DCMAKE_C_COMPILER=${C_COMPILER} -DCMAKE_CXX_COMPILER=${CXX_COMPILER} -DCMAKE_INSTALL_PREFIX=../install -DEOS_BUILD_EXAMPLES=on -DEOS_BUILD_UTILS=on -DEOS_GENERATE_PYTHON_BINDINGS=on -DPYTHON_EXECUTABLE=`which python3.6` ..
 
 script:
   - cmake --build . --config Release
