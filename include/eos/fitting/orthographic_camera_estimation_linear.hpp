@@ -83,7 +83,7 @@ inline ScaledOrthoProjectionParameters estimate_orthographic_projection_linear(
 
     if (is_viewport_upsidedown)
     {
-        if (viewport_height == std::nullopt)
+        if (viewport_height == cpp17::nullopt)
         {
             throw std::runtime_error(
                 "Error: If is_viewport_upsidedown is set to true, viewport_height needs to be given.");
