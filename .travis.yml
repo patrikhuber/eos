@@ -27,6 +27,7 @@ install:
     else
       brew install cmake || brew upgrade cmake
       brew install boost
+      /usr/bin/yes | pip2 uninstall numpy
       brew install opencv
     fi
 
