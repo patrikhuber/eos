@@ -24,6 +24,7 @@
 
 #ifdef __APPLE__
   #include "eos/cpp17/detail/akrzemi1_optional.hpp"
+  #include "eos/cpp17/detail/akrzemi1_optional_serialization.hpp"
   namespace eos {
       namespace cpp17 = ::akrzemi1;
   }
