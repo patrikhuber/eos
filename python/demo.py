@@ -13,7 +13,7 @@ def main():
     landmark_mapper = eos.core.LandmarkMapper('../share/ibug_to_sfm.txt')
     edge_topology = eos.morphablemodel.load_edge_topology('../share/sfm_3448_edge_topology.json')
     contour_landmarks = eos.fitting.ContourLandmarks.load('../share/ibug_to_sfm.txt')
-    model_contour = eos.fitting.ModelContour.load('../share/model_contours.json')
+    model_contour = eos.fitting.ModelContour.load('../share/sfm_model_contours.json')
 
     (mesh, pose, shape_coeffs, blendshape_coeffs) = eos.fitting.fit_shape_and_pose(model, blendshapes,
         landmarks, landmark_ids, landmark_mapper,

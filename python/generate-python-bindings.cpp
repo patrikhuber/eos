@@ -37,10 +37,12 @@
 #include "pybind11/stl.h"
 #include "pybind11_Image.hpp"
 
+#include "eos/cpp17/optional.hpp"
+#include "pybind11_optional.hpp"
+
 #include "Eigen/Core"
 
 #include <cassert>
-#include <optional>
 #include <string>
 
 namespace py = pybind11;
@@ -234,7 +236,7 @@ PYBIND11_MODULE(eos, eos_module)
            const core::LandmarkMapper& landmark_mapper, int image_width, int image_height,
            const morphablemodel::EdgeTopology& edge_topology,
            const fitting::ContourLandmarks& contour_landmarks, const fitting::ModelContour& model_contour,
-           int num_iterations, std::optional<int> num_shape_coefficients_to_fit, float lambda) {
+           int num_iterations, cpp17::optional<int> num_shape_coefficients_to_fit, float lambda) {
             assert(landmarks.size() == landmark_ids.size());
             std::vector<float> pca_coeffs;
             std::vector<float> blendshape_coeffs;
@@ -244,7 +246,7 @@ PYBIND11_MODULE(eos, eos_module)
             {
                 landmark_collection.push_back(core::Landmark<Eigen::Vector2f>{ landmark_ids[i], Eigen::Vector2f(landmarks[i][0], landmarks[i][1]) });
             }
-            auto result = fitting::fit_shape_and_pose(morphable_model, landmark_collection, landmark_mapper, image_width, image_height, edge_topology, contour_landmarks, model_contour, num_iterations, num_shape_coefficients_to_fit, lambda, std::nullopt, pca_coeffs, blendshape_coeffs, fitted_image_points);
+            auto result = fitting::fit_shape_and_pose(morphable_model, landmark_collection, landmark_mapper, image_width, image_height, edge_topology, contour_landmarks, model_contour, num_iterations, num_shape_coefficients_to_fit, lambda, cpp17::nullopt, pca_coeffs, blendshape_coeffs, fitted_image_points);
             return std::make_tuple(result.first, result.second, pca_coeffs, blendshape_coeffs);
         },
         "Fit the pose (camera), shape model, and expression blendshapes to landmarks, in an iterative way. Returns a tuple (mesh, rendering_parameters, shape_coefficients, blendshape_coefficients).",

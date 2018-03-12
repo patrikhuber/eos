@@ -4,7 +4,7 @@ if(MSVC)
   cmake_minimum_required(VERSION 3.10.0) # needed for CMAKE_CXX_STANDARD 17 on VS2017.3
 endif()
 set(eos_VERSION_MAJOR 0)
-set(eos_VERSION_MINOR 14)
+set(eos_VERSION_MINOR 15)
 set(eos_VERSION_PATCH 0)
 set(eos_VERSION ${eos_VERSION_MAJOR}.${eos_VERSION_MINOR}.${eos_VERSION_PATCH})
 
@@ -112,6 +112,9 @@ set(HEADERS
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/detail/Vertex.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/video/Keyframe.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/video/keyframe_merging.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/cpp17/optional.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/cpp17/detail/akrzemi1_optional.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/cpp17/detail/akrzemi1_optional_serialization.hpp
 )
 
 add_library(eos INTERFACE)
@@ -137,6 +140,8 @@ source_group(fitting\\detail REGULAR_EXPRESSION include/eos/fitting/detail/*)
 source_group(render REGULAR_EXPRESSION include/eos/render/*)
 source_group(render\\detail REGULAR_EXPRESSION include/eos/render/detail/*)
 source_group(video REGULAR_EXPRESSION include/eos/video/*)
+source_group(cpp17 REGULAR_EXPRESSION include/eos/cpp17/*)
+source_group(cpp17\\detail REGULAR_EXPRESSION include/eos/cpp17/detail/*)
 
 # The eos install target:
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/ DESTINATION include) # our library headers

@@ -54,8 +54,8 @@ inline
 typename std::enable_if<traits::is_output_serializable<BinaryData<_Scalar>, Archive>::value, void>::type
 save(Archive& ar, const Eigen::Matrix<_Scalar, _Rows, _Cols, _Options, _MaxRows, _MaxCols>& matrix)
 {
-    const std::int32_t rows = matrix.rows();
-    const std::int32_t cols = matrix.cols();
+    const std::int32_t rows = static_cast<std::int32_t>(matrix.rows());
+    const std::int32_t cols = static_cast<std::int32_t>(matrix.cols());
     ar(rows);
     ar(cols);
     ar(binary_data(matrix.data(), rows * cols * sizeof(_Scalar)));

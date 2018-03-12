@@ -23,14 +23,15 @@
 #define LINEARSHAPEFITTING_HPP_
 
 #include "eos/morphablemodel/PcaModel.hpp"
+#include "eos/cpp17/optional.hpp"
 
 #include "Eigen/Core"
 #include "Eigen/QR"
 #include "Eigen/Sparse"
 
 #include <vector>
+#include <cstdint>
 #include <cassert>
-#include <optional>
 
 namespace eos {
 namespace fitting {
@@ -60,9 +61,9 @@ inline std::vector<float> fit_shape_to_landmarks_linear(
     const morphablemodel::PcaModel& shape_model, Eigen::Matrix<float, 3, 4> affine_camera_matrix,
     const std::vector<Eigen::Vector2f>& landmarks, const std::vector<int>& vertex_ids,
     Eigen::VectorXf base_face = Eigen::VectorXf(), float lambda = 3.0f,
-    std::optional<int> num_coefficients_to_fit = std::optional<int>(),
-    std::optional<float> detector_standard_deviation = std::optional<float>(),
-    std::optional<float> model_standard_deviation = std::optional<float>())
+    cpp17::optional<int> num_coefficients_to_fit = cpp17::optional<int>(),
+    cpp17::optional<float> detector_standard_deviation = cpp17::optional<float>(),
+    cpp17::optional<float> model_standard_deviation = cpp17::optional<float>())
 {
     assert(landmarks.size() == vertex_ids.size());
 
@@ -180,9 +181,9 @@ fit_shape_to_landmarks_linear_multi(const morphablemodel::PcaModel& shape_model,
                                     const std::vector<std::vector<int>>& vertex_ids,
                                     std::vector<Eigen::VectorXf> base_faces = std::vector<Eigen::VectorXf>(),
                                     float lambda = 3.0f,
-                                    std::optional<int> num_coefficients_to_fit = std::optional<int>(),
-                                    std::optional<float> detector_standard_deviation = std::optional<float>(),
-                                    std::optional<float> model_standard_deviation = std::optional<float>())
+                                    cpp17::optional<int> num_coefficients_to_fit = cpp17::optional<int>(),
+                                    cpp17::optional<float> detector_standard_deviation = cpp17::optional<float>(),
+                                    cpp17::optional<float> model_standard_deviation = cpp17::optional<float>())
 {
     assert(affine_camera_matrices.size() == landmarks.size() &&
            landmarks.size() == vertex_ids.size()); // same number of instances (i.e. images/frames) for each of them
@@ -199,7 +200,7 @@ fit_shape_to_landmarks_linear_multi(const morphablemodel::PcaModel& shape_model,
     // the regularisation has to be adjusted when more than one image is given
     lambda *= num_images;
 
-    int total_num_landmarks_dimension = 0;
+    std::size_t total_num_landmarks_dimension = 0;
     for (const auto& l : landmarks) {
         total_num_landmarks_dimension += l.size();
     }

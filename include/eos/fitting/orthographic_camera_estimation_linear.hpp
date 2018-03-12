@@ -22,6 +22,8 @@
 #ifndef ORTHOGRAPHICCAMERAESTIMATIONLINEAR_HPP_
 #define ORTHOGRAPHICCAMERAESTIMATIONLINEAR_HPP_
 
+#include "eos/cpp17/optional.hpp"
+
 #include "glm/mat3x3.hpp"
 
 #include "Eigen/Core"
@@ -31,7 +33,6 @@
 
 #include <vector>
 #include <cassert>
-#include <optional>
 
 namespace eos {
 namespace fitting {
@@ -41,9 +42,9 @@ namespace fitting {
  */
 struct ScaledOrthoProjectionParameters
 {
-    glm::mat3x3 R;
-    double tx, ty;
-    double s;
+    glm::mat3x3 R; ///< 3x3 rotation matrix
+    float tx, ty; ///< x and y translation
+    float s;      ///< Scaling
 };
 
 /**
@@ -72,7 +73,7 @@ struct ScaledOrthoProjectionParameters
  */
 inline ScaledOrthoProjectionParameters estimate_orthographic_projection_linear(
     std::vector<Eigen::Vector2f> image_points, std::vector<Eigen::Vector4f> model_points,
-    bool is_viewport_upsidedown, std::optional<int> viewport_height = std::nullopt)
+    bool is_viewport_upsidedown, cpp17::optional<int> viewport_height = cpp17::nullopt)
 {
     using Eigen::Matrix;
     assert(image_points.size() == model_points.size());
@@ -82,7 +83,7 @@ inline ScaledOrthoProjectionParameters estimate_orthographic_projection_linear(
 
     if (is_viewport_upsidedown)
     {
-        if (viewport_height == std::nullopt)
+        if (viewport_height == cpp17::nullopt)
         {
             throw std::runtime_error(
                 "Error: If is_viewport_upsidedown is set to true, viewport_height needs to be given.");
@@ -115,7 +116,7 @@ inline ScaledOrthoProjectionParameters estimate_orthographic_projection_linear(
     const Eigen::Vector3f R2 = k.segment<3>(4);
     const float sTx = k(3);
     const float sTy = k(7);
-    const auto s = (R1.norm() + R2.norm()) / 2.0;
+    const auto s = (R1.norm() + R2.norm()) / 2.0f;
     Eigen::Matrix3f R;
     Eigen::Vector3f r1 = R1.normalized(); // Not sure why R1.normalize() (in-place) produces a compiler error.
     Eigen::Vector3f r2 = R2.normalized();

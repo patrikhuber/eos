@@ -65,7 +65,7 @@ inline std::vector<float> fit_blendshapes_to_landmarks_linear(
     using Eigen::MatrixXf;
     using Eigen::VectorXf;
 
-    const int num_blendshapes = blendshapes.size();
+    const auto num_blendshapes = blendshapes.size();
     const int num_landmarks = static_cast<int>(landmarks.size());
 
     // Copy all blendshapes into a "basis" matrix with each blendshape being a column:
@@ -145,7 +145,7 @@ inline std::vector<float> fit_blendshapes_to_landmarks_nnls(
     using Eigen::MatrixXf;
     using Eigen::VectorXf;
 
-    const int num_blendshapes = blendshapes.size();
+    const auto num_blendshapes = blendshapes.size();
     const int num_landmarks = static_cast<int>(landmarks.size());
 
     // Copy all blendshapes into a "basis" matrix with each blendshape being a column:

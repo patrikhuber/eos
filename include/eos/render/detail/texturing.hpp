@@ -76,7 +76,7 @@ inline glm::vec3 tex2d_linear_mipmap_linear(const glm::vec2& texcoords, const Te
     using glm::vec2;
     const float px = std::sqrt(std::pow(dudx, 2) + std::pow(dvdx, 2));
     const float py = std::sqrt(std::pow(dudy, 2) + std::pow(dvdy, 2));
-    const float lambda = std::log(std::max(px, py)) / CV_LOG2;
+    const float lambda = std::log(std::max(px, py)) / static_cast<float>(CV_LOG2);
     const unsigned char mipmapIndex1 =
         detail::clamp((int)lambda, 0.0f, std::max(texture.widthLog, texture.heightLog) - 1);
     const unsigned char mipmapIndex2 = mipmapIndex1 + 1;

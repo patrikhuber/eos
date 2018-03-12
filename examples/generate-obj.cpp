@@ -21,6 +21,7 @@
 #include "eos/core/Image_opencv_interop.hpp"
 #include "eos/morphablemodel/MorphableModel.hpp"
 #include "eos/render/render.hpp"
+#include "eos/cpp17/optional.hpp"
 
 #include "glm/gtc/matrix_transform.hpp"
 
@@ -107,7 +108,7 @@ int main(int argc, char* argv[])
     core::Image4u rendering;
     std::tie(rendering, std::ignore) =
         render::render(sample_mesh, glm::mat4x4(1.0f), glm::ortho(-130.0f, 130.0f, -130.0f, 130.0f), 512, 512,
-                       std::nullopt, true, false, false);
+                       cpp17::nullopt, true, false, false);
     fs::path filename_rendering(output_file);
     filename_rendering.replace_extension(".png");
     cv::imwrite(filename_rendering.string(), core::to_mat(rendering));
