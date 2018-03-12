@@ -112,6 +112,9 @@ set(HEADERS
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/detail/Vertex.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/video/Keyframe.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/video/keyframe_merging.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/cpp17/optional.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/cpp17/detail/akrzemi1_optional.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/cpp17/detail/akrzemi1_optional_serialization.hpp
 )
 
 add_library(eos INTERFACE)
@@ -137,6 +140,8 @@ source_group(fitting\\detail REGULAR_EXPRESSION include/eos/fitting/detail/*)
 source_group(render REGULAR_EXPRESSION include/eos/render/*)
 source_group(render\\detail REGULAR_EXPRESSION include/eos/render/detail/*)
 source_group(video REGULAR_EXPRESSION include/eos/video/*)
+source_group(cpp17 REGULAR_EXPRESSION include/eos/cpp17/*)
+source_group(cpp17\\detail REGULAR_EXPRESSION include/eos/cpp17/detail/*)
 
 # The eos install target:
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/ DESTINATION include) # our library headers

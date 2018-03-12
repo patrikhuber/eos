@@ -26,6 +26,7 @@
 #include "eos/morphablemodel/EdgeTopology.hpp"
 #include "eos/fitting/RenderingParameters.hpp"
 #include "eos/render/utils.hpp"
+#include "eos/cpp17/optional.hpp"
 
 #include "nanoflann.hpp"
 
@@ -55,7 +56,7 @@ namespace fitting {
  * otherwise, the triangles normal direction w.r.t. the ray direction is just ignored.
  *
  * Note: The use of optional might turn out as a performance problem, as this
- * function is called loads of time - how costly is it to construct a boost::none optional?
+ * function is called loads of time - how costly is it to construct an std::nullopt?
  *
  * @param[in] ray_origin Ray origin.
  * @param[in] ray_direction Ray direction.
@@ -65,7 +66,7 @@ namespace fitting {
  * @param[in] enable_backculling When culling is on, rays intersecting triangles from the back will be discarded.
  * @return Whether the ray intersects the triangle, and if yes, including the distance.
  */
-inline std::pair<bool, std::optional<float>>
+inline std::pair<bool, cpp17::optional<float>>
 ray_triangle_intersect(const glm::vec3& ray_origin, const glm::vec3& ray_direction, const glm::vec3& v0,
                        const glm::vec3& v1, const glm::vec3& v2, bool enable_backculling)
 {
@@ -83,24 +84,24 @@ ray_triangle_intersect(const glm::vec3& ray_origin, const glm::vec3& ray_directi
         // If det is negative, the triangle is back-facing.
         // If det is close to 0, the ray misses the triangle.
         if (det < epsilon)
-            return {false, std::nullopt};
+            return {false, cpp17::nullopt};
     } else
     {
         // If det is close to 0, the ray and triangle are parallel.
         if (std::abs(det) < epsilon)
-            return {false, std::nullopt};
+            return {false, cpp17::nullopt};
     }
     const float inv_det = 1 / det;
 
     const vec3 tvec = ray_origin - v0;
     const auto u = glm::dot(tvec, pvec) * inv_det;
     if (u < 0 || u > 1)
-        return {false, std::nullopt};
+        return {false, cpp17::nullopt};
 
     const vec3 qvec = glm::cross(tvec, v0v1);
     const auto v = glm::dot(ray_direction, qvec) * inv_det;
     if (v < 0 || u + v > 1)
-        return {false, std::nullopt};
+        return {false, cpp17::nullopt};
 
     const auto t = glm::dot(v0v2, qvec) * inv_det;
 

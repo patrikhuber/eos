@@ -1,6 +1,6 @@
 # eos: A lightweight header-only 3D Morphable Face Model fitting library in modern C++11/14.
 [![Latest release](http://img.shields.io/github/release/patrikhuber/eos.svg?style=flat-square)][release]
-[![Linux build status of master branch](https://img.shields.io/travis/patrikhuber/eos/master.svg?style=flat-square&label=Linux%3A%20build)][travis]
+[![Linux build status of master branch](https://img.shields.io/travis/patrikhuber/eos/master.svg?style=flat-square&label=Linux/macOS%3A%20build)][travis]
 [![Windows build status of master branch](https://ci.appveyor.com/api/projects/status/gekekpn08cdgqcsk/branch/master?svg=true&passingText=Windows%3A%20build%20passing&failingText=Windows%3A%20build%20failing&pendingText=Windows%3A%20build%20pending)][appveyor]
 [![Apache License 2.0](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg?style=flat-square)][license]
 
@@ -28,7 +28,7 @@ An experimental model viewer to visualise 3D Morphable Models and blendshapes is
 
 ## Usage
 
-* Tested with the following compilers: >=gcc-7, >=clang-5, Visual Studio 2017 Update 3.
+* Tested with the following compilers: >=gcc-7, >=clang-5, >=Visual Studio 2017 15.5, >=Xcode 9.2.
 * The library and python bindings are free of any external dependencies. The example applications require Boost (>=1.50.0) and OpenCV (>=2.4.3).
 
 To use the library in your own project, just add the following directories to your include path:
