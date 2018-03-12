@@ -24,7 +24,8 @@
 
 #include "eos/core/Mesh.hpp"
 #include "eos/morphablemodel/PcaModel.hpp"
-#include "Blendshape.hpp"
+#include "eos/morphablemodel/Blendshape.hpp"
+#include "eos/cpp17/optional.hpp"
 
 #include "cereal/access.hpp"
 #include "cereal/cereal.hpp"
@@ -42,7 +43,6 @@
 #include <vector>
 #include <fstream>
 #include <algorithm>
-#include <optional>
 #include <variant>
 
 namespace eos {
@@ -118,7 +118,7 @@ public:
     /**
      * Returns the shape expression model, if this Morphable Model has one.
      *
-     * Returns an empty std::optional if the Morphable Model does not have a separate expression
+     * Returns an empty cpp17::optional if the Morphable Model does not have a separate expression
      * model (check with MorphableModel::has_separate_expression_model()).
      * If it does have an expression model, an std::variant<PcaModel, Blendshapes> is returned -
      * that is, either a PcaModel (if it is an expression PCA model), or Blendshapes.
@@ -346,7 +346,7 @@ public:
 private:
     PcaModel shape_model; ///< A PCA model of the shape
     PcaModel color_model; ///< A PCA model of vertex colour information
-    std::optional<std::variant<PcaModel, Blendshapes>> expression_model; ///< Blendshapes or PcaModel
+    cpp17::optional<std::variant<PcaModel, Blendshapes>> expression_model; ///< Blendshapes or PcaModel
     std::vector<std::array<double, 2>> texture_coordinates;              ///< uv-coordinates for every vertex
 
     /**
