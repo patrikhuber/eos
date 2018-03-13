@@ -44,6 +44,10 @@ struct type_caster<akrzemi1::optional<T>> : optional_caster<akrzemi1::optional<T
 } /* namespace detail */
 } /* namespace pybind11 */
 
+#else
+
+#include "pybind11/stl.h"
+
 #endif /* __APPLE__ */
 
 #endif /* EOS_PYBIND11_OPTIONAL_HPP_ */

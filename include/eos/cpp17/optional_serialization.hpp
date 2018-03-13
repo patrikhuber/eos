@@ -1,7 +1,7 @@
 /*
  * eos - A 3D Morphable Model fitting library written in modern C++11/14.
  *
- * File: include/eos/cpp17/optional.hpp
+ * File: include/eos/cpp17/optional_serialization.hpp
  *
  * Copyright 2018 Patrik Huber
  *
@@ -19,19 +19,13 @@
  */
 #pragma once
 
-#ifndef EOS_OPTIONAL_HPP_
-#define EOS_OPTIONAL_HPP_
+#ifndef EOS_OPTIONAL_SERIALIZATION_HPP_
+#define EOS_OPTIONAL_SERIALIZATION_HPP_
 
 #ifdef __APPLE__
-  #include "eos/cpp17/detail/akrzemi1_optional.hpp"
-  namespace eos {
-      namespace cpp17 = ::akrzemi1;
-  }
+  #include "eos/cpp17/detail/akrzemi1_optional_serialization.hpp"
 #else
-  #include <optional>
-  namespace eos {
-    namespace cpp17 = ::std;
-  }
+  #include "cereal/types/optional.hpp"
 #endif
 
-#endif /* EOS_OPTIONAL_HPP_ */
+#endif /* EOS_OPTIONAL_SERIALIZATION_HPP_ */
