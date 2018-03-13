@@ -31,8 +31,8 @@
 #include "cereal/cereal.hpp"
 #include "cereal/types/array.hpp"
 #include "cereal/types/vector.hpp"
-#include "cereal/types/optional.hpp"
 #include "cereal/types/variant.hpp"
+#include "eos/cpp17/optional_serialization.hpp"
 #include "eos/morphablemodel/io/eigen_cerealisation.hpp"
 #include "cereal/archives/binary.hpp"
 
