@@ -113,6 +113,7 @@ set(HEADERS
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/video/Keyframe.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/video/keyframe_merging.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/cpp17/optional.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/cpp17/optional_serialization.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/cpp17/detail/akrzemi1_optional.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/cpp17/detail/akrzemi1_optional_serialization.hpp
 )
