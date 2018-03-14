@@ -1,21 +1,17 @@
 cmake_minimum_required(VERSION 3.8.2)
-project(eos)
 if(MSVC)
-  cmake_minimum_required(VERSION 3.10.0) # needed for CMAKE_CXX_STANDARD 17 on VS2017.3
+  cmake_minimum_required(VERSION 3.10.0) # needed for CMAKE_CXX_STANDARD 17 on >=VS2017.3
 endif()
-set(eos_VERSION_MAJOR 0)
-set(eos_VERSION_MINOR 15)
-set(eos_VERSION_PATCH 0)
-set(eos_VERSION ${eos_VERSION_MAJOR}.${eos_VERSION_MINOR}.${eos_VERSION_PATCH})
+project(eos VERSION 0.15.0 LANGUAGES CXX)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-# This sets the C++ standard to c++14 and required for all the following targets that we define.
+# This sets the C++ standard to c++17 and required for all the following targets that we define.
 # It has no effect on MSVC though - we thus define more specific requirements for each executable target respectively.
 # Also it will not apply to the eos library target, since it is an INTERFACE_LIBRARY, and these properties do not apply to interface libraries.
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF) # This makes CMake use -std=c++11 instead of -std=gnu++11
+set(CMAKE_CXX_EXTENSIONS OFF) # This makes CMake use -std=c++xx instead of -std=gnu++xx
 # This list is likely not complete, but it should be sufficient to error out on old compilers that we cannot build on:
 set(EOS_CXX_COMPILE_FEATURES cxx_defaulted_functions cxx_generalized_initializers cxx_generic_lambdas cxx_lambdas cxx_nonstatic_member_init cxx_range_for cxx_right_angle_brackets cxx_strong_enums)
 
