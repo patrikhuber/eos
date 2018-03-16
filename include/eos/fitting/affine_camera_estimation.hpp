@@ -184,10 +184,10 @@ inline cv::Vec2f project_affine(cv::Vec4f vertex, cv::Mat affine_camera_matrix, 
 {
     // Transform to clip space:
     cv::Mat clip_coords = affine_camera_matrix * cv::Mat(vertex);
+    cv::Vec2f clip_coords_vec = clip_coords.rowRange(0, 2);
     // Take the x and y coordinates in clip space and apply the window transform:
-    cv::Vec2f screen_coords =
-        render::clip_to_screen_space(cv::Vec2f(clip_coords.rowRange(0, 2)), screen_width, screen_height);
-    return screen_coords;
+    auto screen_coords = eos::render::clip_to_screen_space({ clip_coords_vec[0], clip_coords_vec[1] }, screen_width, screen_height);
+    return cv::Vec2f(screen_coords.x, screen_coords.y);
 };
 
 } /* namespace fitting */
