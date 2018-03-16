@@ -22,7 +22,7 @@
 #ifndef EOS_OPTIONAL_SERIALIZATION_HPP_
 #define EOS_OPTIONAL_SERIALIZATION_HPP_
 
-#ifdef __APPLE__
+#if __cplusplus <= 201402L
   #include "eos/cpp17/detail/akrzemi1_optional_serialization.hpp"
 #else
   #include "cereal/types/optional.hpp"

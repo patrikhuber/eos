@@ -22,7 +22,7 @@
 #ifndef EOS_OPTIONAL_HPP_
 #define EOS_OPTIONAL_HPP_
 
-#ifdef __APPLE__
+#if __cplusplus <= 201402L
   #include "eos/cpp17/detail/akrzemi1_optional.hpp"
   namespace eos {
       namespace cpp17 = ::akrzemi1;
