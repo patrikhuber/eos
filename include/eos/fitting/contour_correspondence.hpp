@@ -336,7 +336,7 @@ get_nearest_contour_correspondences(const core::LandmarkCollection<Eigen::Vector
         // Check if the contour landmark is amongst the landmarks given to us (from detector or ground truth):
         // (Note: Alternatively, we could filter landmarks beforehand and then just loop over landmarks =>
         // means one less function param here. Separate filtering from actual algorithm.)
-        const auto result = std::find_if(begin(landmarks), end(landmarks), [&ibug_idx](auto&& e) {
+        const auto result = std::find_if(begin(landmarks), end(landmarks), [&ibug_idx](const core::Landmark<Eigen::Vector2f>& e) {
             return e.name == ibug_idx;
         }); // => this can go outside the loop
         if (result == std::end(landmarks))

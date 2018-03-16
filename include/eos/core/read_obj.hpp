@@ -138,7 +138,10 @@ inline void parse_vertex_normal(const std::string& line)
 //  f 3/1 4/2 5/3
 //  f 6/4/1 3/5/3 7/6/5
 //  f 7//1 8//2 9//3
-inline auto parse_face(const std::string& line)
+inline std::tuple<std::vector<int>,
+                  std::vector<int>,
+                  std::vector<int>>
+    parse_face(const std::string& line)
 {
     using std::string;
     using std::vector;

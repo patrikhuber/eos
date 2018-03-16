@@ -127,7 +127,7 @@ public:
      *
      * @return The number of landmark mappings.
      */
-    auto num_mappings() const { return landmark_mappings.size(); };
+    std::size_t num_mappings() const { return landmark_mappings.size(); };
 
 private:
     std::unordered_map<std::string, std::string>

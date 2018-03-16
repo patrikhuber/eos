@@ -141,7 +141,7 @@ public:
         frustum = Frustum(l, r, b, t);
     };
 
-    auto get_camera_type() const { return camera_type; };
+    CameraType get_camera_type() const { return camera_type; };
 
     glm::quat get_rotation() const { return rotation; };
 

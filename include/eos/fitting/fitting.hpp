@@ -173,7 +173,10 @@ inline Eigen::VectorXf fit_shape(Eigen::Matrix<float, 3, 4> affine_camera_matrix
  * @return A tuple of [image_points, model_points, vertex_indices].
  */
 template <class T>
-inline auto get_corresponding_pointset(const T& landmarks, const core::LandmarkMapper& landmark_mapper,
+    inline std::tuple<std::vector<Eigen::Vector2f>,
+                  std::vector<Eigen::Vector4f>,
+                  std::vector<int>>
+    get_corresponding_pointset(const T& landmarks, const core::LandmarkMapper& landmark_mapper,
                                        const morphablemodel::MorphableModel& morphable_model)
 {
     using Eigen::Vector2f;
@@ -213,7 +216,7 @@ inline auto get_corresponding_pointset(const T& landmarks, const core::LandmarkM
  * @return The concatenated vector.
  */
 template <class T>
-inline auto concat(const std::vector<T>& vec_a, const std::vector<T>& vec_b)
+inline std::vector<T> concat(const std::vector<T>& vec_a, const std::vector<T>& vec_b)
 {
     std::vector<T> concatenated_vec;
     concatenated_vec.reserve(vec_a.size() + vec_b.size());
@@ -389,14 +392,14 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
             auto contour_landmarks_ =
                 core::filter(landmarks, contour_landmarks.left_contour); // Can do this outside of the loop
             std::for_each(begin(contour_landmarks_), end(contour_landmarks_),
-                          [&occluding_contour_landmarks](auto&& lm) {
+                          [&occluding_contour_landmarks](const core::Landmark<Eigen::Vector2f>& lm) {
                               occluding_contour_landmarks.push_back({lm.coordinates[0], lm.coordinates[1]});
                           });
         } else
         {
             auto contour_landmarks_ = core::filter(landmarks, contour_landmarks.right_contour);
             std::for_each(begin(contour_landmarks_), end(contour_landmarks_),
-                          [&occluding_contour_landmarks](auto&& lm) {
+                          [&occluding_contour_landmarks](const core::Landmark<Eigen::Vector2f>& lm) {
                               occluding_contour_landmarks.push_back({lm.coordinates[0], lm.coordinates[1]});
                           });
         }
