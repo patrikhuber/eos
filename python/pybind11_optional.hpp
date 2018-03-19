@@ -27,7 +27,11 @@
  * @brief Define a type_caster for akrzemi1::optional, which is used when the compiler doesn't have <optional> (e.g. on Apple).
  */
 
-#ifdef __APPLE__
+#if __cplusplus >= 201703L || (defined(_MSVC_LANG) && _MSVC_LANG >= 201703L)
+
+#include "pybind11/stl.h"
+
+#else
 
 #include "eos/cpp17/optional.hpp"
 #include "pybind11/stl.h"
@@ -39,15 +43,13 @@ namespace detail {
  * @brief Type caster for akrzemi1::optional, which is used when the compiler doesn't have <optional> (e.g. on Apple).
  */
 template <typename T>
-struct type_caster<akrzemi1::optional<T>> : optional_caster<akrzemi1::optional<T>> {};
+class type_caster<akrzemi1::optional<T>> : optional_caster<akrzemi1::optional<T>>
+{
+};
 
 } /* namespace detail */
 } /* namespace pybind11 */
 
-#else
-
-#include "pybind11/stl.h"
-
-#endif /* __APPLE__ */
+#endif
 
 #endif /* EOS_PYBIND11_OPTIONAL_HPP_ */
