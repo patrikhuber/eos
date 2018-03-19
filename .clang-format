@@ -21,6 +21,7 @@ PointerAlignment: Left
 IndentWidth: '4'
 Language: Cpp
 NamespaceIndentation: None
+SortIncludes: false
 Standard: Cpp11
 UseTab: Never
 # http://clang.llvm.org/docs/ClangFormatStyleOptions.html
