@@ -59,7 +59,7 @@ core::Mesh sample_to_mesh(
  *
  * Defining a type alias so that we don't have to spell out the type everywhere.
  */
-using ExpressionModel = std::variant<PcaModel, Blendshapes>;
+using ExpressionModel = cpp17::variant<PcaModel, Blendshapes>;
 
 /**
  * @brief A class representing a 3D Morphable Model, consisting
@@ -267,8 +267,8 @@ public:
             shape_sample = shape_model.draw_sample(shape_coefficients);
         }
         // Get a sample of the expression model, depending on whether it's a PcaModel or Blendshapes:
-        if (has_separate_expression_model() && std::holds_alternative<PcaModel>(expression_model.value())) {
-            const auto& pca_expression_model = std::get<PcaModel>(expression_model.value());
+        if (has_separate_expression_model() && cpp17::holds_alternative<PcaModel>(expression_model.value())) {
+            const auto& pca_expression_model = cpp17::get<PcaModel>(expression_model.value());
             assert(pca_expression_model.get_data_dimension() == shape_model.get_data_dimension());
             if (expression_coefficients.empty())
             {
@@ -277,9 +277,9 @@ public:
             {
                 expression_sample = pca_expression_model.draw_sample(expression_coefficients);
             }
-        } else if (has_separate_expression_model() && std::holds_alternative<Blendshapes>(expression_model.value()))
+        } else if (has_separate_expression_model() && cpp17::holds_alternative<Blendshapes>(expression_model.value()))
         {
-            const auto& expression_blendshapes = std::get<Blendshapes>(expression_model.value());
+            const auto& expression_blendshapes = cpp17::get<Blendshapes>(expression_model.value());
             assert(expression_blendshapes.size() > 0);
             assert(expression_blendshapes[0].deformation.rows() == shape_model.get_data_dimension());
             if (expression_coefficients.empty())
@@ -346,8 +346,8 @@ public:
 private:
     PcaModel shape_model; ///< A PCA model of the shape
     PcaModel color_model; ///< A PCA model of vertex colour information
-    cpp17::optional<std::variant<PcaModel, Blendshapes>> expression_model; ///< Blendshapes or PcaModel
     std::vector<std::array<double, 2>> texture_coordinates;              ///< uv-coordinates for every vertex
+    cpp17::optional<ExpressionModel> expression_model;      ///< Blendshapes or PcaModel
 
     /**
      * Returns whether the model has texture mapping coordinates, i.e.

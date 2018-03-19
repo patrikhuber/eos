@@ -245,14 +245,14 @@ inline std::vector<float> fit_expressions(const morphablemodel::ExpressionModel&
                                           const std::vector<int>& vertex_ids)
 {
     std::vector<float> expression_coefficients;
-    if (std::holds_alternative<morphablemodel::PcaModel>(expression_model))
+    if (cpp17::holds_alternative<morphablemodel::PcaModel>(expression_model))
     {
-        const auto& pca_expression_model = std::get<morphablemodel::PcaModel>(expression_model);
+        const auto& pca_expression_model = cpp17::get<morphablemodel::PcaModel>(expression_model);
         return fit_shape_to_landmarks_linear(pca_expression_model, affine_camera_matrix, landmarks,
                                              vertex_ids, face_instance); // lambda, num_coeffs_to_fit, ...
-    } else if (std::holds_alternative<morphablemodel::Blendshapes>(expression_model))
+    } else if (cpp17::holds_alternative<morphablemodel::Blendshapes>(expression_model))
     {
-        const auto& expression_blendshapes = std::get<morphablemodel::Blendshapes>(expression_model);
+        const auto& expression_blendshapes = cpp17::get<morphablemodel::Blendshapes>(expression_model);
         return fit_blendshapes_to_landmarks_nnls(expression_blendshapes, face_instance, affine_camera_matrix,
                                                  landmarks, vertex_ids);
     } else
@@ -264,15 +264,15 @@ inline std::vector<float> fit_expressions(const morphablemodel::ExpressionModel&
 // Note that this doesn't check whether the shape and expression model dimensions match.
 // Note: We're calling this in a loop, and morphablemodel::to_matrix(expression_blendshapes) now gets called again in every fitting iteration.
 Eigen::VectorXf draw_expression_sample(
-    const std::variant<morphablemodel::PcaModel, morphablemodel::Blendshapes>& expression_model,
+    const morphablemodel::ExpressionModel& expression_model,
     std::vector<float> expression_coefficients)
 {
     using Eigen::VectorXf;
     VectorXf expression_sample;
     // Get a sample of the expression model, depending on whether it's a PcaModel or Blendshapes:
-    if (std::holds_alternative<morphablemodel::PcaModel>(expression_model))
+    if (cpp17::holds_alternative<morphablemodel::PcaModel>(expression_model))
     {
-        const auto& pca_expression_model = std::get<morphablemodel::PcaModel>(expression_model);
+        const auto& pca_expression_model = cpp17::get<morphablemodel::PcaModel>(expression_model);
         if (expression_coefficients.empty())
         {
             expression_sample = pca_expression_model.get_mean();
@@ -280,9 +280,9 @@ Eigen::VectorXf draw_expression_sample(
         {
             expression_sample = pca_expression_model.draw_sample(expression_coefficients);
         }
-    } else if (std::holds_alternative<morphablemodel::Blendshapes>(expression_model))
+    } else if (cpp17::holds_alternative<morphablemodel::Blendshapes>(expression_model))
     {
-        const auto& expression_blendshapes = std::get<morphablemodel::Blendshapes>(expression_model);
+        const auto& expression_blendshapes = cpp17::get<morphablemodel::Blendshapes>(expression_model);
         assert(expression_blendshapes.size() > 0);
         if (expression_coefficients.empty())
         {

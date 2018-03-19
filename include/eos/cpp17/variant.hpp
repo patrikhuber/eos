@@ -27,6 +27,8 @@
   namespace eos {
     namespace cpp17 {
       using ::std::variant;
+      using ::std::holds_alternative;
+      using ::std::get;
     }
   }
 #else
@@ -34,6 +36,8 @@
   namespace eos {
     namespace cpp17 {
       using ::mpark::variant;
+      using ::mpark::holds_alternative;
+      using ::mpark::get;
     }
   }
 #endif
