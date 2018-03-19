@@ -112,6 +112,8 @@ set(HEADERS
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/cpp17/optional_serialization.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/cpp17/detail/akrzemi1_optional.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/cpp17/detail/akrzemi1_optional_serialization.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/cpp17/variant.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/cpp17/detail/mpark_variant.hpp
 )
 
 add_library(eos INTERFACE)
