@@ -130,11 +130,18 @@ public:
      *
      * @return The number of landmark mappings.
      */
-    auto num_mappings() const { return landmark_mappings.size(); };
+    auto num_mappings() const {
+        return landmark_mappings.size();
+    };
+
+    const auto& get_all_mappings() const {
+        return landmark_mappings;
+    };
 
 private:
-    std::unordered_map<std::string, std::string>
-        landmark_mappings; ///< Mapping from one landmark name to a name in a different format.
+    std::unordered_map<std::string, std::string> landmark_mappings; ///< Mapping from one
+                                                                    ///< landmark name to a name
+                                                                    ///< in a different format.
 };
 
 } /* namespace core */
