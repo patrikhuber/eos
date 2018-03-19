@@ -26,13 +26,14 @@
 #include "eos/morphablemodel/PcaModel.hpp"
 #include "eos/morphablemodel/Blendshape.hpp"
 #include "eos/cpp17/optional.hpp"
+#include "eos/cpp17/variant.hpp"
 
 #include "cereal/access.hpp"
 #include "cereal/cereal.hpp"
 #include "cereal/types/array.hpp"
 #include "cereal/types/vector.hpp"
-#include "cereal/types/variant.hpp"
 #include "eos/cpp17/optional_serialization.hpp"
+#include "eos/cpp17/variant_serialization.hpp"
 #include "eos/morphablemodel/io/eigen_cerealisation.hpp"
 #include "cereal/archives/binary.hpp"
 
@@ -43,7 +44,6 @@
 #include <vector>
 #include <fstream>
 #include <algorithm>
-#include <variant>
 
 namespace eos {
 namespace morphablemodel {
