@@ -26,7 +26,75 @@
 
 #include "cereal/cereal.hpp"
 
+#include <type_traits>
+#include <cstdint>
+
 namespace cereal {
+namespace variant_detail {
+
+//! @internal
+template <class Archive>
+struct variant_save_visitor
+{
+    variant_save_visitor(Archive& ar_) : ar(ar_) {}
+
+    template <class T>
+    void operator()(T const& value) const
+    {
+        ar(CEREAL_NVP_("data", value));
+    }
+
+    Archive& ar;
+};
+
+//! @internal
+template <int N, class Variant, class... Args, class Archive>
+typename std::enable_if<N == mpark::variant_size_v<Variant>, void>::type
+load_variant(Archive& /*ar*/, int /*target*/, Variant& /*variant*/)
+{
+    throw ::cereal::Exception("Error traversing variant during load");
+}
+
+//! @internal
+template <int N, class Variant, class H, class... T, class Archive>
+    typename std::enable_if <
+    N<mpark::variant_size_v<Variant>, void>::type load_variant(Archive& ar, int target, Variant& variant)
+{
+    if (N == target)
+    {
+        H value;
+        ar(CEREAL_NVP_("data", value));
+        variant = std::move(value);
+    } else
+        load_variant<N + 1, Variant, T...>(ar, target, variant);
+}
+
+} // namespace variant_detail
+
+//! Saving for mpark::variant
+template <class Archive, typename VariantType1, typename... VariantTypes>
+inline void CEREAL_SAVE_FUNCTION_NAME(Archive& ar,
+                                      mpark::variant<VariantType1, VariantTypes...> const& variant)
+{
+    std::int32_t index = static_cast<std::int32_t>(variant.index());
+    ar(CEREAL_NVP_("index", index));
+    variant_detail::variant_save_visitor<Archive> visitor(ar);
+    std::visit(visitor, variant);
+}
+
+//! Loading for mpark::variant
+template <class Archive, typename... VariantTypes>
+inline void CEREAL_LOAD_FUNCTION_NAME(Archive& ar, mpark::variant<VariantTypes...>& variant)
+{
+    using variant_t = typename mpark::variant<VariantTypes...>;
+
+    std::int32_t index;
+    ar(CEREAL_NVP_("index", index));
+    if (index >= static_cast<std::int32_t>(mpark::variant_size_v<variant_t>))
+        throw Exception("Invalid 'index' selector when deserializing mpark::variant");
+
+    variant_detail::load_variant<0, variant_t, VariantTypes...>(ar, index, variant);
+}
 
 } // namespace cereal
 
