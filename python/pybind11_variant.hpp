@@ -43,7 +43,7 @@ namespace detail {
  * @brief Type caster for mpark::variant, which is used when the compiler doesn't have <variant> (e.g. on Apple).
  */
 template <typename... Ts>
-class type_caster<mpark::variant<Ts...>> : variant_caster<mpark::variant<Ts...>>
+struct type_caster<mpark::variant<Ts...>> : variant_caster<mpark::variant<Ts...>>
 {
 };
 
