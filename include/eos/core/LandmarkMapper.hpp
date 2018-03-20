@@ -100,6 +100,9 @@ public:
     /**
      * @brief Converts the given landmark name to the mapped name.
      *
+     * In the case the mapper is empty (no mappings defined at all), the mapper will perform
+     * an identity mapping and return the \p landmark_name that was input.
+     *
      * @param[in] landmark_name A landmark name to convert.
      * @return The mapped landmark name if a mapping exists, an empty optional otherwise.
      */
