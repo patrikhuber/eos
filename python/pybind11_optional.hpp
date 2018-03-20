@@ -43,7 +43,7 @@ namespace detail {
  * @brief Type caster for akrzemi1::optional, which is used when the compiler doesn't have <optional> (e.g. on Apple).
  */
 template <typename T>
-class type_caster<akrzemi1::optional<T>> : optional_caster<akrzemi1::optional<T>>
+struct type_caster<akrzemi1::optional<T>> : optional_caster<akrzemi1::optional<T>>
 {
 };
 
