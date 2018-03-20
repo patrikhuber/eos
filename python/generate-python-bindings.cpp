@@ -39,6 +39,7 @@
 
 #include "eos/cpp17/optional.hpp"
 #include "pybind11_optional.hpp"
+#include "pybind11_variant.hpp"
 
 #include "Eigen/Core"
 
