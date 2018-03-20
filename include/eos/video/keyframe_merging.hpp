@@ -25,6 +25,7 @@
 #include "eos/core/Image_opencv_interop.hpp"
 #include "eos/morphablemodel/Blendshape.hpp"
 #include "eos/morphablemodel/MorphableModel.hpp"
+#include "eos/render/texture_extraction.hpp"
 #include "eos/video/Keyframe.hpp"
 
 #include "Eigen/Core"

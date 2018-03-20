@@ -91,12 +91,13 @@ public:
             return false;
         }
         // Add the keyframe:
-        bins[idx].push_back(video::Keyframe{frame_score, image, fitting_result});
+        bins[idx].push_back(video::Keyframe<ImageType>{frame_score, image, fitting_result});
         if (bins[idx].size() > frames_per_bin)
         {
             // need to remove the lowest one:
             std::sort(std::begin(bins[idx]), std::end(bins[idx]),
-                      [](const auto& lhs, const auto& rhs) { return lhs.score > rhs.score; });
+                      [](const std::vector<Keyframe<ImageType>>& lhs,
+                         const std::vector<Keyframe<ImageType>>& rhs) { return lhs.score > rhs.score; });
             bins[idx].resize(frames_per_bin);
         }
         return true;

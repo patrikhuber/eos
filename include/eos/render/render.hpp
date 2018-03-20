@@ -147,7 +147,7 @@ render(core::Mesh mesh, glm::tmat4x4<float> model_view_matrix, glm::tmat4x4<floa
         viewport_width); // Make sure it's initialised with zeros - the current Image4u c'tor does it.
     core::Image1d depthbuffer(viewport_height, viewport_width);
     std::for_each(std::begin(depthbuffer.data), std::end(depthbuffer.data),
-                  [](auto& element) { element = std::numeric_limits<double>::max(); });
+                  [](double& element) { element = std::numeric_limits<double>::max(); });
 
     // Vertex shader:
     // processedVertex = shade(Vertex); // processedVertex : pos, col, tex, texweight

@@ -261,7 +261,7 @@ inline std::pair<std::vector<core::Mesh>, std::vector<fitting::RenderingParamete
                     landmarks[j], contour_landmarks.left_contour); // Can do this outside of the loop
                 std::for_each(
                     begin(contour_landmarks_), end(contour_landmarks_),
-                    [&occluding_contour_landmarks](auto&& lm) {
+                    [&occluding_contour_landmarks](const core::Landmark<Vector2f>& lm) {
                         occluding_contour_landmarks.push_back({lm.coordinates[0], lm.coordinates[1]});
                     });
             } else
@@ -269,7 +269,7 @@ inline std::pair<std::vector<core::Mesh>, std::vector<fitting::RenderingParamete
                 auto contour_landmarks_ = core::filter(landmarks[j], contour_landmarks.right_contour);
                 std::for_each(
                     begin(contour_landmarks_), end(contour_landmarks_),
-                    [&occluding_contour_landmarks](auto&& lm) {
+                    [&occluding_contour_landmarks](const core::Landmark<Vector2f>& lm) {
                         occluding_contour_landmarks.push_back({lm.coordinates[0], lm.coordinates[1]});
                     });
             }

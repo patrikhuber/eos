@@ -81,7 +81,7 @@ inline std::pair<core::Image4u, core::Image1d> render_affine(const core::Mesh& m
         viewport_width); // Note: auto-initialised to zeros. If we change the Image class, take care of that!
     Image1d depthbuffer(viewport_height, viewport_width);
     std::for_each(std::begin(depthbuffer.data), std::end(depthbuffer.data),
-                  [](auto& element) { element = std::numeric_limits<double>::max(); });
+                  [](double& element) { element = std::numeric_limits<double>::max(); });
 
     const Eigen::Matrix<float, 4, 4> affine_with_z =
         detail::calculate_affine_z_direction(affine_camera_matrix);

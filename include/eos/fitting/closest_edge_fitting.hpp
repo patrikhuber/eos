@@ -127,7 +127,7 @@ inline std::vector<int> occluding_boundary_vertices(const core::Mesh& mesh,
 {
     // Rotate the mesh:
     std::vector<glm::vec4> rotated_vertices;
-    std::for_each(begin(mesh.vertices), end(mesh.vertices), [&rotated_vertices, &R](const auto& v) {
+    std::for_each(begin(mesh.vertices), end(mesh.vertices), [&rotated_vertices, &R](const Eigen::Vector3f& v) {
         rotated_vertices.push_back(R * glm::vec4(v[0], v[1], v[2], 1.0f));
     });
 

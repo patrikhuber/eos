@@ -176,10 +176,10 @@ public:
                                            corrected_lambda[2] * point_c.texcoords;
 
         // Texturing, no mipmapping:
-        cv::Vec2f image_tex_coords = detail::texcoord_wrap(cv::Vec2f(texcoords_persp.s, texcoords_persp.t));
+        auto image_tex_coords = detail::texcoord_wrap({texcoords_persp.s, texcoords_persp.t});
         image_tex_coords[0] *= texture->mipmaps[0].cols;
         image_tex_coords[1] *= texture->mipmaps[0].rows;
-        cv::Vec3f texture_color = detail::tex2d_linear(image_tex_coords, 0, texture.get()) / 255.0;
+        auto texture_color = detail::tex2d_linear(image_tex_coords, 0, texture.get()) / 255.0;
         glm::tvec3<T, P> pixel_color = glm::tvec3<T, P>(texture_color[2], texture_color[1], texture_color[0]);
         return glm::tvec4<T, P>(pixel_color, T(1));
     };

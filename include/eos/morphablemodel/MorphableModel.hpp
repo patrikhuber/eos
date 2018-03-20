@@ -352,9 +352,9 @@ inline core::Mesh sample_to_mesh(const Eigen::VectorXf& shape_instance, const Ei
         for (auto i = 0; i < num_vertices; ++i)
         {
             mesh.colors[i] = Eigen::Vector3f(
-                std::clamp(color_instance(i * 3 + 0), 0.0f, 1.0f),
-                std::clamp(color_instance(i * 3 + 1), 0.0f, 1.0f),
-                std::clamp(color_instance(i * 3 + 2), 0.0f, 1.0f)); // We use RGB order everywhere.
+                glm::clamp(color_instance(i * 3 + 0), 0.0f, 1.0f),
+                glm::clamp(color_instance(i * 3 + 1), 0.0f, 1.0f),
+                glm::clamp(color_instance(i * 3 + 2), 0.0f, 1.0f)); // We use RGB order everywhere.
         }
     }
 

@@ -351,7 +351,7 @@ private:
  * @param[in] plane_normal X.
  * @ return X.
  */
-template <typename T, glm::precision P = glm::defaultp>
+template <typename T, glm::precision P>
 std::vector<detail::Vertex<T, P>>
 clip_polygon_to_plane_in_4d(const std::vector<detail::Vertex<T, P>>& vertices,
                             const glm::tvec4<T, P>& plane_normal)
