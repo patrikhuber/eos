@@ -72,7 +72,7 @@ namespace render {
  *   cij - matrix coefficients
  */
 // Note: The original functions used doubles.
-Eigen::Matrix<float, 2, 3> get_affine_transform(const std::array<Eigen::Vector2f, 3>& src,
+inline Eigen::Matrix<float, 2, 3> get_affine_transform(const std::array<Eigen::Vector2f, 3>& src,
                                                 const std::array<Eigen::Vector2f, 3>& dst)
 {
     using Eigen::Matrix;
