@@ -112,6 +112,7 @@ set(HEADERS
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/cpp17/optional_serialization.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/cpp17/detail/akrzemi1_optional.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/cpp17/detail/akrzemi1_optional_serialization.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/cpp17/clamp.hpp
 )
 
 add_library(eos INTERFACE)

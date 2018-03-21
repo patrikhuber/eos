@@ -24,6 +24,7 @@
 
 #include "eos/core/Mesh.hpp"
 #include "eos/morphablemodel/PcaModel.hpp"
+#include "eos/cpp17/clamp.hpp"
 
 #include "cereal/access.hpp"
 #include "cereal/cereal.hpp"
@@ -352,9 +353,9 @@ inline core::Mesh sample_to_mesh(const Eigen::VectorXf& shape_instance, const Ei
         for (auto i = 0; i < num_vertices; ++i)
         {
             mesh.colors[i] = Eigen::Vector3f(
-                std::clamp(color_instance(i * 3 + 0), 0.0f, 1.0f),
-                std::clamp(color_instance(i * 3 + 1), 0.0f, 1.0f),
-                std::clamp(color_instance(i * 3 + 2), 0.0f, 1.0f)); // We use RGB order everywhere.
+                cpp17::clamp(color_instance(i * 3 + 0), 0.0f, 1.0f),
+                cpp17::clamp(color_instance(i * 3 + 1), 0.0f, 1.0f),
+                cpp17::clamp(color_instance(i * 3 + 2), 0.0f, 1.0f)); // We use RGB order everywhere.
         }
     }
 
