@@ -222,7 +222,7 @@ private:
 inline void save_rendering_parameters(RenderingParameters rendering_parameters, std::string filename)
 {
     std::ofstream file(filename);
-    if (file.fail())
+    if (!file)
     {
         throw std::runtime_error("Error opening file for writing: " + filename);
     }

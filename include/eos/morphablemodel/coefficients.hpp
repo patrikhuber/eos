@@ -42,12 +42,32 @@ namespace morphablemodel {
 inline void save_coefficients(std::vector<float> coefficients, std::string filename)
 {
     std::ofstream file(filename);
-    if (file.fail())
+    if (!file)
     {
         throw std::runtime_error("Error opening file for writing: " + filename);
     }
     cereal::JSONOutputArchive output_archive(file);
     output_archive(cereal::make_nvp("shape_coefficients", coefficients));
+};
+
+/**
+ * Loads coefficients (for example PCA shape coefficients) from a json file.
+ *
+ * @param[in] filename The file to write.
+ * @return Returns vector of floats.
+ * @throws std::runtime_error if unable to open the given file for reading.
+ */
+inline std::vector<float> load_coefficients(std::string filename)
+{
+    std::vector<float> coefficients;
+    std::ifstream file(filename);
+    if (!file)
+    {
+        throw std::runtime_error("Error opening file for reading: " + filename);
+    }
+    cereal::JSONInputArchive input_archive(file);
+    input_archive(cereal::make_nvp("shape_coefficients", coefficients));
+    return coefficients;
 };
 
 } /* namespace morphablemodel */

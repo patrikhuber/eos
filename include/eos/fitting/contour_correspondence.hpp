@@ -331,7 +331,7 @@ get_nearest_contour_correspondences(const core::LandmarkCollection<Eigen::Vector
     // For each 2D-CNT-LM, find the closest 3DMM-CNT-LM and add to correspondences:
     // Note: If we were to do this for all 3DMM vertices, then ray-casting (i.e. glm::unproject) would be
     // quicker to find the closest vertex)
-    for (auto&& ibug_idx : landmark_contour_identifiers)
+    for (const auto& ibug_idx : landmark_contour_identifiers)
     {
         // Check if the contour landmark is amongst the landmarks given to us (from detector or ground truth):
         // (Note: Alternatively, we could filter landmarks beforehand and then just loop over landmarks =>
@@ -348,9 +348,9 @@ get_nearest_contour_correspondences(const core::LandmarkCollection<Eigen::Vector
         const auto screen_point_2d_contour_landmark = result->coordinates;
 
         std::vector<float> distances_2d;
-        for (auto&& model_contour_vertex_idx : model_contour_indices) // we could actually pre-project them,
-                                                                      // i.e. only project them once, not for
-                                                                      // each landmark newly...
+        for (auto model_contour_vertex_idx : model_contour_indices) // we could actually pre-project them,
+                                                                    // i.e. only project them once, not for
+                                                                    // each landmark newly...
         {
             const glm::vec3 vertex(mesh.vertices[model_contour_vertex_idx][0],
                                    mesh.vertices[model_contour_vertex_idx][1],
