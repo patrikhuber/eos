@@ -3,20 +3,6 @@ cmake_minimum_required(VERSION 3.7.0)
 # If Matlab_ROOT_DIR is set, the Matlab at that location is used.
 find_package(Matlab COMPONENTS MX_LIBRARY REQUIRED)
 
-# Dependencies of the modules:
-
-# Check installed version in order to include the correct OpenCV libraries:
-# First call find_package without a version to find any OpenCV. OpenCV_VERSION_MAJOR is then defined.
-find_package(OpenCV REQUIRED core)
-if("${OpenCV_VERSION_MAJOR}$" EQUAL 2)
-  message(STATUS "OpenCV 2.x detected")
-  find_package(OpenCV 2.4.3 REQUIRED core imgproc highgui)
-elseif("${OpenCV_VERSION_MAJOR}$" EQUAL 3)
-  message(STATUS "OpenCV 3.x detected - including imgcodecs for compatibility")
-  find_package(OpenCV 3 REQUIRED core imgproc imgcodecs)
-endif()
-set_target_properties(${OpenCV_LIBS} PROPERTIES MAP_IMPORTED_CONFIG_RELWITHDEBINFO RELEASE)
-
 # Our helper-headers, and Matlab-specific headers - to make them show up in IDEs:
 set(EOS_MATLAB_HEADERS
   ${CMAKE_CURRENT_SOURCE_DIR}/include/mexplus_eigen.hpp
