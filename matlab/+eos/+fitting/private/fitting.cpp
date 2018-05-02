@@ -70,7 +70,7 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
     const auto num_shape_coeffs = input.get<int>(10);
     const auto lambda = input.get<double>(11);
 
-    if (landmarks_in.rows() != 68)
+    if (landmarks_in.rows() != 68 || landmarks_in.cols() != 2)
     {
         mexErrMsgIdAndTxt(
             "eos:fitting:argin",
