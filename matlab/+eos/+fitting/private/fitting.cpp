@@ -25,6 +25,7 @@
 #include "eos/morphablemodel/Blendshape.hpp"
 #include "eos/morphablemodel/EdgeTopology.hpp"
 #include "eos/morphablemodel/MorphableModel.hpp"
+#include "eos/cpp17/optional.hpp"
 
 #include "mexplus_eigen.hpp"
 #include "mexplus_eos_types.hpp"
@@ -35,7 +36,6 @@
 
 #include "mex.h"
 
-#include <optional>
 #include <string>
 
 void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
@@ -91,8 +91,8 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
     const auto edge_topology = morphablemodel::load_edge_topology(edgetopo_file);
     const auto contour_landmarks = fitting::ContourLandmarks::load(contour_lms_file);
     const auto model_contour = fitting::ModelContour::load(model_cnt_file);
-    const std::optional<int> num_shape_coefficients_to_fit =
-        num_shape_coeffs == -1 ? std::nullopt : std::optional<int>(num_shape_coeffs);
+    const cpp17::optional<int> num_shape_coefficients_to_fit =
+        num_shape_coeffs == -1 ? cpp17::nullopt : cpp17::optional<int>(num_shape_coeffs);
 
     // Now do the actual fitting:
     core::Mesh mesh;
