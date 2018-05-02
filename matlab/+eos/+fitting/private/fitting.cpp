@@ -38,12 +38,12 @@
 #include <optional>
 #include <string>
 
-using namespace eos;
-using namespace mexplus;
-
 void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
 {
     using std::string;
+    using namespace eos;
+    using namespace mexplus;
+
     // Check for proper number of input and output arguments:
     int num_input_args = 12;
     int num_output_args = 2;
