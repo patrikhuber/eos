@@ -25,6 +25,8 @@
 #include "eos/core/Mesh.hpp"
 #include "eos/fitting/RenderingParameters.hpp"
 
+#include "mexplus_eigen.hpp"
+
 #include "mexplus/mxarray.h"
 
 #include "glm/gtc/quaternion.hpp"
