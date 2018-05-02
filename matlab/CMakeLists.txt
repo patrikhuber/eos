@@ -6,7 +6,6 @@ find_package(Matlab COMPONENTS MX_LIBRARY REQUIRED)
 # Our helper-headers, and Matlab-specific headers - to make them show up in IDEs:
 set(EOS_MATLAB_HEADERS
   ${CMAKE_CURRENT_SOURCE_DIR}/include/mexplus_eigen.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/mexplus_opencv.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/mexplus_eos_types.hpp
 )
 add_custom_target(eos-matlab-headers SOURCES ${EOS_MATLAB_HEADERS})
@@ -26,7 +25,7 @@ matlab_add_mex(
   NAME eos-matlab-render
   SRC +eos/+render/private/render.cpp
   OUTPUT_NAME render
-  LINK_TO eos ${OpenCV_LIBS}
+  LINK_TO eos
 )
 
 # Group the matlab bindings targets into one folder (in IDEs):
