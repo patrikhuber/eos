@@ -11,14 +11,14 @@ set(EOS_MATLAB_HEADERS
 )
 add_custom_target(eos-matlab-headers SOURCES ${EOS_MATLAB_HEADERS})
 
-# See: https://cmake.org/cmake/help/v3.7/module/FindMatlab.html?highlight=findmatlab#command:matlab_add_mex
+# See: https://cmake.org/cmake/help/latest/module/FindMatlab.html?#command:matlab_add_mex
 matlab_add_mex(
   NAME eos-matlab-fitting
   #[EXECUTABLE | MODULE | SHARED] # SHARED is the default.
   SRC +eos/+fitting/private/fitting.cpp
-  OUTPUT_NAME fitting #[OUTPUT_NAME output_name]
+  OUTPUT_NAME fitting
   # DOCUMENTATION +eos/+fitting/fit_shape_and_pose.m # doesn't work - wrong path probably. But it renames the file to fitting.m, so not what we want anyway.
-  LINK_TO eos #[LINK_TO target1 target2 ...]
+  LINK_TO eos
   #[...]
 )
 
