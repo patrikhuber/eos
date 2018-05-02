@@ -3,7 +3,7 @@
  *
  * File: matlab/+eos/+fitting/private/fitting.cpp
  *
- * Copyright 2016 Patrik Huber
+ * Copyright 2016-2018 Patrik Huber
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,16 +46,18 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
 {
     using std::string;
     // Check for proper number of input and output arguments:
-    if (nrhs != 12)
+    int num_input_args = 12;
+    int num_output_args = 2;
+    if (nrhs != num_input_args)
     {
         mexErrMsgIdAndTxt("eos:fitting:nargin", "fit_shape_and_pose requires 12 input arguments.");
     }
-    if (nlhs != 2)
+    if (nlhs != num_output_args)
     {
         mexErrMsgIdAndTxt("eos:fitting:nargout", "fit_shape_and_pose returns two output arguments.");
     }
 
-    InputArguments input(nrhs, prhs, 12);
+    InputArguments input(nrhs, prhs, num_input_args);
     const auto morphablemodel_file = input.get<string>(0);
     const auto blendshapes_file = input.get<string>(1);
     const auto landmarks_in = input.get<Eigen::MatrixXd>(2);
@@ -101,7 +103,7 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
         contour_landmarks, model_contour, num_iterations, num_shape_coefficients_to_fit, lambda);
 
     // Return the mesh and the rendering_parameters:
-    OutputArguments output(nlhs, plhs, 2);
+    OutputArguments output(nlhs, plhs, num_output_args);
     output.set(0, mesh);
     output.set(1, rendering_parameters);
 };
