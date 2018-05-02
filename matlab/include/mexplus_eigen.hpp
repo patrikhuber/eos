@@ -3,7 +3,7 @@
  *
  * File: matlab/include/mexplus_eigen.hpp
  *
- * Copyright 2016 Patrik Huber
+ * Copyright 2016-2018 Patrik Huber
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@
  */
 #pragma once
 
-#ifndef MEXPLUS_EIGEN_HPP_
-#define MEXPLUS_EIGEN_HPP_
+#ifndef EOS_MEXPLUS_EIGEN_HPP
+#define EOS_MEXPLUS_EIGEN_HPP
 
 #include "mexplus/mxarray.h"
 
@@ -107,4 +107,4 @@ void MxArray::to(const mxArray* in_array, Eigen::MatrixXd* eigen_matrix)
 
 } /* namespace mexplus */
 
-#endif /* MEXPLUS_EIGEN_HPP_ */
+#endif /* EOS_MEXPLUS_EIGEN_HPP */
