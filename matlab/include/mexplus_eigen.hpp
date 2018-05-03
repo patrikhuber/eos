@@ -33,16 +33,17 @@ namespace mexplus {
 /**
  * @brief Define a template specialisation for Eigen::MatrixXd for ... .
  *
- * The default precision in Matlab is double, so for now we only define conversions for MatrixXd.
+ * The default precision in Matlab is double, but most matrices in eos (for example the PCA basis matrices
+ * are stored as float values, so this defines conversion from these matrices to Matlab.
  *
  * Todo: Documentation.
  */
 template <>
-mxArray* MxArray::from(const Eigen::MatrixXd& eigen_matrix)
+mxArray* MxArray::from(const Eigen::MatrixXf& eigen_matrix)
 {
     const int num_rows = static_cast<int>(eigen_matrix.rows());
     const int num_cols = static_cast<int>(eigen_matrix.cols());
-    MxArray out_array(MxArray::Numeric<double>(num_rows, num_cols));
+    MxArray out_array(MxArray::Numeric<float>(num_rows, num_cols));
 
     // This might not copy the data but it's evil and probably really dangerous!!!:
     // mxSetData(const_cast<mxArray*>(matrix.get()), (void*)value.data());
@@ -64,6 +65,7 @@ mxArray* MxArray::from(const Eigen::MatrixXd& eigen_matrix)
  * @brief Define a template specialisation for Eigen::MatrixXd for ... .
  *
  * Todo: Documentation.
+ * TODO: Maybe provide this one as MatrixXf as well as MatrixXd? Matlab's default is double?
  */
 template <>
 void MxArray::to(const mxArray* in_array, Eigen::MatrixXd* eigen_matrix)
