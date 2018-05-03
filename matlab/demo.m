@@ -26,8 +26,8 @@ figure(2);
 patch(FV, 'FaceColor', [1 1 1], 'EdgeColor', 'none', 'FaceLighting', 'phong'); light; axis equal; axis off;
 
 %% Visualise the fitting in 2D, on top of the input image:
-% Project all vertices to 2D:
-points_2d = mesh.vertices * (render_params.viewport*render_params.projection*render_params.modelview)';
+% Project all vertices to 2D (we extend mesh.vertices to homogeneous coordinates and multiply with 4x4 matrices):
+points_2d = [mesh.vertices, ones(size(mesh.vertices, 1), 1)] * (render_params.viewport*render_params.projection*render_params.modelview)';
 % Display the image and plot the projected mesh points on top of it:
 figure(3);
 imshow(image);
