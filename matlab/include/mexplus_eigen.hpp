@@ -92,8 +92,8 @@ void MxArray::to(const mxArray* in_array, Eigen::MatrixXd* eigen_matrix)
     }
 
     // We can be sure now that the array is 2-dimensional (or 0, but then we're screwed anyway)
-    auto nrows = array.dimensions()[0]; // or use array.rows()
-    auto ncols = array.dimensions()[1];
+    const auto nrows = array.dimensions()[0]; // or use array.rows()
+    const auto ncols = array.dimensions()[1];
 
     // I think I can just use Eigen::Matrix, not a Map - the Matrix c'tor that we call creates a Map anyway?
     Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor>> eigen_map(
