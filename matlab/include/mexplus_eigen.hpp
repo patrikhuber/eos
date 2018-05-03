@@ -100,8 +100,9 @@ void MxArray::to(const mxArray* in_array, Eigen::MatrixXd* eigen_matrix)
         array.getData<double>(), nrows, ncols);
     // Not sure that's alright - who owns the data? I think as it is now, everything points to the data in the
     // mxArray owned by Matlab, but I'm not 100% sure.
-    // Actually, doesn't eigen_map go out of scope and get destroyed? This might be trouble? But this assignment
-    // should (or might) copy, then it's fine? Check if it invokes the copy c'tor.
+    // Actually, doesn't eigen_map go out of scope and get destroyed? This might be trouble? But this
+    // assignment should (or might) copy, then it's fine? Check if it invokes the copy c'tor.
+    // 2 May 2018: Yes this copies.
     *eigen_matrix = eigen_map;
 };
 
