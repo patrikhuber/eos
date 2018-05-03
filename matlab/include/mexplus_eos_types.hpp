@@ -124,48 +124,48 @@ void MxArray::to(const mxArray* in_array, glm::tmat4x4<float>* mat)
 };
 
 /**
- * @brief Converts an std::vector of glm::tvec2<float> to a Matlab matrix.
+ * @brief Converts an std::vector of Eigen::Vector2f to a Matlab matrix.
  *
- * This function converts a whole vector of vec2's to an n x 2 Matlab matrix,
+ * This function converts a whole vector of Vector2f's to an n x 2 Matlab matrix,
  * where n is data.size(). It is mainly used to pass texture coordinates of
  * a Mesh to Matlab.
  *
- * We specialise for std::vector<glm::tvec2<float>> directly (and not for
- * glm::tvec2<float>) because otherwise a cell array of vec2's would be
+ * We specialise for std::vector<Eigen::Vector2f> directly (and not for
+ * Eigen::Vector2f) because otherwise a cell array of Vector2f's would be
  * generated. Luckily, even if a tvec2 specialisation was to exist too,
- * this one would take precedence to convert a vector<tvec2>.
+ * this one would take precedence to convert a vector<Vector2f>.
  *
  * @param[in] data The data to convert.
  * @return An n x 2 Matlab matrix.
  */
 template <>
-mxArray* MxArray::from(const std::vector<glm::tvec2<float>>& data)
+mxArray* MxArray::from(const std::vector<Eigen::Vector2f>& data)
 {
     MxArray out_array(MxArray::Numeric<double>(data.size(), 2));
     for (int r = 0; r < data.size(); ++r)
     {
         for (int c = 0; c < 2; ++c)
         {
-            out_array.set(r, c, data[r][c]);
+            out_array.set(r, c, data[r](c));
         }
     }
     return out_array.release();
 };
 
 /**
- * @brief Converts a Matlab matrix into an std::vector of glm::vec2.
+ * @brief Converts a Matlab matrix into an std::vector of Eigen::Vector2f.
  *
- * This function converts an n x 2 Matlab matrix to a vector of vec2's.
+ * This function converts an n x 2 Matlab matrix to a vector of Vector2f's.
  * It is mainly used to pass vertex texture coordinate data from Matlab back to C++.
  *
- * See template <> mxArray* MxArray::from(const std::vector<glm::tvec2<float>>&)
+ * See template <> mxArray* MxArray::from(const std::vector<Eigen::Vector2f>&)
  * for more details regarding the type specialisation.
  *
  * @param[in] in_array The matrix data from Matlab.
  * @param[in,out] data The converted data in C++.
  */
 template <>
-void MxArray::to(const mxArray* in_array, std::vector<glm::vec2>* data)
+void MxArray::to(const mxArray* in_array, std::vector<Eigen::Vector2f>* data)
 {
     MxArray arr(in_array);
 
@@ -189,89 +189,62 @@ void MxArray::to(const mxArray* in_array, std::vector<glm::vec2>* data)
     for (int i = 0; i < num_vertices; ++i)
     {
         data->push_back(
-            glm::vec2(arr.at<double>(mwIndex(i), mwIndex(0)), arr.at<double>(mwIndex(i), mwIndex(1))));
+            Eigen::Vector2f(arr.at<double>(mwIndex(i), mwIndex(0)), arr.at<double>(mwIndex(i), mwIndex(1))));
     }
 };
 
 /**
- * @brief Converts an std::vector of glm::tvec3<float> to a Matlab matrix.
+ * @brief Converts an std::vector of Eigen::Vector3f to a Matlab matrix.
  *
- * This function converts a whole vector of vec3's to an n x 3 Matlab matrix,
+ * This function converts a whole vector of Vector3f's to an n x 3 Matlab matrix,
  * where n is data.size(). It is mainly used to pass vertex colour data of
  * a Mesh to Matlab.
  *
- * See template <> mxArray* MxArray::from(const std::vector<glm::tvec2<float>>&)
+ * See template <> mxArray* MxArray::from(const std::vector<Eigen::Vector2f>&)
  * for more details.
  *
  * @param[in] data The data to convert.
  * @return An n x 3 Matlab matrix.
  */
 template <>
-mxArray* MxArray::from(const std::vector<glm::tvec3<float>>& data)
+mxArray* MxArray::from(const std::vector<Eigen::Vector3f>& data)
 {
     MxArray out_array(MxArray::Numeric<double>(data.size(), 3));
     for (int r = 0; r < data.size(); ++r)
     {
         for (int c = 0; c < 3; ++c)
         {
-            out_array.set(r, c, data[r][c]);
+            out_array.set(r, c, data[r](c));
         }
     }
     return out_array.release();
 };
 
 /**
- * @brief Converts an std::vector of glm::tvec4<float> to a Matlab matrix.
+ * @brief Converts a Matlab matrix into an std::vector of Eigen::Vector3f.
  *
- * This function converts a whole vector of vec4's to an n x 4 Matlab matrix,
- * where n is data.size(). It is mainly used to pass vertex data of a Mesh
- * to Matlab.
- *
- * See template <> mxArray* MxArray::from(const std::vector<glm::tvec2<float>>&)
- * for more details.
- *
- * @param[in] data The data to convert.
- * @return An n x 4 Matlab matrix.
- */
-template <>
-mxArray* MxArray::from(const std::vector<glm::tvec4<float>>& data)
-{
-    MxArray out_array(MxArray::Numeric<double>(data.size(), 4));
-    for (int r = 0; r < data.size(); ++r)
-    {
-        for (int c = 0; c < 4; ++c)
-        {
-            out_array.set(r, c, data[r][c]);
-        }
-    }
-    return out_array.release();
-};
-
-/**
- * @brief Converts a Matlab matrix into an std::vector of glm::vec4.
- *
- * This function converts an n x 4 Matlab matrix to a vector of vec4's.
+ * This function converts an n x 3 Matlab matrix to a vector of Vector3f's.
  * It is mainly used to pass vertex data from Matlab back to C++.
  *
- * See template <> mxArray* MxArray::from(const std::vector<glm::tvec2<float>>&)
+ * See template <> mxArray* MxArray::from(const std::vector<Eigen::Vector2f>&)
  * for more details regarding the type specialisation.
  *
  * @param[in] in_array The matrix data from Matlab.
  * @param[in,out] data The converted data in C++.
  */
 template <>
-void MxArray::to(const mxArray* in_array, std::vector<glm::vec4>* data)
+void MxArray::to(const mxArray* in_array, std::vector<Eigen::Vector3f>* data)
 {
     MxArray arr(in_array);
 
     if (arr.dimensionSize() != 2)
     {
-        mexErrMsgIdAndTxt("eos:matlab", "Given array has to have 2 dimensions, i.e. n x 4.");
+        mexErrMsgIdAndTxt("eos:matlab", "Given array has to have 2 dimensions, i.e. n x 3.");
     }
-    if (arr.cols() != 4)
+    if (arr.cols() != 3)
     {
         mexErrMsgIdAndTxt("eos:matlab",
-                          "Given array has to have 4 elements in the second dimension, i.e. n x 4.");
+                          "Given array has to have 4 elements in the second dimension, i.e. n x 3.");
     }
     if (!arr.isDouble())
     {
@@ -283,9 +256,9 @@ void MxArray::to(const mxArray* in_array, std::vector<glm::vec4>* data)
 
     for (int i = 0; i < num_vertices; ++i)
     {
-        data->push_back(
-            glm::vec4(arr.at<double>(mwIndex(i), mwIndex(0)), arr.at<double>(mwIndex(i), mwIndex(1)),
-                      arr.at<double>(mwIndex(i), mwIndex(2)), arr.at<double>(mwIndex(i), mwIndex(3))));
+        data->push_back(Eigen::Vector3f(arr.at<double>(mwIndex(i), mwIndex(0)),
+                                        arr.at<double>(mwIndex(i), mwIndex(1)),
+                                        arr.at<double>(mwIndex(i), mwIndex(2))));
     }
 };
 
