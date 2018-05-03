@@ -260,8 +260,6 @@ get_contour_correspondences(const core::LandmarkCollection<Eigen::Vector2f>& lan
  *
  * If the yaw angle is between +-7.5°, both contours will be selected.
  *
- * Note: Maybe rename to find_nearest_contour_points, to highlight that there is (potentially a lot) computational cost involved?
- *
  * @param[in] yaw_angle Yaw angle in degrees.
  * @param[in] contour_landmarks 2D image contour ids of left or right side (for example for ibug landmarks).
  * @param[in] model_contour The model contour indices that should be used/considered to find the closest corresponding 3D vertex.

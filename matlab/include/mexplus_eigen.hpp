@@ -3,7 +3,7 @@
  *
  * File: matlab/include/mexplus_eigen.hpp
  *
- * Copyright 2016 Patrik Huber
+ * Copyright 2016-2018 Patrik Huber
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@
  */
 #pragma once
 
-#ifndef MEXPLUS_EIGEN_HPP_
-#define MEXPLUS_EIGEN_HPP_
+#ifndef EOS_MEXPLUS_EIGEN_HPP
+#define EOS_MEXPLUS_EIGEN_HPP
 
 #include "mexplus/mxarray.h"
 
@@ -33,16 +33,17 @@ namespace mexplus {
 /**
  * @brief Define a template specialisation for Eigen::MatrixXd for ... .
  *
- * The default precision in Matlab is double, so for now we only define conversions for MatrixXd.
+ * The default precision in Matlab is double, but most matrices in eos (for example the PCA basis matrices
+ * are stored as float values, so this defines conversion from these matrices to Matlab.
  *
  * Todo: Documentation.
  */
 template <>
-mxArray* MxArray::from(const Eigen::MatrixXd& eigen_matrix)
+mxArray* MxArray::from(const Eigen::MatrixXf& eigen_matrix)
 {
     const int num_rows = static_cast<int>(eigen_matrix.rows());
     const int num_cols = static_cast<int>(eigen_matrix.cols());
-    MxArray out_array(MxArray::Numeric<double>(num_rows, num_cols));
+    MxArray out_array(MxArray::Numeric<float>(num_rows, num_cols));
 
     // This might not copy the data but it's evil and probably really dangerous!!!:
     // mxSetData(const_cast<mxArray*>(matrix.get()), (void*)value.data());
@@ -64,6 +65,7 @@ mxArray* MxArray::from(const Eigen::MatrixXd& eigen_matrix)
  * @brief Define a template specialisation for Eigen::MatrixXd for ... .
  *
  * Todo: Documentation.
+ * TODO: Maybe provide this one as MatrixXf as well as MatrixXd? Matlab's default is double?
  */
 template <>
 void MxArray::to(const mxArray* in_array, Eigen::MatrixXd* eigen_matrix)
@@ -92,19 +94,20 @@ void MxArray::to(const mxArray* in_array, Eigen::MatrixXd* eigen_matrix)
     }
 
     // We can be sure now that the array is 2-dimensional (or 0, but then we're screwed anyway)
-    auto nrows = array.dimensions()[0]; // or use array.rows()
-    auto ncols = array.dimensions()[1];
+    const auto nrows = array.dimensions()[0]; // or use array.rows()
+    const auto ncols = array.dimensions()[1];
 
     // I think I can just use Eigen::Matrix, not a Map - the Matrix c'tor that we call creates a Map anyway?
     Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor>> eigen_map(
         array.getData<double>(), nrows, ncols);
     // Not sure that's alright - who owns the data? I think as it is now, everything points to the data in the
     // mxArray owned by Matlab, but I'm not 100% sure.
-    // Actually, doesn't eigen_map go out of scope and get destroyed? This might be trouble? But this assignment
-    // should (or might) copy, then it's fine? Check if it invokes the copy c'tor.
+    // Actually, doesn't eigen_map go out of scope and get destroyed? This might be trouble? But this
+    // assignment should (or might) copy, then it's fine? Check if it invokes the copy c'tor.
+    // 2 May 2018: Yes this copies.
     *eigen_matrix = eigen_map;
 };
 
 } /* namespace mexplus */
 
-#endif /* MEXPLUS_EIGEN_HPP_ */
+#endif /* EOS_MEXPLUS_EIGEN_HPP */
