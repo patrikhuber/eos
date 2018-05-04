@@ -61,7 +61,7 @@ class CMakeBuild(build_ext):
 
 setup(
     name='eos-py',
-    version='0.15.0',
+    version='0.15.1',
     author='Patrik Huber',
     author_email='patrikhuber@gmail.com',
     description='Python bindings for eos - A lightweight 3D Morphable Face Model fitting library in modern C++11/14',
