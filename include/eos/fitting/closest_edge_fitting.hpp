@@ -184,9 +184,9 @@ inline std::vector<int> occluding_boundary_vertices(const core::Mesh& mesh,
         // For every tri of the rotated mesh:
         for (const auto& tri : mesh.tvi)
         {
-            auto& v0 = rotated_vertices[tri[0]];
-            auto& v1 = rotated_vertices[tri[1]];
-            auto& v2 = rotated_vertices[tri[2]];
+            const auto& v0 = rotated_vertices[tri[0]];
+            const auto& v1 = rotated_vertices[tri[1]];
+            const auto& v2 = rotated_vertices[tri[2]];
 
             const glm::vec3 ray_origin(rotated_vertices[vertex_idx]);
             const glm::vec3 ray_direction(0.0f, 0.0f, 1.0f); // we shoot the ray from the vertex towards the camera
