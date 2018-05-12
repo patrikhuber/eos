@@ -49,6 +49,20 @@ inline cv::Mat to_mat(const Image4u& image)
     return opencv_matrix;
 };
 
+inline cv::Mat to_mat(const Image3u& image)
+{
+    cv::Mat opencv_matrix(image.rows, image.cols, CV_8UC3);
+    for (int c = 0; c < image.cols; ++c)
+    { // size_t
+        for (int r = 0; r < image.rows; ++r)
+        {
+            // auto vals = image(r, c);
+            opencv_matrix.at<cv::Vec3b>(r, c) = cv::Vec3b(image(r, c)[0], image(r, c)[1], image(r, c)[2]);
+        }
+    }
+    return opencv_matrix;
+};
+
 inline cv::Mat to_mat(const Image1d& image)
 {
     cv::Mat opencv_matrix(static_cast<int>(image.rows), static_cast<int>(image.cols), CV_64FC1);
