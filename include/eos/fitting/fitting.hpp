@@ -236,13 +236,16 @@ inline auto concat(const std::vector<T>& vec_a, const std::vector<T>& vec_b)
  * @param[in] affine_camera_matrix Second vector.
  * @param[in] landmarks 2D landmarks from an image to fit the blendshapes to.
  * @param[in] vertex_ids The vertex ids in the model that correspond to the 2D points.
+ * @param[in] lambda_expressions The regularisation parameter (weight of the prior towards the mean). Only used for expression-PCA fitting.
+ * @param[in] num_expression_coefficients_to_fit How many expression coefficients to fit (all others will stay 0). Should be bigger than zero, or std::nullopt to fit all coefficients. Only used for expression-PCA fitting.
  * @return A vector of fitted expression coefficients.
  */
-inline std::vector<float> fit_expressions(const morphablemodel::ExpressionModel& expression_model,
-                                          const Eigen::VectorXf& face_instance,
-                                          const Eigen::Matrix<float, 3, 4>& affine_camera_matrix,
-                                          const std::vector<Eigen::Vector2f>& landmarks,
-                                          const std::vector<int>& vertex_ids)
+inline std::vector<float>
+fit_expressions(const morphablemodel::ExpressionModel& expression_model, const Eigen::VectorXf& face_instance,
+                const Eigen::Matrix<float, 3, 4>& affine_camera_matrix,
+                const std::vector<Eigen::Vector2f>& landmarks, const std::vector<int>& vertex_ids,
+                cpp17::optional<float> lambda_expressions = cpp17::optional<float>(),
+                cpp17::optional<int> num_expression_coefficients_to_fit = cpp17::optional<int>())
 {
     std::vector<float> expression_coefficients;
     if (cpp17::holds_alternative<morphablemodel::PcaModel>(expression_model))
@@ -255,7 +258,9 @@ inline std::vector<float> fit_expressions(const morphablemodel::ExpressionModel&
             face_instance + pca_expression_model.get_mean();
         // Todo: Add lambda, num_coeffs_to_fit, ...
         return fit_shape_to_landmarks_linear(pca_expression_model, affine_camera_matrix, landmarks,
-                                             vertex_ids, face_instance_with_expression_mean);
+                                             vertex_ids, face_instance_with_expression_mean,
+                                             lambda_expressions.value_or(65.0f),
+                                             num_expression_coefficients_to_fit);
     } else if (cpp17::holds_alternative<morphablemodel::Blendshapes>(expression_model))
     {
         const auto& expression_blendshapes = cpp17::get<morphablemodel::Blendshapes>(expression_model);
@@ -305,7 +310,9 @@ inline std::vector<float> fit_expressions(const morphablemodel::ExpressionModel&
  * @param[in] model_contour The model contour indices that should be considered to find the closest corresponding 3D vertex.
  * @param[in] num_iterations Number of iterations that the different fitting parts will be alternated for.
  * @param[in] num_shape_coefficients_to_fit How many shape-coefficients to fit (all others will stay 0). Should be bigger than zero, or std::nullopt to fit all coefficients.
- * @param[in] lambda Regularisation parameter of the PCA shape fitting.
+ * @param[in] lambda_identity Regularisation parameter of the PCA shape fitting.
+ * @param[in] num_expression_coefficients_to_fit How many shape-coefficients to fit (all others will stay 0). Should be bigger than zero, or std::nullopt to fit all coefficients. Only used for expression-PCA fitting.
+ * @param[in] lambda_expressions Regularisation parameter of the expression fitting. Only used for expression-PCA fitting.
  * @param[in] initial_rendering_params Currently ignored (not used).
  * @param[in,out] pca_shape_coefficients If given, will be used as initial PCA shape coefficients to start the fitting. Will contain the final estimated coefficients.
  * @param[in,out] expression_coefficients If given, will be used as initial expression blendshape coefficients to start the fitting. Will contain the final estimated coefficients.
@@ -317,7 +324,8 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
     const core::LandmarkCollection<Eigen::Vector2f>& landmarks, const core::LandmarkMapper& landmark_mapper,
     int image_width, int image_height, const morphablemodel::EdgeTopology& edge_topology,
     const fitting::ContourLandmarks& contour_landmarks, const fitting::ModelContour& model_contour,
-    int num_iterations, cpp17::optional<int> num_shape_coefficients_to_fit, float lambda,
+    int num_iterations, cpp17::optional<int> num_shape_coefficients_to_fit, float lambda_identity,
+    cpp17::optional<int> num_expression_coefficients_to_fit, cpp17::optional<float> lambda_expressions,
     cpp17::optional<fitting::RenderingParameters> initial_rendering_params,
     std::vector<float>& pca_shape_coefficients, std::vector<float>& expression_coefficients,
     std::vector<Eigen::Vector2f>& fitted_image_points)
@@ -398,7 +406,7 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
         fitting::get_3x4_affine_camera_matrix(rendering_params, image_width, image_height);
     expression_coefficients =
         fit_expressions(morphable_model.get_expression_model().value(), current_pca_shape, affine_from_ortho,
-                        image_points, vertex_indices);
+                        image_points, vertex_indices, lambda_expressions, num_expression_coefficients_to_fit);
 
     // Mesh with same PCA coeffs as before, but new expression fit (this is relevant if no initial blendshape coeffs have been given):
     current_combined_shape = current_pca_shape + draw_sample(morphable_model.get_expression_model().value(),
@@ -476,13 +484,13 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
             draw_sample(morphable_model.get_expression_model().value(), expression_coefficients);
         pca_shape_coefficients = fitting::fit_shape_to_landmarks_linear(
             morphable_model.get_shape_model(), affine_from_ortho, image_points, vertex_indices,
-            mean_plus_expressions, lambda, num_shape_coefficients_to_fit);
+            mean_plus_expressions, lambda_identity, num_shape_coefficients_to_fit);
 
         // Estimate the blendshape coefficients with the current PCA model estimate:
         current_pca_shape = morphable_model.get_shape_model().draw_sample(pca_shape_coefficients);
-        expression_coefficients =
-            fit_expressions(morphable_model.get_expression_model().value(), current_pca_shape,
-                            affine_from_ortho, image_points, vertex_indices);
+        expression_coefficients = fit_expressions(
+            morphable_model.get_expression_model().value(), current_pca_shape, affine_from_ortho,
+            image_points, vertex_indices, lambda_expressions, num_expression_coefficients_to_fit);
 
         current_combined_shape =
             current_pca_shape +
@@ -529,25 +537,28 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
  * @param[in] model_contour The model contour indices that should be considered to find the closest corresponding 3D vertex.
  * @param[in] num_iterations Number of iterations that the different fitting parts will be alternated for.
  * @param[in] num_shape_coefficients_to_fit How many shape-coefficients to fit (all others will stay 0). Should be bigger than zero, or std::nullopt to fit all coefficients.
- * @param[in] lambda Regularisation parameter of the PCA shape fitting.
+ * @param[in] lambda_identity Regularisation parameter of the PCA shape fitting.
+ * @param[in] num_expression_coefficients_to_fit How many shape-coefficients to fit (all others will stay 0). Should be bigger than zero, or std::nullopt to fit all coefficients. Only used for expression-PCA fitting.
+ * @param[in] lambda_expressions Regularisation parameter of the expression fitting. Only used for expression-PCA fitting.
  * @return The fitted model shape instance and the final pose.
  */
-inline std::pair<core::Mesh, fitting::RenderingParameters>
-fit_shape_and_pose(const morphablemodel::MorphableModel& morphable_model,
-                   const core::LandmarkCollection<Eigen::Vector2f>& landmarks,
-                   const core::LandmarkMapper& landmark_mapper, int image_width, int image_height,
-                   const morphablemodel::EdgeTopology& edge_topology,
-                   const fitting::ContourLandmarks& contour_landmarks,
-                   const fitting::ModelContour& model_contour, int num_iterations = 5,
-                   cpp17::optional<int> num_shape_coefficients_to_fit = cpp17::nullopt, float lambda = 50.0f)
+inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
+    const morphablemodel::MorphableModel& morphable_model,
+    const core::LandmarkCollection<Eigen::Vector2f>& landmarks, const core::LandmarkMapper& landmark_mapper,
+    int image_width, int image_height, const morphablemodel::EdgeTopology& edge_topology,
+    const fitting::ContourLandmarks& contour_landmarks, const fitting::ModelContour& model_contour,
+    int num_iterations = 5, cpp17::optional<int> num_shape_coefficients_to_fit = cpp17::nullopt,
+    float lambda_identity = 50.0f, cpp17::optional<int> num_expression_coefficients_to_fit = cpp17::nullopt,
+    cpp17::optional<float> lambda_expressions = cpp17::nullopt)
 {
     std::vector<float> pca_coeffs;
     std::vector<float> blendshape_coeffs;
     std::vector<Eigen::Vector2f> fitted_image_points;
     return fit_shape_and_pose(morphable_model, landmarks, landmark_mapper, image_width, image_height,
                               edge_topology, contour_landmarks, model_contour, num_iterations,
-                              num_shape_coefficients_to_fit, lambda, cpp17::nullopt, pca_coeffs,
-                              blendshape_coeffs, fitted_image_points);
+                              num_shape_coefficients_to_fit, lambda_identity,
+                              num_expression_coefficients_to_fit, lambda_expressions, cpp17::nullopt,
+                              pca_coeffs, blendshape_coeffs, fitted_image_points);
 };
 
 /**
@@ -583,21 +594,23 @@ fit_shape_and_pose(const morphablemodel::MorphableModel& morphable_model,
  * @param[in] image_height Height of the input image (needed for the camera model).
  * @param[in] num_iterations Number of iterations that the different fitting parts will be alternated for.
  * @param[in] num_shape_coefficients_to_fit How many shape-coefficients to fit (all others will stay 0). Should be bigger than zero, or std::nullopt to fit all coefficients.
- * @param[in] lambda Regularisation parameter of the PCA shape fitting.
+ * @param[in] lambda_identity Regularisation parameter of the PCA shape fitting.
+ * @param[in] num_expression_coefficients_to_fit How many shape-coefficients to fit (all others will stay 0). Should be bigger than zero, or std::nullopt to fit all coefficients. Only used for expression-PCA fitting.
+ * @param[in] lambda_expressions Regularisation parameter of the expression fitting. Only used for expression-PCA fitting.
  * @param[in] initial_rendering_params Currently ignored (not used).
  * @param[in,out] pca_shape_coefficients If given, will be used as initial PCA shape coefficients to start the fitting. Will contain the final estimated coefficients.
  * @param[in,out] expression_coefficients If given, will be used as initial expression blendshape coefficients to start the fitting. Will contain the final estimated coefficients.
  * @param[out] fitted_image_points Debug parameter: Returns all the 2D points that have been used for the fitting.
  * @return The fitted model shape instance and the final pose.
  */
-inline std::pair<core::Mesh, fitting::RenderingParameters>
-fit_shape_and_pose(const morphablemodel::MorphableModel& morphable_model,
-                   const std::vector<Eigen::Vector2f>& image_points, const std::vector<int>& vertex_indices,
-                   int image_width, int image_height, int num_iterations,
-                   cpp17::optional<int> num_shape_coefficients_to_fit, float lambda,
-                   cpp17::optional<fitting::RenderingParameters> initial_rendering_params,
-                   std::vector<float>& pca_shape_coefficients, std::vector<float>& expression_coefficients,
-                   std::vector<Eigen::Vector2f>& fitted_image_points)
+inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
+    const morphablemodel::MorphableModel& morphable_model, const std::vector<Eigen::Vector2f>& image_points,
+    const std::vector<int>& vertex_indices, int image_width, int image_height, int num_iterations,
+    cpp17::optional<int> num_shape_coefficients_to_fit, float lambda_identity,
+    cpp17::optional<int> num_expression_coefficients_to_fit, cpp17::optional<float> lambda_expressions,
+    cpp17::optional<fitting::RenderingParameters> initial_rendering_params,
+    std::vector<float>& pca_shape_coefficients, std::vector<float>& expression_coefficients,
+    std::vector<Eigen::Vector2f>& fitted_image_points)
 {
     // assert(blendshapes.size() > 0);
     assert(image_points.size() >= 4);
@@ -665,7 +678,7 @@ fit_shape_and_pose(const morphablemodel::MorphableModel& morphable_model,
         fitting::get_3x4_affine_camera_matrix(rendering_params, image_width, image_height);
     expression_coefficients =
         fit_expressions(morphable_model.get_expression_model().value(), current_pca_shape, affine_from_ortho,
-                        image_points, vertex_indices);
+                        image_points, vertex_indices, lambda_expressions, num_expression_coefficients_to_fit);
 
     // Mesh with same PCA coeffs as before, but new expression fit (this is relevant if no initial blendshape coeffs have been given):
     current_combined_shape = current_pca_shape + draw_sample(morphable_model.get_expression_model().value(),
@@ -699,13 +712,13 @@ fit_shape_and_pose(const morphablemodel::MorphableModel& morphable_model,
             draw_sample(morphable_model.get_expression_model().value(), expression_coefficients);
         pca_shape_coefficients = fitting::fit_shape_to_landmarks_linear(
             morphable_model.get_shape_model(), affine_from_ortho, image_points, vertex_indices,
-            mean_plus_expressions, lambda, num_shape_coefficients_to_fit);
+            mean_plus_expressions, lambda_identity, num_shape_coefficients_to_fit);
 
         // Estimate the blendshape coefficients with the current PCA model estimate:
         current_pca_shape = morphable_model.get_shape_model().draw_sample(pca_shape_coefficients);
-        expression_coefficients =
-            fit_expressions(morphable_model.get_expression_model().value(), current_pca_shape,
-                            affine_from_ortho, image_points, vertex_indices);
+        expression_coefficients = fit_expressions(
+            morphable_model.get_expression_model().value(), current_pca_shape, affine_from_ortho,
+            image_points, vertex_indices, lambda_expressions, num_expression_coefficients_to_fit);
 
         current_combined_shape =
             current_pca_shape +
