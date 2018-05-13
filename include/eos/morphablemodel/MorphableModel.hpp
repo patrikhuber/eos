@@ -46,6 +46,8 @@
 #include <vector>
 #include <fstream>
 #include <algorithm>
+#include <cassert>
+#include <stdexcept>
 
 namespace eos {
 namespace morphablemodel {
