@@ -346,8 +346,6 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
         expression_coefficients.resize(blendshapes.size());
     }*/
 
-    // const MatrixXf blendshapes_as_basis = morphablemodel::to_matrix(blendshapes);
-
     // Current mesh - either from the given coefficients, or the mean:
     VectorXf current_pca_shape = morphable_model.get_shape_model().draw_sample(pca_shape_coefficients);
     assert(morphable_model.has_separate_expression_model()); // Note: We could also just skip the expression fitting in this case.
@@ -620,8 +618,6 @@ fit_shape_and_pose(const morphablemodel::MorphableModel& morphable_model,
     {
         expression_coefficients.resize(blendshapes.size());
     }*/
-
-    // const MatrixXf blendshapes_as_basis = morphablemodel::to_matrix(blendshapes);
 
     // Current mesh - either from the given coefficients, or the mean:
     VectorXf current_pca_shape = morphable_model.get_shape_model().draw_sample(pca_shape_coefficients);
