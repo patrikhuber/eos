@@ -19,8 +19,8 @@
  */
 #pragma once
 
-#ifndef PCAMODEL_HPP_
-#define PCAMODEL_HPP_
+#ifndef EOS_PCAMODEL_HPP
+#define EOS_PCAMODEL_HPP
 
 #include "cereal/access.hpp"
 #include "cereal/types/array.hpp"
@@ -410,4 +410,4 @@ inline Eigen::MatrixXf normalise_pca_basis(const Eigen::MatrixXf& rescaled_basis
 } /* namespace morphablemodel */
 } /* namespace eos */
 
-#endif /* PCAMODEL_HPP_ */
+#endif /* EOS_PCAMODEL_HPP */

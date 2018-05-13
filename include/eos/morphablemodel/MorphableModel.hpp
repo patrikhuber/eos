@@ -19,8 +19,8 @@
  */
 #pragma once
 
-#ifndef MORPHABLEMODEL_HPP_
-#define MORPHABLEMODEL_HPP_
+#ifndef EOS_MORPHABLEMODEL_HPP
+#define EOS_MORPHABLEMODEL_HPP
 
 #include "eos/core/Mesh.hpp"
 #include "eos/morphablemodel/PcaModel.hpp"
@@ -555,4 +555,4 @@ inline core::Mesh sample_to_mesh(const Eigen::VectorXf& shape_instance, const Ei
 
 CEREAL_CLASS_VERSION(eos::morphablemodel::MorphableModel, 2);
 
-#endif /* MORPHABLEMODEL_HPP_ */
+#endif /* EOS_MORPHABLEMODEL_HPP */

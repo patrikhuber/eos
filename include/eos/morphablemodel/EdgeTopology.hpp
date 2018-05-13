@@ -19,8 +19,8 @@
  */
 #pragma once
 
-#ifndef EDGETOPOLOGY_HPP_
-#define EDGETOPOLOGY_HPP_
+#ifndef EOS_EDGETOPOLOGY_HPP
+#define EOS_EDGETOPOLOGY_HPP
 
 #include "cereal/cereal.hpp"
 #include "cereal/types/array.hpp"
@@ -112,4 +112,4 @@ inline EdgeTopology load_edge_topology(std::string filename)
 } /* namespace morphablemodel */
 } /* namespace eos */
 
-#endif /* EDGETOPOLOGY_HPP_ */
+#endif /* EOS_EDGETOPOLOGY_HPP */

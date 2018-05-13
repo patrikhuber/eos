@@ -19,8 +19,8 @@
  */
 #pragma once
 
-#ifndef COEFFICIENTS_HPP_
-#define COEFFICIENTS_HPP_
+#ifndef EOS_COEFFICIENTS_HPP
+#define EOS_COEFFICIENTS_HPP
 
 #include "cereal/cereal.hpp"
 #include "cereal/archives/json.hpp"
@@ -73,4 +73,4 @@ inline std::vector<float> load_coefficients(std::string filename)
 } /* namespace morphablemodel */
 } /* namespace eos */
 
-#endif /* COEFFICIENTS_HPP_ */
+#endif /* EOS_COEFFICIENTS_HPP */
