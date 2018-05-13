@@ -247,7 +247,6 @@ PYBIND11_MODULE(eos, eos_module)
     fitting_module.def(
         "fit_shape_and_pose",
         [](const morphablemodel::MorphableModel& morphable_model,
-           const std::vector<morphablemodel::Blendshape>& blendshapes,
            const std::vector<Eigen::Vector2f>& landmarks, const std::vector<std::string>& landmark_ids,
            const core::LandmarkMapper& landmark_mapper, int image_width, int image_height,
            const morphablemodel::EdgeTopology& edge_topology,
@@ -274,8 +273,8 @@ PYBIND11_MODULE(eos, eos_module)
         },
         "Fit the pose (camera), shape model, and expression blendshapes to landmarks, in an iterative way. "
         "Returns a tuple (mesh, rendering_parameters, shape_coefficients, blendshape_coefficients).",
-        py::arg("morphable_model"), py::arg("blendshapes"), py::arg("landmarks"), py::arg("landmark_ids"),
-        py::arg("landmark_mapper"), py::arg("image_width"), py::arg("image_height"), py::arg("edge_topology"),
+        py::arg("morphable_model"), py::arg("landmarks"), py::arg("landmark_ids"), py::arg("landmark_mapper"),
+        py::arg("image_width"), py::arg("image_height"), py::arg("edge_topology"),
         py::arg("contour_landmarks"), py::arg("model_contour"), py::arg("num_iterations") = 5,
         py::arg("num_shape_coefficients_to_fit") = py::none(), py::arg("lambda_identity") = 30.0f,
         py::arg("num_expression_coefficients_to_fit") = py::none(), py::arg("lambda_expressions") = 30.0f);

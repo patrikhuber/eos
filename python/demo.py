@@ -10,14 +10,17 @@ def main():
 
     model = eos.morphablemodel.load_model("../share/sfm_shape_3448.bin")
     blendshapes = eos.morphablemodel.load_blendshapes("../share/expression_blendshapes_3448.bin")
+    # Create a MorphableModel with expressions from the loaded neutral model and blendshapes:
+    morphablemodel_with_expressions = eos.morphablemodel.MorphableModel(model.get_shape_model(), blendshapes,
+                                                                        eos.morphablemodel.PcaModel(),
+                                                                        model.get_texture_coordinates())
     landmark_mapper = eos.core.LandmarkMapper('../share/ibug_to_sfm.txt')
     edge_topology = eos.morphablemodel.load_edge_topology('../share/sfm_3448_edge_topology.json')
     contour_landmarks = eos.fitting.ContourLandmarks.load('../share/ibug_to_sfm.txt')
     model_contour = eos.fitting.ModelContour.load('../share/sfm_model_contours.json')
 
-    (mesh, pose, shape_coeffs, blendshape_coeffs) = eos.fitting.fit_shape_and_pose(model, blendshapes,
-        landmarks, landmark_ids, landmark_mapper,
-        image_width, image_height, edge_topology, contour_landmarks, model_contour)
+    (mesh, pose, shape_coeffs, blendshape_coeffs) = eos.fitting.fit_shape_and_pose(morphablemodel_with_expressions,
+        landmarks, landmark_ids, landmark_mapper, image_width, image_height, edge_topology, contour_landmarks, model_contour)
 
     # Now you can use your favourite plotting/rendering library to display the fitted mesh, using the rendering
     # parameters in the 'pose' variable.
