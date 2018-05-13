@@ -132,9 +132,10 @@ public:
     }
 
     /**
-     * Returns the mean of the shape- and colour model as a Mesh.
+     * Returns the mean of the shape (identity, and expressions, if present) and colour model as a Mesh.
      *
-     * If the model contains a separate PCA expression model, that mean is not added here.
+     * If the model contains a separate PCA expression model, the mean of that model is added and the overall
+     * shape mean is returned.
      *
      * @return An mesh instance of the mean of the Morphable Model.
      */
@@ -144,8 +145,15 @@ public:
                !has_color_model()); // The number of vertices (= model.getDataDimension() / 3) has to be equal
                                     // for both models, or, alternatively, it has to be a shape-only model.
 
-        const Eigen::VectorXf shape = shape_model.get_mean();
+        Eigen::VectorXf shape = shape_model.get_mean();
         const Eigen::VectorXf color = color_model.get_mean();
+
+        // If there is a PCA expression model, add that model's mean. If there is no expression model, or
+        // blendshapes, there's nothing to add.
+        if (get_expression_model_type() == ExpressionModelType::PcaModel)
+        {
+            shape += cpp17::get<PcaModel>(expression_model.value()).get_mean();
+        }
 
         core::Mesh mesh;
         if (has_texture_coordinates())
