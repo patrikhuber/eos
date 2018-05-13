@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['colors',['colors',['../structeos_1_1core_1_1_mesh.html#a9359294b4c5dfb9c889ffb6961c3c73d',1,'eos::core::Mesh']]],
-  ['coordinates',['coordinates',['../structeos_1_1core_1_1_landmark.html#aa3ffa0bd40290634e485e3c5ca99229c',1,'eos::core::Landmark']]]
+  ['adjacent_5ffaces',['adjacent_faces',['../structeos_1_1morphablemodel_1_1_edge_topology.html#a851477982d2f2ce286f50dbfde63c15e',1,'eos::morphablemodel::EdgeTopology']]],
+  ['adjacent_5fvertices',['adjacent_vertices',['../structeos_1_1morphablemodel_1_1_edge_topology.html#af271b82100c0a5c9f64c6fa62d794d3f',1,'eos::morphablemodel::EdgeTopology']]]
 ];

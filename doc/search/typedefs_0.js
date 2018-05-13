@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['landmarkcollection',['LandmarkCollection',['../namespaceeos_1_1core.html#a6d6a8533690b5860236f55afafa14d2b',1,'eos::core']]]
+  ['blendshapes',['Blendshapes',['../namespaceeos_1_1morphablemodel.html#a98750717ac5f6d46e6f64fa7d4a9514e',1,'eos::morphablemodel']]]
 ];

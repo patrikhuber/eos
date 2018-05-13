@@ -1,16 +1,7 @@
 var searchData=
 [
-  ['core',['core',['../namespaceeos_1_1core.html',1,'eos']]],
-  ['edgetopology',['EdgeTopology',['../structeos_1_1morphablemodel_1_1_edge_topology.html',1,'eos::morphablemodel']]],
-  ['eos',['eos',['../namespaceeos.html',1,'']]],
-  ['estimate_5faffine_5fcamera',['estimate_affine_camera',['../namespaceeos_1_1fitting.html#afce5f7297094056a04ad26785c94bbd8',1,'eos::fitting']]],
-  ['estimate_5forthographic_5fcamera',['estimate_orthographic_camera',['../namespaceeos_1_1fitting.html#a9f55324bfa740c6b5061518535506084',1,'eos::fitting']]],
-  ['estimate_5forthographic_5fprojection_5flinear',['estimate_orthographic_projection_linear',['../namespaceeos_1_1fitting.html#affa32c85b4c084377509e7e651c3b3a2',1,'eos::fitting']]],
-  ['extract_5ftexture',['extract_texture',['../namespaceeos_1_1render.html#a52f42375da9f1e5a035fbeb45fe8d541',1,'eos::render::extract_texture(core::Mesh mesh, cv::Mat affine_camera_matrix, cv::Mat image, cv::Mat depthbuffer, bool compute_view_angle, TextureInterpolation mapping_type, int isomap_resolution)'],['../namespaceeos_1_1render.html#affe40eddd259aa3aa67fa34d1e181764',1,'eos::render::extract_texture(const core::Mesh &amp;mesh, cv::Mat affine_camera_matrix, cv::Mat image, bool compute_view_angle=false, TextureInterpolation mapping_type=TextureInterpolation::NearestNeighbour, int isomap_resolution=512)']]],
-  ['extractionfragmentshader',['ExtractionFragmentShader',['../classeos_1_1render_1_1_extraction_fragment_shader.html',1,'eos::render']]],
-  ['fitting',['fitting',['../namespaceeos_1_1fitting.html',1,'eos']]],
-  ['eos_3a_20a_20lightweight_20header_2donly_203d_20morphable_20face_20model_20fitting_20library_20in_20modern_20c_2b_2b11_2f14_2e',['eos: A lightweight header-only 3D Morphable Face Model fitting library in modern C++11/14.',['../index.html',1,'']]],
-  ['morphablemodel',['morphablemodel',['../namespaceeos_1_1morphablemodel.html',1,'eos']]],
-  ['render',['render',['../namespaceeos_1_1render.html',1,'eos']]],
-  ['video',['video',['../namespaceeos_1_1video.html',1,'eos']]]
+  ['deformation',['deformation',['../structeos_1_1morphablemodel_1_1_blendshape.html#ac666d4bf5def41b54804efc202769126',1,'eos::morphablemodel::Blendshape']]],
+  ['draw_5fsample',['draw_sample',['../classeos_1_1morphablemodel_1_1_morphable_model.html#a120f7fd861d12edd7c0179c535ddc776',1,'eos::morphablemodel::MorphableModel::draw_sample(RNG &amp;engine, float shape_sigma=1.0f, float color_sigma=1.0f) const'],['../classeos_1_1morphablemodel_1_1_morphable_model.html#a44c2d55c5387256b93f974f16a9a42a1',1,'eos::morphablemodel::MorphableModel::draw_sample(std::vector&lt; float &gt; shape_coefficients, std::vector&lt; float &gt; color_coefficients) const'],['../classeos_1_1morphablemodel_1_1_morphable_model.html#a86ee431fb524ef5a35e621f06816331c',1,'eos::morphablemodel::MorphableModel::draw_sample(std::vector&lt; float &gt; shape_coefficients, std::vector&lt; float &gt; expression_coefficients, std::vector&lt; float &gt; color_coefficients) const'],['../classeos_1_1morphablemodel_1_1_pca_model.html#abeb75ce610bb5cadaeb21932e2415315',1,'eos::morphablemodel::PcaModel::draw_sample(RNG &amp;engine, float sigma=1.0f) const'],['../classeos_1_1morphablemodel_1_1_pca_model.html#afb97cb9a6dc1d2ebe0bb9caf9bb9cd95',1,'eos::morphablemodel::PcaModel::draw_sample(std::vector&lt; float &gt; coefficients) const'],['../classeos_1_1morphablemodel_1_1_pca_model.html#a3ae549b4181b5988828cc580db2c7b41',1,'eos::morphablemodel::PcaModel::draw_sample(std::vector&lt; double &gt; coefficients) const'],['../namespaceeos_1_1morphablemodel.html#a8ced504e4a99b34a73a6f13ab5ba512d',1,'eos::morphablemodel::draw_sample()']]],
+  ['draw_5ftexcoords',['draw_texcoords',['../namespaceeos_1_1render.html#a3c87e64cfa5af1fd1e26b3495f28db98',1,'eos::render']]],
+  ['draw_5fwireframe',['draw_wireframe',['../namespaceeos_1_1render.html#a0ed722f40b99b914c632667d8a2170b3',1,'eos::render']]]
 ];

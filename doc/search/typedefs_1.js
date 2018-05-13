@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['triangle',['Triangle',['../namespaceeos_1_1render.html#a4cbbcb06d3ae3d62763f91973ade6949',1,'eos::render']]]
+  ['expressionmodel',['ExpressionModel',['../namespaceeos_1_1morphablemodel.html#a13ad48bb1ba963a9a8f2c360be701a40',1,'eos::morphablemodel']]]
 ];

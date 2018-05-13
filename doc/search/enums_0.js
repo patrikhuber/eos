@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['textureinterpolation',['TextureInterpolation',['../namespaceeos_1_1render.html#a298bda0bf8e9ee6947522b96d32ab237',1,'eos::render']]]
+  ['covariance',['Covariance',['../namespaceeos_1_1pca.html#a63c9649ea5dae90779e093addfd94e22',1,'eos::pca']]]
 ];

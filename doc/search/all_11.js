@@ -1,13 +1,19 @@
 var searchData=
 [
-  ['tci',['tci',['../structeos_1_1core_1_1_mesh.html#a104fe5a6f32ef5ae9e677be794a05fb6',1,'eos::core::Mesh']]],
-  ['texcoords',['texcoords',['../structeos_1_1core_1_1_mesh.html#a7cfb22510f5449e6199820f79a8f4b0e',1,'eos::core::Mesh']]],
-  ['texture',['Texture',['../classeos_1_1render_1_1_texture.html',1,'eos::render']]],
-  ['textureinterpolation',['TextureInterpolation',['../namespaceeos_1_1render.html#a298bda0bf8e9ee6947522b96d32ab237',1,'eos::render']]],
-  ['texturingfragmentshader',['TexturingFragmentShader',['../classeos_1_1render_1_1_texturing_fragment_shader.html',1,'eos::render']]],
-  ['to_5fmat',['to_mat',['../namespaceeos_1_1fitting.html#a93f7464a6c6dee7b3885638014ec009a',1,'eos::fitting']]],
-  ['to_5fmatrix',['to_matrix',['../namespaceeos_1_1morphablemodel.html#a141d454c166ae194688eb12417de4109',1,'eos::morphablemodel']]],
-  ['to_5fvector',['to_vector',['../namespaceeos_1_1morphablemodel.html#a6c224e315efc828128fb51cc646ec4ed',1,'eos::morphablemodel']]],
-  ['triangle',['Triangle',['../namespaceeos_1_1render.html#a4cbbcb06d3ae3d62763f91973ade6949',1,'eos::render']]],
-  ['tvi',['tvi',['../structeos_1_1core_1_1_mesh.html#a694e8011dc6d4647b7b815f23b7847c7',1,'eos::core::Mesh']]]
+  ['s',['s',['../structeos_1_1fitting_1_1_scaled_ortho_projection_parameters.html#affb80b9c776571359c6c72624d97b93b',1,'eos::fitting::ScaledOrthoProjectionParameters']]],
+  ['sample_5fto_5fmesh',['sample_to_mesh',['../namespaceeos_1_1morphablemodel.html#a8d6e6d23f777bf6d8b54b12106a8eac5',1,'eos::morphablemodel']]],
+  ['save',['save',['../namespacecereal.html#ab9396de5216c446d07449ef591839e1c',1,'cereal::save()'],['../namespacecv.html#a758b4418894b35447bfd472847c1dfaf',1,'cv::save()']]],
+  ['save_5fblendshapes',['save_blendshapes',['../namespaceeos_1_1morphablemodel.html#a8b5fb5984da60695d8d0c28920094dcb',1,'eos::morphablemodel']]],
+  ['save_5fcoefficients',['save_coefficients',['../namespaceeos_1_1morphablemodel.html#a2578fc03dbaa1809873578f17991e278',1,'eos::morphablemodel']]],
+  ['save_5fedge_5ftopology',['save_edge_topology',['../namespaceeos_1_1morphablemodel.html#a242124318b55a2b487fcf57681463387',1,'eos::morphablemodel']]],
+  ['save_5fmodel',['save_model',['../namespaceeos_1_1morphablemodel.html#aad09e0fd0788cb7fea41ed799c653e71',1,'eos::morphablemodel']]],
+  ['save_5fpca_5fmodel',['save_pca_model',['../namespaceeos_1_1morphablemodel.html#a4f30511e6aebe6049225172fee5006ef',1,'eos::morphablemodel']]],
+  ['save_5frendering_5fparameters',['save_rendering_parameters',['../namespaceeos_1_1fitting.html#a03b4bc35b0619e7f4bd0fccbb2d35e2c',1,'eos::fitting']]],
+  ['scaledorthoprojectionparameters',['ScaledOrthoProjectionParameters',['../structeos_1_1fitting_1_1_scaled_ortho_projection_parameters.html',1,'eos::fitting']]],
+  ['score',['score',['../structeos_1_1video_1_1_keyframe.html#a7e82fd6ff9cace033ffe1eda3546f6c2',1,'eos::video::Keyframe']]],
+  ['select_5fcontour',['select_contour',['../namespaceeos_1_1fitting.html#a6a307eaa4a1a9f2c5e2c33a95a6e261d',1,'eos::fitting']]],
+  ['serialize',['serialize',['../structeos_1_1fitting_1_1_model_contour.html#a079c6e6969f79c123ceb8efc4116d9ea',1,'eos::fitting::ModelContour::serialize()'],['../structeos_1_1fitting_1_1_frustum.html#ad2927fb97762ef726696cf6296b5b9d4',1,'eos::fitting::Frustum::serialize()'],['../structeos_1_1morphablemodel_1_1_blendshape.html#aeccd060e4fa63cf3c417625d118f0602',1,'eos::morphablemodel::Blendshape::serialize()'],['../structeos_1_1morphablemodel_1_1_edge_topology.html#a053aed5eee4a43168c5df3d914ec708d',1,'eos::morphablemodel::EdgeTopology::serialize()'],['../namespacecv.html#a51eb61cb95a3e45290a030560ac7a2cd',1,'cv::serialize()']]],
+  ['shade_5ftriangle_5fpixel',['shade_triangle_pixel',['../classeos_1_1render_1_1_vertex_coloring_fragment_shader.html#af22e4ac6fe5996a9f13d212c9fe99dd8',1,'eos::render::VertexColoringFragmentShader::shade_triangle_pixel()'],['../classeos_1_1render_1_1_texturing_fragment_shader.html#a66e927e563b124257faffaaa7231126f',1,'eos::render::TexturingFragmentShader::shade_triangle_pixel()'],['../classeos_1_1render_1_1_extraction_fragment_shader.html#ae80729e5cc5e4b4f7efa97434d8a2df5',1,'eos::render::ExtractionFragmentShader::shade_triangle_pixel()']]],
+  ['softwarerenderer',['SoftwareRenderer',['../classeos_1_1render_1_1_software_renderer.html',1,'eos::render']]],
+  ['softwarerenderer_2ehpp',['SoftwareRenderer.hpp',['../_software_renderer_8hpp.html',1,'']]]
 ];
