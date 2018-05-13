@@ -368,7 +368,7 @@ public:
 private:
     PcaModel shape_model; ///< A PCA model of the shape
     PcaModel color_model; ///< A PCA model of vertex colour information
-    std::vector<std::array<double, 2>> texture_coordinates;              ///< uv-coordinates for every vertex
+    std::vector<std::array<double, 2>> texture_coordinates; ///< uv-coordinates for every vertex
     cpp17::optional<ExpressionModel> expression_model;      ///< Blendshapes or PcaModel
 
     /**
