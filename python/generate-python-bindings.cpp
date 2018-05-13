@@ -261,7 +261,7 @@ PYBIND11_MODULE(eos, eos_module)
             {
                 landmark_collection.push_back(core::Landmark<Eigen::Vector2f>{ landmark_ids[i], Eigen::Vector2f(landmarks[i][0], landmarks[i][1]) });
             }
-            auto result = fitting::fit_shape_and_pose(morphable_model, landmark_collection, landmark_mapper, image_width, image_height, edge_topology, contour_landmarks, model_contour, num_iterations, num_shape_coefficients_to_fit, lambda, cpp17::nullopt, pca_coeffs, blendshape_coeffs, fitted_image_points);
+            const auto result = fitting::fit_shape_and_pose(morphable_model, landmark_collection, landmark_mapper, image_width, image_height, edge_topology, contour_landmarks, model_contour, num_iterations, num_shape_coefficients_to_fit, lambda, cpp17::nullopt, pca_coeffs, blendshape_coeffs, fitted_image_points);
             return std::make_tuple(result.first, result.second, pca_coeffs, blendshape_coeffs);
         },
         "Fit the pose (camera), shape model, and expression blendshapes to landmarks, in an iterative way. Returns a tuple (mesh, rendering_parameters, shape_coefficients, blendshape_coefficients).",
