@@ -261,45 +261,6 @@ inline std::vector<float> fit_expressions(const morphablemodel::ExpressionModel&
     }
 };
 
-// Note that this doesn't check whether the shape and expression model dimensions match.
-// Note: We're calling this in a loop, and morphablemodel::to_matrix(expression_blendshapes) now gets called again in every fitting iteration.
-Eigen::VectorXf draw_expression_sample(
-    const morphablemodel::ExpressionModel& expression_model,
-    std::vector<float> expression_coefficients)
-{
-    using Eigen::VectorXf;
-    VectorXf expression_sample;
-    // Get a sample of the expression model, depending on whether it's a PcaModel or Blendshapes:
-    if (cpp17::holds_alternative<morphablemodel::PcaModel>(expression_model))
-    {
-        const auto& pca_expression_model = cpp17::get<morphablemodel::PcaModel>(expression_model);
-        if (expression_coefficients.empty())
-        {
-            expression_sample = pca_expression_model.get_mean();
-        } else
-        {
-            expression_sample = pca_expression_model.draw_sample(expression_coefficients);
-        }
-    } else if (cpp17::holds_alternative<morphablemodel::Blendshapes>(expression_model))
-    {
-        const auto& expression_blendshapes = cpp17::get<morphablemodel::Blendshapes>(expression_model);
-        assert(expression_blendshapes.size() > 0);
-        if (expression_coefficients.empty())
-        {
-            expression_sample.setZero(expression_blendshapes[0].deformation.rows());
-        } else
-        {
-            expression_sample =
-                morphablemodel::to_matrix(expression_blendshapes) *
-                Eigen::Map<const VectorXf>(expression_coefficients.data(), expression_coefficients.size());
-        }
-    } else
-    {
-        throw std::runtime_error("The given expression_model doesn't contain a PcaModel or Blendshapes.");
-    }
-    return expression_sample;
-};
-
 /**
  * @brief Fit the pose (camera), shape model, and expression blendshapes to landmarks,
  * in an iterative way.
@@ -443,9 +404,11 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
     VectorXf current_pca_shape = morphable_model.get_shape_model().draw_sample(pca_shape_coefficients);
     assert(morphable_model.has_separate_expression_model()); // Note: We could also just skip the expression fitting in this case.
     // Note we don't check whether the shape and expression model dimensions match.
+    // Note: We're calling this in a loop, and morphablemodel::to_matrix(expression_blendshapes) now gets
+    // called again in every fitting iteration.
     VectorXf current_combined_shape =
         current_pca_shape +
-        draw_expression_sample(morphable_model.get_expression_model().value(), expression_coefficients);
+        draw_sample(morphable_model.get_expression_model().value(), expression_coefficients);
     auto current_mesh = morphablemodel::sample_to_mesh(
         current_combined_shape, morphable_model.get_color_model().get_mean(),
         morphable_model.get_shape_model().get_triangle_list(),
@@ -483,9 +446,8 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
     expression_coefficients = fit_expressions(morphable_model.get_expression_model().value(), current_pca_shape, affine_from_ortho, image_points, vertex_indices);
 
     // Mesh with same PCA coeffs as before, but new expression fit (this is relevant if no initial blendshape coeffs have been given):
-    current_combined_shape =
-        current_pca_shape +
-        draw_expression_sample(morphable_model.get_expression_model().value(), expression_coefficients);
+    current_combined_shape = current_pca_shape + draw_sample(morphable_model.get_expression_model().value(),
+                                                             expression_coefficients);
     current_mesh = morphablemodel::sample_to_mesh(
         current_combined_shape, morphable_model.get_color_model().get_mean(),
         morphable_model.get_shape_model().get_triangle_list(),
@@ -556,7 +518,7 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
         // Estimate the PCA shape coefficients with the current blendshape coefficients:
         const VectorXf mean_plus_expressions =
             morphable_model.get_shape_model().get_mean() +
-            draw_expression_sample(morphable_model.get_expression_model().value(), expression_coefficients);
+            draw_sample(morphable_model.get_expression_model().value(), expression_coefficients);
         pca_shape_coefficients = fitting::fit_shape_to_landmarks_linear(
             morphable_model.get_shape_model(), affine_from_ortho, image_points, vertex_indices,
             mean_plus_expressions, lambda, num_shape_coefficients_to_fit);
@@ -569,7 +531,7 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
 
         current_combined_shape =
             current_pca_shape +
-            draw_expression_sample(morphable_model.get_expression_model().value(), expression_coefficients);
+            draw_sample(morphable_model.get_expression_model().value(), expression_coefficients);
         current_mesh = morphablemodel::sample_to_mesh(
             current_combined_shape, morphable_model.get_color_model().get_mean(),
             morphable_model.get_shape_model().get_triangle_list(),
@@ -717,9 +679,11 @@ fit_shape_and_pose(const morphablemodel::MorphableModel& morphable_model,
     VectorXf current_pca_shape = morphable_model.get_shape_model().draw_sample(pca_shape_coefficients);
     assert(morphable_model.has_separate_expression_model()); // Note: We could also just skip the expression fitting in this case.
     // Note we don't check whether the shape and expression model dimensions match.
+    // Note: We're calling this in a loop, and morphablemodel::to_matrix(expression_blendshapes) now gets
+    // called again in every fitting iteration.
     VectorXf current_combined_shape =
         current_pca_shape +
-        draw_expression_sample(morphable_model.get_expression_model().value(), expression_coefficients);
+        draw_sample(morphable_model.get_expression_model().value(), expression_coefficients);
     auto current_mesh = morphablemodel::sample_to_mesh(
         current_combined_shape, morphable_model.get_color_model().get_mean(),
         morphable_model.get_shape_model().get_triangle_list(),
@@ -746,9 +710,8 @@ fit_shape_and_pose(const morphablemodel::MorphableModel& morphable_model,
     expression_coefficients = fit_expressions(morphable_model.get_expression_model().value(), current_pca_shape, affine_from_ortho, image_points, vertex_indices);
 
     // Mesh with same PCA coeffs as before, but new expression fit (this is relevant if no initial blendshape coeffs have been given):
-    current_combined_shape =
-        current_pca_shape +
-        draw_expression_sample(morphable_model.get_expression_model().value(), expression_coefficients);
+    current_combined_shape = current_pca_shape + draw_sample(morphable_model.get_expression_model().value(),
+                                                             expression_coefficients);
     current_mesh = morphablemodel::sample_to_mesh(
         current_combined_shape, morphable_model.get_color_model().get_mean(),
         morphable_model.get_shape_model().get_triangle_list(),
@@ -775,7 +738,7 @@ fit_shape_and_pose(const morphablemodel::MorphableModel& morphable_model,
         // Estimate the PCA shape coefficients with the current blendshape coefficients:
         const VectorXf mean_plus_expressions =
             morphable_model.get_shape_model().get_mean() +
-            draw_expression_sample(morphable_model.get_expression_model().value(), expression_coefficients);
+            draw_sample(morphable_model.get_expression_model().value(), expression_coefficients);
         pca_shape_coefficients = fitting::fit_shape_to_landmarks_linear(
             morphable_model.get_shape_model(), affine_from_ortho, image_points, vertex_indices,
             mean_plus_expressions, lambda, num_shape_coefficients_to_fit);
@@ -788,7 +751,7 @@ fit_shape_and_pose(const morphablemodel::MorphableModel& morphable_model,
 
         current_combined_shape =
             current_pca_shape +
-            draw_expression_sample(morphable_model.get_expression_model().value(), expression_coefficients);
+            draw_sample(morphable_model.get_expression_model().value(), expression_coefficients);
         current_mesh = morphablemodel::sample_to_mesh(
             current_combined_shape, morphable_model.get_color_model().get_mean(),
             morphable_model.get_shape_model().get_triangle_list(),
