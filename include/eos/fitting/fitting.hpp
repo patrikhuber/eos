@@ -248,8 +248,14 @@ inline std::vector<float> fit_expressions(const morphablemodel::ExpressionModel&
     if (cpp17::holds_alternative<morphablemodel::PcaModel>(expression_model))
     {
         const auto& pca_expression_model = cpp17::get<morphablemodel::PcaModel>(expression_model);
+        // Usually, one would pass the result of the PCA identity shape fitting as a face_instance to this
+        // function. We then need to add the mean of the expression PCA model before performing the fitting,
+        // since we solve for the differences.
+        const Eigen::VectorXf face_instance_with_expression_mean =
+            face_instance + pca_expression_model.get_mean();
+        // Todo: Add lambda, num_coeffs_to_fit, ...
         return fit_shape_to_landmarks_linear(pca_expression_model, affine_camera_matrix, landmarks,
-                                             vertex_ids, face_instance); // lambda, num_coeffs_to_fit, ...
+                                             vertex_ids, face_instance_with_expression_mean);
     } else if (cpp17::holds_alternative<morphablemodel::Blendshapes>(expression_model))
     {
         const auto& expression_blendshapes = cpp17::get<morphablemodel::Blendshapes>(expression_model);
