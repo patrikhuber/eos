@@ -5,17 +5,41 @@ sudo: false
 language: cpp
 
 matrix:
+  fast_finish: true # Don't wait for the builds that are allowed to fail
   include:
+    - env: C_COMPILER=gcc-5 CXX_COMPILER=g++-5 GENERATOR_NAME="Unix Makefiles"
+      addons: { apt: { packages: ["g++-5"], sources: ["ubuntu-toolchain-r-test"] } }
+
+    - env: C_COMPILER=gcc-6 CXX_COMPILER=g++-6 GENERATOR_NAME="Unix Makefiles"
+      addons: { apt: { packages: ["g++-6"], sources: ["ubuntu-toolchain-r-test"] } }
+
     - env: C_COMPILER=gcc-7 CXX_COMPILER=g++-7 GENERATOR_NAME="Unix Makefiles"
       addons: { apt: { packages: ["g++-7"], sources: ["ubuntu-toolchain-r-test"] } }
 
+    - env: C_COMPILER=gcc-8 CXX_COMPILER=g++-8 GENERATOR_NAME="Unix Makefiles"
+      addons: { apt: { packages: ["g++-8"], sources: ["ubuntu-toolchain-r-test"] } }
+
     - env: C_COMPILER=clang-5.0 CXX_COMPILER=clang++-5.0 GENERATOR_NAME="Unix Makefiles"
       addons: { apt: { packages: ["g++-7", "clang-5.0"], sources: ["llvm-toolchain-trusty-5.0", "ubuntu-toolchain-r-test"] } }
-      # g++-7 is needed here - otherwise the build will fail because g++-4.8 libstdc++ is used.
+      # g++-7 is needed here - otherwise g++-4.8 libstdc++ is used.
+
+    - env: C_COMPILER=clang-5.0 CXX_COMPILER=clang++-5.0 GENERATOR_NAME="Unix Makefiles"
+      addons: { apt: { packages: ["g++-8", "clang-5.0"], sources: ["llvm-toolchain-trusty-5.0", "ubuntu-toolchain-r-test"] } }
+
+    - env: C_COMPILER=clang-6.0 CXX_COMPILER=clang++-6.0 GENERATOR_NAME="Unix Makefiles"
+      addons: { apt: { packages: ["g++-8", "clang-6.0"], sources: ["llvm-toolchain-trusty-6.0", "ubuntu-toolchain-r-test"] } }
 
     - os: osx
       env: C_COMPILER=clang CXX_COMPILER=clang++ GENERATOR_NAME="Xcode"
       osx_image: xcode9.2
+
+  allow_failures:
+    # These are additional combinations that we test but allow to fail, as they're either older compilers (g++-5) or
+    # uncommon combinations that would need some workarounds or updates to work.
+    - env: C_COMPILER=gcc-5 CXX_COMPILER=g++-5 GENERATOR_NAME="Unix Makefiles"
+    - env: C_COMPILER=gcc-8 CXX_COMPILER=g++-8 GENERATOR_NAME="Unix Makefiles"
+    - env: C_COMPILER=clang-5.0 CXX_COMPILER=clang++-5.0 GENERATOR_NAME="Unix Makefiles"
+    - env: C_COMPILER=clang-6.0 CXX_COMPILER=clang++-6.0 GENERATOR_NAME="Unix Makefiles"
 
 install:
   - |
