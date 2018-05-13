@@ -28,7 +28,7 @@ An experimental model viewer to visualise 3D Morphable Models and blendshapes is
 
 ## Usage
 
-* Tested with the following compilers: >=gcc-7, >=clang-5, >=Visual Studio 2017 15.5, >=Xcode 9.2.
+* Tested with the following compilers: >=gcc-6, >=clang-5, >=Visual Studio 2017 15.5, >=Xcode 9.2.
 * The library and python bindings are free of any external dependencies. The example applications require Boost (>=1.50.0) and OpenCV (>=2.4.3).
 
 To use the library in your own project, just add the following directories to your include path:
