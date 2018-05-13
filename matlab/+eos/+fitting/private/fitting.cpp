@@ -85,8 +85,14 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
     }
 
     // Load everything:
-    const auto morphable_model = morphablemodel::load_model(morphablemodel_file);
-    const auto blendshapes = morphablemodel::load_blendshapes(blendshapes_file);
+    morphablemodel::MorphableModel morphable_model_with_expressions;
+    {
+        const auto morphable_model = morphablemodel::load_model(morphablemodel_file);
+        const auto blendshapes = morphablemodel::load_blendshapes(blendshapes_file);
+        morphable_model_with_expressions = morphablemodel::MorphableModel(
+            morphable_model.get_shape_model(), blendshapes, morphable_model.get_color_model(),
+            morphable_model.get_texture_coordinates());
+    }
     const core::LandmarkMapper landmark_mapper(mapper_file);
     const auto edge_topology = morphablemodel::load_edge_topology(edgetopo_file);
     const auto contour_landmarks = fitting::ContourLandmarks::load(contour_lms_file);
@@ -97,9 +103,10 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
     // Now do the actual fitting:
     core::Mesh mesh;
     fitting::RenderingParameters rendering_parameters;
-    std::tie(mesh, rendering_parameters) = fitting::fit_shape_and_pose(
-        morphable_model, blendshapes, landmarks, landmark_mapper, image_width, image_height, edge_topology,
-        contour_landmarks, model_contour, num_iterations, num_shape_coefficients_to_fit, lambda);
+    std::tie(mesh, rendering_parameters) =
+        fitting::fit_shape_and_pose(morphable_model_with_expressions, landmarks, landmark_mapper, image_width,
+                                    image_height, edge_topology, contour_landmarks, model_contour,
+                                    num_iterations, num_shape_coefficients_to_fit, lambda);
 
     // Return the mesh and the rendering_parameters:
     OutputArguments output(nlhs, plhs, num_output_args);
