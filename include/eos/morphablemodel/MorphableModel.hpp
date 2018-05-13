@@ -370,7 +370,7 @@ public:
     enum class ExpressionModelType { None, Blendshapes, PcaModel };
 
     /**
-     * Returns the type of the expression model: None, Blendshapes or PCA.
+     * Returns the type of the expression model: None, Blendshapes or PcaModel.
      *
      * @return The type of the expression model.
      */
@@ -386,6 +386,11 @@ public:
         } else if (cpp17::holds_alternative<PcaModel>(expression_model.value()))
         {
             return ExpressionModelType::PcaModel;
+        } else
+        {
+            // We should never get here - but this silences the "not all control paths return a value"
+            // compiler warning.
+            throw std::runtime_error("The ExpressionModel contains something, but it's not Blendshapes or a PcaModel. This should not happen.");
         }
     };
 
