@@ -19,8 +19,8 @@
  */
 #pragma once
 
-#ifndef FITTING_HPP_
-#define FITTING_HPP_
+#ifndef EOS_FITTING_HPP
+#define EOS_FITTING_HPP
 
 #include "eos/core/Landmark.hpp"
 #include "eos/core/LandmarkMapper.hpp"
@@ -802,4 +802,4 @@ fit_shape_and_pose(const morphablemodel::MorphableModel& morphable_model,
 } /* namespace fitting */
 } /* namespace eos */
 
-#endif /* FITTING_HPP_ */
+#endif /* EOS_FITTING_HPP */
