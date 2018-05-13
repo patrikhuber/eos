@@ -316,7 +316,7 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
     std::vector<float>& pca_shape_coefficients, std::vector<float>& expression_coefficients,
     std::vector<Eigen::Vector2f>& fitted_image_points)
 {
-    //assert(blendshapes.size() > 0);
+    // assert(blendshapes.size() > 0);
     assert(landmarks.size() >= 4);
     assert(image_width > 0 && image_height > 0);
     assert(num_iterations > 0); // Can we allow 0, for only the initial pose-fit?
@@ -388,8 +388,11 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
         fitting::estimate_orthographic_projection_linear(image_points, model_points, true, image_height);
     fitting::RenderingParameters rendering_params(current_pose, image_width, image_height);
 
-    const Eigen::Matrix<float, 3, 4> affine_from_ortho = fitting::get_3x4_affine_camera_matrix(rendering_params, image_width, image_height);
-    expression_coefficients = fit_expressions(morphable_model.get_expression_model().value(), current_pca_shape, affine_from_ortho, image_points, vertex_indices);
+    const Eigen::Matrix<float, 3, 4> affine_from_ortho =
+        fitting::get_3x4_affine_camera_matrix(rendering_params, image_width, image_height);
+    expression_coefficients =
+        fit_expressions(morphable_model.get_expression_model().value(), current_pca_shape, affine_from_ortho,
+                        image_points, vertex_indices);
 
     // Mesh with same PCA coeffs as before, but new expression fit (this is relevant if no initial blendshape coeffs have been given):
     current_combined_shape = current_pca_shape + draw_sample(morphable_model.get_expression_model().value(),
@@ -485,7 +488,9 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
     }
 
     fitted_image_points = image_points;
-    return { current_mesh, rendering_params }; // I think we could also work with a Mat face_instance in this function instead of a Mesh, but it would convolute the code more (i.e. more complicated to access vertices).
+    return {current_mesh, rendering_params}; // I think we could also work with a VectorXf face_instance in
+                                             // this function instead of a Mesh, but it would convolute the
+                                             // code more (i.e. more complicated to access vertices).
 };
 
 /**
@@ -650,8 +655,11 @@ fit_shape_and_pose(const morphablemodel::MorphableModel& morphable_model,
         fitting::estimate_orthographic_projection_linear(image_points, model_points, true, image_height);
     fitting::RenderingParameters rendering_params(current_pose, image_width, image_height);
 
-    const Eigen::Matrix<float, 3, 4> affine_from_ortho = fitting::get_3x4_affine_camera_matrix(rendering_params, image_width, image_height);
-    expression_coefficients = fit_expressions(morphable_model.get_expression_model().value(), current_pca_shape, affine_from_ortho, image_points, vertex_indices);
+    const Eigen::Matrix<float, 3, 4> affine_from_ortho =
+        fitting::get_3x4_affine_camera_matrix(rendering_params, image_width, image_height);
+    expression_coefficients =
+        fit_expressions(morphable_model.get_expression_model().value(), current_pca_shape, affine_from_ortho,
+                        image_points, vertex_indices);
 
     // Mesh with same PCA coeffs as before, but new expression fit (this is relevant if no initial blendshape coeffs have been given):
     current_combined_shape = current_pca_shape + draw_sample(morphable_model.get_expression_model().value(),
@@ -703,7 +711,9 @@ fit_shape_and_pose(const morphablemodel::MorphableModel& morphable_model,
     }
 
     fitted_image_points = image_points;
-    return { current_mesh, rendering_params }; // I think we could also work with a Mat face_instance in this function instead of a Mesh, but it would convolute the code more (i.e. more complicated to access vertices).
+    return {current_mesh, rendering_params}; // I think we could also work with a VectorXf face_instance in
+                                             // this function instead of a Mesh, but it would convolute the
+                                             // code more (i.e. more complicated to access vertices).
 };
 
 } /* namespace fitting */
