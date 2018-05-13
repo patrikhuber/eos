@@ -346,58 +346,6 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
         expression_coefficients.resize(blendshapes.size());
     }*/
 
-    // This should really be part of MorphableModel (or BilinearModel... this only draws a shape sample).
-    /*const auto draw_shape_sample = [](const morphablemodel::MorphableModel& morphable_model, std::vector<float> shape_coefficients, std::vector<float> expression_coefficients)
-    {
-        assert(morphable_model.has_separate_expression_model());
-
-        Eigen::VectorXf shape_sample;
-        Eigen::VectorXf expression_sample;
-
-        if (shape_coefficients.empty())
-        {
-            shape_sample = morphable_model.get_shape_model().get_mean();
-        }
-        else
-        {
-            shape_sample = morphable_model.get_shape_model().draw_sample(shape_coefficients);
-        }
-        // Get a sample of the expression model, depending on whether it's a PcaModel or Blendshapes:
-        if (morphable_model.has_separate_expression_model() && std::holds_alternative<morphablemodel::PcaModel>(morphable_model.get_expression_model().value())) {
-            const auto& pca_expression_model = std::get<morphablemodel::PcaModel>(morphable_model.get_expression_model().value());
-            assert(pca_expression_model.get_data_dimension() == morphable_model.get_shape_model().get_data_dimension());
-            if (expression_coefficients.empty())
-            {
-                expression_sample = pca_expression_model.get_mean();
-            }
-            else
-            {
-                expression_sample = pca_expression_model.draw_sample(expression_coefficients);
-            }
-        }
-        else if (morphable_model.has_separate_expression_model() && std::holds_alternative<morphablemodel::Blendshapes>(morphable_model.get_expression_model().value()))
-        {
-            const auto& expression_blendshapes = std::get<morphablemodel::Blendshapes>(morphable_model.get_expression_model().value());
-            assert(expression_blendshapes.size() > 0);
-            assert(expression_blendshapes[0].deformation.rows() == morphable_model.get_shape_model().get_data_dimension());
-            if (expression_coefficients.empty())
-            {
-                expression_sample.setZero(expression_blendshapes[0].deformation.rows());
-            }
-            else
-            {
-                expression_sample = morphablemodel::to_matrix(expression_blendshapes) * Eigen::Map<const Eigen::VectorXf>(expression_coefficients.data(), expression_coefficients.size());
-            }
-        }
-        else
-        {
-            throw std::runtime_error("This MorphableModel doesn't contain an expression model in the form of a PcaModel or Blendshapes.");
-        }
-        shape_sample += expression_sample;
-        return shape_sample;
-    };
-    */
-
     // const MatrixXf blendshapes_as_basis = morphablemodel::to_matrix(blendshapes);
 
     // Current mesh - either from the given coefficients, or the mean:
