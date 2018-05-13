@@ -289,7 +289,7 @@ public:
             shape_sample = shape_model.draw_sample(shape_coefficients);
         }
         // Get a sample of the expression model, depending on whether it's a PcaModel or Blendshapes:
-        if (has_separate_expression_model() && cpp17::holds_alternative<PcaModel>(expression_model.value())) {
+        if (get_expression_model_type() == ExpressionModelType::PcaModel) {
             const auto& pca_expression_model = cpp17::get<PcaModel>(expression_model.value());
             assert(pca_expression_model.get_data_dimension() == shape_model.get_data_dimension());
             if (expression_coefficients.empty())
@@ -299,7 +299,7 @@ public:
             {
                 expression_sample = pca_expression_model.draw_sample(expression_coefficients);
             }
-        } else if (has_separate_expression_model() && cpp17::holds_alternative<Blendshapes>(expression_model.value()))
+        } else if (get_expression_model_type() == ExpressionModelType::Blendshapes)
         {
             const auto& expression_blendshapes = cpp17::get<Blendshapes>(expression_model.value());
             assert(expression_blendshapes.size() > 0);
@@ -363,6 +363,34 @@ public:
     std::vector<std::array<double, 2>> get_texture_coordinates() const
     {
         return texture_coordinates;
+    };
+
+    /**
+     * @brief The type of the expression model that this MorphableModel contains.
+     *
+     * A MorphableModel can contain no expression model, an expression model consisting of blendshapes, or a
+     * PCA model of expressions.
+     */
+    enum class ExpressionModelType { None, Blendshapes, PcaModel };
+
+    /**
+     * Returns the type of the expression model: None, Blendshapes or PCA.
+     *
+     * @return The type of the expression model.
+     */
+    ExpressionModelType get_expression_model_type() const
+    {
+        if (!expression_model)
+        {
+            return ExpressionModelType::None;
+        }
+        if (cpp17::holds_alternative<Blendshapes>(expression_model.value()))
+        {
+            return ExpressionModelType::Blendshapes;
+        } else if (cpp17::holds_alternative<PcaModel>(expression_model.value()))
+        {
+            return ExpressionModelType::PcaModel;
+        }
     };
 
 private:
