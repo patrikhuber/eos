@@ -103,6 +103,8 @@ PYBIND11_MODULE(eos, eos_module)
     /**
      *  - PcaModel
      *  - MorphableModel
+     *  - MorphableModel::ExpressionModelType
+     *  - draw_sample()
      *  - load_model(), save_model()
      *  - load_pca_model(), save_pca_model()
      */
@@ -119,18 +121,30 @@ PYBIND11_MODULE(eos, eos_module)
         .def("get_eigenvalues", &morphablemodel::PcaModel::get_eigenvalues, "Returns the models eigenvalues.")
         .def("draw_sample", (Eigen::VectorXf(morphablemodel::PcaModel::*)(std::vector<float>)const)&morphablemodel::PcaModel::draw_sample, "Returns a sample from the model with the given PCA coefficients. The given coefficients should follow a standard normal distribution, i.e. not be scaled with their eigenvalues/variances.", py::arg("coefficients"));
 
-    py::class_<morphablemodel::MorphableModel>(morphablemodel_module, "MorphableModel", "A class representing a 3D Morphable Model, consisting of a shape- and colour (albedo) PCA model, as well as texture (uv) coordinates.")
+    py::class_<morphablemodel::MorphableModel> morphable_model(morphablemodel_module, "MorphableModel", "A class representing a 3D Morphable Model, consisting of a shape- and colour (albedo) PCA model, as well as texture (uv) coordinates.");
+
+    py::enum_<morphablemodel::MorphableModel::ExpressionModelType>(
+        morphable_model, "ExpressionModelType",
+        "The type of the expression model that a MorphableModel contains.")
+        .value("None", morphablemodel::MorphableModel::ExpressionModelType::None)
+        .value("Blendshapes", morphablemodel::MorphableModel::ExpressionModelType::Blendshapes)
+        .value("PcaModel", morphablemodel::MorphableModel::ExpressionModelType::PcaModel);
+
+    morphable_model
         .def(py::init<morphablemodel::PcaModel, morphablemodel::PcaModel, std::vector<std::array<double, 2>>>(), "Create a Morphable Model from a shape and a colour PCA model, and optional texture coordinates.", py::arg("shape_model"), py::arg("color_model"), py::arg("texture_coordinates") = std::vector<std::array<double, 2>>())
         .def(py::init<morphablemodel::PcaModel, morphablemodel::ExpressionModel, morphablemodel::PcaModel, std::vector<std::array<double, 2>>>(), "Create a Morphable Model from a shape and a colour PCA model, an expression PCA model or blendshapes, and optional texture coordinates.", py::arg("shape_model"), py::arg("expression_model"), py::arg("color_model"), py::arg("texture_coordinates") = std::vector<std::array<double, 2>>())
         .def("get_shape_model", &morphablemodel::MorphableModel::get_shape_model, "Returns the PCA shape model of this Morphable Model.") // Not sure if that'll really be const in Python? I think Python does a copy each time this gets called?
         .def("get_color_model", &morphablemodel::MorphableModel::get_color_model, "Returns the PCA colour (albedo) model of this Morphable Model.")
         .def("get_expression_model", &morphablemodel::MorphableModel::get_expression_model, "Returns the shape expression model or an empty optional if the Morphable Model does not have a separate expression model.")
-        .def("get_mean", &morphablemodel::MorphableModel::get_mean, "Returns the mean of the shape- and colour model as a Mesh.")
-        .def("draw_sample", (core::Mesh(morphablemodel::MorphableModel::*)(std::vector<float>, std::vector<float>)const)&morphablemodel::MorphableModel::draw_sample, "Returns a sample from the model with the given shape- and colour PCA coefficients.", py::arg("shape_coefficients"), py::arg("color_coefficients"))
+        .def("get_mean", &morphablemodel::MorphableModel::get_mean, "Returns the mean of the shape (identity, and expressions, if present) and colour model as a Mesh.")
+        .def("draw_sample", (core::Mesh(morphablemodel::MorphableModel::*)(std::vector<float>, std::vector<float>)const)&morphablemodel::MorphableModel::draw_sample, "Returns a sample from the model with the given shape and colour PCA coefficients.", py::arg("shape_coefficients"), py::arg("color_coefficients"))
         .def("draw_sample", (core::Mesh(morphablemodel::MorphableModel::*)(std::vector<float>, std::vector<float>, std::vector<float>)const)&morphablemodel::MorphableModel::draw_sample, "Returns a sample from the model with the given shape, expression, and colour PCA coefficients. The MorphableModel has to have an expression model, otherwise, this function will throw.", py::arg("shape_coefficients"), py::arg("expression_coefficients"), py::arg("color_coefficients"))
         .def("has_color_model", &morphablemodel::MorphableModel::has_color_model, "Returns true if this Morphable Model contains a colour model, and false if it is a shape-only model.")
         .def("has_separate_expression_model", &morphablemodel::MorphableModel::has_separate_expression_model, "Returns true if this Morphable Model contains a separate PCA or Blendshapes expression model.")
-        .def("get_texture_coordinates", &morphablemodel::MorphableModel::get_texture_coordinates, "Returns the texture coordinates for all the vertices in the model.");
+        .def("get_texture_coordinates", &morphablemodel::MorphableModel::get_texture_coordinates, "Returns the texture coordinates for all the vertices in the model.")
+        .def("get_expression_model_type", &morphablemodel::MorphableModel::get_expression_model_type, "Returns the type of the expression model: None, Blendshapes or PcaModel.");
+
+    morphablemodel_module.def("draw_sample", &morphablemodel::draw_sample, "Returns a sample from the model with the given expression coefficients.", py::arg("expression_model"), py::arg("expression_coefficients"));
 
     morphablemodel_module.def("load_model", &morphablemodel::load_model, "Load a Morphable Model from a cereal::BinaryInputArchive (.bin) from the harddisk.", py::arg("filename"));
     morphablemodel_module.def("save_model", &morphablemodel::save_model, "Save a Morphable Model as cereal::BinaryOutputArchive.", py::arg("model"), py::arg("filename"));
