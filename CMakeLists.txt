@@ -68,6 +68,7 @@ set(HEADERS
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/morphablemodel/PcaModel.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/morphablemodel/MorphableModel.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/morphablemodel/Blendshape.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/morphablemodel/ExpressionModel.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/morphablemodel/coefficients.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/morphablemodel/EdgeTopology.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/morphablemodel/io/cvssp.hpp

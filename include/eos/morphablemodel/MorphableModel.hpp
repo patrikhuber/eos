@@ -25,6 +25,7 @@
 #include "eos/core/Mesh.hpp"
 #include "eos/morphablemodel/PcaModel.hpp"
 #include "eos/morphablemodel/Blendshape.hpp"
+#include "eos/morphablemodel/ExpressionModel.hpp"
 #include "eos/cpp17/optional.hpp"
 #include "eos/cpp17/variant.hpp"
 #include "eos/cpp17/clamp.hpp"
@@ -54,13 +55,6 @@ core::Mesh sample_to_mesh(
     const Eigen::VectorXf& shape_instance, const Eigen::VectorXf& color_instance,
     const std::vector<std::array<int, 3>>& tvi, const std::vector<std::array<int, 3>>& tci,
     const std::vector<std::array<double, 2>>& texture_coordinates = std::vector<std::array<double, 2>>());
-
-/**
- * @brief Type alias to represent an expression model, which can either consist of blendshapes or a PCA model.
- *
- * Defining a type alias so that we don't have to spell out the type everywhere.
- */
-using ExpressionModel = cpp17::variant<PcaModel, Blendshapes>;
 
 /**
  * @brief A class representing a 3D Morphable Model, consisting
