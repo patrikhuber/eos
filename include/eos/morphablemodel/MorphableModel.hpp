@@ -205,7 +205,7 @@ public:
     };
 
     /**
-     * Returns a sample from the model with the given shape- and
+     * Returns a sample from the model with the given shape and
      * colour PCA coefficients.
      *
      * If one of the given vectors is empty, the mean is used.
@@ -255,8 +255,21 @@ public:
         return mesh;
     };
 
-    // Todo: Documentation.
-    // If you call this method on a MorphableModel that doesn't contain an expression model, it'll throw an exception.
+    /**
+     * Returns a sample from the model with the given shape, expression and colour PCA coefficients.
+     *
+     * If you call this method on a MorphableModel that doesn't contain an expression model, it'll throw an
+     * exception.
+     * If one of the given vectors is empty, the mean is used. The coefficient vectors should
+     * contain normalised, i.e. standard normal distributed coefficients. If the Morphable Model is a
+     * shape-only model (without colour model), make sure to leave \c color_coefficients empty. If a partial
+     * coefficient vector is given, it is filled with zeros up to the end.
+     *
+     * @param[in] shape_coefficients The PCA coefficients used to generate the shape sample.
+     * @param[in] expression_coefficients The PCA coefficients used to generate the expression sample.
+     * @param[in] color_coefficients The PCA coefficients used to generate the vertex colouring.
+     * @return A model instance with given coefficients.
+     */
     core::Mesh draw_sample(std::vector<float> shape_coefficients, std::vector<float> expression_coefficients, std::vector<float> color_coefficients) const
     {
         assert(shape_model.get_data_dimension() == color_model.get_data_dimension() ||
