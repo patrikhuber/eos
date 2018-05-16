@@ -194,8 +194,8 @@ PYBIND11_MODULE(eos, eos_module)
         .def_property_readonly("R",
              [](const fitting::ScaledOrthoProjectionParameters& p) {
             Eigen::Matrix3f R; // we could probably use Eigen::Map
-            for (int col = 0; col < 4; ++col)
-                for (int row = 0; row < 4; ++row)
+            for (int col = 0; col < 3; ++col)
+                for (int row = 0; row < 3; ++row)
                     R(row, col) = p.R[col][row];
             return R;
     }, "Rotation matrix") // we can easily make this writable if ever required, just need to add a lambda function with the Eigen to glm matrix conversion.
