@@ -51,8 +51,8 @@ using ExpressionModel = cpp17::variant<PcaModel, Blendshapes>;
  * @param[in] expression_coefficients The coefficients used to generate the expression sample.
  * @return A model instance with given coefficients.
  */
-Eigen::VectorXf draw_sample(const ExpressionModel& expression_model,
-                            std::vector<float> expression_coefficients)
+inline Eigen::VectorXf draw_sample(const ExpressionModel& expression_model,
+                                   std::vector<float> expression_coefficients)
 {
     Eigen::VectorXf expression_sample;
     // Get a sample of the expression model, depending on whether it's a PcaModel or Blendshapes:
