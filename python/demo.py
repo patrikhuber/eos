@@ -3,7 +3,7 @@ import numpy as np
 
 def main():
     """Demo for running the eos fitting from Python."""
-    landmarks = read_pts('../bin/data/image_0010.pts')
+    landmarks = read_pts('../examples/data/image_0010.pts')
     landmark_ids = list(map(str, range(1, 69))) # generates the numbers 1 to 68, as strings
     image_width = 1280 # Make sure to adjust these when using your own images!
     image_height = 1024
@@ -27,7 +27,7 @@ def main():
 
     # Or for example extract the texture map, like this:
     # import cv2
-    # image = cv2.imread('../bin/data/image_0010.png')
+    # image = cv2.imread('../examples/data/image_0010.png')
     # isomap = eos.render.extract_texture(mesh, pose, image)
 
 
