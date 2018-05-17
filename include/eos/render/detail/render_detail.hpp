@@ -23,7 +23,7 @@
 #define RENDER_DETAIL_HPP_
 
 #include "eos/core/Image.hpp"
-#include "eos/render/Rect.hpp"
+#include "eos/core/Rect.hpp"
 #include "eos/render/Texture.hpp"
 #include "eos/render/utils.hpp"
 #include "eos/render/detail/Vertex.hpp"
@@ -101,7 +101,7 @@ inline cpp17::optional<TriangleToRasterize> process_prospective_tri(Vertex<float
     }
 
     // Get the bounding box of the triangle:
-    const Rect<int> boundingBox =
+    const core::Rect<int> boundingBox =
         calculate_clipped_bounding_box(glm::tvec2<float>(t.v0.position), glm::tvec2<float>(t.v1.position),
                                        glm::tvec2<float>(t.v2.position), viewport_width, viewport_height);
     t.min_x = boundingBox.x;

@@ -24,7 +24,7 @@
 
 #include "eos/core/Image.hpp"
 #include "eos/core/Mesh.hpp"
-#include "eos/render/Rect.hpp"
+#include "eos/core/Rect.hpp"
 #include "eos/render/detail/render_affine_detail.hpp"
 #include "eos/render/detail/render_detail_utils.hpp"
 
@@ -123,7 +123,7 @@ inline std::pair<core::Image4u, core::Image1d> render_affine(const core::Mesh& m
 
         // Get the bounding box of the triangle:
         // take care: What do we do if all 3 vertices are not visible. Seems to work on a test case.
-        const Rect<int> bounding_box = detail::calculate_clipped_bounding_box(
+        const core::Rect<int> bounding_box = detail::calculate_clipped_bounding_box(
             glm::tvec2<float>(projected_vertices[tri_indices[0]].position),
             glm::tvec2<float>(projected_vertices[tri_indices[1]].position),
             glm::tvec2<float>(projected_vertices[tri_indices[2]].position), viewport_width, viewport_height);

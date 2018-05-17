@@ -22,7 +22,7 @@
 #ifndef RASTERIZER_HPP_
 #define RASTERIZER_HPP_
 
-#include "eos/render/Rect.hpp"
+#include "eos/core/Rect.hpp"
 #include "eos/render/detail/Vertex.hpp"
 #include "eos/render/utils.hpp" // for Texture
 

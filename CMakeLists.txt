@@ -65,6 +65,7 @@ set(HEADERS
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/core/Image_opencv_interop.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/core/Mesh.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/core/read_obj.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/core/Rect.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/morphablemodel/PcaModel.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/morphablemodel/MorphableModel.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/morphablemodel/Blendshape.hpp
@@ -100,7 +101,6 @@ set(HEADERS
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/texture_extraction.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/detail/texture_extraction_detail.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/detail/texturing.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/Rect.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/SoftwareRenderer.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/VertexShader.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/Rasterizer.hpp

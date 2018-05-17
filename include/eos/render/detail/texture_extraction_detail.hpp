@@ -23,7 +23,7 @@
 #define TEXTURE_EXTRACTION_DETAIL_HPP_
 
 #include "eos/core/Image.hpp"
-#include "eos/render/Rect.hpp"
+#include "eos/core/Rect.hpp"
 #include "eos/render/detail/render_detail_utils.hpp"
 
 #include "glm/vec2.hpp"
@@ -108,7 +108,7 @@ inline bool is_triangle_visible(const glm::tvec4<float>& v0, const glm::tvec4<fl
                                                   glm::tvec2<float>(v2)))
         return false;
 
-    const Rect<int> bbox = detail::calculate_clipped_bounding_box(
+    const core::Rect<int> bbox = detail::calculate_clipped_bounding_box(
         glm::tvec2<float>(v0), glm::tvec2<float>(v1), glm::tvec2<float>(v2), viewport_width, viewport_height);
     const int minX = bbox.x;
     const int maxX = bbox.x + bbox.width;

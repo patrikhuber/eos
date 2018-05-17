@@ -1,7 +1,7 @@
 /*
  * eos - A 3D Morphable Model fitting library written in modern C++11/14.
  *
- * File: include/eos/render/Rect.hpp
+ * File: include/eos/core/Rect.hpp
  *
  * Copyright 2017 Patrik Huber
  *
@@ -19,11 +19,11 @@
  */
 #pragma once
 
-#ifndef EOS_RECT_HPP_
-#define EOS_RECT_HPP_
+#ifndef EOS_RECT_HPP
+#define EOS_RECT_HPP
 
 namespace eos {
-namespace render {
+namespace core {
 
 /**
  * @brief A simple type representing a rectangle.
@@ -31,11 +31,11 @@ namespace render {
 template <typename T>
 struct Rect
 {
-    T x, y; // these are the top-left corner x and y
+    T x, y; ///< Top-left corner x and y position
     T width, height;
 };
 
-} /* namespace render */
+} /* namespace core */
 } /* namespace eos */
 
-#endif /* EOS_RECT_HPP_ */
+#endif /* EOS_RECT_HPP */

@@ -22,7 +22,7 @@
 #ifndef RENDER_DETAIL_UTILS_HPP_
 #define RENDER_DETAIL_UTILS_HPP_
 
-#include "eos/render/Rect.hpp"
+#include "eos/core/Rect.hpp"
 #include "eos/render/detail/Vertex.hpp"
 
 #include "glm/vec2.hpp"
@@ -54,8 +54,9 @@ namespace detail {
  * @return A bounding box rectangle.
  */
 template <typename T, glm::precision P = glm::defaultp>
-Rect<int> calculate_clipped_bounding_box(const glm::tvec2<T, P>& v0, const glm::tvec2<T, P>& v1,
-                                         const glm::tvec2<T, P>& v2, int viewport_width, int viewport_height)
+core::Rect<int> calculate_clipped_bounding_box(const glm::tvec2<T, P>& v0, const glm::tvec2<T, P>& v1,
+                                               const glm::tvec2<T, P>& v2, int viewport_width,
+                                               int viewport_height)
 {
     /* Old, producing artifacts:
     t.minX = max(min(t.v0.position[0], min(t.v1.position[0], t.v2.position[0])), 0.0f);
@@ -73,7 +74,7 @@ Rect<int> calculate_clipped_bounding_box(const glm::tvec2<T, P>& v0, const glm::
     const int maxX = min(max(ceil(v0[0]), max(ceil(v1[0]), ceil(v2[0]))), static_cast<T>(viewport_width - 1));
     const int minY = max(min(floor(v0[1]), min(floor(v1[1]), floor(v2[1]))), T(0));
     const int maxY = min(max(ceil(v0[1]), max(ceil(v1[1]), ceil(v2[1]))), static_cast<T>(viewport_height - 1));
-    return Rect<int>{minX, minY, maxX - minX, maxY - minY};
+    return core::Rect<int>{minX, minY, maxX - minX, maxY - minY};
 };
 
 /**
