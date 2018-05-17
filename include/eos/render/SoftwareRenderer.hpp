@@ -27,14 +27,13 @@
 #include "eos/render/detail/Vertex.hpp"
 #include "eos/render/detail/render_detail.hpp"
 #include "eos/render/utils.hpp" // for Texture, potentially others
+#include "eos/cpp17/optional.hpp"
 
 #include "glm/mat4x4.hpp"
 #include "glm/vec2.hpp"
 #include "glm/vec4.hpp"
 
 #include "opencv2/core/core.hpp"
-
-#include "boost/optional.hpp"
 
 #include <array>
 #include <cassert>
@@ -105,7 +104,7 @@ public:
     template <typename T, glm::precision P = glm::defaultp>
     cv::Mat render(const core::Mesh& mesh, const glm::tmat4x4<T, P>& model_view_matrix,
                    const glm::tmat4x4<T, P>& projection_matrix,
-                   const boost::optional<Texture>& texture = boost::none)
+                   const cpp17::optional<Texture>& texture = cpp17::nullopt)
     {
         assert(mesh.vertices.size() == mesh.colors.size() ||
                mesh.colors.empty()); // The number of vertices has to be equal for both shape and colour, or,
@@ -332,7 +331,7 @@ public:
     };
 
 public: // Todo: these should go private in the final implementation
-    boost::optional<Texture> texture = boost::none;
+    cpp17::optional<Texture> texture = cpp17::nullopt;
     bool enable_backface_culling = false;
     bool enable_near_clipping = true;
 

@@ -25,10 +25,9 @@
 #include "eos/core/Rect.hpp"
 #include "eos/render/detail/Vertex.hpp"
 #include "eos/render/utils.hpp" // for Texture
+#include "eos/cpp17/optional.hpp"
 
 #include "opencv2/core/core.hpp"
-
-#include "boost/optional.hpp"
 
 #include <limits>
 
@@ -64,7 +63,7 @@ public:
      */
     template <typename T, glm::precision P = glm::defaultp>
     void raster_triangle(const detail::Vertex<T, P>& point_a, const detail::Vertex<T, P>& point_b,
-                         const detail::Vertex<T, P>& point_c, const boost::optional<Texture>& texture)
+                         const detail::Vertex<T, P>& point_c, const cpp17::optional<Texture>& texture)
     {
         // We already calculated this in the culling/clipping stage. Maybe we should save/cache it after all.
         Rect<int> boundingBox = detail::calculate_clipped_bounding_box(

@@ -24,11 +24,10 @@
 
 #include "eos/render/detail/Vertex.hpp"
 #include "eos/render/utils.hpp"
+#include "eos/cpp17/optional.hpp"
 
 #include "glm/vec3.hpp"
 #include "glm/vec4.hpp"
-
-#include "boost/optional.hpp"
 
 // Fragment shaders are a more accurate name for the same functionality as Pixel shaders. They aren't pixels
 // yet, since the output still has to past several tests (depth, alpha, stencil) as well as the fact that one
@@ -67,7 +66,7 @@ public:
     glm::tvec4<T, P> shade_triangle_pixel(int x, int y, const detail::Vertex<T, P>& point_a,
                                           const detail::Vertex<T, P>& point_b,
                                           const detail::Vertex<T, P>& point_c, const glm::tvec3<T, P>& lambda,
-                                          const boost::optional<Texture>& texture, float dudx, float dudy,
+                                          const cpp17::optional<Texture>& texture, float dudx, float dudy,
                                           float dvdx, float dvdy)
     {
         // attributes interpolation
@@ -97,7 +96,7 @@ public:
     glm::tvec4<T, P> shade_triangle_pixel(int x, int y, const detail::Vertex<T, P>& point_a,
                                           const detail::Vertex<T, P>& point_b,
                                           const detail::Vertex<T, P>& point_c, const glm::tvec3<T, P>& lambda,
-                                          const boost::optional<eos::render::Texture>& texture, float dudx,
+                                          const cpp17::optional<Texture>& texture, float dudx,
                                           float dudy, float dvdx, float dvdy)
     {
         glm::tvec2<T, P> texcoords_persp =
@@ -166,7 +165,7 @@ public:
     glm::tvec4<T, P> shade_triangle_pixel(int x, int y, const detail::Vertex<T, P>& point_a,
                                           const detail::Vertex<T, P>& point_b,
                                           const detail::Vertex<T, P>& point_c, const glm::tvec3<T, P>& lambda,
-                                          const boost::optional<Texture>& texture, float dudx, float dudy,
+                                          const cpp17::optional<Texture>& texture, float dudx, float dudy,
                                           float dvdx, float dvdy)
     {
         auto corrected_lambda = compute_inverse_perspectively_correct_lambda(
