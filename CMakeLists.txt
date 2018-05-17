@@ -79,7 +79,6 @@ set(HEADERS
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/orthographic_camera_estimation_linear.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/nonlinear_camera_estimation.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/detail/nonlinear_camera_estimation_detail.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/detail/optional_cerealisation.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/detail/glm_cerealisation.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/linear_shape_fitting.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/contour_correspondence.hpp
