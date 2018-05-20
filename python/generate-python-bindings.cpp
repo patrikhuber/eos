@@ -82,8 +82,8 @@ PYBIND11_MODULE(eos, eos_module)
         .def_readwrite("coordinates", &core::Landmark<Eigen::Vector2f>::coordinates,
                        "The position or coordinates of the landmark")
         .def("__repr__", [](const core::Landmark<Eigen::Vector2f>& l) {
-            return "<eos.core.Landmark [name=" + l.name + ", x=" + std::to_string(l.coordinates(0)) +
-                   ", y=" + std::to_string(l.coordinates(1)) + "]>";
+            return "<eos.core.Landmark [name=" + l.name + ", [x=" + std::to_string(l.coordinates(0)) +
+                   ", y=" + std::to_string(l.coordinates(1)) + "]]>";
         });
 
     py::class_<core::LandmarkMapper>(core_module, "LandmarkMapper", "Represents a mapping from one kind of landmarks to a different format(e.g.model vertices).")
