@@ -18,10 +18,11 @@
  * limitations under the License.
  */
 #include "eos/core/Rect.hpp"
-#include "eos/core/Image.hpp"
+#include "eos/core/Landmark.hpp"
 #include "eos/core/LandmarkMapper.hpp"
 #include "eos/core/Mesh.hpp"
 #include "eos/core/read_obj.hpp"
+#include "eos/core/Image.hpp"
 #include "eos/fitting/RenderingParameters.hpp"
 #include "eos/fitting/contour_correspondence.hpp"
 #include "eos/fitting/fitting.hpp"
@@ -61,6 +62,7 @@ PYBIND11_MODULE(eos, eos_module)
 
     /**
      * Bindings for the eos::core namespace:
+     *  - Landmark
      *  - LandmarkMapper
      *  - Mesh
      *  - write_obj(), write_textured_obj()
@@ -74,6 +76,20 @@ PYBIND11_MODULE(eos, eos_module)
         .def("convert", &core::LandmarkMapper::convert, "Converts the given landmark name to the mapped name.", py::arg("landmark_name"));
 
     py::class_<core::Mesh>(core_module, "Mesh", "This class represents a 3D mesh consisting of vertices, vertex colour information and texture coordinates.")
+
+    py::class_<core::Landmark<Eigen::Vector2f>>(core_module, "Landmark",
+                                                "Representation of a landmark, consisting of a landmark name "
+                                                "and coordinates of the given type. Usually, the type would "
+                                                "be Eigen::Vector2f.")
+        .def(py::init<std::string, Eigen::Vector2f>())
+        .def_readwrite("name", &core::Landmark<Eigen::Vector2f>::name,
+                       "Name of the landmark, often used as identifier")
+        .def_readwrite("coordinates", &core::Landmark<Eigen::Vector2f>::coordinates,
+                       "The position or coordinates of the landmark")
+        .def("__repr__", [](const core::Landmark<Eigen::Vector2f>& l) {
+            return "<eos.core.Landmark [name=" + l.name + ", x=" + std::to_string(l.coordinates(0)) +
+                   ", y=" + std::to_string(l.coordinates(1)) + "]>";
+        });
         .def(py::init<>(), "Creates an empty mesh.")
         .def_readwrite("vertices", &core::Mesh::vertices, "Vertices")
         .def_readwrite("tvi", &core::Mesh::tvi, "Triangle vertex indices")
