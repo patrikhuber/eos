@@ -74,7 +74,9 @@ PYBIND11_MODULE(eos, eos_module)
                                                 "Representation of a landmark, consisting of a landmark name "
                                                 "and coordinates of the given type. Usually, the type would "
                                                 "be Eigen::Vector2f.")
-        .def(py::init<std::string, Eigen::Vector2f>())
+        .def(py::init<std::string, Eigen::Vector2f>(),
+             "Construct a Landmark with the given name (identifier) and point coordinates.", py::arg("name"),
+             py::arg("coordinates"))
         .def_readwrite("name", &core::Landmark<Eigen::Vector2f>::name,
                        "Name of the landmark, often used as identifier")
         .def_readwrite("coordinates", &core::Landmark<Eigen::Vector2f>::coordinates,
