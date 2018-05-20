@@ -4,7 +4,6 @@ import numpy as np
 def main():
     """Demo for running the eos fitting from Python."""
     landmarks = read_pts('../bin/data/image_0010.pts')
-    landmark_ids = list(map(str, range(1, 69))) # generates the numbers 1 to 68, as strings
     image_width = 1280 # Make sure to adjust these when using your own images!
     image_height = 1024
 
@@ -20,7 +19,7 @@ def main():
     model_contour = eos.fitting.ModelContour.load('../share/sfm_model_contours.json')
 
     (mesh, pose, shape_coeffs, blendshape_coeffs) = eos.fitting.fit_shape_and_pose(morphablemodel_with_expressions,
-        landmarks, landmark_ids, landmark_mapper, image_width, image_height, edge_topology, contour_landmarks, model_contour)
+        landmarks, landmark_mapper, image_width, image_height, edge_topology, contour_landmarks, model_contour)
 
     # Now you can use your favourite plotting/rendering library to display the fitted mesh, using the rendering
     # parameters in the 'pose' variable.
@@ -32,14 +31,16 @@ def main():
 
 
 def read_pts(filename):
-    """A helper function to read ibug .pts landmarks from a file."""
+    """A helper function to read the 68 ibug landmarks from a .pts file."""
     lines = open(filename).read().splitlines()
     lines = lines[3:71]
 
     landmarks = []
+    ibug_index = 1  # count from 1 to 68 for all ibug landmarks
     for l in lines:
         coords = l.split()
-        landmarks.append([float(coords[0]), float(coords[1])])
+        landmarks.append(eos.core.Landmark(str(ibug_index), [float(coords[0]), float(coords[1])]))
+        ibug_index = ibug_index + 1
 
     return landmarks
 
