@@ -288,7 +288,6 @@ PYBIND11_MODULE(eos, eos_module)
            int num_iterations, cpp17::optional<int> num_shape_coefficients_to_fit, float lambda_identity,
            cpp17::optional<int> num_expression_coefficients_to_fit,
            cpp17::optional<float> lambda_expressions) {
-            assert(landmarks.size() == landmark_ids.size());
             std::vector<float> pca_coeffs;
             std::vector<float> blendshape_coeffs;
             std::vector<Eigen::Vector2f> fitted_image_points;
