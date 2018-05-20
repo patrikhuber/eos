@@ -17,6 +17,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "eos/core/Rect.hpp"
 #include "eos/core/Image.hpp"
 #include "eos/core/LandmarkMapper.hpp"
 #include "eos/core/Mesh.hpp"
@@ -32,8 +33,8 @@
 #include "eos/pca/pca.hpp"
 #include "eos/render/texture_extraction.hpp"
 
-#include "pybind11/eigen.h"
 #include "pybind11/pybind11.h"
+#include "pybind11/eigen.h"
 #include "pybind11/stl.h"
 #include "pybind11_Image.hpp"
 
@@ -63,6 +64,7 @@ PYBIND11_MODULE(eos, eos_module)
      *  - LandmarkMapper
      *  - Mesh
      *  - write_obj(), write_textured_obj()
+     *  - Rect
      */
     py::module core_module = eos_module.def_submodule("core", "Essential functions and classes to work with 3D face models and landmarks.");
     
@@ -83,6 +85,20 @@ PYBIND11_MODULE(eos, eos_module)
     core_module.def("write_textured_obj", &core::write_textured_obj, "Writes the given Mesh to an obj file, including texture coordinates, and an mtl file containing a reference to the isomap. The texture (isomap) has to be saved separately.", py::arg("mesh"), py::arg("filename"));
 
     core_module.def("read_obj", &core::read_obj, "Reads the given Wavefront .obj file into a Mesh.", py::arg("filename"));
+
+    py::class_<core::Rect<int>>(core_module, "Rect",
+                                "A simple type representing a rectangle with integer values.")
+        .def(py::init<int, int, int, int>(),
+             "Construct a rectangle with given top-left x and y point and given width and height.",
+             py::arg("x"), py::arg("y"), py::arg("width"), py::arg("height"))
+        .def_readwrite("x", &core::Rect<int>::x, "Top-left corner x position")
+        .def_readwrite("y", &core::Rect<int>::y, "Top-left corner y position")
+        .def_readwrite("width", &core::Rect<int>::width, "Width of the rectangle")
+        .def_readwrite("height", &core::Rect<int>::height, "Height of the rectangle")
+        .def("__repr__", [](const core::Rect<int>& r) {
+            return "<eos.core.Rect [x=" + std::to_string(r.x) + ", y=" + std::to_string(r.y) +
+                   ", width=" + std::to_string(r.width) + ", height=" + std::to_string(r.height) + +"]>";
+        });
 
     /**
      * Bindings for the eos::morphablemodel namespace:
