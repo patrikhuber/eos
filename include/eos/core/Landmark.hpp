@@ -19,8 +19,8 @@
  */
 #pragma once
 
-#ifndef EOS_LANDMARK_HPP_
-#define EOS_LANDMARK_HPP_
+#ifndef EOS_LANDMARK_HPP
+#define EOS_LANDMARK_HPP
 
 #include <algorithm>
 #include <string>
@@ -31,7 +31,7 @@ namespace core {
 
 /**
  * @brief Representation of a landmark, consisting of a landmark name and
- * coordinates of the given type. Usually, the type would be \c cv::Vec2f.
+ * coordinates of the given type. Usually, the type would be \c Eigen::Vector2f.
  */
 template <class LandmarkType>
 struct Landmark
@@ -80,4 +80,4 @@ LandmarkCollection<T> filter(const LandmarkCollection<T>& landmarks, const std::
 } /* namespace core */
 } /* namespace eos */
 
-#endif /* EOS_LANDMARK_HPP_ */
+#endif /* EOS_LANDMARK_HPP */
