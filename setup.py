@@ -59,13 +59,19 @@ class CMakeBuild(build_ext):
         subprocess.check_call(['cmake', ext.sourcedir] + cmake_args, cwd=self.build_temp, env=env)
         subprocess.check_call(['cmake', '--build', '.'] + build_args, cwd=self.build_temp)
 
+
+this_directory = os.path.abspath(os.path.dirname(__file__))
+with open(os.path.join(this_directory, 'README.md'), encoding='utf-8') as f:
+    long_description = f.read()
+
 setup(
     name='eos-py',
     version='0.16.0',
     author='Patrik Huber',
     author_email='patrikhuber@gmail.com',
     description='Python bindings for eos - A lightweight 3D Morphable Face Model fitting library in modern C++11/14',
-    long_description='',
+    long_description=long_description,
+    long_description_content_type='text/markdown',
     url='https://github.com/patrikhuber/eos',
     license='Apache-2.0',
     ext_modules=[CMakeExtension('eos')],
