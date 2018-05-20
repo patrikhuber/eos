@@ -41,6 +41,7 @@
 #include <vector>
 #include <iostream>
 #include <fstream>
+#include <string>
 
 using namespace eos;
 namespace po = boost::program_options;
