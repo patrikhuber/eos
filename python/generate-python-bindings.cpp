@@ -113,7 +113,7 @@ PYBIND11_MODULE(eos, eos_module)
         .def_readwrite("height", &core::Rect<int>::height, "Height of the rectangle")
         .def("__repr__", [](const core::Rect<int>& r) {
             return "<eos.core.Rect [x=" + std::to_string(r.x) + ", y=" + std::to_string(r.y) +
-                   ", width=" + std::to_string(r.width) + ", height=" + std::to_string(r.height) + +"]>";
+                   ", width=" + std::to_string(r.width) + ", height=" + std::to_string(r.height) + "]>";
         });
 
     /**
