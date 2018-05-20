@@ -1,9 +1,12 @@
+# NOTE: It is recommended to use vcpkg (https://github.com/Microsoft/vcpkg/) to install the dependencies for eos.
+# However, for users who wish to install the dependencies manually, this file might be helpful to set the library paths explicitly.
+
 # Mechanism via FindLIB.cmake
 # ==============================
 # Boost:
 # -------
-# Windows: Download the pre-built binaries from http://sourceforge.net/projects/boost/files/boost-binaries/ for VS2015 (msvc-14 64bit).
-# Either set the windows PATH variable to "<YOUR_BOOST_DIRECTORY>\lib64-msvc-14.0" and CMake will find it, or, set:
+# Windows: Download the pre-built binaries from http://sourceforge.net/projects/boost/files/boost-binaries/ for VS2017 (msvc-14.1 64bit).
+# Either set the windows PATH variable to "<YOUR_BOOST_DIRECTORY>\lib64-msvc-14.1" and CMake will find it, or, set:
 #set(BOOST_ROOT "C:/boost" CACHE PATH "Boost search location" FORCE)
 # Linux: Boost can usually be installed via a package manager (e.g. apt-get install boost-all-dev) and this variable can be left uncommented.
 #set(BOOST_ROOT "/home/user/boost/install" CACHE PATH "Boost search location" FORCE)
@@ -13,18 +16,18 @@
 # ==============================
 # OpenCV:
 # -------
-# Windows: Download the package from opencv.org, use 2.4.7.2 or never. It includes binaries for VS2013. Set this path accordingly.
+# Windows: Download the package from opencv.org, use 2.4.13 or newer (e.g. 3.x), which it include binaries for VS2017. Set this path accordingly.
 #set(OpenCV_DIR "C:/opencv/install" CACHE PATH "Location of OpenCVConfig.cmake" FORCE)
 # Linux: Usually can be left blank but it can be used if OpenCV is not found.
 #set(OpenCV_DIR "/home/user/opencv/install/share/OpenCV" CACHE PATH "Location of OpenCVConfig.cmake" FORCE)
 #
 # Ceres:
 # -------
-#set(Ceres_DIR "C:/ceres/install-vs2015/CMake" CACHE PATH "Location of CeresConfig.cmake" FORCE)
+#set(Ceres_DIR "C:/ceres/install-vs2017/CMake" CACHE PATH "Location of CeresConfig.cmake" FORCE)
 
 # Set the path to the python interpreter if you want to build the python bindings and it doesn't find it automatically:
 # ==============================
-#set(PYTHON_EXECUTABLE "C:/Users/user/AppData/Local/Programs/Python/Python35/python.exe" CACHE PATH "Path to the python interpreter." FORCE)
+#set(PYTHON_EXECUTABLE "C:/Users/user/AppData/Local/Programs/Python/Python36/python.exe" CACHE PATH "Path to the python interpreter." FORCE)
 
 # Set the path to the Matlab root directory if you want to build the Matlab bindings and it doesn't find Matlab automatically:
 # ==============================
