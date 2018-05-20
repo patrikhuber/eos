@@ -69,13 +69,6 @@ PYBIND11_MODULE(eos, eos_module)
      *  - Rect
      */
     py::module core_module = eos_module.def_submodule("core", "Essential functions and classes to work with 3D face models and landmarks.");
-    
-    py::class_<core::LandmarkMapper>(core_module, "LandmarkMapper", "Represents a mapping from one kind of landmarks to a different format(e.g.model vertices).")
-        .def(py::init<>(), "Constructs a new landmark mapper that performs an identity mapping, that is, its output is the same as the input.")
-        .def(py::init<std::string>(), "Constructs a new landmark mapper from a file containing mappings from one set of landmark identifiers to another.", py::arg("filename"))
-        .def("convert", &core::LandmarkMapper::convert, "Converts the given landmark name to the mapped name.", py::arg("landmark_name"));
-
-    py::class_<core::Mesh>(core_module, "Mesh", "This class represents a 3D mesh consisting of vertices, vertex colour information and texture coordinates.")
 
     py::class_<core::Landmark<Eigen::Vector2f>>(core_module, "Landmark",
                                                 "Representation of a landmark, consisting of a landmark name "
@@ -90,6 +83,13 @@ PYBIND11_MODULE(eos, eos_module)
             return "<eos.core.Landmark [name=" + l.name + ", x=" + std::to_string(l.coordinates(0)) +
                    ", y=" + std::to_string(l.coordinates(1)) + "]>";
         });
+
+    py::class_<core::LandmarkMapper>(core_module, "LandmarkMapper", "Represents a mapping from one kind of landmarks to a different format(e.g.model vertices).")
+        .def(py::init<>(), "Constructs a new landmark mapper that performs an identity mapping, that is, its output is the same as the input.")
+        .def(py::init<std::string>(), "Constructs a new landmark mapper from a file containing mappings from one set of landmark identifiers to another.", py::arg("filename"))
+        .def("convert", &core::LandmarkMapper::convert, "Converts the given landmark name to the mapped name.", py::arg("landmark_name"));
+
+    py::class_<core::Mesh>(core_module, "Mesh", "This class represents a 3D mesh consisting of vertices, vertex colour information and texture coordinates.")
         .def(py::init<>(), "Creates an empty mesh.")
         .def_readwrite("vertices", &core::Mesh::vertices, "Vertices")
         .def_readwrite("tvi", &core::Mesh::tvi, "Triangle vertex indices")
