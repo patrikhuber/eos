@@ -35,5 +35,5 @@
 
  /**
  * @namespace eos::cpp17
- * @brief Replacement type for std::optional for compilers who don't have it (Apple at the moment).
+ * @brief Replacement types and functions for C++17 standard library functionality for compilers who don't have them (for example AppleClang).
  */
