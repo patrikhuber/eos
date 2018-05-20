@@ -29,7 +29,7 @@ An experimental model viewer to visualise 3D Morphable Models and blendshapes is
 ## Usage
 
 * Tested with the following compilers: >=gcc-6, >=clang-5, >=Visual Studio 2017 15.5, >=Xcode 9.2.
-* The library and python bindings are free of any external dependencies. The example applications require Boost (>=1.50.0) and OpenCV (>=2.4.3).
+* The library and python bindings **do not require any external dependencies**. The example applications require Boost (>=1.50.0) and OpenCV (>=2.4.3).
 
 To use the library in your own project, just add the following directories to your include path:
 
@@ -55,7 +55,8 @@ mkdir build && cd build # creates a build directory next to the 'eos' folder
 cmake -G "<your favourite generator>" ../eos -DCMAKE_INSTALL_PREFIX=../install/
 make && make install # or open the project file and build in an IDE like Visual Studio
 ```
-If some dependencies can't be found, copy `initial_cache.cmake.template` to `initial_cache.cmake`, edit the necessary paths and run `cmake` with `-C ../eos/initial_cache.cmake`. On Linux, you may also want to set `-DCMAKE_BUILD_TYPE=...` appropriately.
+It is strongly recommended to use [vcpkg](https://github.com/Microsoft/vcpkg/) to install the dependencies on Windows.
+Users who wish to manage dependencies manually may find it helpful to copy `initial_cache.cmake.template` to `initial_cache.cmake`, edit the necessary paths and run `cmake` with `-C ../eos/initial_cache.cmake`. On Linux, you may also want to set `-DCMAKE_BUILD_TYPE=...` appropriately.
 
 
 ## Sample code
