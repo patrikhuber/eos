@@ -83,6 +83,15 @@ public:
         std::vector<std::array<double, 2>> texture_coordinates = std::vector<std::array<double, 2>>())
         : shape_model(shape_model), color_model(color_model), texture_coordinates(texture_coordinates){};
 
+    /**
+     * Create a Morphable Model from a shape and a colour PCA model, an expression PCA model or blendshapes,
+     * and optional texture coordinates.
+     *
+     * @param[in] shape_model A PCA model over the shape.
+     * @param[in] expression_model A PCA model over expressions, or a set of blendshapes.
+     * @param[in] color_model A PCA model over the colour (albedo).
+     * @param[in] texture_coordinates Optional texture coordinates for every vertex.
+     */
     MorphableModel(
         PcaModel shape_model, ExpressionModel expression_model, PcaModel color_model,
         std::vector<std::array<double, 2>> texture_coordinates = std::vector<std::array<double, 2>>())
