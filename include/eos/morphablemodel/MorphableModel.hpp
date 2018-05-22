@@ -354,8 +354,8 @@ public:
     };
 
     /**
-     * Returns true if this Morphable Model contains a colour
-     * model. Returns false if it is a shape-only model.
+     * Returns true if this Morphable Model contains a colour model. Returns false if it is a shape-only
+     * model.
      *
      * @return True if the Morphable Model has a colour model (i.e. is not a shape-only model).
      */
@@ -364,10 +364,16 @@ public:
         return (color_model.get_mean().size() > 0);
     };
 
+    /**
+     * Returns true if this Morphable Model contains a separate expression model, in the form of a PcaModel or
+     * Blendshapes.
+     *
+     * @return True if the Morphable Model has a separate expression model.
+     */
     bool has_separate_expression_model() const
     {
         return expression_model.has_value();
-    }
+    };
 
     /**
      * Returns the texture coordinates for all the vertices in the model.
