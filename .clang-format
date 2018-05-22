@@ -18,6 +18,7 @@ BraceWrapping:
 ColumnLimit: '110'
 Cpp11BracedListStyle: 'true'
 PointerAlignment: Left
+AllowShortFunctionsOnASingleLine: Empty
 IndentWidth: '4'
 Language: Cpp
 NamespaceIndentation: None
