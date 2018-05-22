@@ -376,6 +376,21 @@ public:
     };
 
     /**
+     * Returns the landmark definitions for this Morphable Model, which might be an empty optional, if the
+     * model doesn't contain any.
+     *
+     * The landmark definitions are define mappings from a set of global landmark identifiers, like for
+     * example "eye.right.outer_corner", to the model's respective vertex indices.
+     * A MorphableModel may or may not contain these landmark definitions, depending on how it was created.
+     *
+     * @return The landmark definitions of this MorphableModel.
+     */
+    const auto& get_landmark_definitions() const
+    {
+        return landmark_definitions;
+    };
+
+    /**
      * Returns the texture coordinates for all the vertices in the model.
      *
      * @return The texture coordinates for the model vertices.
