@@ -388,7 +388,27 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
         { // no mapping defined for the current landmark
             continue;
         }
-        int vertex_idx = std::stoi(converted_name.value());
+        // If the MorphableModel does not contain landmark definitions, we expect the user to have given us
+        // direct mappings (e.g. directly from ibug identifiers to vertex ids). If the model does contain
+        // landmark definitions, we expect the user to use mappings from their landmark identifiers (e.g.
+        // ibug) to the landmark definitions, and not to vertex indices.
+        // Todo: This might be worth mentioning in the function documentation of fit_shape_and_pose.
+        int vertex_idx;
+        if (morphable_model.get_landmark_definitions())
+        {
+            const auto found_vertex_idx =
+                morphable_model.get_landmark_definitions().value().find(converted_name.value());
+            if (found_vertex_idx != std::end(morphable_model.get_landmark_definitions().value()))
+            {
+                vertex_idx = found_vertex_idx->second;
+            } else
+            {
+                continue;
+            }
+        } else
+        {
+            vertex_idx = std::stoi(converted_name.value());
+        }
         Vector4f vertex(current_mesh.vertices[vertex_idx][0], current_mesh.vertices[vertex_idx][1],
                         current_mesh.vertices[vertex_idx][2], 1.0f);
         model_points.emplace_back(vertex);
