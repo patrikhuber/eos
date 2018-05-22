@@ -75,7 +75,7 @@ int main(int argc, char* argv[])
     {
         // Save only the shape model - to generate the public sfm_shape_3448.bin
         const morphablemodel::MorphableModel shape_only_model(morphable_model.get_shape_model(),
-                                                              morphablemodel::PcaModel(),
+                                                              morphablemodel::PcaModel(), cpp17::nullopt,
                                                               morphable_model.get_texture_coordinates());
         morphablemodel::save_model(shape_only_model, outputfile);
     } else
