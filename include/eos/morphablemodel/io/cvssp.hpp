@@ -259,7 +259,7 @@ inline MorphableModel load_scm_model(std::string model_filename, std::string iso
         }
     }
 
-    return MorphableModel(shape_model, color_model, std::nullopt, tex_coords);
+    return MorphableModel(shape_model, color_model, cpp17::nullopt, tex_coords);
 };
 
 /**
