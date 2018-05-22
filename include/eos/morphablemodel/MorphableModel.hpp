@@ -34,6 +34,7 @@
 #include "cereal/cereal.hpp"
 #include "cereal/types/array.hpp"
 #include "cereal/types/vector.hpp"
+#include "cereal/types/unordered_map.hpp"
 #include "eos/cpp17/optional_serialization.hpp"
 #include "eos/cpp17/variant_serialization.hpp"
 #include "eos/morphablemodel/io/eigen_cerealisation.hpp"
@@ -46,6 +47,8 @@
 #include <vector>
 #include <fstream>
 #include <algorithm>
+#include <string>
+#include <unordered_map>
 #include <cassert>
 #include <stdexcept>
 
@@ -76,12 +79,15 @@ public:
      *
      * @param[in] shape_model A PCA model over the shape.
      * @param[in] color_model A PCA model over the colour (albedo).
+     * @param[in] landmark_definitions A set of landmark definitions, mapping from identifiers to vertex numbers.
      * @param[in] texture_coordinates Optional texture coordinates for every vertex.
      */
     MorphableModel(
         PcaModel shape_model, PcaModel color_model,
+        cpp17::optional<std::unordered_map<std::string, int>> landmark_definitions = cpp17::nullopt,
         std::vector<std::array<double, 2>> texture_coordinates = std::vector<std::array<double, 2>>())
-        : shape_model(shape_model), color_model(color_model), texture_coordinates(texture_coordinates){};
+        : shape_model(shape_model), color_model(color_model), landmark_definitions(landmark_definitions),
+          texture_coordinates(texture_coordinates){};
 
     /**
      * Create a Morphable Model from a shape and a colour PCA model, an expression PCA model or blendshapes,
@@ -90,12 +96,15 @@ public:
      * @param[in] shape_model A PCA model over the shape.
      * @param[in] expression_model A PCA model over expressions, or a set of blendshapes.
      * @param[in] color_model A PCA model over the colour (albedo).
+     * @param[in] landmark_definitions A set of landmark definitions, mapping from identifiers to vertex numbers.
      * @param[in] texture_coordinates Optional texture coordinates for every vertex.
      */
     MorphableModel(
         PcaModel shape_model, ExpressionModel expression_model, PcaModel color_model,
+        cpp17::optional<std::unordered_map<std::string, int>> landmark_definitions = cpp17::nullopt,
         std::vector<std::array<double, 2>> texture_coordinates = std::vector<std::array<double, 2>>())
-        : shape_model(shape_model), color_model(color_model), texture_coordinates(texture_coordinates)
+        : shape_model(shape_model), color_model(color_model), landmark_definitions(landmark_definitions),
+          texture_coordinates(texture_coordinates)
     {
         // Note: We may want to check/assert that the dimensions all match?
         this->expression_model = expression_model;
@@ -406,8 +415,13 @@ public:
 private:
     PcaModel shape_model; ///< A PCA model of the shape
     PcaModel color_model; ///< A PCA model of vertex colour information
-    std::vector<std::array<double, 2>> texture_coordinates; ///< uv-coordinates for every vertex
     cpp17::optional<ExpressionModel> expression_model;      ///< Blendshapes or PcaModel
+    cpp17::optional<std::unordered_map<std::string, int>> landmark_definitions; ///< A set of landmark
+                                                                                ///< definitions for the
+                                                                                ///< model, mapping from
+                                                                                ///< identifiers to vertex
+                                                                                ///< numbers
+    std::vector<std::array<double, 2>> texture_coordinates; ///< uv-coordinates for every vertex
 
     /**
      * Returns whether the model has texture mapping coordinates, i.e.
@@ -439,10 +453,14 @@ private:
         if (version == 1)
         {
             archive(CEREAL_NVP(shape_model), CEREAL_NVP(color_model), CEREAL_NVP(texture_coordinates));
-        }
-        else
+        } else if (version == 2)
         {
-            archive(CEREAL_NVP(shape_model), CEREAL_NVP(color_model), CEREAL_NVP(expression_model), CEREAL_NVP(texture_coordinates));
+            archive(CEREAL_NVP(shape_model), CEREAL_NVP(color_model), CEREAL_NVP(expression_model),
+                    CEREAL_NVP(texture_coordinates));
+        } else
+        {
+            archive(CEREAL_NVP(shape_model), CEREAL_NVP(color_model), CEREAL_NVP(expression_model),
+                    CEREAL_NVP(landmark_definitions), CEREAL_NVP(texture_coordinates));
         }
     };
 };
@@ -563,6 +581,6 @@ inline core::Mesh sample_to_mesh(const Eigen::VectorXf& shape_instance, const Ei
 } /* namespace morphablemodel */
 } /* namespace eos */
 
-CEREAL_CLASS_VERSION(eos::morphablemodel::MorphableModel, 2);
+CEREAL_CLASS_VERSION(eos::morphablemodel::MorphableModel, 3);
 
 #endif /* EOS_MORPHABLEMODEL_HPP */
