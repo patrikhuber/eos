@@ -117,10 +117,18 @@ inline Eigen::Vector2f parse_texcoords(const std::string& line)
 {
     std::vector<std::string> tokens;
     tokenize(line, tokens, " ");
+
     if (tokens.size() != 2)
     {
-        throw std::runtime_error("Encountered a texture coordinates ('vt') line that does not consist of two "
-                                 "('u v') numbers. 'u v w' is not supported.");
+        if (tokens.size() == 3 && std::stof(tokens[2]) == 0.f)
+        {
+            // we support this case too - 'u v 0'
+        } else
+        {
+            throw std::runtime_error(
+                "Encountered a texture coordinates ('vt') line that does not consist of two "
+                "('u v') numbers. 'u v w' is only supported in the special case if w is 0.");
+        }
     }
     const Eigen::Vector2f texcoords(std::stof(tokens[0]), std::stof(tokens[1]));
     return texcoords;
