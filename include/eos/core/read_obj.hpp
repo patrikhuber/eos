@@ -272,7 +272,8 @@ inline Mesh read_obj(std::string filename)
                     {std::get<0>(face_data)[0], std::get<0>(face_data)[1], std::get<0>(face_data)[2]});
             }
             // If their sizes are 4, we convert the quad to two triangles:
-            // Actually I think MeshLab does the same, it shows the FaceWarehouse number of "Faces" as twice the "f" entries in the obj.
+            // Note: I think MeshLab does the same, it shows the number of "Faces" as twice the "f" entries
+            // in the obj.
             else if (std::get<0>(face_data).size() == 4)
             {
                 // Just create two faces with (quad[0], quad[1], quad[2]) and (quad[0], quad[2], quad[3]).
