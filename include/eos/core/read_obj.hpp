@@ -171,15 +171,30 @@ inline auto parse_face(const std::string& line)
     for (const auto& token : tokens)
     {
         vector<string> subtokens;
-        tokenize(token, subtokens, "/"); // do we want trim_empty true or false?
-        assert(subtokens.size() > 0 && subtokens.size() <= 3); // <= 3 correct or not?
-        // Ok, let's make our life easy, for now only support the 1/2/3 syntax of the FaceWarehouse scans. In
-        // fact the normal_indices are 0... we should check for that - zero-index = ignore, but note that, it's
-        // probably a non-standard obj format extension.
-        assert(subtokens.size() == 3);                         // FaceWarehouse
+        tokenize(token, subtokens, "/", false); // don't trim empty -if we do, we lose positional information.
+        assert(subtokens.size() > 0 && subtokens.size() <= 3);
+
+        // There should always be a vertex index:
         vertex_indices.push_back(std::stoi(subtokens[0]) - 1); // obj indices are 1-based, so we subtract one.
-        texture_indices.push_back(std::stoi(subtokens[1]) - 1);
-        // subtokens[2] is zero, hence, no normal_indices.
+
+        if (subtokens.size() == 2)
+        {
+            // We've got texture coordinate indices as well:
+            texture_indices.push_back(std::stoi(subtokens[1]) - 1);
+        }
+
+        if (subtokens.size() == 3)
+        {
+            // We've got either texcoord indices *and* normal indices, or just normal indices:
+            if (!subtokens[1].empty())
+            {
+                // We do have texcoord indices
+                texture_indices.push_back(std::stoi(subtokens[1]) - 1);
+            }
+            // And push_back the normal indices:
+            normal_indices.push_back(std::stoi(subtokens[2]) - 1);
+            // Note if we use normal indices in the future: It looked like they can be zero in some cases?
+        }
     }
 
     return std::make_tuple(vertex_indices, texture_indices, normal_indices);
