@@ -246,8 +246,7 @@ inline Mesh read_obj(std::string filename)
         { // matching with a space so that it doesn't match 'vt'
             auto vertex_data =
                 detail::parse_vertex(line.substr(2)); // pass the string without the first two characters
-            mesh.vertices.push_back(
-                Eigen::Vector3f(vertex_data.first[0], vertex_data.first[1], vertex_data.first[2]));
+            mesh.vertices.push_back(vertex_data.first);
             if (vertex_data.second)
             { // there are vertex colours:
                 mesh.colors.push_back(vertex_data.second.value());
