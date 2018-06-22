@@ -3,7 +3,7 @@
  *
  * File: include/eos/core/read_obj.hpp
  *
- * Copyright 2017 Patrik Huber
+ * Copyright 2017, 2018 Patrik Huber
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@
  */
 #pragma once
 
-#ifndef READ_OBJ_HPP_
-#define READ_OBJ_HPP_
+#ifndef EOS_READ_OBJ_HPP
+#define EOS_READ_OBJ_HPP
 
 #include "eos/core/Mesh.hpp"
 #include "eos/cpp17/optional.hpp"
@@ -262,4 +262,4 @@ inline Mesh read_obj(std::string filename)
 } /* namespace core */
 } /* namespace eos */
 
-#endif /* READ_OBJ_HPP_ */
+#endif /* EOS_READ_OBJ_HPP */
