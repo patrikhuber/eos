@@ -92,7 +92,12 @@ inline std::pair<Eigen::Vector3f, cpp17::optional<Eigen::Vector3f>> parse_vertex
 {
     std::vector<std::string> tokens;
     tokenize(line, tokens, " ");
-    assert(tokens.size() == 3 || tokens.size() == 6); // Maybe we should throw instead?
+    if (tokens.size() != 3 && tokens.size() != 6)
+    {
+        throw std::runtime_error(
+            "Encountered a vertex ('v') line that does not consist of either 3 ('x y z') "
+            "or 6 ('x y z r g b') numbers.");
+    }
     const Eigen::Vector3f vertex(std::stof(tokens[0]), std::stof(tokens[1]), std::stof(tokens[2]));
     cpp17::optional<Eigen::Vector3f> vertex_color;
     if (tokens.size() == 6)
@@ -112,7 +117,11 @@ inline Eigen::Vector2f parse_texcoords(const std::string& line)
 {
     std::vector<std::string> tokens;
     tokenize(line, tokens, " ");
-    assert(tokens.size() == 2);
+    if (tokens.size() != 2)
+    {
+        throw std::runtime_error("Encountered a texture coordinates ('vt') line that does not consist of two "
+                                 "('u v') numbers. 'u v w' is not supported.");
+    }
     const Eigen::Vector2f texcoords(std::stof(tokens[0]), std::stof(tokens[1]));
     return texcoords;
 };
@@ -124,7 +133,7 @@ inline Eigen::Vector2f parse_texcoords(const std::string& line)
  */
 inline void parse_vertex_normal(const std::string& line)
 {
-    throw std::runtime_error("Parsing \"vt\" is not yet implemented.");
+    throw std::runtime_error("Parsing \"vn\" is not yet implemented.");
 };
 
 /**
@@ -151,7 +160,13 @@ inline auto parse_face(const std::string& line)
 
     vector<string> tokens;
     tokenize(line, tokens, " ");
-    assert(tokens.size() == 3 || tokens.size() == 4); // For now we need this to be 3 (triangles) or 4 (quads).
+    if (tokens.size() != 3 && tokens.size() != 4)
+    {
+        // For now we need this to be 3 (triangles) or 4 (quads)
+        throw std::runtime_error("Encountered a faces ('f') line that does not consist of three or four "
+                                 "blocks of numbers. We currently only support 3 blocks (triangle meshes) "
+                                 "and 4 blocks (quad meshes).");
+    }
     // Now for each of these tokens, we want to split on "/":
     for (const auto& token : tokens)
     {
