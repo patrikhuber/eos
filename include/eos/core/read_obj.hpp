@@ -244,7 +244,7 @@ inline Mesh read_obj(std::string filename)
 
         if (starts_with(line, "v "))
         { // matching with a space so that it doesn't match 'vt'
-            auto vertex_data =
+            const auto vertex_data =
                 detail::parse_vertex(line.substr(2)); // pass the string without the first two characters
             mesh.vertices.push_back(vertex_data.first);
             if (vertex_data.second)
@@ -265,7 +265,7 @@ inline Mesh read_obj(std::string filename)
         // There's other things like "vp ", which we don't handle
         if (starts_with(line, "f "))
         {
-            auto face_data = detail::parse_face(line.substr(2));
+            const auto face_data = detail::parse_face(line.substr(2));
             if (std::get<0>(face_data).size() == 3) // 3 triangle indices, nothing to do:
             {
                 mesh.tvi.push_back(
