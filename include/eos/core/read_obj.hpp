@@ -91,7 +91,7 @@ void tokenize(const std::string& str, ContainerType& tokens, const std::string& 
 inline std::pair<Eigen::Vector3f, cpp17::optional<Eigen::Vector3f>> parse_vertex(const std::string& line)
 {
     std::vector<std::string> tokens;
-    tokenize(line, tokens, " ");
+    tokenize(line, tokens, " ", true); // compress multiple (and leading/trailing) whitespaces
     if (tokens.size() != 3 && tokens.size() != 6)
     {
         throw std::runtime_error(
@@ -167,7 +167,7 @@ inline auto parse_face(const std::string& line)
     vector<int> normal_indices;  // size() = 3 or 4
 
     vector<string> tokens;
-    tokenize(line, tokens, " ");
+    tokenize(line, tokens, " ", true); // compress multiple (and leading/trailing) whitespaces
     if (tokens.size() != 3 && tokens.size() != 4)
     {
         // For now we need this to be 3 (triangles) or 4 (quads)
