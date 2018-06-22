@@ -70,19 +70,23 @@ void tokenize(const std::string& str, ContainerType& tokens, const std::string& 
 };
 
 /**
- * @brief Parse a line starting with 'v' from an obj file.
+ * @brief Parse a line starting with 'v ' from an obj file.
  *
- * The 'v' will have already been stripped from the line.
+ * Can contain either 3 ('x y z') or 6 ('x y z r g b') numbers.
+ * The 'v ' should have already been stripped from \p line.
  *
- * These can contain vertex colours too actually. Can potentially have 3, 4, 6 or 7 elements...? (xyz, xyzw, xyzrgb, xyzwrgb)
- * assimp only deals with 3, 4 or 6 elements: https://github.com/assimp/assimp/blob/master/code/ObjFileParser.cpp#L138
- * For now, let's ignore homogeneous coordinates, and deal with the case when we have either 3 or 6 elements.
- * If it's homogeneous coords, we can also just divide by 'w', like assimp.
+ * Notes:
+ * Could actually potentially consist of 3, 4, 6 or 7 elements? (xyz, xyzw,
+ * xyzrgb, xyzwrgb)
+ * assimp only deals with 3, 4 or 6 elements:
+ * https://github.com/assimp/assimp/blob/master/code/ObjFileParser.cpp#L138
  *
- * Another obj parser we can check: https://github.com/qnzhou/PyMesh/blob/master/src/IO/OBJParser.cpp (and same file with .h)
+ * For now, we don't support obj's containing homogeneous coordinates.
+ * What we could do is that if we do encounter homogeneous coords, we could just divide by 'w', like assimp
+ * does.
  *
- * Todo: Consider using std::string_view for these instead of const string&.
- * And should change to glm::vec3, and just divide by 'w'. As soon as we change the Mesh to vec3.
+ * Another obj parser we can check: https://github.com/qnzhou/PyMesh/blob/master/src/IO/OBJParser.cpp (and
+ * same file with .h)
  */
 inline std::pair<Eigen::Vector4f, cpp17::optional<Eigen::Vector3f>> parse_vertex(const std::string& line)
 {
@@ -98,6 +102,12 @@ inline std::pair<Eigen::Vector4f, cpp17::optional<Eigen::Vector3f>> parse_vertex
     return {vertex, vertex_color};
 };
 
+/**
+ * @brief Parse a line starting with 'vt ' from an obj file.
+ *
+ * A 'vt' line can contain either two ('u v') or three ('u v w') numbers. This parser currently only supports
+ * 'u v'.
+ */
 inline Eigen::Vector2f parse_texcoords(const std::string& line)
 {
     std::vector<std::string> tokens;
@@ -107,18 +117,28 @@ inline Eigen::Vector2f parse_texcoords(const std::string& line)
     return texcoords;
 };
 
+/**
+ * @brief Parse a line starting with 'vn ' from an obj file.
+ *
+ * This is currently not implemented yet, as eos::core::Mesh doesn't store vertex normals anyway.
+ */
 inline void parse_vertex_normal(const std::string& line)
 {
     throw std::runtime_error("Parsing \"vt\" is not yet implemented.");
 };
 
-// Note: Indices in obj's start at 1!
-// Oh no, these contain 3 entries for triangles, but can be quads (=4 entries), and potentially more.
-// Their triplets of: vertex, texture and normal indices. Some of them can be missing. E.g.:
-//  f 1 2 3
-//  f 3/1 4/2 5/3
-//  f 6/4/1 3/5/3 7/6/5
-//  f 7//1 8//2 9//3
+/**
+ * @brief Parse a line starting with 'f ' from an obj file.
+ *
+ * Note: Indices in obj's start at 1, not at 0.
+ *
+ * A face line contains 3 entries for triangles, but can be quads (=4 entries), and potentially more.
+ * They're triplets of: vertex, texture and normal indices. Some of them can be missing. E.g.:
+ *  f 1 2 3
+ *  f 3/1 4/2 5/3
+ *  f 6/4/1 3/5/3 7/6/5
+ *  f 7//1 8//2 9//3
+ */
 inline auto parse_face(const std::string& line)
 {
     using std::string;
@@ -155,11 +175,10 @@ inline auto parse_face(const std::string& line)
 /**
  * @brief Reads the given Wavefront .obj file into a \c Mesh.
  *
- * X.
  * https://en.wikipedia.org/wiki/Wavefront_.obj_file as of 22 August 2017.
  *
  * @param[in] filename Input filename (ending in ".obj").
- * @return X.
+ * @return A Mesh with the data read from the obj file.
  */
 inline Mesh read_obj(std::string filename)
 {
