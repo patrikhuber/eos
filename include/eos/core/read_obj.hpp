@@ -39,7 +39,11 @@ namespace core {
 
 namespace detail {
 
-// From: https://stackoverflow.com/a/1493195/1345959
+/**
+ * @brief Splits a string into a list of tokens.
+ *
+ * Taken from: https://stackoverflow.com/a/1493195/1345959
+ */
 template <class ContainerType>
 void tokenize(const std::string& str, ContainerType& tokens, const std::string& delimiters = " ",
               bool trim_empty = false)
@@ -63,7 +67,7 @@ void tokenize(const std::string& str, ContainerType& tokens, const std::string& 
 
         last_pos = pos + 1;
     }
-}
+};
 
 /**
  * @brief Parse a line starting with 'v' from an obj file.
