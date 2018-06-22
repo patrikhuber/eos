@@ -88,12 +88,12 @@ void tokenize(const std::string& str, ContainerType& tokens, const std::string& 
  * Another obj parser we can check: https://github.com/qnzhou/PyMesh/blob/master/src/IO/OBJParser.cpp (and
  * same file with .h)
  */
-inline std::pair<Eigen::Vector4f, cpp17::optional<Eigen::Vector3f>> parse_vertex(const std::string& line)
+inline std::pair<Eigen::Vector3f, cpp17::optional<Eigen::Vector3f>> parse_vertex(const std::string& line)
 {
     std::vector<std::string> tokens;
     tokenize(line, tokens, " ");
     assert(tokens.size() == 3 || tokens.size() == 6); // Maybe we should throw instead?
-    const Eigen::Vector4f vertex(std::stof(tokens[0]), std::stof(tokens[1]), std::stof(tokens[2]), 1.0);
+    const Eigen::Vector3f vertex(std::stof(tokens[0]), std::stof(tokens[1]), std::stof(tokens[2]));
     cpp17::optional<Eigen::Vector3f> vertex_color;
     if (tokens.size() == 6)
     {
