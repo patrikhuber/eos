@@ -134,7 +134,12 @@ public:
         return landmark_mappings.size();
     };
 
-    const auto& get_all_mappings() const {
+    /**
+     * @brief Returns the mappings held by this mapper.
+     *
+     * @return All mappings contained in the mapper.
+     */
+    const auto& get_mappings() const {
         return landmark_mappings;
     };
 
