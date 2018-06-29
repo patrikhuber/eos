@@ -98,6 +98,14 @@ public:
     };
 
     /**
+     * @brief Constructs a new landmark mapper from a set of existing mappings.
+     *
+     * @param[in] mappings A set of landmark mappings.
+     */
+    LandmarkMapper(const std::unordered_map<std::string, std::string>& mappings) : landmark_mappings(mappings)
+    {};
+
+    /**
      * @brief Converts the given landmark name to the mapped name.
      *
      * In the case the mapper is empty (no mappings defined at all), the mapper will perform
