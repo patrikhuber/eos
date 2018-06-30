@@ -90,6 +90,7 @@ PYBIND11_MODULE(eos, eos_module)
         .def(py::init<>(), "Constructs a new landmark mapper that performs an identity mapping, that is, its output is the same as the input.")
         .def(py::init<std::string>(), "Constructs a new landmark mapper from a file containing mappings from one set of landmark identifiers to another.", py::arg("filename"))
         .def("convert", &core::LandmarkMapper::convert, "Converts the given landmark name to the mapped name.", py::arg("landmark_name"))
+        .def("get_mappings", &core::LandmarkMapper::get_mappings, "Returns the mappings held by this mapper.")
         .def("__repr__", [](const core::LandmarkMapper& m) {
             return "<eos.core.LandmarkMapper with " + std::to_string(m.num_mappings()) + " mappings.>";
         });
