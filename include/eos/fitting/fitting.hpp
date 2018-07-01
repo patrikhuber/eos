@@ -463,17 +463,17 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
         vector<Vector2f> occluding_contour_landmarks;
         if (yaw_angle >= 0.0f) // positive yaw = subject looking to the left
         { // the left contour is the occluding one we want to use ("away-facing")
-            auto contour_landmarks_ =
+            const auto contour_landmarks_ =
                 core::filter(landmarks, contour_landmarks.left_contour); // Can do this outside of the loop
             std::for_each(begin(contour_landmarks_), end(contour_landmarks_),
-                          [&occluding_contour_landmarks](auto&& lm) {
+                          [&occluding_contour_landmarks](const auto& lm) {
                               occluding_contour_landmarks.push_back({lm.coordinates[0], lm.coordinates[1]});
                           });
         } else
         {
-            auto contour_landmarks_ = core::filter(landmarks, contour_landmarks.right_contour);
+            const auto contour_landmarks_ = core::filter(landmarks, contour_landmarks.right_contour);
             std::for_each(begin(contour_landmarks_), end(contour_landmarks_),
-                          [&occluding_contour_landmarks](auto&& lm) {
+                          [&occluding_contour_landmarks](const auto& lm) {
                               occluding_contour_landmarks.push_back({lm.coordinates[0], lm.coordinates[1]});
                           });
         }
