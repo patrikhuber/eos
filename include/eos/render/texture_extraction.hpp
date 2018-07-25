@@ -374,7 +374,7 @@ extract_texture(const core::Mesh& mesh, Eigen::Matrix<float, 3, 4> affine_camera
                             const float max_b = max(max(src_texel_upper_left[1], src_texel_upper_right[1]),
                                                     max(src_texel_lower_left[1], src_texel_lower_right[1]));
 
-                            Eigen::Vector3i color; // std::uint8_t actually.
+                            Eigen::Vector3i color = Eigen::Vector3i::Zero(); // std::uint8_t actually.
                             int num_texels = 0;
 
                             // loop over square in which quadrangle out of the four corners of pixel is
