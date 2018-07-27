@@ -134,6 +134,7 @@ target_include_directories(eos INTERFACE ${toml11_INCLUDE_DIR})
 # Custom target for the library, to make the headers show up in IDEs:
 add_custom_target(eos-headers SOURCES ${HEADERS})
 source_group(core REGULAR_EXPRESSION include/eos/core/*)
+source_group(core\\image REGULAR_EXPRESSION include/eos/core/image/*)
 source_group(morphablemodel REGULAR_EXPRESSION include/eos/morphablemodel/*)
 source_group(morphablemodel\\io REGULAR_EXPRESSION include/eos/morphablemodel/io/*)
 source_group(pca REGULAR_EXPRESSION include/eos/pca/*)
