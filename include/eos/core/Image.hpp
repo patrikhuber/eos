@@ -3,7 +3,7 @@
  *
  * File: include/eos/core/Image.hpp
  *
- * Copyright 2017 Patrik Huber
+ * Copyright 2017, 2018 Patrik Huber
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@
  */
 #pragma once
 
-#ifndef EOS_IMAGE_HPP_
-#define EOS_IMAGE_HPP_
+#ifndef EOS_IMAGE_HPP
+#define EOS_IMAGE_HPP
 
 #include <array>
 #include <cassert>
@@ -128,4 +128,4 @@ using Image1d = Image<double, 1>;
 } /* namespace core */
 } /* namespace eos */
 
-#endif /* EOS_IMAGE_HPP_ */
+#endif /* EOS_IMAGE_HPP */
