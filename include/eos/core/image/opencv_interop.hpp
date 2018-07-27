@@ -1,7 +1,7 @@
 /*
  * eos - A 3D Morphable Model fitting library written in modern C++11/14.
  *
- * File: include/eos/core/Image_opencv_interop.hpp
+ * File: include/eos/core/image/opencv_interop.hpp
  *
  * Copyright 2017 Patrik Huber
  *

@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 #include "eos/core/Image.hpp"
-#include "eos/core/Image_opencv_interop.hpp"
+#include "eos/core/image/opencv_interop.hpp"
 #include "eos/core/Landmark.hpp"
 #include "eos/core/LandmarkMapper.hpp"
 #include "eos/core/read_pts_landmarks.hpp"

@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 #include "eos/core/Image.hpp"
-#include "eos/core/Image_opencv_interop.hpp"
+#include "eos/core/image/opencv_interop.hpp"
 #include "eos/morphablemodel/MorphableModel.hpp"
 #include "eos/render/render.hpp"
 #include "eos/cpp17/optional.hpp"
