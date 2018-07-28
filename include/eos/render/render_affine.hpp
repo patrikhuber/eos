@@ -23,6 +23,7 @@
 #define RENDER_AFFINE_HPP_
 
 #include "eos/core/Image.hpp"
+#include "eos/core/image/utils.hpp"
 #include "eos/core/Mesh.hpp"
 #include "eos/core/Rect.hpp"
 #include "eos/render/detail/render_affine_detail.hpp"
@@ -73,15 +74,10 @@ inline std::pair<core::Image4u, core::Image1d> render_affine(const core::Mesh& m
     using eos::core::Image4u;
     using std::vector;
 
-    // Mat colourbuffer = Mat::zeros(viewport_height, viewport_width, CV_8UC4);
-    // Mat depthbuffer = std::numeric_limits<float>::max() * Mat::ones(viewport_height, viewport_width,
-    // CV_64FC1);
-    Image4u colourbuffer(
-        viewport_height,
-        viewport_width); // Note: auto-initialised to zeros. If we change the Image class, take care of that!
-    Image1d depthbuffer(viewport_height, viewport_width);
-    std::for_each(std::begin(depthbuffer.data), std::end(depthbuffer.data),
-                  [](auto& element) { element = std::numeric_limits<double>::max(); });
+    core::Image4u colorbuffer =
+        core::image::zeros<core::Pixel<std::uint8_t, 4>>(viewport_height, viewport_width);
+    core::Image1d depthbuffer =
+        core::image::constant(viewport_height, viewport_width, std::numeric_limits<double>::max());
 
     const Eigen::Matrix<float, 4, 4> affine_with_z =
         detail::calculate_affine_z_direction(affine_camera_matrix);
@@ -150,9 +146,9 @@ inline std::pair<core::Image4u, core::Image1d> render_affine(const core::Mesh& m
     // Raster all triangles, i.e. colour the pixel values and write the z-buffer
     for (auto&& triangle : triangles_to_raster)
     {
-        detail::raster_triangle_affine(triangle, colourbuffer, depthbuffer);
+        detail::raster_triangle_affine(triangle, colorbuffer, depthbuffer);
     }
-    return std::make_pair(colourbuffer, depthbuffer);
+    return std::make_pair(colorbuffer, depthbuffer);
 };
 
 } /* namespace render */

@@ -23,6 +23,7 @@
 #define RENDER_HPP_
 
 #include "eos/core/Image.hpp"
+#include "eos/core/image/utils.hpp"
 #include "eos/core/Mesh.hpp"
 #include "eos/render/detail/render_detail.hpp"
 #include "eos/render/utils.hpp"
@@ -142,12 +143,10 @@ render(core::Mesh mesh, glm::tmat4x4<float> model_view_matrix, glm::tmat4x4<floa
 
     using std::vector;
 
-    core::Image4u colorbuffer(
-        viewport_height,
-        viewport_width); // Make sure it's initialised with zeros - the current Image4u c'tor does it.
-    core::Image1d depthbuffer(viewport_height, viewport_width);
-    std::for_each(std::begin(depthbuffer.data), std::end(depthbuffer.data),
-                  [](auto& element) { element = std::numeric_limits<double>::max(); });
+    core::Image4u colorbuffer =
+        core::image::zeros<core::Pixel<std::uint8_t, 4>>(viewport_height, viewport_width);
+    core::Image1d depthbuffer =
+        core::image::constant(viewport_height, viewport_width, std::numeric_limits<double>::max());
 
     // Vertex shader:
     // processedVertex = shade(Vertex); // processedVertex : pos, col, tex, texweight

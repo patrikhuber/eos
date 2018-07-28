@@ -62,6 +62,9 @@ set(HEADERS
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/core/LandmarkMapper.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/core/read_pts_landmarks.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/core/Image.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/core/image/Pixel.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/core/image/PixelTraits.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/core/image/utils.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/core/image/opencv_interop.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/core/Mesh.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/core/read_obj.hpp

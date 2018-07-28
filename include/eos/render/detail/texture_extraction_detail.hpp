@@ -97,8 +97,8 @@ inline bool is_triangle_visible(const glm::tvec4<float>& v0, const glm::tvec4<fl
 {
     // #Todo: Actually, only check the 3 vertex points, don't loop over the pixels - this should be enough.
 
-    const auto viewport_width = depthbuffer.cols;
-    const auto viewport_height = depthbuffer.rows;
+    const auto viewport_width = depthbuffer.width();
+    const auto viewport_height = depthbuffer.height();
 
     // Well, in in principle, we'd have to do the whole stuff as in render(), like
     // clipping against the frustums etc.

@@ -22,7 +22,9 @@
 #ifndef EOS_IMAGE_HPP
 #define EOS_IMAGE_HPP
 
-#include <array>
+#include "eos/core/image/Pixel.hpp"
+#include "eos/core/image/PixelTraits.hpp"
+
 #include <cassert>
 #include <cstdint>
 #include <vector>
@@ -31,99 +33,94 @@ namespace eos {
 namespace core {
 
 /**
- * @brief Representation of an image with \p num_channels channels.
+ * @brief Class to represent images.
  *
- * This is a quickly hacked-together implementation of an image class, to be able
- * to represent 1 and 3-channel images. The class was mainly created to be able to
- * remove OpenCV and cv::Mat as a dependency for the core of the eos headers.
+ * The class currently uses row-major storage order.
  *
- * The class currently uses col-major storage order.
- *
- * Note: Ideally we'd have a template param for row and col major too?
- *       And then we could do stuff like strides and all too but then we'd end up with a matrix class like Eigen::Matrix...?
- *       It means we probably can't accept ROI's from Python into larger images without copying, but doesn't matter.
- *       Also what about vector<Eigen::Matrix>(num_channels)? But having an own type would be good?
+ * Some of the code is inspired by the Selene library (https://github.com/kmhofmann/selene, MIT license).
  */
-template <class T, int num_channels>
+template <class PixelType>
 class Image
 {
-    // we store RGB RGB RGB ... col or rows first? Do the same as Eigen:col-major?
-    // numpy: 'f' = fortran = col-major
-    //        'c' = c = row-major = default I think.
 public:
-    // using element_type = T;
-
     Image() = default;
 
-    Image(std::size_t rows, std::size_t cols) : rows(rows), cols(cols)
+    // Initialises with all zeros. This is a bit of an overhead. We probably have to use unique_ptr or a raw
+    // pointer to get rid of this, as a vector can't have "uninitialised" (yet existing) elements.
+    Image(int height, int width)
+        : height_(height), width_(width), row_stride(PixelTraits<PixelType>::num_bytes * width)
     {
-        // Question: Encode the channel into the plain array or not?
-        // data.reserve(rows * cols * num_channels);
-        // data.reserve(rows * cols);
-        data.resize(rows * cols); // This actually zero-initialises, with std::array<>.
+        // data_.reserve(row_stride * height); // just reserves, doesn't put any elements into the vector
+        data_.resize(row_stride * height);
     };
 
-    // We can't just return T. Should be T* to return RGB or RGBA?
-    // And actually we may want to return a reference, or not? Well, it's only 1-4 values, we can copy them?
-    // But this must also act as a setter actually! So needs to return a reference? And a const& overload?
-    // Can we do a operator<>()? But we don't need it as in comparison to OpenCV, we know the type at compile
-    // time...
-    // hmm... SFINAE with num_channels == 1 or something?
-    // => I'm over-engineering. Go for simple solution first!
-    // If we use array<uint8_t, 3> as type T for a 3-channel image, then this operator works out of the box.
-    T& operator()(std::size_t row, std::size_t col)
+    int height() const noexcept
     {
-        assert(row < rows);
-        assert(col < cols);
-        assert(row + col * rows < data.size());
-        return data[row + col * rows]; // Col-major for now.
-        // return data[col + row * cols]; // Ok, switching to row-major, to test with numpy.
-        /*
-         * [a b c]
-         * [d e f]
-         * // => [a d b e c f]
-         *
-         * (0, 0) => a
-         * (0, 1) => b
-         * (1, 0) => d
-         * (1, 2) => f
-         */
+        return height_;
     };
 
-    const T& operator()(std::size_t row, std::size_t col) const
+    int width() const noexcept
     {
-        assert(row < rows);
-        assert(col < cols);
-        assert(row + col * rows < data.size());
-        return data[row + col * rows]; // Col-major for now.
-        // return data[col + row * cols]; // Ok, switching to row-major, to test with numpy.
+        return width_;
     };
 
-    /*	static Image<T, num_channels> zeros(std::size_t rows, std::size_t cols)
-            {
-                    Image<T, num_channels> image(rows, cols);
-                    for (int c=0; c < image.cols; ++c) {
-                            for (int r = 0; r < image.rows; ++r) {
-                                    image(r, c) = T{ 1 }; // Does this create an std::array with all zeros,
-       like we expect? No it doesn't, it only sets the first component to 0, and leaves the rest.
-                            }
-                    }
-                    return image;
-            }; */
+    PixelType& operator()(int y, int x) noexcept
+    {
+        assert(data_.size() > 0); // byte_ptr() checks this but let's put the assert here too, because this
+                                  // function is public-facing.
+        assert(y >= 0 && y < height_);
+        assert(x >= 0 && x < width_);
+        return *data(y, x);
+    };
+    const PixelType& operator()(int y, int x) const noexcept
+    {
+        assert(data_.size() > 0); // byte_ptr() checks this but let's put the assert here too, because this
+                                  // function is public-facing.
+        assert(y >= 0 && y < height_);
+        assert(x >= 0 && x < width_);
+        return *data(y, x);
+    };
 
-    // private:
-    std::vector<T> data;  // Maybe not too ideal, see the zeros(...) function. Should rather encode [RGB...]
-                          // etc in here too, directly. Maybe.
-    std::size_t rows = 0; // nobody should be able to set these directly, so.. yea... private.
-    std::size_t cols = 0;
-    // Maybe array_view (span) is the way to go...? But nothing coming to the standard anytime soon...
+private:
+    int height_ = 0;
+    int width_ = 0;
+
+    int row_stride = 0; // In bytes. >1 means it's a row-major image, 1 would mean a col-major image.
+
+    std::vector<std::uint8_t> data_; // Storage for the image data as bytes
+
+    // Return a std::ptr_diff?
+    int compute_data_offset(int y, int x) const noexcept
+    {
+        return row_stride * y + PixelTraits<PixelType>::num_bytes * x;
+    };
+
+    std::uint8_t* byte_ptr(int y, int x) noexcept
+    {
+        assert(data_.size() > 0);
+        return &data_[0] + compute_data_offset(y, x);
+    };
+    const std::uint8_t* byte_ptr(int y, int x) const noexcept
+    {
+        assert(data_.size() > 0);
+        return &data_[0] + compute_data_offset(y, x);
+    };
+
+    PixelType* data(int y, int x) noexcept
+    {
+        return reinterpret_cast<PixelType*>(byte_ptr(y, x));
+    };
+    const PixelType* data(int y, int x) const noexcept
+    {
+        return reinterpret_cast<const PixelType*>(byte_ptr(y, x));
+    };
 };
 
-// Note: The num_channels number needs to be repeated, not so nice.
-using Image1u = Image<std::uint8_t, 1>;
-using Image3u = Image<std::array<std::uint8_t, 3>, 3>;
-using Image4u = Image<std::array<std::uint8_t, 4>, 4>;
-using Image1d = Image<double, 1>;
+// Some common typedefs:
+using Image1u = Image<std::uint8_t>;
+using Image3u = Image<Pixel<std::uint8_t, 3>>;
+using Image4u = Image<Pixel<std::uint8_t, 4>>;
+using Image1d = Image<double>;
 
 } /* namespace core */
 } /* namespace eos */

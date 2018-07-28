@@ -95,12 +95,16 @@ struct type_caster<eos::core::Image3u>
     static handle cast(const eos::core::Image3u& src, return_value_policy /* policy */, handle /* parent */)
 	{
 		const std::size_t num_channels = 3;
-		std::vector<std::size_t> shape = { src.rows, src.cols, num_channels };
+		std::vector<std::size_t> shape = { static_cast<std::size_t>(src.height()), static_cast<std::size_t>(src.width()), num_channels };
 
 		// (2048, 4, 1) is default which results in transposed image
 		// Below line works now. In numpy the strides are (2048, 4, 1) though. I think a copy gets created nevertheless?
-		std::vector<std::size_t> strides = { num_channels, num_channels * src.rows, 1 }; // might be cols or rows...? I think rows?
-		return array(pybind11::dtype::of<std::uint8_t>(), shape, strides, &src.data[0]).release();
+		std::vector<std::size_t> strides = { num_channels, num_channels * src.height(), 1 }; // might be cols or rows...? I think rows?
+		// Note: I think with the change to the new Image class (July 2018), which is now row-major by default, the strides here might have changed. I didn't check.
+		// Also, since the new Image stores a vector of Pixels, the question is whether there's any padding added by the compiler, but probably not, since all types that we use are 1 byte or a multiple thereof.
+		// numpy: 'f' = fortran = col-major
+		//        'c' = c = row-major = default I think.
+		return array(pybind11::dtype::of<std::uint8_t>(), shape, strides, &src(0, 0).data()[0]).release();
 	};
 
     PYBIND11_TYPE_CASTER(eos::core::Image3u, _("numpy.ndarray[uint8[m, n, 3]]"));
@@ -159,12 +163,14 @@ struct type_caster<eos::core::Image4u>
 	{
 		const std::size_t num_chanels = 4;
 		std::vector<std::size_t> shape;
-		shape = { src.rows, src.cols, num_chanels };
+		shape = { static_cast<std::size_t>(src.height()), static_cast<std::size_t>(src.width()), num_chanels };
 
 		// (2048, 4, 1) is default which results in transposed image
 		// Below line works now. In numpy the strides are (2048, 4, 1) though. I think a copy gets created nevertheless?
-		std::vector<size_t> strides = { num_chanels, num_chanels * src.rows, 1 }; // might be cols or rows...? I think rows?
-		return array(pybind11::dtype::of<std::uint8_t>(), shape, strides, &src.data[0]).release();
+		std::vector<size_t> strides = { num_chanels, num_chanels * src.height(), 1 }; // might be cols or rows...? I think rows?
+		// Note: I think with the change to the new Image class (July 2018), which is now row-major by default, the strides here might have changed. I didn't check.
+		// Also, since the new Image stores a vector of Pixels, the question is whether there's any padding added by the compiler, but probably not, since all types that we use are 1 byte or a multiple thereof.
+		return array(pybind11::dtype::of<std::uint8_t>(), shape, strides, &src(0, 0).data()[0]).release();
 	};
 
     PYBIND11_TYPE_CASTER(eos::core::Image4u, _("numpy.ndarray[uint8[m, n, 4]]"));

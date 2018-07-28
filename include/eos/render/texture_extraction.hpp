@@ -152,7 +152,7 @@ extract_texture(const core::Mesh& mesh, Eigen::Matrix<float, 3, 4> affine_camera
     // Render the model to get a depth buffer:
     core::Image1d depthbuffer;
     std::tie(std::ignore, depthbuffer) =
-        render::render_affine(mesh, affine_camera_matrix, image.cols, image.rows);
+        render::render_affine(mesh, affine_camera_matrix, image.width(), image.height());
     // Note: There's potential for optimisation here - we don't need to do everything that is done in
     // render_affine to just get the depthbuffer.
 
@@ -313,12 +313,12 @@ extract_texture(const core::Mesh& mesh, Eigen::Matrix<float, 3, 4> affine_camera
             res = affine_camera_matrix_with_z * vec;
             src_tri[2] = Vector2f(res[0], res[1]);
 
-            dst_tri[0] = Vector2f((isomap.cols - 0.5) * mesh.texcoords[triangle_indices[0]][0],
-                                  (isomap.rows - 0.5) * mesh.texcoords[triangle_indices[0]][1]);
-            dst_tri[1] = Vector2f((isomap.cols - 0.5) * mesh.texcoords[triangle_indices[1]][0],
-                                  (isomap.rows - 0.5) * mesh.texcoords[triangle_indices[1]][1]);
-            dst_tri[2] = Vector2f((isomap.cols - 0.5) * mesh.texcoords[triangle_indices[2]][0],
-                                  (isomap.rows - 0.5) * mesh.texcoords[triangle_indices[2]][1]);
+            dst_tri[0] = Vector2f((isomap.width() - 0.5) * mesh.texcoords[triangle_indices[0]][0],
+                                  (isomap.height() - 0.5) * mesh.texcoords[triangle_indices[0]][1]);
+            dst_tri[1] = Vector2f((isomap.width() - 0.5) * mesh.texcoords[triangle_indices[1]][0],
+                                  (isomap.height() - 0.5) * mesh.texcoords[triangle_indices[1]][1]);
+            dst_tri[2] = Vector2f((isomap.width() - 0.5) * mesh.texcoords[triangle_indices[2]][0],
+                                  (isomap.height() - 0.5) * mesh.texcoords[triangle_indices[2]][1]);
 
             // We now have the source triangles in the image and the source triangle in the isomap
             // We use the inverse/ backward mapping approach, so we want to find the corresponding texel
@@ -390,7 +390,7 @@ extract_texture(const core::Mesh& mesh, Eigen::Matrix<float, 3, 4> affine_camera
                                                                      src_texel_upper_right,
                                                                      src_texel_lower_right))
                                     {
-                                        if (a < image.cols && b < image.rows)
+                                        if (a < image.width() && b < image.height())
                                         { // check if texel is in image
                                             num_texels++;
                                             color += Eigen::Vector3i(image(b, a)[0], image(b, a)[1],
@@ -407,7 +407,7 @@ extract_texture(const core::Mesh& mesh, Eigen::Matrix<float, 3, 4> affine_camera
                                 Vector3f homogenous_dst_coord(x, y, 1.0f);
                                 Vector2f src_texel = warp_mat_org_inv * homogenous_dst_coord;
 
-                                if ((round(src_texel[1]) < image.rows) && round(src_texel[0]) < image.cols)
+                                if ((round(src_texel[1]) < image.height()) && round(src_texel[0]) < image.width())
                                 {
                                     const int y = round(src_texel[1]);
                                     const int x = round(src_texel[0]);
@@ -449,24 +449,24 @@ extract_texture(const core::Mesh& mesh, Eigen::Matrix<float, 3, 4> affine_camera
                             // to float to multiply with the float-scalar distance.)
                             // (this is untested!)
                             const Vector3f color_upper_left =
-                                Eigen::Map<const Eigen::Matrix<std::uint8_t, 1, 3>>(
-                                    image(floor(src_texel[1]), floor(src_texel[0])).data(), 3)
-                                    .cast<float>() *
+                                Vector3f(image(floor(src_texel[1]), floor(src_texel[0]))[0],
+                                         image(floor(src_texel[1]), floor(src_texel[0]))[1],
+                                         image(floor(src_texel[1]), floor(src_texel[0]))[2]) *
                                 distance_upper_left;
                             const Vector3f color_upper_right =
-                                Eigen::Map<const Eigen::Matrix<std::uint8_t, 1, 3>>(
-                                    image(floor(src_texel[1]), ceil(src_texel[0])).data(), 3)
-                                    .cast<float>() *
+                                Vector3f(image(floor(src_texel[1]), ceil(src_texel[0]))[0],
+                                         image(floor(src_texel[1]), ceil(src_texel[0]))[1],
+                                         image(floor(src_texel[1]), ceil(src_texel[0]))[2]) *
                                 distance_upper_right;
                             const Vector3f color_lower_left =
-                                Eigen::Map<const Eigen::Matrix<std::uint8_t, 1, 3>>(
-                                    image(ceil(src_texel[1]), floor(src_texel[0])).data(), 3)
-                                    .cast<float>() *
+                                Vector3f(image(ceil(src_texel[1]), floor(src_texel[0]))[0],
+                                         image(ceil(src_texel[1]), floor(src_texel[0]))[1],
+                                         image(ceil(src_texel[1]), floor(src_texel[0]))[2]) *
                                 distance_lower_left;
                             const Vector3f color_lower_right =
-                                Eigen::Map<const Eigen::Matrix<std::uint8_t, 1, 3>>(
-                                    image(ceil(src_texel[1]), ceil(src_texel[0])).data(), 3)
-                                    .cast<float>() *
+                                Vector3f(image(ceil(src_texel[1]), ceil(src_texel[0]))[0],
+                                         image(ceil(src_texel[1]), ceil(src_texel[0]))[1],
+                                         image(ceil(src_texel[1]), ceil(src_texel[0]))[2]) *
                                 distance_lower_right;
 
                             // isomap(y, x)[color] = color_upper_left + color_upper_right + color_lower_left +
@@ -493,7 +493,7 @@ extract_texture(const core::Mesh& mesh, Eigen::Matrix<float, 3, 4> affine_camera
                             const Vector3f homogenous_dst_coord(x, y, 1.0f);
                             const Vector2f src_texel = warp_mat_org_inv * homogenous_dst_coord;
 
-                            if ((round(src_texel[1]) < image.rows) && (round(src_texel[0]) < image.cols) &&
+                            if ((round(src_texel[1]) < image.height()) && (round(src_texel[0]) < image.width()) &&
                                 round(src_texel[0]) > 0 && round(src_texel[1]) > 0)
                             {
                                 isomap(y, x)[0] = image(round(src_texel[1]), round(src_texel[0]))[0];
@@ -675,66 +675,64 @@ namespace detail {
 inline core::Image4u interpolate_black_line(core::Image4u& isomap)
 {
     // Replace the vertical black line ("missing data"):
+    using std::uint8_t;
     using RGBAType = Eigen::Matrix<std::uint8_t, 1, 4>;
     using Eigen::Map;
-    const int col = isomap.cols / 2;
-    for (int row = 0; row < isomap.rows; ++row)
+    using Eigen::Vector4f;
+    const int col = isomap.width() / 2;
+    for (int row = 0; row < isomap.height(); ++row)
     {
-        if (isomap(row, col) == std::array<std::uint8_t, 4>{0, 0, 0, 0})
+        if (isomap(row, col) == core::Pixel<uint8_t, 4>{0, 0, 0, 0})
         {
-            Eigen::Vector4f pixel_val =
-                Map<const RGBAType>(isomap(row, col - 1).data(), 4).cast<float>() * 0.5f +
-                Map<const RGBAType>(isomap(row, col + 1).data(), 4).cast<float>() * 0.5f;
-            isomap(row,
-                   col) = {static_cast<std::uint8_t>(pixel_val[0]), static_cast<std::uint8_t>(pixel_val[1]),
-                           static_cast<std::uint8_t>(pixel_val[2]), static_cast<std::uint8_t>(pixel_val[3])};
+            const Vector4f pixel_val =
+                Map<const RGBAType>(isomap(row, col - 1).data().data(), 4).cast<float>() * 0.5f +
+                Map<const RGBAType>(isomap(row, col + 1).data().data(), 4).cast<float>() * 0.5f;
+            isomap(row, col) = {static_cast<uint8_t>(pixel_val[0]), static_cast<uint8_t>(pixel_val[1]),
+                                static_cast<uint8_t>(pixel_val[2]), static_cast<uint8_t>(pixel_val[3])};
         }
     }
 
     // Replace the horizontal line around the mouth that occurs in the
     // isomaps of resolution 512x512 and higher:
-    if (isomap.rows == 512) // num cols is 512 as well
+    if (isomap.height() == 512) // num cols is 512 as well
     {
         const int r = 362;
         for (int c = 206; c <= 306; ++c)
         {
-            if (isomap(r, c) == std::array<std::uint8_t, 4>{0, 0, 0, 0})
+            if (isomap(r, c) == core::Pixel<uint8_t, 4>{0, 0, 0, 0})
             {
-                Eigen::Vector4f pixel_val =
-                    Map<const RGBAType>(isomap(r - 1, c).data(), 4).cast<float>() * 0.5f +
-                    Map<const RGBAType>(isomap(r + 1, c).data(), 4).cast<float>() * 0.5f;
-                isomap(r, c) = {
-                    static_cast<std::uint8_t>(pixel_val[0]), static_cast<std::uint8_t>(pixel_val[1]),
-                    static_cast<std::uint8_t>(pixel_val[2]), static_cast<std::uint8_t>(pixel_val[3])};
+                const Vector4f pixel_val =
+                    Map<const RGBAType>(isomap(r - 1, c).data().data(), 4).cast<float>() * 0.5f +
+                    Map<const RGBAType>(isomap(r + 1, c).data().data(), 4).cast<float>() * 0.5f;
+                isomap(r, c) = {static_cast<uint8_t>(pixel_val[0]), static_cast<uint8_t>(pixel_val[1]),
+                                static_cast<uint8_t>(pixel_val[2]), static_cast<uint8_t>(pixel_val[3])};
             }
         }
     }
-    if (isomap.rows == 1024) // num cols is 1024 as well
+    if (isomap.height() == 1024) // num cols is 1024 as well
     {
         int r = 724;
         for (int c = 437; c <= 587; ++c)
         {
-            if (isomap(r, c) == std::array<std::uint8_t, 4>{0, 0, 0, 0})
+            if (isomap(r, c) == core::Pixel<uint8_t, 4>{0, 0, 0, 0})
             {
-                Eigen::Vector4f pixel_val =
-                    Map<const RGBAType>(isomap(r - 1, c).data(), 4).cast<float>() * 0.5f +
-                    Map<const RGBAType>(isomap(r + 1, c).data(), 4).cast<float>() * 0.5f;
-                isomap(r, c) = {
-                    static_cast<std::uint8_t>(pixel_val[0]), static_cast<std::uint8_t>(pixel_val[1]),
-                    static_cast<std::uint8_t>(pixel_val[2]), static_cast<std::uint8_t>(pixel_val[3])};
+                const Vector4f pixel_val =
+                    Map<const RGBAType>(isomap(r - 1, c).data().data(), 4).cast<float>() * 0.5f +
+                    Map<const RGBAType>(isomap(r + 1, c).data().data(), 4).cast<float>() * 0.5f;
+                isomap(r, c) = {static_cast<uint8_t>(pixel_val[0]), static_cast<uint8_t>(pixel_val[1]),
+                                static_cast<uint8_t>(pixel_val[2]), static_cast<uint8_t>(pixel_val[3])};
             }
         }
         r = 725;
         for (int c = 411; c <= 613; ++c)
         {
-            if (isomap(r, c) == std::array<std::uint8_t, 4>{0, 0, 0, 0})
+            if (isomap(r, c) == core::Pixel<uint8_t, 4>{0, 0, 0, 0})
             {
-                Eigen::Vector4f pixel_val =
-                    Map<const RGBAType>(isomap(r - 1, c).data(), 4).cast<float>() * 0.5f +
-                    Map<const RGBAType>(isomap(r + 1, c).data(), 4).cast<float>() * 0.5f;
-                isomap(r, c) = {
-                    static_cast<std::uint8_t>(pixel_val[0]), static_cast<std::uint8_t>(pixel_val[1]),
-                    static_cast<std::uint8_t>(pixel_val[2]), static_cast<std::uint8_t>(pixel_val[3])};
+                const Vector4f pixel_val =
+                    Map<const RGBAType>(isomap(r - 1, c).data().data(), 4).cast<float>() * 0.5f +
+                    Map<const RGBAType>(isomap(r + 1, c).data().data(), 4).cast<float>() * 0.5f;
+                isomap(r, c) = {static_cast<uint8_t>(pixel_val[0]), static_cast<uint8_t>(pixel_val[1]),
+                                static_cast<uint8_t>(pixel_val[2]), static_cast<uint8_t>(pixel_val[3])};
             }
         }
     }

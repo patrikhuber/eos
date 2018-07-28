@@ -36,10 +36,10 @@ namespace core {
 // We can support different types by making this a template and constexpr if? :-)
 inline cv::Mat to_mat(const Image4u& image)
 {
-    cv::Mat opencv_matrix(static_cast<int>(image.rows), static_cast<int>(image.cols), CV_8UC4);
-    for (int c = 0; c < image.cols; ++c)
+    cv::Mat opencv_matrix(static_cast<int>(image.height()), static_cast<int>(image.width()), CV_8UC4);
+    for (int c = 0; c < image.width(); ++c)
     { // size_t
-        for (int r = 0; r < image.rows; ++r)
+        for (int r = 0; r < image.height(); ++r)
         {
             // auto vals = image(r, c);
             opencv_matrix.at<cv::Vec4b>(r, c) =
@@ -51,10 +51,10 @@ inline cv::Mat to_mat(const Image4u& image)
 
 inline cv::Mat to_mat(const Image3u& image)
 {
-    cv::Mat opencv_matrix(image.rows, image.cols, CV_8UC3);
-    for (int c = 0; c < image.cols; ++c)
+    cv::Mat opencv_matrix(image.height(), image.width(), CV_8UC3);
+    for (int c = 0; c < image.width(); ++c)
     { // size_t
-        for (int r = 0; r < image.rows; ++r)
+        for (int r = 0; r < image.height(); ++r)
         {
             // auto vals = image(r, c);
             opencv_matrix.at<cv::Vec3b>(r, c) = cv::Vec3b(image(r, c)[0], image(r, c)[1], image(r, c)[2]);
@@ -65,10 +65,10 @@ inline cv::Mat to_mat(const Image3u& image)
 
 inline cv::Mat to_mat(const Image1d& image)
 {
-    cv::Mat opencv_matrix(static_cast<int>(image.rows), static_cast<int>(image.cols), CV_64FC1);
-    for (int c = 0; c < image.cols; ++c)
+    cv::Mat opencv_matrix(static_cast<int>(image.height()), static_cast<int>(image.width()), CV_64FC1);
+    for (int c = 0; c < image.width(); ++c)
     { // size_t
-        for (int r = 0; r < image.rows; ++r)
+        for (int r = 0; r < image.height(); ++r)
         {
             // auto vals = image(r, c);
             opencv_matrix.at<double>(r, c) = image(r, c);
@@ -79,10 +79,10 @@ inline cv::Mat to_mat(const Image1d& image)
 
 inline cv::Mat to_mat(const Image1u& image)
 {
-    cv::Mat opencv_matrix(static_cast<int>(image.rows), static_cast<int>(image.cols), CV_8UC1);
-    for (int c = 0; c < image.cols; ++c)
+    cv::Mat opencv_matrix(static_cast<int>(image.height()), static_cast<int>(image.width()), CV_8UC1);
+    for (int c = 0; c < image.width(); ++c)
     { // size_t
-        for (int r = 0; r < image.rows; ++r)
+        for (int r = 0; r < image.height(); ++r)
         {
             // auto vals = image(r, c);
             opencv_matrix.at<unsigned char>(r, c) = image(r, c);
@@ -103,8 +103,8 @@ inline Image3u from_mat(const cv::Mat& image)
     {
         for (int c = 0; c < image.cols; ++c)
         {
-            converted(r, c) = std::array<std::uint8_t, 3>{
-                image.at<cv::Vec3b>(r, c)[0], image.at<cv::Vec3b>(r, c)[1], image.at<cv::Vec3b>(r, c)[2]};
+            converted(r, c) = {image.at<cv::Vec3b>(r, c)[0], image.at<cv::Vec3b>(r, c)[1],
+                               image.at<cv::Vec3b>(r, c)[2]};
         }
     }
     return converted;

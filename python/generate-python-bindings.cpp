@@ -319,7 +319,7 @@ PYBIND11_MODULE(eos, eos_module)
     render_module.def("extract_texture",
                       [](const core::Mesh& mesh, const fitting::RenderingParameters& rendering_params,
                          const core::Image3u& image, bool compute_view_angle, int isomap_resolution) {
-                          Eigen::Matrix<float, 3, 4> affine_from_ortho = fitting::get_3x4_affine_camera_matrix(rendering_params, image.cols, image.rows);
+                          Eigen::Matrix<float, 3, 4> affine_from_ortho = fitting::get_3x4_affine_camera_matrix(rendering_params, image.width(), image.height());
                           return render::extract_texture(mesh, affine_from_ortho, image, compute_view_angle, render::TextureInterpolation::NearestNeighbour, isomap_resolution);
                       },
                       "Extracts the texture of the face from the given image and stores it as isomap (a rectangular texture map).",
