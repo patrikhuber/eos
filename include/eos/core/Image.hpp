@@ -43,6 +43,8 @@ template <class PixelType>
 class Image
 {
 public:
+	using pixel_type = PixelType;
+
     Image() = default;
 
     // Initialises with all zeros. This is a bit of an overhead. We probably have to use unique_ptr or a raw
