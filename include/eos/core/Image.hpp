@@ -116,10 +116,12 @@ private:
     };
 };
 
-// Some common typedefs:
+// Define type aliases for the most commonly used image types:
 using Image1u = Image<std::uint8_t>;
 using Image3u = Image<Pixel<std::uint8_t, 3>>;
 using Image4u = Image<Pixel<std::uint8_t, 4>>;
+using Image1f = Image<float>;
+using Image3f = Image<Pixel<float, 3>>;
 using Image1d = Image<double>;
 
 } /* namespace core */
