@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+  <UIVisualizer ServiceId="{A452AFEA-3DF6-46BB-9177-C0B08F318025}" Id="1" MenuName="Add to Image Watch"/>
+
+  <Type Name="eos::core::Image&lt;*&gt;">
+    <UIVisualizer ServiceId="{A452AFEA-3DF6-46BB-9177-C0B08F318025}" Id="1" />
+  </Type>
+    <Type Name="eos::core::Image&lt;eos::core::Pixel&lt;*,*&gt;&gt;">
+    <UIVisualizer ServiceId="{A452AFEA-3DF6-46BB-9177-C0B08F318025}" Id="1" />
+  </Type>
+
+  <!-- Images instantiated with a built-in type as PixelType (1-channel): -->
+  <Type Name="eos::core::Image&lt;*&gt;">
+    <Expand>
+      <Synthetic Name="[type]" Condition='strcmp("unsigned char", "$T1") == 0'>
+        <DisplayString>UINT8</DisplayString>
+      </Synthetic>
+      <Synthetic Name="[type]" Condition='strcmp("int", "$T1") == 0'>
+        <DisplayString>INT32</DisplayString>
+      </Synthetic>
+      <Synthetic Name="[type]" Condition='strcmp("float", "$T1") == 0'>
+        <DisplayString>FLOAT32</DisplayString>
+      </Synthetic>
+      <Synthetic Name="[type]" Condition='strcmp("double", "$T1") == 0'>
+        <DisplayString>FLOAT64</DisplayString>
+      </Synthetic>
+
+      <Synthetic Name="[channels]">
+        <DisplayString>1</DisplayString>
+      </Synthetic>
+
+      <Item Name="[width]">width_</Item>
+      <Item Name="[height]">height_</Item>
+
+      <Item Name="[data]">($T1*)(&amp;data_[0])</Item>
+
+      <Item Name="[stride]">row_stride</Item>
+    </Expand>
+  </Type>
+
+  <!-- Images instantiated with Pixel<ElementType, NumChannels>: -->
+  <Type Name="eos::core::Image&lt;eos::core::Pixel&lt;*,*&gt;&gt;">
+    <Expand>
+      <Synthetic Name="[type]" Condition='strcmp("unsigned char", "$T1") == 0'>
+        <DisplayString>UINT8</DisplayString>
+      </Synthetic>
+      <Synthetic Name="[type]" Condition='strcmp("int", "$T1") == 0'>
+        <DisplayString>INT32</DisplayString>
+      </Synthetic>
+      <Synthetic Name="[type]" Condition='strcmp("float", "$T1") == 0'>
+        <DisplayString>FLOAT32</DisplayString>
+      </Synthetic>
+      <Synthetic Name="[type]" Condition='strcmp("double", "$T1") == 0'>
+        <DisplayString>FLOAT64</DisplayString>
+      </Synthetic>
+
+      <Item Name="[channels]">$T2</Item>
+
+      <Item Name="[width]">width_</Item>
+      <Item Name="[height]">height_</Item>
+
+      <Item Name="[data]">($T1*)(&amp;data_[0])</Item>
+
+      <Item Name="[stride]">row_stride</Item>
+    </Expand>
+  </Type>
+</AutoVisualizer>
