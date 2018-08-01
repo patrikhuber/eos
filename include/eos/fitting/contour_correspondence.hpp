@@ -46,7 +46,8 @@ namespace fitting {
 struct ModelContour;
 struct ContourLandmarks;
 std::pair<std::vector<std::string>, std::vector<int>>
-select_contour(float yaw_angle, const ContourLandmarks& contour_landmarks, const ModelContour& model_contour);
+select_contour(float yaw_angle, const ContourLandmarks& contour_landmarks, const ModelContour& model_contour,
+               float frontal_range_threshold = 7.5f);
 std::tuple<std::vector<Eigen::Vector2f>, std::vector<Eigen::Vector4f>, std::vector<int>>
 get_nearest_contour_correspondences(const core::LandmarkCollection<Eigen::Vector2f>& landmarks,
                                     const std::vector<std::string>& landmark_contour_identifiers,
@@ -266,13 +267,13 @@ get_contour_correspondences(const core::LandmarkCollection<Eigen::Vector2f>& lan
  * @return A pair with two vectors containing the selected 2D image contour landmark ids and the 3D model contour indices.
  */
 inline std::pair<std::vector<std::string>, std::vector<int>>
-select_contour(float yaw_angle, const ContourLandmarks& contour_landmarks, const ModelContour& model_contour)
+select_contour(float yaw_angle, const ContourLandmarks& contour_landmarks, const ModelContour& model_contour, float frontal_range_threshold)
 {
     using std::begin;
     using std::end;
     std::vector<int> model_contour_indices;
     std::vector<std::string> contour_landmark_identifiers;
-    if (yaw_angle >= -7.5f) // positive yaw = subject looking to the left
+    if (yaw_angle >= -frontal_range_threshold) // positive yaw = subject looking to the left
     {
         // ==> we use the right cnt-lms
         model_contour_indices.insert(end(model_contour_indices), begin(model_contour.right_contour),
@@ -281,7 +282,7 @@ select_contour(float yaw_angle, const ContourLandmarks& contour_landmarks, const
                                             begin(contour_landmarks.right_contour),
                                             end(contour_landmarks.right_contour));
     }
-    if (yaw_angle <= 7.5f)
+    if (yaw_angle <= frontal_range_threshold)
     {
         // ==> we use the left cnt-lms
         model_contour_indices.insert(end(model_contour_indices), begin(model_contour.left_contour),
