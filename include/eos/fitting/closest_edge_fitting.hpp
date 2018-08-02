@@ -119,11 +119,12 @@ ray_triangle_intersect(const glm::vec3& ray_origin, const glm::vec3& ray_directi
  * @param[in] mesh The mesh to use.
  * @param[in] edge_topology The edge topology of the given mesh.
  * @param[in] R The rotation (pose) under which the occluding boundaries should be computed.
+ * @param[in] perform_self_occlusion_check Check the computed boundary vertices for self-occlusion and remove these.
  * @return A vector with unique vertex id's making up the edges.
  */
 inline std::vector<int> occluding_boundary_vertices(const core::Mesh& mesh,
                                                     const morphablemodel::EdgeTopology& edge_topology,
-                                                    glm::mat4x4 R)
+                                                    glm::mat4x4 R, bool perform_self_occlusion_check = true)
 {
     // Rotate the mesh:
     std::vector<glm::vec4> rotated_vertices;
@@ -176,49 +177,57 @@ inline std::vector<int> occluding_boundary_vertices(const core::Mesh& mesh,
     occluding_vertices.erase(std::unique(begin(occluding_vertices), end(occluding_vertices)),
                              end(occluding_vertices));
 
-    // Perform ray-casting to find out which vertices are not visible (i.e. self-occluded):
-    std::vector<bool> visibility;
-    for (auto vertex_idx : occluding_vertices)
+    if (perform_self_occlusion_check)
     {
-        bool visible = true;
-        // For every tri of the rotated mesh:
-        for (const auto& tri : mesh.tvi)
+        // Perform ray-casting to find out which vertices are not visible (i.e. self-occluded):
+        std::vector<bool> visibility;
+        for (auto vertex_idx : occluding_vertices)
         {
-            const auto& v0 = rotated_vertices[tri[0]];
-            const auto& v1 = rotated_vertices[tri[1]];
-            const auto& v2 = rotated_vertices[tri[2]];
-
-            const glm::vec3 ray_origin(rotated_vertices[vertex_idx]);
-            const glm::vec3 ray_direction(0.0f, 0.0f, 1.0f); // we shoot the ray from the vertex towards the camera
-            const auto intersect = ray_triangle_intersect(ray_origin, ray_direction, glm::vec3(v0),
-                                                          glm::vec3(v1), glm::vec3(v2), false);
-            // first is bool intersect, second is the distance t
-            if (intersect.first == true)
+            bool visible = true;
+            // For every tri of the rotated mesh:
+            for (const auto& tri : mesh.tvi)
             {
-                // We've hit a triangle. Ray hit its own triangle. If it's behind the ray origin, ignore the intersection: 
-                // Check if in front or behind?
-                if (intersect.second.value() <= 1e-4)
+                const auto& v0 = rotated_vertices[tri[0]];
+                const auto& v1 = rotated_vertices[tri[1]];
+                const auto& v2 = rotated_vertices[tri[2]];
+
+                const glm::vec3 ray_origin(rotated_vertices[vertex_idx]);
+                const glm::vec3 ray_direction(0.0f, 0.0f,
+                                              1.0f); // we shoot the ray from the vertex towards the camera
+                const auto intersect = ray_triangle_intersect(ray_origin, ray_direction, glm::vec3(v0),
+                                                              glm::vec3(v1), glm::vec3(v2), false);
+                // first is bool intersect, second is the distance t
+                if (intersect.first == true)
                 {
-                    continue; // the intersection is behind the vertex, we don't care about it
+                    // We've hit a triangle. Ray hit its own triangle. If it's behind the ray origin, ignore
+                    // the intersection:
+					// Note: Check if in front or behind?
+                    if (intersect.second.value() <= 1e-4)
+                    {
+                        continue; // the intersection is behind the vertex, we don't care about it
+                    }
+                    // Otherwise, we've hit a genuine triangle, and the vertex is not visible:
+                    visible = false;
+                    break;
                 }
-                // Otherwise, we've hit a genuine triangle, and the vertex is not visible:
-                visible = false;
-                break;
+            }
+            visibility.push_back(visible);
+        }
+
+        // Remove vertices from occluding boundary list that are not visible:
+        std::vector<int> final_vertex_ids;
+        for (int i = 0; i < occluding_vertices.size(); ++i)
+        {
+            if (visibility[i] == true)
+            {
+                final_vertex_ids.push_back(occluding_vertices[i]);
             }
         }
-        visibility.push_back(visible);
-    }
-
-    // Remove vertices from occluding boundary list that are not visible:
-    std::vector<int> final_vertex_ids;
-    for (int i = 0; i < occluding_vertices.size(); ++i)
+        return final_vertex_ids;
+    } else
     {
-        if (visibility[i] == true)
-        {
-            final_vertex_ids.push_back(occluding_vertices[i]);
-        }
-    }
-    return final_vertex_ids;
+        return occluding_vertices;
+	}
 };
 
 /** A simple vector-of-vectors adaptor for nanoflann, without duplicating the storage.
@@ -345,11 +354,10 @@ struct KDTreeVectorOfVectorsAdaptor
  * @param[in] distance_threshold All correspondences below this threshold.
  * @return A pair consisting of the used image edge points and their associated 3D vertex index.
  */
-inline std::pair<std::vector<Eigen::Vector2f>, std::vector<int>>
-find_occluding_edge_correspondences(const core::Mesh& mesh, const morphablemodel::EdgeTopology& edge_topology,
-                                    const fitting::RenderingParameters& rendering_parameters,
-                                    const std::vector<Eigen::Vector2f>& image_edges,
-                                    float distance_threshold = 64.0f)
+inline std::pair<std::vector<Eigen::Vector2f>, std::vector<int>> find_occluding_edge_correspondences(
+    const core::Mesh& mesh, const morphablemodel::EdgeTopology& edge_topology,
+    const fitting::RenderingParameters& rendering_parameters, const std::vector<Eigen::Vector2f>& image_edges,
+    float distance_threshold = 64.0f, bool perform_self_occlusion_check = true)
 {
     assert(rendering_parameters.get_camera_type() == fitting::CameraType::Orthographic);
     using Eigen::Vector2f;
@@ -362,8 +370,8 @@ find_occluding_edge_correspondences(const core::Mesh& mesh, const morphablemodel
     }
 
     // Compute vertices that lye on occluding boundaries:
-    const auto occluding_vertices =
-        occluding_boundary_vertices(mesh, edge_topology, glm::mat4x4(rendering_parameters.get_rotation()));
+    const auto occluding_vertices = occluding_boundary_vertices(
+        mesh, edge_topology, glm::mat4x4(rendering_parameters.get_rotation()), perform_self_occlusion_check);
 
     // Project these occluding boundary vertices from 3D to 2D:
     vector<Vector2f> model_edges_projected;
