@@ -236,13 +236,14 @@ inline std::tuple<std::vector<Eigen::Vector2f>, std::vector<Eigen::Vector4f>, st
 get_contour_correspondences(const core::LandmarkCollection<Eigen::Vector2f>& landmarks,
                             const ContourLandmarks& contour_landmarks, const ModelContour& model_contour,
                             float yaw_angle, const core::Mesh& mesh, const glm::mat4x4& view_model,
-                            const glm::mat4x4& ortho_projection, const glm::vec4& viewport)
+                            const glm::mat4x4& ortho_projection, const glm::vec4& viewport,
+                            float frontal_range_threshold = 7.5f)
 {
     // Select which side of the contour we'll use:
     std::vector<int> model_contour_indices;
     std::vector<std::string> landmark_contour_identifiers;
     std::tie(landmark_contour_identifiers, model_contour_indices) =
-        select_contour(yaw_angle, contour_landmarks, model_contour);
+        select_contour(yaw_angle, contour_landmarks, model_contour, frontal_range_threshold);
 
     // For each 2D contour landmark, get the corresponding 3D vertex point and vertex id:
     // Note/Todo: Loop here instead of calling this function where we have no idea what it's doing? What does
