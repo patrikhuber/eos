@@ -751,6 +751,39 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
                                              // code more (i.e. more complicated to access vertices).
 };
 
+/**
+ * @brief Fit the pose (camera), shape model, and expression blendshapes to landmarks,
+ * in an iterative way, given fixed landmarks-to-vertex correspondences.
+ *
+ * This is a convenience overload without the last 3 in/out parameters of above function.
+ *
+ * @param[in] morphable_model The 3D Morphable Model used for the shape fitting.
+ * @param[in] image_points 2D image points to fit the model to.
+ * @param[in] vertex_indices The 3D vertex indices corresponding to the given image_points.
+ * @param[in] image_width Width of the input image (needed for the camera model).
+ * @param[in] image_height Height of the input image (needed for the camera model).
+ * @param[in] num_iterations Number of iterations that the different fitting parts will be alternated for.
+ * @param[in] num_shape_coefficients_to_fit How many shape-coefficients to fit (all others will stay 0). Should be bigger than zero, or std::nullopt to fit all coefficients.
+ * @param[in] lambda_identity Regularisation parameter of the PCA shape fitting.
+ * @param[in] num_expression_coefficients_to_fit How many shape-coefficients to fit (all others will stay 0). Should be bigger than zero, or std::nullopt to fit all coefficients. Only used for expression-PCA fitting.
+ * @param[in] lambda_expressions Regularisation parameter of the expression fitting. Only used for expression-PCA fitting.
+ * @return The fitted model shape instance and the final pose.
+ */
+inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
+    const morphablemodel::MorphableModel& morphable_model, const std::vector<Eigen::Vector2f>& image_points,
+    const std::vector<int>& vertex_indices, int image_width, int image_height, int num_iterations,
+    cpp17::optional<int> num_shape_coefficients_to_fit, float lambda_identity,
+    cpp17::optional<int> num_expression_coefficients_to_fit, cpp17::optional<float> lambda_expressions)
+{
+    std::vector<float> pca_coeffs;
+    std::vector<float> blendshape_coeffs;
+    std::vector<Eigen::Vector2f> fitted_image_points;
+    return fit_shape_and_pose(morphable_model, image_points, vertex_indices, image_width, image_height,
+                              num_iterations, num_shape_coefficients_to_fit, lambda_identity,
+                              num_expression_coefficients_to_fit, lambda_expressions, pca_coeffs,
+                              blendshape_coeffs, fitted_image_points);
+};
+
 } /* namespace fitting */
 } /* namespace eos */
 
