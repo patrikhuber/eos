@@ -313,7 +313,6 @@ fit_expressions(const morphablemodel::ExpressionModel& expression_model, const E
  * @param[in] lambda_identity Regularisation parameter of the PCA shape fitting.
  * @param[in] num_expression_coefficients_to_fit How many shape-coefficients to fit (all others will stay 0). Should be bigger than zero, or std::nullopt to fit all coefficients. Only used for expression-PCA fitting.
  * @param[in] lambda_expressions Regularisation parameter of the expression fitting. Only used for expression-PCA fitting.
- * @param[in] initial_rendering_params Currently ignored (not used).
  * @param[in,out] pca_shape_coefficients If given, will be used as initial PCA shape coefficients to start the fitting. Will contain the final estimated coefficients.
  * @param[in,out] expression_coefficients If given, will be used as initial expression blendshape coefficients to start the fitting. Will contain the final estimated coefficients.
  * @param[out] fitted_image_points Debug parameter: Returns all the 2D points that have been used for the fitting.
@@ -326,7 +325,6 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
     const fitting::ContourLandmarks& contour_landmarks, const fitting::ModelContour& model_contour,
     int num_iterations, cpp17::optional<int> num_shape_coefficients_to_fit, float lambda_identity,
     cpp17::optional<int> num_expression_coefficients_to_fit, cpp17::optional<float> lambda_expressions,
-    cpp17::optional<fitting::RenderingParameters> initial_rendering_params,
     std::vector<float>& pca_shape_coefficients, std::vector<float>& expression_coefficients,
     std::vector<Eigen::Vector2f>& fitted_image_points)
 {
@@ -577,8 +575,8 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
     return fit_shape_and_pose(morphable_model, landmarks, landmark_mapper, image_width, image_height,
                               edge_topology, contour_landmarks, model_contour, num_iterations,
                               num_shape_coefficients_to_fit, lambda_identity,
-                              num_expression_coefficients_to_fit, lambda_expressions, cpp17::nullopt,
-                              pca_coeffs, blendshape_coeffs, fitted_image_points);
+                              num_expression_coefficients_to_fit, lambda_expressions, pca_coeffs,
+                              blendshape_coeffs, fitted_image_points);
 };
 
 /**

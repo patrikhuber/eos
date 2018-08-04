@@ -298,8 +298,8 @@ PYBIND11_MODULE(eos, eos_module)
             const auto result = fitting::fit_shape_and_pose(
                 morphable_model, landmarks, landmark_mapper, image_width, image_height, edge_topology,
                 contour_landmarks, model_contour, num_iterations, num_shape_coefficients_to_fit,
-                lambda_identity, num_expression_coefficients_to_fit, lambda_expressions, cpp17::nullopt,
-                pca_coeffs, blendshape_coeffs, fitted_image_points);
+                lambda_identity, num_expression_coefficients_to_fit, lambda_expressions, pca_coeffs,
+                blendshape_coeffs, fitted_image_points);
             return std::make_tuple(result.first, result.second, pca_coeffs, blendshape_coeffs);
         },
         "Fit the pose (camera), shape model, and expression blendshapes to landmarks, in an iterative way. "
