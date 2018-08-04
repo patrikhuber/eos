@@ -680,7 +680,7 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
     // Get the model points corresponding to the given image points (mean if given no initial coeffs, from the computed shape otherwise):
     for (int i = 0; i < image_points.size(); ++i)
     {
-        int vertex_idx = vertex_indices[i];
+        const int vertex_idx = vertex_indices[i];
         Vector4f vertex(current_mesh.vertices[vertex_idx][0], current_mesh.vertices[vertex_idx][1],
                         current_mesh.vertices[vertex_idx][2], 1.0f);
         model_points.emplace_back(vertex);
