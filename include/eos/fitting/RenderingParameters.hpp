@@ -153,6 +153,11 @@ public:
         this->t_y = t_y;
     };
 
+    glm::vec2 get_translation() const
+    {
+        return {t_x, t_y};
+    };
+
     glm::mat4x4 get_modelview() const
     {
         glm::mat4x4 modelview = glm::mat4_cast(rotation);
