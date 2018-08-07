@@ -179,6 +179,7 @@ PYBIND11_MODULE(eos, eos_module)
         .def("draw_sample", (core::Mesh(morphablemodel::MorphableModel::*)(std::vector<float>, std::vector<float>, std::vector<float>)const)&morphablemodel::MorphableModel::draw_sample, "Returns a sample from the model with the given shape, expression, and colour PCA coefficients. The MorphableModel has to have an expression model, otherwise, this function will throw.", py::arg("shape_coefficients"), py::arg("expression_coefficients"), py::arg("color_coefficients"))
         .def("has_color_model", &morphablemodel::MorphableModel::has_color_model, "Returns true if this Morphable Model contains a colour model, and false if it is a shape-only model.")
         .def("has_separate_expression_model", &morphablemodel::MorphableModel::has_separate_expression_model, "Returns true if this Morphable Model contains a separate PCA or Blendshapes expression model.")
+        .def("get_landmark_definitions", &morphablemodel::MorphableModel::get_landmark_definitions, "Returns the landmark definitions for this Morphable Model, which might be an empty optional, if the model doesn't contain any.")
         .def("get_texture_coordinates", &morphablemodel::MorphableModel::get_texture_coordinates, "Returns the texture coordinates for all the vertices in the model.")
         .def("get_expression_model_type", &morphablemodel::MorphableModel::get_expression_model_type, "Returns the type of the expression model: None, Blendshapes or PcaModel.");
 
