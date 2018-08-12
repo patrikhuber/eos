@@ -23,9 +23,12 @@
 #define RENDERINGPARAMETERS_HPP_
 
 #include "eos/fitting/orthographic_camera_estimation_linear.hpp"
+#include "eos/cpp17/optional.hpp"
+#include "eos/cpp17/optional_serialization.hpp"
 
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/quaternion.hpp"
+#include "glm/gtx/transform.hpp"
 
 #include "eos/fitting/detail/glm_cerealisation.hpp"
 #include "cereal/cereal.hpp"
@@ -141,29 +144,58 @@ public:
         frustum = Frustum(l, r, b, t);
     };
 
-    auto get_camera_type() const { return camera_type; };
+    // Note: Doesn't set up the Frustum currently. Need to re-think this design a bit anyway.
+    RenderingParameters(glm::quat rotation, glm::vec3 translation, float fov_y, int image_width,
+                        int image_height)
+        : camera_type(CameraType::Perspective), rotation(rotation), t_x(translation.x), t_y(translation.y),
+          t_z(translation.z), fov_y(fov_y), screen_width(image_width), screen_height(image_height){};
+
+    auto get_camera_type() const
+    {
+        return camera_type;
+    };
 
     glm::quat get_rotation() const { return rotation; };
 
     void set_rotation(glm::quat rotation_quaternion) { rotation = rotation_quaternion; };
 
-    void set_translation(float t_x, float t_y)
+    void set_translation(float t_x, float t_y, cpp17::optional<float> t_z = cpp17::nullopt)
     {
         this->t_x = t_x;
         this->t_y = t_y;
+        if (t_z)
+        {
+            this->t_z = t_z;
+        }
     };
 
-    glm::vec2 get_translation() const
+    // Third coord is 0.0 for ortho (==no t_z).
+    glm::vec3 get_translation() const
     {
-        return {t_x, t_y};
+        return {t_x, t_y, t_z.value_or(0.0f)};
+    };
+
+    cpp17::optional<float> get_fov_y() const
+    {
+        return fov_y;
     };
 
     glm::mat4x4 get_modelview() const
     {
-        glm::mat4x4 modelview = glm::mat4_cast(rotation);
-        modelview[3][0] = t_x;
-        modelview[3][1] = t_y;
-        return modelview;
+        if (camera_type == CameraType::Orthographic)
+        {
+            glm::mat4x4 modelview = glm::mat4_cast(rotation);
+            modelview[3][0] = t_x;
+            modelview[3][1] = t_y;
+            return modelview;
+        } else
+        {
+            assert(t_z.has_value()); // Might be worth throwing an exception instead.
+            const glm::mat4x4 rot_mtx = glm::mat4_cast(rotation);
+            const auto t_mtx = glm::translate(glm::vec3(t_x, t_y, t_z.value()));
+            const glm::mat4x4 modelview = t_mtx * rot_mtx;
+            return modelview;
+        }
     };
 
     glm::mat4x4 get_projection() const
@@ -173,7 +205,10 @@ public:
             return glm::ortho<float>(frustum.l, frustum.r, frustum.b, frustum.t);
         } else
         {
-            throw std::runtime_error("get_projection() for CameraType::Perspective is not implemented yet.");
+            assert(fov_y.has_value()); // Might be worth throwing an exception instead.
+            const float aspect_ratio = static_cast<double>(screen_width) / screen_height;
+            const auto persp_mtx = glm::perspective(fov_y.value(), aspect_ratio, 0.1f, 1000.0f);
+            return persp_mtx;
         }
     };
 
@@ -197,8 +232,10 @@ private:
 
     float t_x;
     float t_y;
-    // boost::optional<float> t_z;
-    // boost::optional<float> focal_length; // only for certain camera types. Should it go into Frustum?
+    cpp17::optional<float> t_z;
+
+    cpp17::optional<float> fov_y; // Field of view in the y direction. Degree or radians? Only for certain
+                                  // camera types. Should it go into Frustum?
 
     int screen_width; // (why) do we need these?
     int screen_height;
@@ -213,7 +250,8 @@ private:
     void serialize(Archive& archive)
     {
         archive(CEREAL_NVP(camera_type), CEREAL_NVP(frustum), CEREAL_NVP(rotation), CEREAL_NVP(t_x),
-                CEREAL_NVP(t_y), CEREAL_NVP(screen_width), CEREAL_NVP(screen_height));
+                CEREAL_NVP(t_y), CEREAL_NVP(t_z), CEREAL_NVP(fov_y), CEREAL_NVP(screen_width),
+                CEREAL_NVP(screen_height));
     };
 };
 
