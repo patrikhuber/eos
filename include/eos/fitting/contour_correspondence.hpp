@@ -25,6 +25,7 @@
 #include "eos/core/Landmark.hpp"
 #include "eos/core/Mesh.hpp"
 
+#include "cereal/types/vector.hpp"
 #include "cereal/archives/json.hpp"
 
 #include "toml.hpp"
