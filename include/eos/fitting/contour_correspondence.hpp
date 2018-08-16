@@ -19,8 +19,8 @@
  */
 #pragma once
 
-#ifndef CONTOURCORRESPONDENCE_HPP_
-#define CONTOURCORRESPONDENCE_HPP_
+#ifndef EOS_CONTOUR_CORRESPONDENCE_HPP
+#define EOS_CONTOUR_CORRESPONDENCE_HPP
 
 #include "eos/core/Landmark.hpp"
 #include "eos/core/Mesh.hpp"
@@ -381,4 +381,4 @@ get_nearest_contour_correspondences(const core::LandmarkCollection<Eigen::Vector
 } /* namespace fitting */
 } /* namespace eos */
 
-#endif /* CONTOURCORRESPONDENCE_HPP_ */
+#endif /* EOS_CONTOUR_CORRESPONDENCE_HPP */
