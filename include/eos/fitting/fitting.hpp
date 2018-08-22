@@ -317,6 +317,7 @@ fit_expressions(const morphablemodel::ExpressionModel& expression_model, const E
  * @param[in,out] expression_coefficients If given, will be used as initial expression blendshape coefficients to start the fitting. Will contain the final estimated coefficients.
  * @param[out] fitted_image_points Debug parameter: Returns all the 2D points that have been used for the fitting.
  * @return The fitted model shape instance and the final pose.
+ * @throws std::runtime_error if an error occurs, for example more shape coefficients are given than the model contains
  */
 inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
     const morphablemodel::MorphableModel& morphable_model,
@@ -334,6 +335,15 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
     assert(num_iterations > 0); // Can we allow 0, for only the initial pose-fit?
     assert(pca_shape_coefficients.size() <= morphable_model.get_shape_model().get_num_principal_components());
     // More asserts I forgot?
+    if (num_shape_coefficients_to_fit)
+    {
+        if (num_shape_coefficients_to_fit.value() >
+            morphable_model.get_shape_model().get_num_principal_components())
+        {
+            throw std::runtime_error(
+                "Specified more shape coefficients to fit than the given shape model contains.");
+        }
+    }
 
     using Eigen::MatrixXf;
     using Eigen::Vector2f;
