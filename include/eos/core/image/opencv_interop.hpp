@@ -110,6 +110,25 @@ inline Image3u from_mat(const cv::Mat& image)
     return converted;
 };
 
+inline Image4u from_mat_with_alpha(const cv::Mat& image)
+{
+    if (image.type() != CV_8UC4)
+    {
+        throw std::runtime_error("Can only convert a CV_8UC4 cv::Mat to an eos::core::Image4u.");
+    }
+
+    Image4u converted(image.rows, image.cols);
+    for (int r = 0; r < image.rows; ++r)
+    {
+        for (int c = 0; c < image.cols; ++c)
+        {
+            converted(r, c) = {image.at<cv::Vec4b>(r, c)[0], image.at<cv::Vec4b>(r, c)[1],
+                               image.at<cv::Vec4b>(r, c)[2], image.at<cv::Vec4b>(r, c)[3]};
+        }
+    }
+    return converted;
+};
+
 } /* namespace core */
 } /* namespace eos */
 
