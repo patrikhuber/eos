@@ -49,14 +49,14 @@ namespace fitting {
  * @brief Computes the intersection of the given ray with the given triangle.
  *
  * Uses the Möller-Trumbore algorithm algorithm "Fast Minimum Storage
- * Ray/Triangle Intersection". Independent implementation, inspired by:
+ * Ray/Triangle Intersection". Independent implementation, inspired by:
  * http://www.scratchapixel.com/lessons/3d-basic-rendering/ray-tracing-rendering-a-triangle/moller-trumbore-ray-triangle-intersection
  * The default eps (1e-6f) is from the paper.
  * When culling is on, rays intersecting triangles from the back will be discarded -
  * otherwise, the triangles normal direction w.r.t. the ray direction is just ignored.
  *
- * Note: The use of optional might turn out as a performance problem, as this
- * function is called loads of time - how costly is it to construct an std::nullopt?
+ * Todo: We don't need the pair<> here, we could just return optional<float>. Also, I hope optional wouldn't
+ * be a performance problem here, as this function is called loads of times.
  *
  * @param[in] ray_origin Ray origin.
  * @param[in] ray_direction Ray direction.
