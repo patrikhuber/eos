@@ -37,6 +37,14 @@ matrix:
       env: C_COMPILER=clang CXX_COMPILER=clang++ GENERATOR_NAME="Xcode"
       osx_image: xcode9.3
 
+    - os: osx
+      env: C_COMPILER=clang CXX_COMPILER=clang++ GENERATOR_NAME="Xcode"
+      osx_image: xcode9.4
+
+    - os: osx
+      env: C_COMPILER=clang CXX_COMPILER=clang++ GENERATOR_NAME="Xcode"
+      osx_image: xcode10
+
   allow_failures:
     # These are additional combinations that we test but allow to fail, as they're either older compilers (g++-5) or
     # uncommon combinations that would need some workarounds or updates to work.
@@ -47,6 +55,10 @@ matrix:
       osx_image: xcode9.2
     - env: C_COMPILER=clang CXX_COMPILER=clang++ GENERATOR_NAME="Xcode"
       osx_image: xcode9.3
+    - env: C_COMPILER=clang CXX_COMPILER=clang++ GENERATOR_NAME="Xcode"
+      osx_image: xcode9.4
+    - env: C_COMPILER=clang CXX_COMPILER=clang++ GENERATOR_NAME="Xcode"
+      osx_image: xcode10
 
 install:
   - |
