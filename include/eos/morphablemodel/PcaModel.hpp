@@ -110,7 +110,7 @@ public:
      *
      * @return The list of triangles to build a mesh.
      */
-    std::vector<std::array<int, 3>> get_triangle_list() const
+    const std::vector<std::array<int, 3>>& get_triangle_list() const
     {
         return triangle_list;
     };
