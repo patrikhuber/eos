@@ -380,7 +380,8 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
     auto current_mesh = morphablemodel::sample_to_mesh(
         current_combined_shape, morphable_model.get_color_model().get_mean(),
         morphable_model.get_shape_model().get_triangle_list(),
-        morphable_model.get_color_model().get_triangle_list(), morphable_model.get_texture_coordinates());
+        morphable_model.get_color_model().get_triangle_list(), morphable_model.get_texture_coordinates(),
+        morphable_model.get_texture_triangle_indices());
 
     // The 2D and 3D point correspondences used for the fitting:
     vector<Vector4f> model_points; // the points in the 3D shape model
@@ -442,7 +443,8 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
     current_mesh = morphablemodel::sample_to_mesh(
         current_combined_shape, morphable_model.get_color_model().get_mean(),
         morphable_model.get_shape_model().get_triangle_list(),
-        morphable_model.get_color_model().get_triangle_list(), morphable_model.get_texture_coordinates());
+        morphable_model.get_color_model().get_triangle_list(), morphable_model.get_texture_coordinates(),
+        morphable_model.get_texture_triangle_indices());
 
     // The static (fixed) landmark correspondences which will stay the same throughout
     // the fitting (the inner face landmarks):
@@ -526,7 +528,8 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
         current_mesh = morphablemodel::sample_to_mesh(
             current_combined_shape, morphable_model.get_color_model().get_mean(),
             morphable_model.get_shape_model().get_triangle_list(),
-            morphable_model.get_color_model().get_triangle_list(), morphable_model.get_texture_coordinates());
+            morphable_model.get_color_model().get_triangle_list(), morphable_model.get_texture_coordinates(),
+            morphable_model.get_texture_triangle_indices());
     }
 
     fitted_image_points = image_points;
@@ -681,7 +684,8 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
     auto current_mesh = morphablemodel::sample_to_mesh(
         current_combined_shape, morphable_model.get_color_model().get_mean(),
         morphable_model.get_shape_model().get_triangle_list(),
-        morphable_model.get_color_model().get_triangle_list(), morphable_model.get_texture_coordinates());
+        morphable_model.get_color_model().get_triangle_list(), morphable_model.get_texture_coordinates(),
+        morphable_model.get_texture_triangle_indices());
 
     // The 2D and 3D point correspondences used for the fitting:
     vector<Vector4f> model_points; // the points in the 3D shape model
@@ -712,7 +716,8 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
     current_mesh = morphablemodel::sample_to_mesh(
         current_combined_shape, morphable_model.get_color_model().get_mean(),
         morphable_model.get_shape_model().get_triangle_list(),
-        morphable_model.get_color_model().get_triangle_list(), morphable_model.get_texture_coordinates());
+        morphable_model.get_color_model().get_triangle_list(), morphable_model.get_texture_coordinates(),
+        morphable_model.get_texture_triangle_indices());
 
     for (int i = 0; i < num_iterations; ++i)
     {
@@ -752,7 +757,8 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
         current_mesh = morphablemodel::sample_to_mesh(
             current_combined_shape, morphable_model.get_color_model().get_mean(),
             morphable_model.get_shape_model().get_triangle_list(),
-            morphable_model.get_color_model().get_triangle_list(), morphable_model.get_texture_coordinates());
+            morphable_model.get_color_model().get_triangle_list(), morphable_model.get_texture_coordinates(),
+            morphable_model.get_texture_triangle_indices());
     }
 
     fitted_image_points = image_points;
