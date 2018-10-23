@@ -397,7 +397,7 @@ public:
      *
      * @return The texture coordinates for the model vertices.
      */
-    std::vector<std::array<double, 2>> get_texture_coordinates() const
+    const std::vector<std::array<double, 2>>& get_texture_coordinates() const
     {
         return texture_coordinates;
     };
