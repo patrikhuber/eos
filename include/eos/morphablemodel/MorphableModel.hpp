@@ -85,9 +85,10 @@ public:
     MorphableModel(
         PcaModel shape_model, PcaModel color_model,
         cpp17::optional<std::unordered_map<std::string, int>> landmark_definitions = cpp17::nullopt,
-        std::vector<std::array<double, 2>> texture_coordinates = std::vector<std::array<double, 2>>())
+        std::vector<std::array<double, 2>> texture_coordinates = std::vector<std::array<double, 2>>(),
+        std::vector<std::array<int, 3>> texture_triangle_indices = std::vector<std::array<int, 3>>())
         : shape_model(shape_model), color_model(color_model), landmark_definitions(landmark_definitions),
-          texture_coordinates(texture_coordinates){};
+          texture_coordinates(texture_coordinates), texture_triangle_indices(texture_triangle_indices){};
 
     /**
      * Create a Morphable Model from a shape and a colour PCA model, an expression PCA model or blendshapes,
@@ -102,9 +103,10 @@ public:
     MorphableModel(
         PcaModel shape_model, ExpressionModel expression_model, PcaModel color_model,
         cpp17::optional<std::unordered_map<std::string, int>> landmark_definitions = cpp17::nullopt,
-        std::vector<std::array<double, 2>> texture_coordinates = std::vector<std::array<double, 2>>())
+        std::vector<std::array<double, 2>> texture_coordinates = std::vector<std::array<double, 2>>(),
+        std::vector<std::array<int, 3>> texture_triangle_indices = std::vector<std::array<int, 3>>())
         : shape_model(shape_model), color_model(color_model), landmark_definitions(landmark_definitions),
-          texture_coordinates(texture_coordinates)
+          texture_coordinates(texture_coordinates), texture_triangle_indices(texture_triangle_indices)
     {
         // Note: We may want to check/assert that the dimensions all match?
         this->expression_model = expression_model;
@@ -443,6 +445,7 @@ private:
                                                                                 ///< identifiers to vertex
                                                                                 ///< numbers
     std::vector<std::array<double, 2>> texture_coordinates; ///< uv-coordinates for every vertex
+    std::vector<std::array<int, 3>> texture_triangle_indices; ///< Triangulation for the uv-coordinates
 
     /**
      * Returns whether the model has texture mapping coordinates, i.e.
@@ -478,10 +481,15 @@ private:
         {
             archive(CEREAL_NVP(shape_model), CEREAL_NVP(color_model), CEREAL_NVP(expression_model),
                     CEREAL_NVP(texture_coordinates));
-        } else
+        } else if (version == 3)
         {
             archive(CEREAL_NVP(shape_model), CEREAL_NVP(color_model), CEREAL_NVP(expression_model),
                     CEREAL_NVP(landmark_definitions), CEREAL_NVP(texture_coordinates));
+        } else
+        {
+            archive(CEREAL_NVP(shape_model), CEREAL_NVP(color_model), CEREAL_NVP(expression_model),
+                    CEREAL_NVP(landmark_definitions), CEREAL_NVP(texture_coordinates),
+                    CEREAL_NVP(texture_triangle_indices));
         }
     };
 };
@@ -602,6 +610,6 @@ inline core::Mesh sample_to_mesh(const Eigen::VectorXf& shape_instance, const Ei
 } /* namespace morphablemodel */
 } /* namespace eos */
 
-CEREAL_CLASS_VERSION(eos::morphablemodel::MorphableModel, 3);
+CEREAL_CLASS_VERSION(eos::morphablemodel::MorphableModel, 4);
 
 #endif /* EOS_MORPHABLEMODEL_HPP */
