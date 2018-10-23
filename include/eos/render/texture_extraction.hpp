@@ -233,21 +233,14 @@ extract_texture(const core::Mesh& mesh, Eigen::Matrix<float, 3, 4> affine_camera
             //   triangles (vertices are getting transformed multiple times)
             // - We transform them later (below) a second time. Only do it once.
 
-            const Vector4f v0_as_Vector4f(mesh.vertices[triangle_indices[0]][0],
-                                          mesh.vertices[triangle_indices[0]][1],
-                                          mesh.vertices[triangle_indices[0]][2], 1.0f);
-            const Vector4f v1_as_Vector4f(mesh.vertices[triangle_indices[1]][0],
-                                          mesh.vertices[triangle_indices[1]][1],
-                                          mesh.vertices[triangle_indices[1]][2], 1.0f);
-            const Vector4f v2_as_Vector4f(mesh.vertices[triangle_indices[2]][0],
-                                          mesh.vertices[triangle_indices[2]][1],
-                                          mesh.vertices[triangle_indices[2]][2], 1.0f);
-
             // Project the triangle vertices to screen coordinates, and use the depthbuffer to check whether
             // the triangle is visible:
-            const Vector4f v0 = affine_camera_matrix_with_z * v0_as_Vector4f;
-            const Vector4f v1 = affine_camera_matrix_with_z * v1_as_Vector4f;
-            const Vector4f v2 = affine_camera_matrix_with_z * v2_as_Vector4f;
+            const Vector4f v0 =
+                affine_camera_matrix_with_z * mesh.vertices[triangle_indices[0]].homogeneous();
+            const Vector4f v1 =
+                affine_camera_matrix_with_z * mesh.vertices[triangle_indices[1]].homogeneous();
+            const Vector4f v2 =
+                affine_camera_matrix_with_z * mesh.vertices[triangle_indices[2]].homogeneous();
 
             if (!detail::is_triangle_visible(glm::tvec4<float>(v0[0], v0[1], v0[2], v0[3]),
                                              glm::tvec4<float>(v1[0], v1[1], v1[2], v1[3]),
@@ -262,8 +255,9 @@ extract_texture(const core::Mesh& mesh, Eigen::Matrix<float, 3, 4> affine_camera
             {
                 // Calculate how well visible the current triangle is:
                 // (in essence, the dot product of the viewing direction (0, 0, 1) and the face normal)
-                const Vector3f face_normal =
-                    compute_face_normal(v0_as_Vector4f, v1_as_Vector4f, v2_as_Vector4f);
+                const Vector3f face_normal = compute_face_normal(mesh.vertices[triangle_indices[0]],
+                                                                 mesh.vertices[triangle_indices[1]],
+                                                                 mesh.vertices[triangle_indices[2]]);
                 // Transform the normal to "screen" (kind of "eye") space using the upper 3x3 part of the
                 // affine camera matrix (=the translation can be ignored):
                 Vector3f face_normal_transformed =
