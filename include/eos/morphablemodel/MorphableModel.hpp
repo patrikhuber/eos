@@ -59,7 +59,8 @@ namespace morphablemodel {
 core::Mesh sample_to_mesh(
     const Eigen::VectorXf& shape_instance, const Eigen::VectorXf& color_instance,
     const std::vector<std::array<int, 3>>& tvi, const std::vector<std::array<int, 3>>& tci,
-    const std::vector<std::array<double, 2>>& texture_coordinates = std::vector<std::array<double, 2>>());
+    const std::vector<std::array<double, 2>>& texture_coordinates = std::vector<std::array<double, 2>>(),
+    const std::vector<std::array<int, 3>>& texture_triangle_indices = std::vector<std::array<int, 3>>());
 
 /**
  * @brief A class representing a 3D Morphable Model, consisting
@@ -559,18 +560,25 @@ inline void save_model(MorphableModel model, std::string filename)
  * @param[in] tvi Triangle vertex indices.
  * @param[in] tci Triangle colour indices (usually identical to the vertex indices).
  * @param[in] texture_coordinates Optional texture coordinates for each vertex.
+ * @param[in] texture_triangle_indices Optional triangulation for the texture coordinates.
  * @return A mesh created from given parameters.
  */
-inline core::Mesh sample_to_mesh(const Eigen::VectorXf& shape_instance, const Eigen::VectorXf& color_instance,
-                                 const std::vector<std::array<int, 3>>& tvi,
-                                 const std::vector<std::array<int, 3>>& tci,
-                                 const std::vector<std::array<double, 2>>&
-                                     texture_coordinates /* = std::vector<std::array<double, 2>>() */)
+inline core::Mesh sample_to_mesh(
+    const Eigen::VectorXf& shape_instance, const Eigen::VectorXf& color_instance,
+    const std::vector<std::array<int, 3>>& tvi, const std::vector<std::array<int, 3>>& tci,
+    const std::vector<std::array<double, 2>>&
+        texture_coordinates /* = std::vector<std::array<double, 2>>() */,
+    const std::vector<std::array<int, 3>>& texture_triangle_indices /* = std::vector<std::array<int, 3>>() */)
 {
     assert(shape_instance.rows() == color_instance.rows() ||
            color_instance.size() == 0); // The number of vertices (= model.getDataDimension() / 3) has to be
                                         // equal for both models, or, alternatively, it has to be a shape-only
                                         // model.
+    assert(texture_coordinates.size() == 0 || texture_coordinates.size() == (shape_instance.rows() / 3) ||
+           !texture_triangle_indices
+                .empty()); // No texture coordinates are ok. If there are texture
+                           // coordinates given, their number needs to be identical to the
+                           // number of vertices, or texture_triangle_indices needs to be given.
 
     const auto num_vertices = shape_instance.rows() / 3;
 
@@ -605,12 +613,14 @@ inline core::Mesh sample_to_mesh(const Eigen::VectorXf& shape_instance, const Ei
     // Texture coordinates, if the model has them:
     if (!texture_coordinates.empty())
     {
-        mesh.texcoords.resize(num_vertices);
-        for (auto i = 0; i < num_vertices; ++i)
+        mesh.texcoords.resize(texture_coordinates.size());
+        for (auto i = 0; i < texture_coordinates.size(); ++i)
         {
-            mesh.texcoords[i] = Eigen::Vector2f(
-                texture_coordinates[i][0],
-                texture_coordinates[i][1]); // Note: This can probably be simplified now, Eigen on both sides!
+            mesh.texcoords[i] = Eigen::Vector2f(texture_coordinates[i][0], texture_coordinates[i][1]);
+        }
+        if (!texture_triangle_indices.empty())
+        {
+            mesh.tti = texture_triangle_indices;
         }
     }
 
