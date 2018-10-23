@@ -206,7 +206,7 @@ extract_texture(const core::Mesh& mesh, Eigen::Matrix<float, 3, 4> affine_camera
 
     // Todo: We should handle gray images, but output a 4-channel isomap nevertheless I think.
     core::Image4u isomap(isomap_resolution, isomap_resolution); // We should initialise with zeros.
-                                                                // Incidentially, the current Image4u c'tor
+                                                                // Incidentally, the current Image4u c'tor
                                                                 // does that.
 
     const auto& tti = mesh.tti.empty() ? mesh.tvi : mesh.tti;
