@@ -187,7 +187,8 @@ extract_texture(const core::Mesh& mesh, Eigen::Matrix<float, 3, 4> affine_camera
                 TextureInterpolation mapping_type = TextureInterpolation::NearestNeighbour,
                 int isomap_resolution = 512)
 {
-    assert(mesh.vertices.size() == mesh.texcoords.size());
+    assert(mesh.vertices.size() == mesh.texcoords.size() || !mesh.tti.empty());
+    assert(mesh.tti.empty() || mesh.tti.size() == mesh.tvi.size());
 
     using Eigen::Vector2f;
     using Eigen::Vector3f;
@@ -208,14 +209,18 @@ extract_texture(const core::Mesh& mesh, Eigen::Matrix<float, 3, 4> affine_camera
                                                                 // Incidentially, the current Image4u c'tor
                                                                 // does that.
 
-    std::vector<std::future<void>> results;
-    for (const auto& triangle_indices : mesh.tvi)
-    {
+    const auto& tti = mesh.tti.empty() ? mesh.tvi : mesh.tti;
 
+    std::vector<std::future<void>> results;
+    for (int i = 0; i < mesh.tvi.size(); ++i)
+    {
+        const auto& triangle_indices = mesh.tvi[i];
+        const auto& triangle_texture_indices = tti[i];
         // Note: If there's a performance problem, there's no need to capture the whole mesh - we could
         // capture only the three required vertices with their texcoords.
-        auto extract_triangle = [&mesh, &affine_camera_matrix_with_z, &triangle_indices, &depthbuffer,
-                                 &isomap, &mapping_type, &image, &compute_view_angle]() {
+        auto extract_triangle = [&mesh, &affine_camera_matrix_with_z, &triangle_indices,
+                                 &triangle_texture_indices, &depthbuffer, &isomap, &mapping_type, &image,
+                                 &compute_view_angle]() {
 
             // Find out if the current triangle is visible:
             // We do a second rendering-pass here. We use the depth-buffer of the final image, and then, here,
@@ -313,12 +318,12 @@ extract_texture(const core::Mesh& mesh, Eigen::Matrix<float, 3, 4> affine_camera
             res = affine_camera_matrix_with_z * vec;
             src_tri[2] = Vector2f(res[0], res[1]);
 
-            dst_tri[0] = Vector2f((isomap.width() - 0.5) * mesh.texcoords[triangle_indices[0]][0],
-                                  (isomap.height() - 0.5) * mesh.texcoords[triangle_indices[0]][1]);
-            dst_tri[1] = Vector2f((isomap.width() - 0.5) * mesh.texcoords[triangle_indices[1]][0],
-                                  (isomap.height() - 0.5) * mesh.texcoords[triangle_indices[1]][1]);
-            dst_tri[2] = Vector2f((isomap.width() - 0.5) * mesh.texcoords[triangle_indices[2]][0],
-                                  (isomap.height() - 0.5) * mesh.texcoords[triangle_indices[2]][1]);
+            dst_tri[0] = Vector2f((isomap.width() - 0.5) * mesh.texcoords[triangle_texture_indices[0]][0],
+                                  (isomap.height() - 0.5) * mesh.texcoords[triangle_texture_indices[0]][1]);
+            dst_tri[1] = Vector2f((isomap.width() - 0.5) * mesh.texcoords[triangle_texture_indices[1]][0],
+                                  (isomap.height() - 0.5) * mesh.texcoords[triangle_texture_indices[1]][1]);
+            dst_tri[2] = Vector2f((isomap.width() - 0.5) * mesh.texcoords[triangle_texture_indices[2]][0],
+                                  (isomap.height() - 0.5) * mesh.texcoords[triangle_texture_indices[2]][1]);
 
             // We now have the source triangles in the image and the source triangle in the isomap
             // We use the inverse/ backward mapping approach, so we want to find the corresponding texel
