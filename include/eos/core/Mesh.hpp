@@ -48,6 +48,7 @@ struct Mesh
 
     std::vector<std::array<int, 3>> tvi;    ///< Triangle vertex indices
     std::vector<std::array<int, 3>> tci;    ///< Triangle color indices
+    std::vector<std::array<int, 3>> tti;    ///< Triangle texture indices
 };
 
 /**
