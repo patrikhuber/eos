@@ -80,7 +80,8 @@ public:
      *
      * @param[in] shape_model A PCA model over the shape.
      * @param[in] color_model A PCA model over the colour (albedo).
-     * @param[in] landmark_definitions A set of landmark definitions, mapping from identifiers to vertex numbers.
+     * @param[in] landmark_definitions A set of landmark definitions, mapping from identifiers to vertex
+     * numbers.
      * @param[in] texture_coordinates Optional texture coordinates for every vertex.
      */
     MorphableModel(
@@ -98,7 +99,8 @@ public:
      * @param[in] shape_model A PCA model over the shape.
      * @param[in] expression_model A PCA model over expressions, or a set of blendshapes.
      * @param[in] color_model A PCA model over the colour (albedo).
-     * @param[in] landmark_definitions A set of landmark definitions, mapping from identifiers to vertex numbers.
+     * @param[in] landmark_definitions A set of landmark definitions, mapping from identifiers to vertex
+     * numbers.
      * @param[in] texture_coordinates Optional texture coordinates for every vertex.
      */
     MorphableModel(
@@ -287,7 +289,8 @@ public:
      * @param[in] color_coefficients The PCA coefficients used to generate the vertex colouring.
      * @return A model instance with given coefficients.
      */
-    core::Mesh draw_sample(std::vector<float> shape_coefficients, std::vector<float> expression_coefficients, std::vector<float> color_coefficients) const
+    core::Mesh draw_sample(std::vector<float> shape_coefficients, std::vector<float> expression_coefficients,
+                           std::vector<float> color_coefficients) const
     {
         assert(shape_model.get_data_dimension() == color_model.get_data_dimension() ||
                !has_color_model()); // The number of vertices (= model.getDataDimension() / 3) has to be equal
@@ -306,7 +309,8 @@ public:
             shape_sample = shape_model.draw_sample(shape_coefficients);
         }
         // Get a sample of the expression model, depending on whether it's a PcaModel or Blendshapes:
-        if (get_expression_model_type() == ExpressionModelType::PcaModel) {
+        if (get_expression_model_type() == ExpressionModelType::PcaModel)
+        {
             const auto& pca_expression_model = cpp17::get<PcaModel>(expression_model.value());
             assert(pca_expression_model.get_data_dimension() == shape_model.get_data_dimension());
             if (expression_coefficients.empty())
@@ -324,14 +328,16 @@ public:
             if (expression_coefficients.empty())
             {
                 expression_sample.setZero(expression_blendshapes[0].deformation.rows());
-            }
-            else
+            } else
             {
-                expression_sample = to_matrix(expression_blendshapes) * Eigen::Map<const Eigen::VectorXf>(expression_coefficients.data(), expression_coefficients.size());
+                expression_sample = to_matrix(expression_blendshapes) *
+                                    Eigen::Map<const Eigen::VectorXf>(expression_coefficients.data(),
+                                                                      expression_coefficients.size());
             }
         } else
         {
-            throw std::runtime_error("This MorphableModel doesn't contain an expression model in the form of a PcaModel or Blendshapes.");
+            throw std::runtime_error("This MorphableModel doesn't contain an expression model in the form of "
+                                     "a PcaModel or Blendshapes.");
         }
         shape_sample += expression_sample;
 
@@ -442,20 +448,21 @@ public:
         {
             // We should never get here - but this silences the "not all control paths return a value"
             // compiler warning.
-            throw std::runtime_error("The ExpressionModel contains something, but it's not Blendshapes or a PcaModel. This should not happen.");
+            throw std::runtime_error("The ExpressionModel contains something, but it's not Blendshapes or a "
+                                     "PcaModel. This should not happen.");
         }
     };
 
 private:
-    PcaModel shape_model; ///< A PCA model of the shape
-    PcaModel color_model; ///< A PCA model of vertex colour information
-    cpp17::optional<ExpressionModel> expression_model;      ///< Blendshapes or PcaModel
+    PcaModel shape_model;                              ///< A PCA model of the shape
+    PcaModel color_model;                              ///< A PCA model of vertex colour information
+    cpp17::optional<ExpressionModel> expression_model; ///< Blendshapes or PcaModel
     cpp17::optional<std::unordered_map<std::string, int>> landmark_definitions; ///< A set of landmark
                                                                                 ///< definitions for the
                                                                                 ///< model, mapping from
                                                                                 ///< identifiers to vertex
                                                                                 ///< numbers
-    std::vector<std::array<double, 2>> texture_coordinates; ///< uv-coordinates for every vertex
+    std::vector<std::array<double, 2>> texture_coordinates;   ///< uv-coordinates for every vertex
     std::vector<std::array<int, 3>> texture_triangle_indices; ///< Triangulation for the uv-coordinates
 
     /**
