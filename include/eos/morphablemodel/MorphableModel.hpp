@@ -403,6 +403,16 @@ public:
     };
 
     /**
+     * Returns the triangulation (the triangles that make up the uv mapping) for the texture coordinates.
+     *
+     * @return The triangulation for the texture coordinates.
+     */
+    const std::vector<std::array<int, 3>>& get_texture_triangle_indices() const
+    {
+        return texture_triangle_indices;
+    };
+
+    /**
      * @brief The type of the expression model that this MorphableModel contains.
      *
      * A MorphableModel can contain no expression model, an expression model consisting of blendshapes, or a
