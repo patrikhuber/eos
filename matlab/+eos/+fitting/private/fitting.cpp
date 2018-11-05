@@ -90,7 +90,7 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
         const auto morphable_model = morphablemodel::load_model(morphablemodel_file);
         const auto blendshapes = morphablemodel::load_blendshapes(blendshapes_file);
         morphable_model_with_expressions = morphablemodel::MorphableModel(
-            morphable_model.get_shape_model(), blendshapes, morphable_model.get_color_model(),
+            morphable_model.get_shape_model(), blendshapes, morphable_model.get_color_model(), cpp17::nullopt,
             morphable_model.get_texture_coordinates());
     }
     const core::LandmarkMapper landmark_mapper(mapper_file);
