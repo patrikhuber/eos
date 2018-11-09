@@ -1,3 +1,6 @@
 # Ignore (optional) configuration files with user-specific paths:
 initial_cache.cmake
 setup.cfg
+# Ignore build directories for building in this directory
+build/
+install/
