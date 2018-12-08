@@ -145,6 +145,7 @@ PYBIND11_MODULE(eos, eos_module)
      *  - draw_sample()
      *  - load_model(), save_model()
      *  - load_pca_model(), save_pca_model()
+     *  - sample_to_mesh()
      */
     py::class_<morphablemodel::PcaModel>(morphablemodel_module, "PcaModel", "Class representing a PcaModel with a mean, eigenvectors and eigenvalues, as well as a list of triangles to build a mesh.")
         .def(py::init<>(), "Creates an empty model.")
@@ -189,6 +190,13 @@ PYBIND11_MODULE(eos, eos_module)
     morphablemodel_module.def("save_model", &morphablemodel::save_model, "Save a Morphable Model as cereal::BinaryOutputArchive.", py::arg("model"), py::arg("filename"));
     morphablemodel_module.def("load_pca_model", &morphablemodel::load_pca_model, "Load a PCA model from a cereal::BinaryInputArchive (.bin) from the harddisk.", py::arg("filename"));
     morphablemodel_module.def("save_pca_model", &morphablemodel::save_pca_model, "Save a PCA model as cereal::BinaryOutputArchive.", py::arg("model"), py::arg("filename"));
+
+    morphablemodel_module.def(
+        "sample_to_mesh", &morphablemodel::sample_to_mesh,
+        "Helper function that creates a Mesh from given shape and (optional) colour PCA instances.",
+        py::arg("shape_instance"), py::arg("color_instance"), py::arg("tvi"), py::arg("tci"),
+        py::arg("texture_coordinates") = std::vector<std::array<double, 2>>(),
+        py::arg("texture_triangle_indices") = std::vector<std::array<int, 3>>());
 
     /**
      *  - EdgeTopology
