@@ -13,7 +13,7 @@ eos is a lightweight 3D Morphable Face Model fitting library that provides basic
 
 At the moment, it mainly provides the following functionality:
 
-* MorphableModel and PcaModel classes to represent 3DMMs, with basic operations like `draw_sample()`. Supports the Surrey Face Model (SFM) and the Basel Face Model (BFM) 2009 and 2017 out-of-the-box
+* MorphableModel and PcaModel classes to represent 3DMMs, with basic operations like `draw_sample()`. Supports the Surrey Face Model (SFM), 4D Face Model (4DFM), and the Basel Face Model (BFM) 2009 and 2017 out-of-the-box
 * Our low-resolution, shape-only 3D Morphable Face Model ([share/sfm_shape_3448.bin](https://github.com/patrikhuber/eos/blob/master/share/sfm_shape_3448.bin))
 * Fast, linear pose, shape and expression fitting, edge and contour fitting:
   * Linear scaled orthographic projection camera pose estimation
@@ -83,9 +83,18 @@ See [examples/fit-model.cpp](https://github.com/patrikhuber/eos/blob/master/exam
 
 The library includes a low-resolution shape-only version of the Surrey Morphable Face Model. It is a PCA model of shape variation built from 3D face scans. It comes with uv-coordinates to perform texture remapping.
 
-<img src="https://raw.githubusercontent.com/patrikhuber/eos/gh-pages/images/sfm_shape_3448_mesh.png" width=20% alt="Face Model Picture"></img>
+<img src="https://raw.githubusercontent.com/patrikhuber/eos/gh-pages/images/sfm_shape_3448_mesh.png" width=20% alt="Surrey Face Model shape picture"></img>
 
 The full model is available at [http://www.cvssp.org/facemodel](http://www.cvssp.org/facemodel).
+
+## 4D Face Model (4DFM)
+
+eos can be used to load, use and do basic fitting with the 4D Face Model (4DFM) from [4dface Ltd](https://www.4dface.io). The model features 36 expressions/action units, and diverse identity variation.
+
+<img src="https://raw.githubusercontent.com/patrikhuber/eos/gh-pages/images/4dfm_color_sample.jpg" width=20% alt="4D Face Model colour picture"></img>
+<img src="https://raw.githubusercontent.com/patrikhuber/eos/gh-pages/images/4dfm_shape.png" width=20% alt="4D Face Model shape picture"></img>
+
+More information about the model can be found on [www.4dface.io/4dfm](https://www.4dface.io/4dfm/).
 
 ## Python bindings
 
