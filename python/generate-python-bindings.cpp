@@ -182,6 +182,7 @@ PYBIND11_MODULE(eos, eos_module)
         .def("has_separate_expression_model", &morphablemodel::MorphableModel::has_separate_expression_model, "Returns true if this Morphable Model contains a separate PCA or Blendshapes expression model.")
         .def("get_landmark_definitions", &morphablemodel::MorphableModel::get_landmark_definitions, "Returns the landmark definitions for this Morphable Model, which might be an empty optional, if the model doesn't contain any.")
         .def("get_texture_coordinates", &morphablemodel::MorphableModel::get_texture_coordinates, "Returns the texture coordinates for all the vertices in the model.")
+        .def("get_texture_triangle_indices", &morphablemodel::MorphableModel::get_texture_triangle_indices, "Returns the triangulation (the triangles that make up the uv mapping) for the texture coordinates.")
         .def("get_expression_model_type", &morphablemodel::MorphableModel::get_expression_model_type, "Returns the type of the expression model: None, Blendshapes or PcaModel.");
 
     morphablemodel_module.def("draw_sample", &morphablemodel::draw_sample, "Returns a sample from the model with the given expression coefficients.", py::arg("expression_model"), py::arg("expression_coefficients"));
