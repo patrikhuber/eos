@@ -11,8 +11,9 @@ def main():
     blendshapes = eos.morphablemodel.load_blendshapes("../share/expression_blendshapes_3448.bin")
     # Create a MorphableModel with expressions from the loaded neutral model and blendshapes:
     morphablemodel_with_expressions = eos.morphablemodel.MorphableModel(model.get_shape_model(), blendshapes,
-                                                                        eos.morphablemodel.PcaModel(),
-                                                                        model.get_texture_coordinates())
+                                                                        color_model=eos.morphablemodel.PcaModel(),
+                                                                        vertex_definitions=None,
+                                                                        texture_coordinates=model.get_texture_coordinates())
     landmark_mapper = eos.core.LandmarkMapper('../share/ibug_to_sfm.txt')
     edge_topology = eos.morphablemodel.load_edge_topology('../share/sfm_3448_edge_topology.json')
     contour_landmarks = eos.fitting.ContourLandmarks.load('../share/ibug_to_sfm.txt')
