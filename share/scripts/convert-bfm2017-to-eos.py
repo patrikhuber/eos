@@ -45,6 +45,8 @@ with h5py.File(bfm2017_file, 'r') as hf:
     expression_model = eos.morphablemodel.PcaModel(expression_mean, expression_pca_basis, expression_pca_variance, triangle_list.transpose().tolist())
 
     # Construct and save an eos model from the BFM data:
-    model = eos.morphablemodel.MorphableModel(shape_model, expression_model, color_model, []) # uv-coordinates can be added here
+    model = eos.morphablemodel.MorphableModel(shape_model, expression_model, color_model, vertex_definitions=None,
+                                              texture_coordinates=[],
+                                              texture_triangle_indices=[])  # uv-coordinates can be added here
     eos.morphablemodel.save_model(model, "bfm2017-1_bfm_nomouth.bin")
     print("Converted and saved model as bfm2017-1_bfm_nomouth.bin.")

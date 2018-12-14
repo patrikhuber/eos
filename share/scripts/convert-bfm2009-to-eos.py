@@ -46,6 +46,8 @@ color_pca_eigenvalues = np.square(color_pca_standard_deviations)
 color_model = eos.morphablemodel.PcaModel(color_mean, color_orthogonal_pca_basis, color_pca_eigenvalues, triangle_list.tolist())
 
 # Construct and save the BFM2009 model in the eos format:
-model = eos.morphablemodel.MorphableModel(shape_model, color_model, []) # uv-coordinates can be added here
+model = eos.morphablemodel.MorphableModel(shape_model, color_model, vertex_definitions=None,
+                                          texture_coordinates=[],
+                                          texture_triangle_indices=[])  # uv-coordinates can be added here
 eos.morphablemodel.save_model(model, "bfm2009.bin")
 print("Converted and saved model as bfm2009.bin.")
