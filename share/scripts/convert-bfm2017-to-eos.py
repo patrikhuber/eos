@@ -24,25 +24,28 @@ with h5py.File(bfm2017_file, 'r') as hf:
     # Their basis is unit norm: np.linalg.norm(shape_pca_basis[:,0]) == ~1.0
     # And the basis vectors are orthogonal: np.dot(shape_pca_basis[:,0], shape_pca_basis[:,0]) == 1.0
     #                                       np.dot(shape_pca_basis[:,0], shape_pca_basis[:,1]) == 1e-10
-    shape_pca_variance = np.array(hf['shape/model/pcaVariance']) # the PCA variances are the eigenvectors
+    shape_pca_variance = np.array(hf['shape/model/pcaVariance'])  # the PCA variances are the eigenvectors
 
     triangle_list = np.array(hf['shape/representer/cells'])
 
-    shape_model = eos.morphablemodel.PcaModel(shape_mean, shape_orthogonal_pca_basis, shape_pca_variance, triangle_list.transpose().tolist())
+    shape_model = eos.morphablemodel.PcaModel(shape_mean, shape_orthogonal_pca_basis, shape_pca_variance,
+                                              triangle_list.transpose().tolist())
 
     # PCA colour model:
     color_mean = np.array(hf['color/model/mean'])
     color_orthogonal_pca_basis = np.array(hf['color/model/pcaBasis'])
     color_pca_variance = np.array(hf['color/model/pcaVariance'])
 
-    color_model = eos.morphablemodel.PcaModel(color_mean, color_orthogonal_pca_basis, color_pca_variance, triangle_list.transpose().tolist())
+    color_model = eos.morphablemodel.PcaModel(color_mean, color_orthogonal_pca_basis, color_pca_variance,
+                                              triangle_list.transpose().tolist())
 
     # PCA expression model:
     expression_mean = np.array(hf['expression/model/mean'])
     expression_pca_basis = np.array(hf['expression/model/pcaBasis'])
     expression_pca_variance = np.array(hf['expression/model/pcaVariance'])
 
-    expression_model = eos.morphablemodel.PcaModel(expression_mean, expression_pca_basis, expression_pca_variance, triangle_list.transpose().tolist())
+    expression_model = eos.morphablemodel.PcaModel(expression_mean, expression_pca_basis, expression_pca_variance,
+                                                   triangle_list.transpose().tolist())
 
     # Construct and save an eos model from the BFM data:
     model = eos.morphablemodel.MorphableModel(shape_model, expression_model, color_model, vertex_definitions=None,

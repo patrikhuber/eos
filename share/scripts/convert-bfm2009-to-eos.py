@@ -26,24 +26,26 @@ shape_orthogonal_pca_basis = bfm2009['shapePC']
 # Their basis is unit norm: np.linalg.norm(shape_pca_basis[:,0]) == 1.0
 # And the basis vectors are orthogonal: np.dot(shape_pca_basis[:,0], shape_pca_basis[:,0]) == 1.0
 #                                       np.dot(shape_pca_basis[:,0], shape_pca_basis[:,1]) == 1e-08
-shape_pca_standard_deviations = bfm2009['shapeEV'] # These are standard deviations, not eigenvalues!
+shape_pca_standard_deviations = bfm2009['shapeEV']  # These are standard deviations, not eigenvalues!
 shape_pca_eigenvalues = np.square(shape_pca_standard_deviations)
-triangle_list = bfm2009['tl'] - 1 # Convert from 1-based Matlab indexing to 0-based C++ indexing
+triangle_list = bfm2009['tl'] - 1  # Convert from 1-based Matlab indexing to 0-based C++ indexing
 # The BFM has front-facing triangles defined the wrong way round (not in accordance with OpenGL) - we swap the indices:
 for t in triangle_list:
     t[1], t[2] = t[2], t[1]
-shape_model = eos.morphablemodel.PcaModel(shape_mean, shape_orthogonal_pca_basis, shape_pca_eigenvalues, triangle_list.tolist())
+shape_model = eos.morphablemodel.PcaModel(shape_mean, shape_orthogonal_pca_basis, shape_pca_eigenvalues,
+                                          triangle_list.tolist())
 
 # PCA colour model:
 color_mean = bfm2009['texMU']
 # The BFM2009's colour data is in the range [0, 255], while the SFM is in [0, 1], so we divide by 255:
 color_mean /= 255
 color_orthogonal_pca_basis = bfm2009['texPC']
-color_pca_standard_deviations = bfm2009['texEV'] # Again, these are standard deviations, not eigenvalues
-color_pca_standard_deviations /= 255 # Divide the standard deviations by the same amount as the mean
+color_pca_standard_deviations = bfm2009['texEV']  # Again, these are standard deviations, not eigenvalues
+color_pca_standard_deviations /= 255  # Divide the standard deviations by the same amount as the mean
 color_pca_eigenvalues = np.square(color_pca_standard_deviations)
 
-color_model = eos.morphablemodel.PcaModel(color_mean, color_orthogonal_pca_basis, color_pca_eigenvalues, triangle_list.tolist())
+color_model = eos.morphablemodel.PcaModel(color_mean, color_orthogonal_pca_basis, color_pca_eigenvalues,
+                                          triangle_list.tolist())
 
 # Construct and save the BFM2009 model in the eos format:
 model = eos.morphablemodel.MorphableModel(shape_model, color_model, vertex_definitions=None,
