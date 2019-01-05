@@ -19,15 +19,16 @@
  */
 #pragma once
 
-#ifndef TEXTURING_DETAIL_HPP_
-#define TEXTURING_DETAIL_HPP_
+#ifndef EOS_TEXTURING_DETAIL_HPP
+#define EOS_TEXTURING_DETAIL_HPP
 
-//#include "eos/render/utils.hpp"
 #include "eos/render/Texture.hpp"
 
-#include "glm/glm.hpp"
+#include "glm/vec2.hpp"
+#include "glm/vec3.hpp"
 
-#include "opencv2/core/core.hpp"
+#include <algorithm>
+#include <cmath>
 
 /**
  * Implementations of internal functions, not part of the
@@ -76,18 +77,19 @@ inline glm::vec3 tex2d_linear_mipmap_linear(const glm::vec2& texcoords, const Te
     using glm::vec2;
     const float px = std::sqrt(std::pow(dudx, 2) + std::pow(dvdx, 2));
     const float py = std::sqrt(std::pow(dudy, 2) + std::pow(dvdy, 2));
-    const float lambda = std::log(std::max(px, py)) / static_cast<float>(CV_LOG2);
+    constexpr double ln2 = 0.69314718056;
+    const float lambda = std::log(std::max(px, py)) / static_cast<float>(ln2);
     const unsigned char mipmapIndex1 =
         detail::clamp((int)lambda, 0.0f, std::max(texture.widthLog, texture.heightLog) - 1);
     const unsigned char mipmapIndex2 = mipmapIndex1 + 1;
 
     const vec2 imageTexCoord = detail::texcoord_wrap(texcoords);
     vec2 imageTexCoord1 = imageTexCoord;
-    imageTexCoord1[0] *= texture.mipmaps[mipmapIndex1].cols;
-    imageTexCoord1[1] *= texture.mipmaps[mipmapIndex1].rows;
+    imageTexCoord1[0] *= texture.mipmaps[mipmapIndex1].width();
+    imageTexCoord1[1] *= texture.mipmaps[mipmapIndex1].height();
     vec2 imageTexCoord2 = imageTexCoord;
-    imageTexCoord2[0] *= texture.mipmaps[mipmapIndex2].cols;
-    imageTexCoord2[1] *= texture.mipmaps[mipmapIndex2].rows;
+    imageTexCoord2[0] *= texture.mipmaps[mipmapIndex2].width();
+    imageTexCoord2[1] *= texture.mipmaps[mipmapIndex2].height();
 
     glm::vec3 color, color1, color2;
     color1 = tex2d_linear(imageTexCoord1, mipmapIndex1, texture);
@@ -114,74 +116,73 @@ inline glm::vec3 tex2d_linear(const glm::vec2& imageTexCoord, unsigned char mipm
     const float d = alpha * beta;
     glm::vec3 color;
 
-    using cv::Vec4b;
     // int pixelIndex;
     // pixelIndex = getPixelIndex_wrap(x, y, texture->mipmaps[mipmapIndex].cols,
     // texture->mipmaps[mipmapIndex].rows);
     int pixelIndexCol = x;
-    if (pixelIndexCol == texture.mipmaps[mipmap_index].cols)
+    if (pixelIndexCol == texture.mipmaps[mipmap_index].width())
     {
         pixelIndexCol = 0;
     }
     int pixelIndexRow = y;
-    if (pixelIndexRow == texture.mipmaps[mipmap_index].rows)
+    if (pixelIndexRow == texture.mipmaps[mipmap_index].height())
     {
         pixelIndexRow = 0;
     }
     // std::cout << texture.mipmaps[mipmapIndex].cols << " " << texture.mipmaps[mipmapIndex].rows << " " <<
     // texture.mipmaps[mipmapIndex].channels() << std::endl;  cv::imwrite("mm.png",
     // texture.mipmaps[mipmapIndex]);
-    color[0] = a * texture.mipmaps[mipmap_index].at<Vec4b>(pixelIndexRow, pixelIndexCol)[0];
-    color[1] = a * texture.mipmaps[mipmap_index].at<Vec4b>(pixelIndexRow, pixelIndexCol)[1];
-    color[2] = a * texture.mipmaps[mipmap_index].at<Vec4b>(pixelIndexRow, pixelIndexCol)[2];
+    color[0] = a * texture.mipmaps[mipmap_index](pixelIndexRow, pixelIndexCol)[0];
+    color[1] = a * texture.mipmaps[mipmap_index](pixelIndexRow, pixelIndexCol)[1];
+    color[2] = a * texture.mipmaps[mipmap_index](pixelIndexRow, pixelIndexCol)[2];
 
     // pixelIndex = getPixelIndex_wrap(x + 1, y, texture.mipmaps[mipmapIndex].cols,
     // texture.mipmaps[mipmapIndex].rows);
     pixelIndexCol = x + 1;
-    if (pixelIndexCol == texture.mipmaps[mipmap_index].cols)
+    if (pixelIndexCol == texture.mipmaps[mipmap_index].width())
     {
         pixelIndexCol = 0;
     }
     pixelIndexRow = y;
-    if (pixelIndexRow == texture.mipmaps[mipmap_index].rows)
+    if (pixelIndexRow == texture.mipmaps[mipmap_index].height())
     {
         pixelIndexRow = 0;
     }
-    color[0] += b * texture.mipmaps[mipmap_index].at<Vec4b>(pixelIndexRow, pixelIndexCol)[0];
-    color[1] += b * texture.mipmaps[mipmap_index].at<Vec4b>(pixelIndexRow, pixelIndexCol)[1];
-    color[2] += b * texture.mipmaps[mipmap_index].at<Vec4b>(pixelIndexRow, pixelIndexCol)[2];
+    color[0] += b * texture.mipmaps[mipmap_index](pixelIndexRow, pixelIndexCol)[0];
+    color[1] += b * texture.mipmaps[mipmap_index](pixelIndexRow, pixelIndexCol)[1];
+    color[2] += b * texture.mipmaps[mipmap_index](pixelIndexRow, pixelIndexCol)[2];
 
     // pixelIndex = getPixelIndex_wrap(x, y + 1, texture.mipmaps[mipmapIndex].cols,
     // texture.mipmaps[mipmapIndex].rows);
     pixelIndexCol = x;
-    if (pixelIndexCol == texture.mipmaps[mipmap_index].cols)
+    if (pixelIndexCol == texture.mipmaps[mipmap_index].width())
     {
         pixelIndexCol = 0;
     }
     pixelIndexRow = y + 1;
-    if (pixelIndexRow == texture.mipmaps[mipmap_index].rows)
+    if (pixelIndexRow == texture.mipmaps[mipmap_index].height())
     {
         pixelIndexRow = 0;
     }
-    color[0] += c * texture.mipmaps[mipmap_index].at<Vec4b>(pixelIndexRow, pixelIndexCol)[0];
-    color[1] += c * texture.mipmaps[mipmap_index].at<Vec4b>(pixelIndexRow, pixelIndexCol)[1];
-    color[2] += c * texture.mipmaps[mipmap_index].at<Vec4b>(pixelIndexRow, pixelIndexCol)[2];
+    color[0] += c * texture.mipmaps[mipmap_index](pixelIndexRow, pixelIndexCol)[0];
+    color[1] += c * texture.mipmaps[mipmap_index](pixelIndexRow, pixelIndexCol)[1];
+    color[2] += c * texture.mipmaps[mipmap_index](pixelIndexRow, pixelIndexCol)[2];
 
     // pixelIndex = getPixelIndex_wrap(x + 1, y + 1, texture.mipmaps[mipmapIndex].cols,
     // texture.mipmaps[mipmapIndex].rows);
     pixelIndexCol = x + 1;
-    if (pixelIndexCol == texture.mipmaps[mipmap_index].cols)
+    if (pixelIndexCol == texture.mipmaps[mipmap_index].width())
     {
         pixelIndexCol = 0;
     }
     pixelIndexRow = y + 1;
-    if (pixelIndexRow == texture.mipmaps[mipmap_index].rows)
+    if (pixelIndexRow == texture.mipmaps[mipmap_index].height())
     {
         pixelIndexRow = 0;
     }
-    color[0] += d * texture.mipmaps[mipmap_index].at<Vec4b>(pixelIndexRow, pixelIndexCol)[0];
-    color[1] += d * texture.mipmaps[mipmap_index].at<Vec4b>(pixelIndexRow, pixelIndexCol)[1];
-    color[2] += d * texture.mipmaps[mipmap_index].at<Vec4b>(pixelIndexRow, pixelIndexCol)[2];
+    color[0] += d * texture.mipmaps[mipmap_index](pixelIndexRow, pixelIndexCol)[0];
+    color[1] += d * texture.mipmaps[mipmap_index](pixelIndexRow, pixelIndexCol)[1];
+    color[2] += d * texture.mipmaps[mipmap_index](pixelIndexRow, pixelIndexCol)[2];
 
     return color;
 };
@@ -190,4 +191,4 @@ inline glm::vec3 tex2d_linear(const glm::vec2& imageTexCoord, unsigned char mipm
 } /* namespace render */
 } /* namespace eos */
 
-#endif /* TEXTURING_DETAIL_HPP_ */
+#endif /* EOS_TEXTURING_DETAIL_HPP */

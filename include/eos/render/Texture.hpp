@@ -19,11 +19,11 @@
  */
 #pragma once
 
-#ifndef TEXTURE_HPP_
-#define TEXTURE_HPP_
+#ifndef EOS_TEXTURE_HPP
+#define EOS_TEXTURE_HPP
 
-#include "opencv2/core/core.hpp"
-#include "opencv2/imgproc/imgproc.hpp"
+#include "eos/core/Image.hpp"
+#include "eos/core/image/resize.hpp"
 
 #include <algorithm>
 #include <vector>
@@ -60,7 +60,7 @@ inline bool is_power_of_two(int x) { return !(x & (x - 1)); };
 class Texture
 {
 public:
-    std::vector<cv::Mat> mipmaps;      // make Texture a friend class of renderer, then move this to private?
+    std::vector<eos::core::Image4u> mipmaps; // make Texture a friend class of renderer, then move this to private?
     unsigned char widthLog, heightLog; // log2 of width and height of the base mip-level
 
     // private:
@@ -69,14 +69,12 @@ public:
 };
 
 // throws: ocv exc,  runtime_ex
-inline Texture create_mipmapped_texture(cv::Mat image, unsigned int mipmapsNum = 0)
+inline Texture create_mipmapped_texture(const eos::core::Image4u& image, unsigned int mipmapsNum = 0)
 {
-    assert(image.type() == CV_8UC3 || image.type() == CV_8UC4);
-
     Texture texture;
 
     texture.mipmaps_num =
-        (mipmapsNum == 0 ? get_max_possible_mipmaps_num(image.cols, image.rows) : mipmapsNum);
+        (mipmapsNum == 0 ? get_max_possible_mipmaps_num(image.width(), image.height()) : mipmapsNum);
     /*if (mipmapsNum == 0)
     {
     uchar mmn = render::utils::MatrixUtils::getMaxPossibleMipmapsNum(image.cols, image.rows);
@@ -88,22 +86,15 @@ inline Texture create_mipmapped_texture(cv::Mat image, unsigned int mipmapsNum =
 
     if (texture.mipmaps_num > 1)
     {
-        if (!is_power_of_two(image.cols) || !is_power_of_two(image.rows))
+        if (!is_power_of_two(image.width()) || !is_power_of_two(image.height()))
         {
             throw std::runtime_error("Error: Couldn't generate mipmaps, width or height not power of two.");
         }
     }
-    if (image.type() == CV_8UC3)
-    {
-        image.convertTo(image, CV_8UC4); // Most often, the input img is CV_8UC3. Img is BGR. Add an alpha
-                                         // channel. TODO: Actually I think this doesn't do anything. Below
-                                         // line adds the 4th channel...
-        cv::cvtColor(image, image, CV_BGR2BGRA);
-    }
 
-    int currWidth = image.cols;
-    int currHeight = image.rows;
-    std::vector<cv::Mat> mipmaps;
+    int currWidth = image.width();
+    int currHeight = image.height();
+    std::vector<eos::core::Image4u> mipmaps;
     for (unsigned int i = 0; i < texture.mipmaps_num; i++)
     {
         if (i == 0)
@@ -111,8 +102,8 @@ inline Texture create_mipmapped_texture(cv::Mat image, unsigned int mipmapsNum =
             mipmaps.push_back(image);
         } else
         {
-            cv::Mat currMipMap(currHeight, currWidth, CV_8UC4);
-            cv::resize(mipmaps[i - 1], currMipMap, currMipMap.size());
+            const eos::core::Image4u currMipMap =
+                eos::core::image::resize(mipmaps[i - 1], currWidth, currHeight);
             mipmaps.push_back(currMipMap);
         }
 
@@ -122,10 +113,11 @@ inline Texture create_mipmapped_texture(cv::Mat image, unsigned int mipmapsNum =
             currHeight >>= 1;
     }
     texture.mipmaps = mipmaps;
-    texture.widthLog = (uchar)(std::log(mipmaps[0].cols) / CV_LOG2 +
+	constexpr double ln2 = 0.69314718056;
+    texture.widthLog = (uchar)(std::log(mipmaps[0].width()) / ln2 +
                                0.0001f); // std::epsilon or something? or why 0.0001f here?
     texture.heightLog = (uchar)(
-        std::log(mipmaps[0].rows) / CV_LOG2 +
+        std::log(mipmaps[0].height()) / ln2 +
         0.0001f); // Changed std::logf to std::log because it doesnt compile in linux (gcc 4.8). CHECK THAT
     return texture;
 };
@@ -133,4 +125,4 @@ inline Texture create_mipmapped_texture(cv::Mat image, unsigned int mipmapsNum =
 } /* namespace render */
 } /* namespace eos */
 
-#endif /* TEXTURE_HPP_ */
+#endif /* EOS_TEXTURE_HPP */

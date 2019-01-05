@@ -19,11 +19,11 @@
  */
 #pragma once
 
-#ifndef FRAGMENTSHADER_HPP_
-#define FRAGMENTSHADER_HPP_
+#ifndef EOS_FRAGMENT_SHADER_HPP
+#define EOS_FRAGMENT_SHADER_HPP
 
 #include "eos/render/detail/Vertex.hpp"
-#include "eos/render/utils.hpp"
+#include "eos/render/detail/texturing.hpp"
 #include "eos/cpp17/optional.hpp"
 
 #include "glm/vec3.hpp"
@@ -31,7 +31,7 @@
 
 // Fragment shaders are a more accurate name for the same functionality as Pixel shaders. They aren't pixels
 // yet, since the output still has to past several tests (depth, alpha, stencil) as well as the fact that one
-// may be using antialiasing, which renders one-fragment-to-one-pixel non-true.
+// may be using anti-aliasing, which renders one-fragment-to-one-pixel non-true.
 // The "pixel" in "pixel shader" is a misnomer because the pixel shader doesn't operate on pixels directly.
 // The pixel shader operates on "fragments" which may or may not end up as actual pixels, depending on several
 // factors outside of the pixel shader.
@@ -175,10 +175,10 @@ public:
                                            corrected_lambda[2] * point_c.texcoords;
 
         // Texturing, no mipmapping:
-        cv::Vec2f image_tex_coords = detail::texcoord_wrap(cv::Vec2f(texcoords_persp.s, texcoords_persp.t));
-        image_tex_coords[0] *= texture->mipmaps[0].cols;
-        image_tex_coords[1] *= texture->mipmaps[0].rows;
-        cv::Vec3f texture_color = detail::tex2d_linear(image_tex_coords, 0, texture.get()) / 255.0;
+        glm::vec2 image_tex_coords = detail::texcoord_wrap(texcoords_persp);
+        image_tex_coords[0] *= texture->mipmaps[0].width();
+        image_tex_coords[1] *= texture->mipmaps[0].height();
+        glm::vec3 texture_color = detail::tex2d_linear(image_tex_coords, 0, texture.value()) / 255.0f;
         glm::tvec3<T, P> pixel_color = glm::tvec3<T, P>(texture_color[2], texture_color[1], texture_color[0]);
         return glm::tvec4<T, P>(pixel_color, T(1));
     };
@@ -187,4 +187,4 @@ public:
 } /* namespace render */
 } /* namespace eos */
 
-#endif /* FRAGMENTSHADER_HPP_ */
+#endif /* EOS_FRAGMENT_SHADER_HPP */
