@@ -65,6 +65,7 @@ set(HEADERS
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/core/image/Pixel.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/core/image/PixelTraits.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/core/image/utils.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/core/image/resize.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/core/image/opencv_interop.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/core/Mesh.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/core/read_obj.hpp
