@@ -19,21 +19,19 @@
  */
 #pragma once
 
-#ifndef SOFTWARERENDERER_HPP_
-#define SOFTWARERENDERER_HPP_
+#ifndef EOS_SOFTWARE_RENDERER_HPP
+#define EOS_SOFTWARE_RENDERER_HPP
 
 #include "eos/core/Mesh.hpp"
 #include "eos/render/Rasterizer.hpp"
 #include "eos/render/detail/Vertex.hpp"
 #include "eos/render/detail/render_detail.hpp"
-#include "eos/render/utils.hpp" // for Texture, potentially others
+#include "eos/render/Texture.hpp"
 #include "eos/cpp17/optional.hpp"
 
 #include "glm/mat4x4.hpp"
 #include "glm/vec2.hpp"
 #include "glm/vec4.hpp"
-
-#include "opencv2/core/core.hpp"
 
 #include <array>
 #include <cassert>
@@ -85,6 +83,7 @@ public:
 
     // Deleting copy constructor and assignment for now because e.g. the framebuffer member is a
     // cv::Mat, so copying a renderer will not copy the framebuffer. We may want to fix that properly.
+    // Note: This comment is sort-of obsolete as of Jan 2019, when we switched this code to eos::core::Image.
     SoftwareRenderer(const SoftwareRenderer& rhs) = delete;
     SoftwareRenderer& operator=(const SoftwareRenderer&) = delete;
 
@@ -94,6 +93,7 @@ public:
      * Todo.
      * The returned framebuffer cv::Mat is a smart-pointer to the colorbuffer object inside SoftwareRenderer,
      * and will be overwritten on the next call to render(). If you want a copy, use .clone()!
+     * Note: This comment is sort-of obsolete as of Jan 2019, when we switched this code to eos::core::Image.
      *
      * @param[in] mesh The mesh to render.
      * @param[in] model_view_matrix The mesh to render.
@@ -102,9 +102,9 @@ public:
      * @ return The framebuffer (colourbuffer) with the rendered object.
      */
     template <typename T, glm::precision P = glm::defaultp>
-    cv::Mat render(const core::Mesh& mesh, const glm::tmat4x4<T, P>& model_view_matrix,
-                   const glm::tmat4x4<T, P>& projection_matrix,
-                   const cpp17::optional<Texture>& texture = cpp17::nullopt)
+    core::Image4u render(const core::Mesh& mesh, const glm::tmat4x4<T, P>& model_view_matrix,
+                         const glm::tmat4x4<T, P>& projection_matrix,
+                         const cpp17::optional<Texture>& texture = cpp17::nullopt)
     {
         assert(mesh.vertices.size() == mesh.colors.size() ||
                mesh.colors.empty()); // The number of vertices has to be equal for both shape and colour, or,
@@ -113,15 +113,15 @@ public:
                mesh.texcoords.empty()); // same for the texcoords
         // Add another assert: If cv::Mat texture != empty (and/or texturing=true?), then we need texcoords?
 
-        using cv::Mat;
         using detail::divide_by_w;
         using std::vector;
 
         vector<glm::tvec4<T, P>> clipspace_vertices;
         for (const auto& vertex_position : mesh.vertices)
         {
-            clipspace_vertices.push_back(
-                vertex_shader(vertex_position, model_view_matrix, projection_matrix));
+            clipspace_vertices.push_back(vertex_shader(
+                glm::tvec4<T, P>(vertex_position.x(), vertex_position.y(), vertex_position.z(), T(1.0)),
+                model_view_matrix, projection_matrix));
             // Note: if mesh.colors.empty() (in case of shape-only model!), then the vertex colour is no
             // longer set to gray. But we don't want that here, maybe we only want texturing, then we don't
             // need vertex-colours at all! We can do it in a custom VertexShader if needed!
@@ -201,7 +201,7 @@ public:
                 }
 
                 // Get the bounding box of the triangle:
-                const cv::Rect boundingBox = detail::calculate_clipped_bounding_box(
+                const auto boundingBox = detail::calculate_clipped_bounding_box(
                     glm::tvec2<T, P>(prospective_tri[0].x, prospective_tri[0].y),
                     glm::tvec2<T, P>(prospective_tri[1].x, prospective_tri[1].y),
                     glm::tvec2<T, P>(prospective_tri[2].x, prospective_tri[2].y), rasterizer->viewport_width,
@@ -217,13 +217,25 @@ public:
                 }
 
                 // If we're here, the triangle is CCW in screen space and the bbox is inside the viewport!
-                triangles_to_raster.push_back(
-                    Triangle<T, P>{detail::Vertex<T, P>{prospective_tri[0], mesh.colors[tri_indices[0]],
-                                                        mesh.texcoords[tri_indices[0]]},
-                                   detail::Vertex<T, P>{prospective_tri[1], mesh.colors[tri_indices[1]],
-                                                        mesh.texcoords[tri_indices[1]]},
-                                   detail::Vertex<T, P>{prospective_tri[2], mesh.colors[tri_indices[2]],
-                                                        mesh.texcoords[tri_indices[2]]}});
+                triangles_to_raster.push_back(Triangle<T, P>{
+                    detail::Vertex<T, P>{prospective_tri[0],
+                                         glm::tvec3<T, P>(mesh.colors[tri_indices[0]](0),
+                                                          mesh.colors[tri_indices[0]](1),
+                                                          mesh.colors[tri_indices[0]](2)),
+                                         glm::tvec2<T, P>(mesh.texcoords[tri_indices[0]](0),
+                                                          mesh.texcoords[tri_indices[0]](1))},
+                    detail::Vertex<T, P>{prospective_tri[1],
+                                         glm::tvec3<T, P>(mesh.colors[tri_indices[1]](0),
+                                                          mesh.colors[tri_indices[1]](1),
+                                                          mesh.colors[tri_indices[1]](2)),
+                                         glm::tvec2<T, P>(mesh.texcoords[tri_indices[1]](0),
+                                                          mesh.texcoords[tri_indices[1]](1))},
+                    detail::Vertex<T, P>{prospective_tri[2],
+                                         glm::tvec3<T, P>(mesh.colors[tri_indices[2]](0),
+                                                          mesh.colors[tri_indices[2]](1),
+                                                          mesh.colors[tri_indices[2]](2)),
+                                         glm::tvec2<T, P>(mesh.texcoords[tri_indices[2]](0),
+                                                          mesh.texcoords[tri_indices[2]](1))}});
                 continue; // Triangle was either added or not added. Continue with next triangle.
             }
             // At this point, the triangle is known to be intersecting one of the view frustum's planes
@@ -232,15 +244,21 @@ public:
             // Well, 'z' of these triangles seems to be -1, so is that really the near plane?
             std::vector<detail::Vertex<T, P>> vertices;
             vertices.reserve(3);
-            vertices.push_back(detail::Vertex<T, P>{clipspace_vertices[tri_indices[0]],
-                                                    mesh.colors[tri_indices[0]],
-                                                    mesh.texcoords[tri_indices[0]]});
-            vertices.push_back(detail::Vertex<T, P>{clipspace_vertices[tri_indices[1]],
-                                                    mesh.colors[tri_indices[1]],
-                                                    mesh.texcoords[tri_indices[1]]});
-            vertices.push_back(detail::Vertex<T, P>{clipspace_vertices[tri_indices[2]],
-                                                    mesh.colors[tri_indices[2]],
-                                                    mesh.texcoords[tri_indices[2]]});
+            vertices.push_back(detail::Vertex<T, P>{
+                clipspace_vertices[tri_indices[0]],
+                glm::tvec3<T, P>(mesh.colors[tri_indices[0]](0), mesh.colors[tri_indices[0]](1),
+                                 mesh.colors[tri_indices[0]](2)),
+                glm::tvec2<T, P>(mesh.texcoords[tri_indices[0]](0), mesh.texcoords[tri_indices[0]](1))});
+            vertices.push_back(detail::Vertex<T, P>{
+                clipspace_vertices[tri_indices[1]],
+                glm::tvec3<T, P>(mesh.colors[tri_indices[1]](0), mesh.colors[tri_indices[1]](1),
+                                 mesh.colors[tri_indices[1]](2)),
+                glm::tvec2<T, P>(mesh.texcoords[tri_indices[1]](0), mesh.texcoords[tri_indices[1]](1))});
+            vertices.push_back(detail::Vertex<T, P>{
+                clipspace_vertices[tri_indices[2]],
+                glm::tvec3<T, P>(mesh.colors[tri_indices[2]](0), mesh.colors[tri_indices[2]](1),
+                                 mesh.colors[tri_indices[2]](2)),
+                glm::tvec2<T, P>(mesh.texcoords[tri_indices[2]](0), mesh.texcoords[tri_indices[2]](1))});
             // split the triangle if it intersects the near plane:
             if (enable_near_clipping)
             {
@@ -291,7 +309,7 @@ public:
                             continue;
                     }
 
-                    const cv::Rect boundingBox = detail::calculate_clipped_bounding_box(
+                    const auto boundingBox = detail::calculate_clipped_bounding_box(
                         glm::tvec2<T, P>(prospective_tri[0].x, prospective_tri[0].y),
                         glm::tvec2<T, P>(prospective_tri[1].x, prospective_tri[1].y),
                         glm::tvec2<T, P>(prospective_tri[2].x, prospective_tri[2].y),
@@ -410,7 +428,7 @@ clip_polygon_to_plane_in_4d(const std::vector<detail::Vertex<T, P>>& vertices,
     return clipped_vertices;
 };
 
-} /* namespace render */
-} /* namespace eos */
+} // namespace render
+} // namespace eos
 
-#endif /* SOFTWARERENDERER_HPP_ */
+#endif /* EOS_SOFTWARE_RENDERER_HPP */
