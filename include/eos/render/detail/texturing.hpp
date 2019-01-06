@@ -65,7 +65,6 @@ template <typename T, glm::precision P = glm::defaultp>
 glm::tvec3<T, P> tex2d(const glm::tvec2<T, P>& texcoords, const Texture& texture, float dudx, float dudy,
                        float dvdx, float dvdy)
 {
-    // Todo: Change everything to GLM.
     glm::vec3 ret = (1.0f / 255.0f) * tex2d_linear_mipmap_linear(glm::vec2(texcoords[0], texcoords[1]),
                                                                  texture, dudx, dudy, dvdx, dvdy);
     return glm::tvec3<T, P>(ret[0], ret[1], ret[2]);
