@@ -105,7 +105,7 @@ public:
         // The Texture is in BGR, thus tex2D returns BGR
         // Todo: Think about changing that.
         glm::tvec3<T, P> texture_color =
-            detail::tex2d(texcoords_persp, texture.get(), dudx, dudy, dvdx, dvdy); // uses the current texture
+            detail::tex2d(texcoords_persp, texture.value(), dudx, dudy, dvdx, dvdy); // uses the current texture
         glm::tvec3<T, P> pixel_color = glm::tvec3<T, P>(texture_color[2], texture_color[1], texture_color[0]);
         // other: color.mul(tex2D(texture, texCoord));
         return glm::tvec4<T, P>(pixel_color, T(1));
