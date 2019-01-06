@@ -76,9 +76,8 @@ template <typename VertexShaderType, typename FragmentShaderType>
 class SoftwareRenderer
 {
 public:
-    SoftwareRenderer(int viewport_width, int viewport_height)
+    SoftwareRenderer(int viewport_width, int viewport_height) : rasterizer(viewport_width, viewport_height)
     {
-        rasterizer = std::make_unique<Rasterizer<FragmentShaderType>>(viewport_width, viewport_height);
     };
 
     // Deleting copy constructor and assignment for now because e.g. the framebuffer member is a
@@ -152,7 +151,7 @@ public:
                     visibility_bits[k] |= 8;
                 if (enable_near_clipping && z_cc < -w_cc) // near plane frustum clipping
                     visibility_bits[k] |= 16;
-                if (rasterizer->enable_far_clipping && z_cc > w_cc) // far plane frustum clipping
+                if (rasterizer.enable_far_clipping && z_cc > w_cc) // far plane frustum clipping
                     visibility_bits[k] |= 32;
             } // if all bits are 0, then it's inside the frustum
             // all vertices are not visible - reject the triangle.
@@ -175,17 +174,17 @@ public:
                 // Replaces x and y of the NDC coords with the screen coords. Keep z and w the same.
                 const glm::tvec2<T, P> v0_screen =
                     clip_to_screen_space(prospective_tri[0].x, prospective_tri[0].y,
-                                         rasterizer->viewport_width, rasterizer->viewport_height);
+                                         rasterizer.viewport_width, rasterizer.viewport_height);
                 prospective_tri[0].x = v0_screen.x;
                 prospective_tri[0].y = v0_screen.y;
                 const glm::tvec2<T, P> v1_screen =
                     clip_to_screen_space(prospective_tri[1].x, prospective_tri[1].y,
-                                         rasterizer->viewport_width, rasterizer->viewport_height);
+                                         rasterizer.viewport_width, rasterizer.viewport_height);
                 prospective_tri[1].x = v1_screen.x;
                 prospective_tri[1].y = v1_screen.y;
                 const glm::tvec2<T, P> v2_screen =
                     clip_to_screen_space(prospective_tri[2].x, prospective_tri[2].y,
-                                         rasterizer->viewport_width, rasterizer->viewport_height);
+                                         rasterizer.viewport_width, rasterizer.viewport_height);
                 prospective_tri[2].x = v2_screen.x;
                 prospective_tri[2].y = v2_screen.y;
 
@@ -204,8 +203,8 @@ public:
                 const auto boundingBox = detail::calculate_clipped_bounding_box(
                     glm::tvec2<T, P>(prospective_tri[0].x, prospective_tri[0].y),
                     glm::tvec2<T, P>(prospective_tri[1].x, prospective_tri[1].y),
-                    glm::tvec2<T, P>(prospective_tri[2].x, prospective_tri[2].y), rasterizer->viewport_width,
-                    rasterizer->viewport_height);
+                    glm::tvec2<T, P>(prospective_tri[2].x, prospective_tri[2].y), rasterizer.viewport_width,
+                    rasterizer.viewport_height);
                 const auto min_x = boundingBox.x;
                 const auto max_x = boundingBox.x + boundingBox.width;
                 const auto min_y = boundingBox.y;
@@ -286,17 +285,17 @@ public:
 
                     const glm::tvec2<T, P> v0_screen =
                         clip_to_screen_space(prospective_tri[0].x, prospective_tri[0].y,
-                                             rasterizer->viewport_width, rasterizer->viewport_height);
+                                             rasterizer.viewport_width, rasterizer.viewport_height);
                     prospective_tri[0].x = v0_screen.x;
                     prospective_tri[0].y = v0_screen.y;
                     const glm::tvec2<T, P> v1_screen =
                         clip_to_screen_space(prospective_tri[1].x, prospective_tri[1].y,
-                                             rasterizer->viewport_width, rasterizer->viewport_height);
+                                             rasterizer.viewport_width, rasterizer.viewport_height);
                     prospective_tri[1].x = v1_screen.x;
                     prospective_tri[1].y = v1_screen.y;
                     const glm::tvec2<T, P> v2_screen =
                         clip_to_screen_space(prospective_tri[2].x, prospective_tri[2].y,
-                                             rasterizer->viewport_width, rasterizer->viewport_height);
+                                             rasterizer.viewport_width, rasterizer.viewport_height);
                     prospective_tri[2].x = v2_screen.x;
                     prospective_tri[2].y = v2_screen.y;
 
@@ -313,7 +312,7 @@ public:
                         glm::tvec2<T, P>(prospective_tri[0].x, prospective_tri[0].y),
                         glm::tvec2<T, P>(prospective_tri[1].x, prospective_tri[1].y),
                         glm::tvec2<T, P>(prospective_tri[2].x, prospective_tri[2].y),
-                        rasterizer->viewport_width, rasterizer->viewport_height);
+                        rasterizer.viewport_width, rasterizer.viewport_height);
                     const auto min_x = boundingBox.x;
                     const auto max_x = boundingBox.x + boundingBox.width;
                     const auto min_y = boundingBox.y;
@@ -343,9 +342,9 @@ public:
         // Raster each triangle and apply the fragment shader on each pixel:
         for (const auto& tri : triangles_to_raster)
         {
-            rasterizer->raster_triangle(tri[0], tri[1], tri[2], texture);
+            rasterizer.raster_triangle(tri[0], tri[1], tri[2], texture);
         }
-        return rasterizer->colorbuffer;
+        return rasterizer.colorbuffer;
     };
 
 public: // Todo: these should go private in the final implementation
@@ -353,7 +352,7 @@ public: // Todo: these should go private in the final implementation
     bool enable_backface_culling = false;
     bool enable_near_clipping = true;
 
-    std::unique_ptr<Rasterizer<FragmentShaderType>> rasterizer; // Rasterizer is not default-constructible
+    Rasterizer<FragmentShaderType> rasterizer;
 private:
     VertexShaderType vertex_shader;
 };
