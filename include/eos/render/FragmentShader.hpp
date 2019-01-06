@@ -52,15 +52,15 @@ public:
     /**
      * @brief Todo.
      *
-     * X
+     * Todo.
      * lambda is not perspectively corrected. Note: In our case, it is, as we do it in the raster loop at
      * the moment?
-     * Note/TODO: We should document in what range we expect ::color to be! Eg specify that Mesh should be
-     * [0,255]? But don't we then lose precision sometimes (e.g. superres)? I think we can leave Mesh /
-     * everything in [0,1] and convert at the very end.
+     * The given colour values should be in the range [0, 1]. The returned colour will also be in the range
+     * [0, 1]. Note/Todo: Can colour values be <0 and >1? If so, we should document and tell the user to
+     * perhaps clamp the values.
      *
      * @param[in] x X.
-     * @ return RGBA... in [0, 1]?
+     * @return RGBA colour in the range [0, 1].
      */
     template <typename T, glm::precision P = glm::defaultp>
     glm::tvec4<T, P> shade_triangle_pixel(int x, int y, const detail::Vertex<T, P>& point_a,
@@ -87,10 +87,15 @@ public:
     /**
      * @brief Todo.
      *
-     * See comments above about lambda (persp. corrected?) and the colour range.
+     * See comments above about lambda (persp. corrected?).
+     *
+     * This shader reads the colour value from the given \p texture.
+     * The returned colour will be in the range [0, 1].
+     * Note/Todo: Can colour values be <0 and >1? If so, we should document and tell the user to perhaps clamp
+     * the values.
      *
      * @param[in] x X.
-     * @ return RGBA... in [0, 1]?
+     * @return RGBA colour in the range [0, 1].
      */
     template <typename T, glm::precision P = glm::defaultp>
     glm::tvec4<T, P> shade_triangle_pixel(int x, int y, const detail::Vertex<T, P>& point_a,
@@ -104,6 +109,7 @@ public:
 
         // The Texture is in BGR, thus tex2D returns BGR
         // Todo: Think about changing that.
+        // tex2d divides the colour values by 255, so that the return value we get here is in the range [0, 1].
         glm::tvec3<T, P> texture_color =
             detail::tex2d(texcoords_persp, texture.value(), dudx, dudy, dvdx, dvdy); // uses the current texture
         glm::tvec3<T, P> pixel_color = glm::tvec3<T, P>(texture_color[2], texture_color[1], texture_color[0]);
