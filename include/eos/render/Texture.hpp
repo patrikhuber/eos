@@ -114,9 +114,9 @@ inline Texture create_mipmapped_texture(const eos::core::Image4u& image, unsigne
     }
     texture.mipmaps = mipmaps;
 	constexpr double ln2 = 0.69314718056;
-    texture.widthLog = (uchar)(std::log(mipmaps[0].width()) / ln2 +
+    texture.widthLog = (unsigned char)(std::log(mipmaps[0].width()) / ln2 +
                                0.0001f); // std::epsilon or something? or why 0.0001f here?
-    texture.heightLog = (uchar)(
+    texture.heightLog = (unsigned char)(
         std::log(mipmaps[0].height()) / ln2 +
         0.0001f); // Changed std::logf to std::log because it doesnt compile in linux (gcc 4.8). CHECK THAT
     return texture;
