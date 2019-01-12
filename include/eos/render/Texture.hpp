@@ -49,7 +49,10 @@ inline unsigned int get_max_possible_mipmaps_num(unsigned int width, unsigned in
     return mipmapsNum;
 };
 
-inline bool is_power_of_two(int x) { return !(x & (x - 1)); };
+inline bool is_power_of_two(int x)
+{
+    return !(x & (x - 1));
+};
 
 /**
  * @brief Represents a texture for rendering.
@@ -60,7 +63,8 @@ inline bool is_power_of_two(int x) { return !(x & (x - 1)); };
 class Texture
 {
 public:
-    std::vector<eos::core::Image4u> mipmaps; // make Texture a friend class of renderer, then move this to private?
+    std::vector<eos::core::Image4u>
+        mipmaps;                       // make Texture a friend class of renderer, then move this to private?
     unsigned char widthLog, heightLog; // log2 of width and height of the base mip-level
 
     // private:
@@ -113,12 +117,12 @@ inline Texture create_mipmapped_texture(const eos::core::Image4u& image, unsigne
             currHeight >>= 1;
     }
     texture.mipmaps = mipmaps;
-	constexpr double ln2 = 0.69314718056;
+    constexpr double ln2 = 0.69314718056;
     texture.widthLog = (unsigned char)(std::log(mipmaps[0].width()) / ln2 +
-                               0.0001f); // std::epsilon or something? or why 0.0001f here?
-    texture.heightLog = (unsigned char)(
-        std::log(mipmaps[0].height()) / ln2 +
-        0.0001f); // Changed std::logf to std::log because it doesnt compile in linux (gcc 4.8). CHECK THAT
+                                       0.0001f); // std::epsilon or something? or why 0.0001f here?
+    texture.heightLog = (unsigned char)(std::log(mipmaps[0].height()) / ln2 +
+                                        0.0001f); // Changed std::logf to std::log because it doesnt compile
+                                                  // in linux (gcc 4.8). CHECK THAT
     return texture;
 };
 
