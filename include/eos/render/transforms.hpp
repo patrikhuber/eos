@@ -1,7 +1,7 @@
 /*
  * eos - A 3D Morphable Model fitting library written in modern C++11/14.
  *
- * File: include/eos/render/utils.hpp
+ * File: include/eos/render/transforms.hpp
  *
  * Copyright 2014, 2015 Patrik Huber
  *
@@ -19,8 +19,8 @@
  */
 #pragma once
 
-#ifndef EOS_RENDER_UTILS_HPP
-#define EOS_RENDER_UTILS_HPP
+#ifndef EOS_RENDER_TRANSFORMS_HPP
+#define EOS_RENDER_TRANSFORMS_HPP
 
 #include "glm/vec2.hpp"
 
@@ -95,4 +95,4 @@ glm::tvec2<T, P> clip_to_screen_space(const T clip_coord_x, const T clip_coord_y
 } /* namespace render */
 } /* namespace eos */
 
-#endif /* EOS_RENDER_UTILS_HPP */
+#endif /* EOS_RENDER_TRANSFORMS_HPP */
