@@ -25,7 +25,7 @@
 #include "eos/core/Mesh.hpp"
 #include "eos/morphablemodel/EdgeTopology.hpp"
 #include "eos/fitting/RenderingParameters.hpp"
-#include "eos/render/utils.hpp"
+#include "eos/render/normals.hpp"
 #include "eos/cpp17/optional.hpp"
 
 #include "nanoflann.hpp"

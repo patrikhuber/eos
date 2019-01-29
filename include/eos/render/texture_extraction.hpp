@@ -28,7 +28,7 @@
 #include "eos/render/render_affine.hpp"
 
 // The following four includes are for v2::extract_texture(...):
-#include "eos/render/utils.hpp" // for clip_to_screen_space()
+#include "eos/render/transforms.hpp"
 #include "eos/render/Rasterizer.hpp"
 #include "eos/render/FragmentShader.hpp"
 #include "eos/fitting/closest_edge_fitting.hpp" // for ray_triangle_intersect(). Move to eos/render/raycasting.hpp?

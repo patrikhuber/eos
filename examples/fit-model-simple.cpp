@@ -27,7 +27,6 @@
 #include "eos/fitting/orthographic_camera_estimation_linear.hpp"
 #include "eos/morphablemodel/MorphableModel.hpp"
 #include "eos/render/texture_extraction.hpp"
-#include "eos/render/utils.hpp"
 
 #include "Eigen/Core"
 

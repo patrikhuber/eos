@@ -26,7 +26,6 @@
 #include "eos/morphablemodel/Blendshape.hpp"
 #include "eos/fitting/fitting.hpp"
 #include "eos/fitting/multi_image_fitting.hpp"
-#include "eos/render/utils.hpp"
 #include "eos/render/texture_extraction.hpp"
 #include "eos/render/render.hpp"
 #include "eos/render/draw_utils.hpp"

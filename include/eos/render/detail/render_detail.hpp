@@ -25,7 +25,7 @@
 #include "eos/core/Image.hpp"
 #include "eos/core/Rect.hpp"
 #include "eos/render/Texture.hpp"
-#include "eos/render/utils.hpp"
+#include "eos/render/transforms.hpp"
 #include "eos/render/detail/Vertex.hpp"
 #include "eos/render/detail/TriangleToRasterize.hpp"
 #include "eos/render/detail/render_detail_utils.hpp"
