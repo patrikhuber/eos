@@ -93,8 +93,8 @@ set(HEADERS
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/ceres_nonlinear.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/RenderingParameters.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/FittingResult.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/utils.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/normals.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/transforms.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/draw_utils.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/render.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/render_affine.hpp
