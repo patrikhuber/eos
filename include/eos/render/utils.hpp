@@ -19,8 +19,8 @@
  */
 #pragma once
 
-#ifndef RENDER_UTILS_HPP_
-#define RENDER_UTILS_HPP_
+#ifndef EOS_RENDER_UTILS_HPP
+#define EOS_RENDER_UTILS_HPP
 
 #include "glm/vec2.hpp"
 
@@ -95,4 +95,4 @@ glm::tvec2<T, P> clip_to_screen_space(const T clip_coord_x, const T clip_coord_y
 } /* namespace render */
 } /* namespace eos */
 
-#endif /* RENDER_UTILS_HPP_ */
+#endif /* EOS_RENDER_UTILS_HPP */
