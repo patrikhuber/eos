@@ -27,6 +27,8 @@
 
 #include "Eigen/Core"
 
+#include <vector>
+
 namespace eos {
 namespace render {
 
@@ -82,6 +84,69 @@ inline glm::vec3 compute_face_normal(const glm::vec3& v0, const glm::vec3& v1, c
     glm::vec3 n = glm::cross(v1 - v0, v2 - v0); // v0-to-v1 x v0-to-v2
     n = glm::normalize(n);
     return n;
+};
+
+/**
+* Computes the per-face (per-triangle) normals of all triangles of the given mesh. Returned normals will be unit length.
+*
+* Assumes triangles are given in CCW order, i.e. vertices in counterclockwise order on the screen are front-facing.
+*
+* @param[in] vertices A list of vertices.
+* @param[in] triangle_vertex_indices Triangle list for the given vertices.
+* @return The unit-length per-face normals.
+*/
+inline std::vector<Eigen::Vector3f>
+compute_face_normals(const std::vector<Eigen::Vector3f>& vertices,
+                     const std::vector<std::array<int, 3>>& triangle_vertex_indices)
+{
+    std::vector<Eigen::Vector3f> face_normals;
+    for (const auto& tvi : triangle_vertex_indices)
+    {
+        const auto face_normal = compute_face_normal(vertices[tvi[0]], vertices[tvi[1]], vertices[tvi[2]]);
+        face_normals.push_back(face_normal);
+    }
+    return face_normals;
+};
+
+/**
+ * Computes the per-vertex normals of all vertices of the given mesh. Returned normals will be unit length.
+ *
+ * Assumes triangles are given in CCW order, i.e. vertices in counterclockwise order on the screen are
+ * front-facing.
+ *
+ * @param[in] vertices A list of vertices.
+ * @param[in] triangle_vertex_indices Triangle list for the given vertices.
+ * @param[in] face_normals Per-face normals for all triangles.
+ * @return The unit-length per-vertex normals.
+ */
+inline std::vector<Eigen::Vector3f>
+compute_vertex_normals(const std::vector<Eigen::Vector3f>& vertices,
+                       const std::vector<std::array<int, 3>>& triangle_vertex_indices,
+                       const std::vector<Eigen::Vector3f>& face_normals)
+{
+    std::vector<Eigen::Vector3f> per_vertex_normals;
+    // Initialise with zeros:
+    for (int i = 0; i < vertices.size(); ++i)
+    {
+        per_vertex_normals.emplace_back(Eigen::Vector3f(0.0f, 0.0f, 0.0f));
+    }
+
+    // Loop over the faces again:
+    for (int i = 0; i < triangle_vertex_indices.size(); ++i)
+    {
+        const auto& tvi = triangle_vertex_indices[i];
+        // Throw normal at each corner:
+        per_vertex_normals[tvi[0]] += face_normals[i];
+        per_vertex_normals[tvi[1]] += face_normals[i];
+        per_vertex_normals[tvi[2]] += face_normals[i];
+    }
+
+    // Take average via normalization:
+    for (auto& n : per_vertex_normals)
+    {
+        n.normalize();
+    }
+    return per_vertex_normals;
 };
 
 } /* namespace render */
