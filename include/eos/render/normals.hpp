@@ -31,8 +31,7 @@ namespace eos {
 namespace render {
 
 /**
- * Calculates the normal of a face (or triangle), i.e. the per-face normal. Returned normal will be unit
- * length.
+ * Computes the normal of a face (triangle), i.e. the per-face normal. Returned normal will be unit length.
  *
  * Assumes the triangle is given in CCW order, i.e. vertices in counterclockwise order on the screen are
  * front-facing.
@@ -50,8 +49,7 @@ inline Eigen::Vector3f compute_face_normal(const Eigen::Vector3f& v0, const Eige
 };
 
 /**
- * Calculates the normal of a face (or triangle), i.e. the per-face normal. Returned normal will be unit
- * length.
+ * Computes the normal of a face (triangle), i.e. the per-face normal. Returned normal will be unit length.
  *
  * Assumes the triangle is given in CCW order, i.e. vertices in counterclockwise order on the screen are
  * front-facing.
@@ -69,8 +67,7 @@ inline Eigen::Vector3f compute_face_normal(const Eigen::Vector4f& v0, const Eige
 };
 
 /**
- * Calculates the normal of a face (or triangle), i.e. the per-face normal. Returned normal will be unit
- * length.
+ * Computes the normal of a face (triangle), i.e. the per-face normal. Returned normal will be unit length.
  *
  * Assumes the triangle is given in CCW order, i.e. vertices in counterclockwise order on the screen are
  * front-facing.
