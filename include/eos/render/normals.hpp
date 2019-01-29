@@ -31,10 +31,11 @@ namespace eos {
 namespace render {
 
 /**
- * Calculates the normal of a face (or triangle), i.e. the
- * per-face normal. Return normal will be normalised.
- * Assumes the triangle is given in CCW order, i.e. vertices
- * in counterclockwise order on the screen are front-facing.
+ * Calculates the normal of a face (or triangle), i.e. the per-face normal. Returned normal will be unit
+ * length.
+ *
+ * Assumes the triangle is given in CCW order, i.e. vertices in counterclockwise order on the screen are
+ * front-facing.
  *
  * @param[in] v0 First vertex.
  * @param[in] v1 Second vertex.
@@ -48,7 +49,18 @@ inline Eigen::Vector3f compute_face_normal(const Eigen::Vector3f& v0, const Eige
     return n.normalized();
 };
 
-// Todo: Doxygen. Actually this is the overload that's probably most used?
+/**
+ * Calculates the normal of a face (or triangle), i.e. the per-face normal. Returned normal will be unit
+ * length.
+ *
+ * Assumes the triangle is given in CCW order, i.e. vertices in counterclockwise order on the screen are
+ * front-facing.
+ *
+ * @param[in] v0 First vertex.
+ * @param[in] v1 Second vertex.
+ * @param[in] v2 Third vertex.
+ * @return The unit-length normal of the given triangle.
+ */
 inline Eigen::Vector3f compute_face_normal(const Eigen::Vector4f& v0, const Eigen::Vector4f& v1,
                                            const Eigen::Vector4f& v2)
 {
@@ -57,10 +69,11 @@ inline Eigen::Vector3f compute_face_normal(const Eigen::Vector4f& v0, const Eige
 };
 
 /**
- * Computes the normal of a face (or triangle), i.e. the
- * per-face normal. Return normal will be normalised.
- * Assumes the triangle is given in CCW order, i.e. vertices
- * in counterclockwise order on the screen are front-facing.
+ * Calculates the normal of a face (or triangle), i.e. the per-face normal. Returned normal will be unit
+ * length.
+ *
+ * Assumes the triangle is given in CCW order, i.e. vertices in counterclockwise order on the screen are
+ * front-facing.
  *
  * @param[in] v0 First vertex.
  * @param[in] v1 Second vertex.
