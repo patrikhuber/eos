@@ -482,7 +482,8 @@ private:
      *
      * @param[in] archive The archive to serialise to (or to serialise from).
      * @param[in] version Version number of the archive.
-     * @throw std::runtime_error When the model file doesn't have the most recent version (=1).
+     * @throw std::runtime_error When the model file has version <1 (the very old cv::Mat matrix format) or an
+     *                           unknown value (e.g. >4).
      */
     template <class Archive>
     void serialize(Archive& archive, const std::uint32_t version)
@@ -503,11 +504,15 @@ private:
         {
             archive(CEREAL_NVP(shape_model), CEREAL_NVP(color_model), CEREAL_NVP(expression_model),
                     CEREAL_NVP(landmark_definitions), CEREAL_NVP(texture_coordinates));
-        } else
+        } else if (version == 4)
         {
             archive(CEREAL_NVP(shape_model), CEREAL_NVP(color_model), CEREAL_NVP(expression_model),
                     CEREAL_NVP(landmark_definitions), CEREAL_NVP(texture_coordinates),
                     CEREAL_NVP(texture_triangle_indices));
+        } else
+        {
+            throw std::runtime_error("The model file you are trying to load has an unknown version number: " +
+                                     std::to_string(version));
         }
     };
 };
