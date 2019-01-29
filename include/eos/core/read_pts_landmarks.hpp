@@ -41,13 +41,13 @@ namespace core {
  * @param[in] filename Path to a .pts file.
  * @return An ordered vector with the 68 ibug landmarks.
  */
-inline LandmarkCollection<Eigen::Vector2f> read_pts_landmarks(std::string filename)
+inline LandmarkCollection<Eigen::Vector2f> read_pts_landmarks(const std::string& filename)
 {
     using Eigen::Vector2f;
     using std::getline;
     using std::string;
     LandmarkCollection<Vector2f> landmarks;
-    landmarks.reserve(68);
+    landmarks.reserve(68);  // number of landmarks in ibug markup
 
     std::ifstream file(filename);
     if (!file)
@@ -82,7 +82,7 @@ inline LandmarkCollection<Eigen::Vector2f> read_pts_landmarks(std::string filena
         // ==> So we shift every point by 1:
         landmark.coordinates[0] -= 1.0f;
         landmark.coordinates[1] -= 1.0f;
-        landmarks.emplace_back(landmark);
+        landmarks.emplace_back(std::move(landmark));
         ++ibugId;
     }
     return landmarks;

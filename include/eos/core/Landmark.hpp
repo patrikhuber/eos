@@ -29,6 +29,7 @@
 namespace eos {
 namespace core {
 
+
 /**
  * @brief Representation of a landmark, consisting of a landmark name and
  * coordinates of the given type. Usually, the type would be \c Eigen::Vector2f.
@@ -41,10 +42,26 @@ struct Landmark
 };
 
 /**
+ * @brief Representation of a landmark with mesh index.
+ */
+template <class LandmarkType>
+struct IndexedLandmark: Landmark<LandmarkType>
+{
+    int model_index;  ///< Index of landmark in mesh
+};
+
+
+/**
  * @brief A trivial collection of landmarks that belong together.
  */
 template <class LandmarkType>
 using LandmarkCollection = std::vector<Landmark<LandmarkType>>;
+
+/**
+ * @brief A trivial collection of indexed landmarks that belong together.
+ */
+template <class LandmarkType>
+using IndexedLandmarkCollection = std::vector<IndexedLandmark<LandmarkType>>;
 
 /**
  * @brief Shorthand for a 2D floating point landmark type.
