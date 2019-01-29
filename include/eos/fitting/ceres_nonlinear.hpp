@@ -22,6 +22,7 @@
 #ifndef CERESNONLINEAR_HPP_
 #define CERESNONLINEAR_HPP_
 
+#include "eos/core/Landmark.hpp"
 #include "eos/morphablemodel/MorphableModel.hpp"
 #include "eos/morphablemodel/Blendshape.hpp"
 
@@ -30,12 +31,20 @@
 #include "glm/gtc/quaternion.hpp"
 #include "glm/gtx/transform.hpp"
 
+#include "ceres/ceres.h"
 #include "ceres/cubic_interpolation.h"
+#include "ceres/problem.h"
 
 #include "opencv2/core/core.hpp"
 
 #include <array>
 #include <vector>
+
+
+#define num_cam_params(use_perspective) static_cast<std::size_t>(3) + static_cast<std::size_t>(use_perspective)
+
+template<std::size_t N> using darray = std::array<double, N>;
+
 
 namespace eos {
 namespace fitting {
@@ -44,11 +53,12 @@ namespace fitting {
 template <typename T>
 std::array<T, 3> get_shape_point(const morphablemodel::PcaModel& shape_model,
                                  const std::vector<morphablemodel::Blendshape>& blendshapes, int vertex_id,
-                                 const T* const shape_coeffs, const T* const blendshape_coeffs);
+                                 const T* const shape_coeffs, const T* const blendshape_coeffs,
+                                 std::size_t num_coeffs_fitting);
 
 template <typename T>
 std::array<T, 3> get_vertex_colour(const morphablemodel::PcaModel& colour_model, int vertex_id,
-                                   const T* const colour_coeffs);
+                                   const T* const colour_coeffs, std::size_t num_coeffs_fitting);
 
 /**
  * Cost function for a prior on the parameters.
@@ -67,7 +77,7 @@ struct PriorCost
      * @param[in] num_variables Number of variables that the parameter vector contains.
      * @param[in] weight A weight that the parameters are multiplied with.
      */
-    PriorCost(int num_variables, double weight = 1.0) : num_variables(num_variables), weight(weight){};
+    explicit PriorCost(std::size_t num_variables, double weight = 1.0) : num_variables(num_variables), weight(weight){};
 
     /**
      * Cost function implementation.
@@ -120,7 +130,7 @@ struct LandmarkCost
     LandmarkCost(const morphablemodel::PcaModel& shape_model,
                  const std::vector<morphablemodel::Blendshape>& blendshapes, Eigen::Vector2f observed_landmark,
                  int vertex_id, int image_width, int image_height, bool use_perspective)
-        : shape_model(shape_model), blendshapes(blendshapes), observed_landmark(observed_landmark),
+        : shape_model(shape_model), blendshapes(blendshapes), observed_landmark(std::move(observed_landmark)),
           vertex_id(vertex_id), image_width(image_width), image_height(image_height),
           aspect_ratio(static_cast<double>(image_width) / image_height), use_perspective(use_perspective){};
 
@@ -145,8 +155,8 @@ struct LandmarkCost
         using namespace glm;
         // Generate shape instance (of only one vertex id!) using current parameters and 10 shape
         // coefficients: Note: Why are we not returning a glm::tvec3<T>?
-        const auto point_arr =
-            get_shape_point<T>(shape_model, blendshapes, vertex_id, shape_coeffs, blendshape_coeffs);
+        const auto point_arr = get_shape_point<T>(shape_model, blendshapes, vertex_id, shape_coeffs,
+                                                  blendshape_coeffs, num_cam_params(use_perspective));
 
         // Project the point to 2D:
         const tvec3<T> point_3d(point_arr[0], point_arr[1], point_arr[2]);
@@ -270,7 +280,7 @@ struct ImageCost
         // Note: The following is all duplicated code with LandmarkCost. Fix if possible performance-wise.
         // Generate 3D shape point using the current parameters:
         const auto point_arr = get_shape_point<T>(morphable_model.get_shape_model(), blendshapes, vertex_id,
-                                                  shape_coeffs, blendshape_coeffs);
+                                                  shape_coeffs, blendshape_coeffs, num_cam_params(use_perspective));
 
         // Project the point to 2D:
         const tvec3<T> point_3d(point_arr[0], point_arr[1], point_arr[2]);
@@ -337,7 +347,8 @@ struct ImageCost
             interpolator.Evaluate(projected_point.y, projected_point.x, &observed_colour[0]);
 
             // This probably needs to be modified if we add a light model.
-            auto model_colour = get_vertex_colour(morphable_model.get_color_model(), vertex_id, color_coeffs);
+            auto model_colour = get_vertex_colour(morphable_model.get_color_model(), vertex_id,
+                                                  color_coeffs, num_cam_params(use_perspective));
             // I think this returns RGB, and between [0, 1].
 
             // Residual: Vertex colour of model point minus the observed colour in the 2D image
@@ -371,9 +382,9 @@ private:
 template <typename T>
 std::array<T, 3> get_shape_point(const morphablemodel::PcaModel& shape_model,
                                  const std::vector<morphablemodel::Blendshape>& blendshapes, int vertex_id,
-                                 const T* const shape_coeffs, const T* const blendshape_coeffs)
+                                 const T* const shape_coeffs, const T* const blendshape_coeffs,
+                                 std::size_t num_coeffs_fitting)
 {
-    int num_coeffs_fitting = 10; // Todo: Should be inferred or a function parameter!
     auto mean = shape_model.get_mean_at_point(vertex_id);
     auto basis = shape_model.get_rescaled_pca_basis_at_point(vertex_id);
     // Computing Shape = mean + basis * coeffs:
@@ -420,9 +431,8 @@ std::array<T, 3> get_shape_point(const morphablemodel::PcaModel& shape_model,
  */
 template <typename T>
 std::array<T, 3> get_vertex_colour(const morphablemodel::PcaModel& color_model, int vertex_id,
-                                   const T* const color_coeffs)
+                                   const T* const color_coeffs, std::size_t num_coeffs_fitting)
 {
-    int num_coeffs_fitting = 10; // Todo: Should be inferred or a function parameter!
     auto mean = color_model.get_mean_at_point(vertex_id);
     auto basis = color_model.get_rescaled_pca_basis_at_point(vertex_id);
     // Computing Colour = mean + basis * coeffs
@@ -443,6 +453,121 @@ std::array<T, 3> get_vertex_colour(const morphablemodel::PcaModel& color_model, 
     }
     return point;
 };
+
+
+template<std::size_t shapes_num, std::size_t blendshapes_num, bool use_perspective, typename LandmarkType>
+void add_camera_cost_function(ceres::Problem& problem,
+                              darray<4>& camera_rotation,
+                              darray<num_cam_params(use_perspective)>& camera_translation_and_intrinsics,
+                              darray<shapes_num>& shape_coefficients,
+                              darray<blendshapes_num>& blendshape_coefficients,
+                              const core::LandmarkCollection<LandmarkType>& landmarks,
+                              const morphablemodel::MorphableModel& morphable_model,
+                              const std::vector<eos::morphablemodel::Blendshape>& blendshapes,
+                              int image_cols, int image_rows) {
+    for (const auto& landmark : landmarks)
+    {
+        /* Templates: CostFunctor, num residuals, camera rotation (quaternion),
+                      camera translation & fov/frustum_scale, shape-coeffs, bs-coeffs */
+        auto* cost_function = new ceres::AutoDiffCostFunction<fitting::LandmarkCost, 2, 4,
+                                                              num_cam_params(use_perspective),
+                                                              shapes_num, blendshapes_num>(
+                new LandmarkCost(morphable_model.get_shape_model(),
+                                 blendshapes, landmark.coordinates, landmark.index,
+                                 image_cols, image_rows, use_perspective));
+
+        problem.AddResidualBlock(cost_function, nullptr, &camera_rotation[0],
+                                 &camera_translation_and_intrinsics[0], &shape_coefficients[0],
+                                 &blendshape_coefficients[0]);
+    }
+    if (use_perspective)
+    {
+        problem.SetParameterUpperBound(
+                &camera_translation_and_intrinsics[0], 2,
+                -std::numeric_limits<float>::epsilon()); // t_z has to be negative
+        problem.SetParameterLowerBound(
+                &camera_translation_and_intrinsics[0], 3,
+                std::numeric_limits<float>::epsilon()); // fov in radians, must be > 0
+    } else
+    {
+        problem.SetParameterLowerBound(&camera_translation_and_intrinsics[0], 2,
+                                       1.0); // frustum_scale must be > 0
+    }
+    problem.SetParameterization(&camera_rotation[0], new ceres::QuaternionParameterization);
+}
+
+
+template<std::size_t shapes_num>
+void add_shape_prior_cost_function(ceres::Problem& problem, darray<shapes_num>& shape_coefficients) {
+    /* Templates: CostFunctor, num residuals, shape-coeffs */
+    auto* shape_prior_cost = new ceres::AutoDiffCostFunction<fitting::PriorCost, shapes_num, shapes_num>(
+            new fitting::PriorCost(shapes_num, 35.0));
+    problem.AddResidualBlock(shape_prior_cost, nullptr, &shape_coefficients[0]);
+    for (int i = 0; i < shapes_num; ++i)
+    {
+        problem.SetParameterLowerBound(&shape_coefficients[0], i, -3.0);
+        problem.SetParameterUpperBound(&shape_coefficients[0], i, 3.0);
+    }
+}
+
+
+template<std::size_t blendshapes_num>
+void add_blendshape_prior_cost_function(ceres::Problem& problem,
+                                        darray<blendshapes_num>& blendshape_coefficients) {
+    /* Templates: CostFunctor, num residuals, blendshape-coeffs */
+    auto* blendshapes_prior_cost = new ceres::AutoDiffCostFunction<fitting::PriorCost, blendshapes_num,
+            blendshapes_num>(new fitting::PriorCost(blendshapes_num, 10.0));
+    problem.AddResidualBlock(blendshapes_prior_cost, nullptr, &blendshape_coefficients[0]);
+
+    for (int i = 0; i < blendshapes_num; ++i) {
+        problem.SetParameterLowerBound(&blendshape_coefficients[0], i, 0.0);
+    }
+}
+
+
+template<std::size_t shapes_num, std::size_t blendshapes_num, std::size_t color_coeffs_num, bool use_perspective>
+void add_image_cost_function(ceres::Problem& problem,
+                             darray<color_coeffs_num>& colour_coefficients,
+                             darray<4>& camera_rotation,
+                             darray<num_cam_params(use_perspective)>& camera_translation_and_intrinsics,
+                             darray<shapes_num>& shape_coefficients,
+                             darray<blendshapes_num>& blendshape_coefficients,
+                             const morphablemodel::MorphableModel& morphable_model,
+                             const std::vector<eos::morphablemodel::Blendshape>& blendshapes,
+                             const cv::Mat& image) {
+
+    // Add a residual for each vertex:
+    for (int i = 0; i < morphable_model.get_shape_model().get_data_dimension() / 3; ++i) {
+        // Templates: CostFunctor, Residuals: [R, G, B], camera rotation (quaternion),
+        //            camera translation & focal length, shape-coeffs, bs-coeffs, colour coeffs
+
+        auto* cost_function = new ceres::AutoDiffCostFunction<fitting::ImageCost, 3, 4,
+                                                              num_cam_params(use_perspective),
+                                                              shapes_num, blendshapes_num, color_coeffs_num>(
+                new fitting::ImageCost(morphable_model, blendshapes, image, i, use_perspective));
+
+        problem.AddResidualBlock(cost_function, nullptr, &camera_rotation[0],
+                                 &camera_translation_and_intrinsics[0], &shape_coefficients[0],
+                                 &blendshape_coefficients[0], &colour_coefficients[0]);
+    }
+}
+
+
+// Prior for the colour coefficients:
+template<std::size_t color_coeffs_num>
+void add_image_prior_cost_function(ceres::Problem& problem, darray<color_coeffs_num>& colour_coefficients) {
+    // Templates: CostFunctor, num residuals, colour-coeffs
+    auto* colour_prior_cost =
+            new ceres::AutoDiffCostFunction<fitting::PriorCost, color_coeffs_num, color_coeffs_num>(
+                    new fitting::PriorCost(color_coeffs_num, 35.0));
+
+    problem.AddResidualBlock(colour_prior_cost, nullptr, &colour_coefficients[0]);
+    for (int i = 0; i < color_coeffs_num; ++i) {
+        problem.SetParameterLowerBound(&colour_coefficients[0], i, -3.0);
+        problem.SetParameterUpperBound(&colour_coefficients[0], i, 3.0);
+    }
+}
+
 
 } /* namespace fitting */
 } /* namespace eos */

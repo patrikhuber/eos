@@ -78,7 +78,7 @@ struct ModelContour
 
     // We store r/l separately because we currently only fit to the contour facing the camera.
     // Also if we were to fit to the whole contour: Be careful not to just fit to the closest. The
-    // "invisible" ones behind might be closer on an e.g 90° angle. Store CNT for left/right side separately?
+    // "invisible" ones behind might be closer on an e.g 90ï¿½ angle. Store CNT for left/right side separately?
 
     /**
      * Helper method to load a ModelContour from
@@ -146,6 +146,10 @@ struct ContourLandmarks
     std::vector<std::string> left_contour;
 
     // Note: We store r/l separately because we currently only fit to the contour facing the camera.
+
+    bool empty() const {
+        return right_contour.empty() && left_contour.empty();
+    }
 
     /**
      * Helper method to load contour landmarks from a text file with landmark
@@ -261,7 +265,7 @@ get_contour_correspondences(const core::LandmarkCollection<Eigen::Vector2f>& lan
  * have different size. 
  * Correspondence can be established using get_nearest_contour_correspondences().
  *
- * If the yaw angle is between +-7.5°, both contours will be selected.
+ * If the yaw angle is between +-7.5ï¿½, both contours will be selected.
  *
  * @param[in] yaw_angle Yaw angle in degrees.
  * @param[in] contour_landmarks 2D image contour ids of left or right side (for example for ibug landmarks).
@@ -294,7 +298,7 @@ select_contour(float yaw_angle, const ContourLandmarks& contour_landmarks, const
                                             begin(contour_landmarks.left_contour),
                                             end(contour_landmarks.left_contour));
     }
-    // Note there's an overlap between the angles - if a subject is between +- 7.5°, both contours get added.
+    // Note there's an overlap between the angles - if a subject is between +- 7.5ï¿½, both contours get added.
     return std::make_pair(contour_landmark_identifiers, model_contour_indices);
 };
 

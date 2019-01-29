@@ -38,6 +38,7 @@ struct Landmark
 {
     std::string name;         ///< Name of the landmark, often used as identifier.
     LandmarkType coordinates; ///< The position or coordinates of the landmark.
+    int index = -1;               ///< Index of landmark in mesh
 };
 
 /**
