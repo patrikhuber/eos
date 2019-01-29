@@ -22,10 +22,7 @@
 #ifndef RENDER_UTILS_HPP_
 #define RENDER_UTILS_HPP_
 
-#include "glm/vec3.hpp"
-#include "glm/geometric.hpp"
-
-#include "Eigen/Core"
+#include "glm/vec2.hpp"
 
 namespace eos {
 namespace render {
@@ -93,50 +90,6 @@ glm::tvec2<T, P> clip_to_screen_space(const T clip_coord_x, const T clip_coord_y
         screen_height - (clip_coord_y + T(1)) *
                             (screen_height / 2.0); // also flip y; Qt: Origin top-left. OpenGL: bottom-left.
     return glm::tvec2<T, P>(x_ss, y_ss);
-};
-
-/**
- * Calculates the normal of a face (or triangle), i.e. the
- * per-face normal. Return normal will be normalised.
- * Assumes the triangle is given in CCW order, i.e. vertices
- * in counterclockwise order on the screen are front-facing.
- *
- * @param[in] v0 First vertex.
- * @param[in] v1 Second vertex.
- * @param[in] v2 Third vertex.
- * @return The unit-length normal of the given triangle.
- */
-inline Eigen::Vector3f compute_face_normal(const Eigen::Vector3f& v0, const Eigen::Vector3f& v1,
-                                           const Eigen::Vector3f& v2)
-{
-    Eigen::Vector3f n = (v1 - v0).cross(v2 - v0); // v0-to-v1 x v0-to-v2
-    return n.normalized();
-};
-
-// Todo: Doxygen. Actually this is the overload that's probably most used?
-inline Eigen::Vector3f compute_face_normal(const Eigen::Vector4f& v0, const Eigen::Vector4f& v1,
-                                           const Eigen::Vector4f& v2)
-{
-    Eigen::Vector4f n = (v1 - v0).cross3(v2 - v0); // v0-to-v1 x v0-to-v2
-    return n.head<3>().normalized();
-};
-
-/**
- * Computes the normal of a face (or triangle), i.e. the
- * per-face normal. Return normal will be normalised.
- * Assumes the triangle is given in CCW order, i.e. vertices
- * in counterclockwise order on the screen are front-facing.
- *
- * @param[in] v0 First vertex.
- * @param[in] v1 Second vertex.
- * @param[in] v2 Third vertex.
- * @return The unit-length normal of the given triangle.
- */
-inline glm::vec3 compute_face_normal(const glm::vec3& v0, const glm::vec3& v1, const glm::vec3& v2)
-{
-    glm::vec3 n = glm::cross(v1 - v0, v2 - v0); // v0-to-v1 x v0-to-v2
-    n = glm::normalize(n);
-    return n;
 };
 
 } /* namespace render */
