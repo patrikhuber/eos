@@ -177,8 +177,9 @@ public:
         core::Mesh mesh;
         if (has_texture_coordinates())
         {
-            mesh = sample_to_mesh(shape, color, shape_model.get_triangle_list(),
-                                  color_model.get_triangle_list(), texture_coordinates);
+            mesh =
+                sample_to_mesh(shape, color, shape_model.get_triangle_list(), color_model.get_triangle_list(),
+                               texture_coordinates, texture_triangle_indices);
         } else
         {
             mesh = sample_to_mesh(shape, color, shape_model.get_triangle_list(),
@@ -214,7 +215,8 @@ public:
         if (has_texture_coordinates())
         {
             mesh = sample_to_mesh(shape_sample, color_sample, shape_model.get_triangle_list(),
-                                  color_model.get_triangle_list(), texture_coordinates);
+                                  color_model.get_triangle_list(), texture_coordinates,
+                                  texture_triangle_indices);
         } else
         {
             mesh = sample_to_mesh(shape_sample, color_sample, shape_model.get_triangle_list(),
@@ -265,7 +267,8 @@ public:
         if (has_texture_coordinates())
         {
             mesh = sample_to_mesh(shape_sample, color_sample, shape_model.get_triangle_list(),
-                                  color_model.get_triangle_list(), texture_coordinates);
+                                  color_model.get_triangle_list(), texture_coordinates,
+                                  texture_triangle_indices);
         } else
         {
             mesh = sample_to_mesh(shape_sample, color_sample, shape_model.get_triangle_list(),
@@ -353,7 +356,8 @@ public:
         if (has_texture_coordinates())
         {
             mesh = sample_to_mesh(shape_sample, color_sample, shape_model.get_triangle_list(),
-                                  color_model.get_triangle_list(), texture_coordinates);
+                                  color_model.get_triangle_list(), texture_coordinates,
+                                  texture_triangle_indices);
         } else
         {
             mesh = sample_to_mesh(shape_sample, color_sample, shape_model.get_triangle_list(),
