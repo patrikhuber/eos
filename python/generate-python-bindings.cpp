@@ -98,10 +98,11 @@ PYBIND11_MODULE(eos, eos_module)
     py::class_<core::Mesh>(core_module, "Mesh", "This class represents a 3D mesh consisting of vertices, vertex colour information and texture coordinates.")
         .def(py::init<>(), "Creates an empty mesh.")
         .def_readwrite("vertices", &core::Mesh::vertices, "Vertices")
-        .def_readwrite("tvi", &core::Mesh::tvi, "Triangle vertex indices")
         .def_readwrite("colors", &core::Mesh::colors, "Colour data")
+        .def_readwrite("texcoords", &core::Mesh::texcoords, "Texture coordinates")
+        .def_readwrite("tvi", &core::Mesh::tvi, "Triangle vertex indices")
         .def_readwrite("tci", &core::Mesh::tci, "Triangle colour indices (usually the same as tvi)")
-        .def_readwrite("texcoords", &core::Mesh::texcoords, "Texture coordinates");
+        .def_readwrite("tti", &core::Mesh::tti, "Triangle texture indices");
 
     core_module.def("write_obj", &core::write_obj, "Writes the given Mesh to an obj file.", py::arg("mesh"), py::arg("filename"));
     core_module.def("write_textured_obj", &core::write_textured_obj, "Writes the given Mesh to an obj file, including texture coordinates, and an mtl file containing a reference to the isomap. The texture (isomap) has to be saved separately.", py::arg("mesh"), py::arg("filename"));
