@@ -39,15 +39,19 @@ namespace core {
  *
  * Additionally it stores the indices that specify which vertices
  * to use to generate the triangle mesh out of the vertices.
+ *
+ * \c texcoords should either be the same size as \c vertices (i.e. one set of texture coordinates per
+ * vertex), or alternatively \c tti can be set, then a separate triangulation for the texture coordinates can
+ * be used (e.g. for texture maps that contain seams).
  */
 struct Mesh
 {
     std::vector<Eigen::Vector3f> vertices;  ///< 3D vertex positions.
     std::vector<Eigen::Vector3f> colors;    ///< Colour information for each vertex. Expected to be in RGB order.
-    std::vector<Eigen::Vector2f> texcoords; ///< Texture coordinates for each vertex.
+    std::vector<Eigen::Vector2f> texcoords; ///< Texture coordinates.
 
     std::vector<std::array<int, 3>> tvi;    ///< Triangle vertex indices
-    std::vector<std::array<int, 3>> tci;    ///< Triangle color indices
+    std::vector<std::array<int, 3>> tci;    ///< Triangle color indices (usually the same as tvi)
     std::vector<std::array<int, 3>> tti;    ///< Triangle texture indices
 };
 
