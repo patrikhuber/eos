@@ -618,6 +618,10 @@ eos::core::Image4u extract_texture(const core::Mesh& mesh, glm::mat4x4 view_mode
     const int tex_width = isomap_resolution;
     const int tex_height =
         isomap_resolution; // keeping this in case we need non-square texture maps at some point
+
+    // Todo: This may need updating to support mesh.tti, potentially like:
+    //   const auto& tti = mesh.tti.empty() ? mesh.tvi : mesh.tti;
+    //   for (const auto& tvi : tti)
     for (const auto& tvi : mesh.tvi)
     {
         if (visibility_ray[tvi[0]] && visibility_ray[tvi[1]] &&
