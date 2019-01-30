@@ -54,7 +54,13 @@
         <DisplayString>FLOAT64</DisplayString>
       </Synthetic>
 
-      <Item Name="[channels]">$T2</Item>
+      <Synthetic Name="[channels]" Condition='$T2 == 3'>
+        <DisplayString>RGB</DisplayString>
+      </Synthetic>
+      <Synthetic Name="[channels]" Condition='$T2 == 4'>
+        <DisplayString>RGBA</DisplayString>
+      </Synthetic>
+      <!-- Note: I haven't found out how to do "if $T2 is not 3 or 4, then just use $T2". -->
 
       <Item Name="[width]">width_</Item>
       <Item Name="[height]">height_</Item>
