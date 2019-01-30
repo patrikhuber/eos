@@ -138,7 +138,7 @@ inline std::vector<int> occluding_boundary_vertices(const core::Mesh& mesh,
                 {
                     // We've hit a triangle. Ray hit its own triangle. If it's behind the ray origin, ignore
                     // the intersection:
-					// Note: Check if in front or behind?
+                    // Note: Check if in front or behind?
                     if (intersect.second.value() <= 1e-4)
                     {
                         continue; // the intersection is behind the vertex, we don't care about it
@@ -164,7 +164,7 @@ inline std::vector<int> occluding_boundary_vertices(const core::Mesh& mesh,
     } else
     {
         return occluding_vertices;
-	}
+    }
 };
 
 /** A simple vector-of-vectors adaptor for nanoflann, without duplicating the storage.
