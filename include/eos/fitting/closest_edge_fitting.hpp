@@ -19,8 +19,8 @@
  */
 #pragma once
 
-#ifndef CLOSESTEDGEFITTING_HPP_
-#define CLOSESTEDGEFITTING_HPP_
+#ifndef EOS_CLOSEST_EDGE_FITTING_HPP
+#define EOS_CLOSEST_EDGE_FITTING_HPP
 
 #include "eos/core/Mesh.hpp"
 #include "eos/morphablemodel/EdgeTopology.hpp"
@@ -432,4 +432,4 @@ inline std::pair<std::vector<Eigen::Vector2f>, std::vector<int>> find_occluding_
 } /* namespace fitting */
 } /* namespace eos */
 
-#endif /* CLOSESTEDGEFITTING_HPP_ */
+#endif /* EOS_CLOSEST_EDGE_FITTING_HPP */
