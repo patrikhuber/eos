@@ -583,8 +583,8 @@ eos::core::Image4u extract_texture(const core::Mesh& mesh, glm::mat4x4 view_mode
 
             vec3 ray_origin(vertex);
             vec3 ray_direction(0.0f, 0.0f, 1.0f); // we shoot the ray from the vertex towards the camera
-            auto intersect = fitting::ray_triangle_intersect(ray_origin, ray_direction, vec3(v0), vec3(v1),
-                                                             vec3(v2), false);
+            auto intersect =
+                ray_triangle_intersect(ray_origin, ray_direction, vec3(v0), vec3(v1), vec3(v2), false);
             // first is bool intersect, second is the distance t
             if (intersect.first == true)
             {
