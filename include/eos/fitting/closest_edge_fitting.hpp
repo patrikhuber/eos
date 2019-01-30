@@ -118,8 +118,11 @@ inline std::vector<int> occluding_boundary_vertices(const core::Mesh& mesh,
     {
         // Perform ray-casting to find out which vertices are not visible (i.e. self-occluded):
         std::vector<bool> visibility;
+        const glm::vec3 ray_direction(0.0f, 0.0f,
+                                      1.0f); // we shoot rays from the vertex towards the camera
         for (auto vertex_idx : occluding_vertices)
         {
+            const glm::vec3 ray_origin(rotated_vertices[vertex_idx]);
             bool visible = true;
             // For every tri of the rotated mesh:
             for (const auto& tri : mesh.tvi)
@@ -128,9 +131,6 @@ inline std::vector<int> occluding_boundary_vertices(const core::Mesh& mesh,
                 const auto& v1 = rotated_vertices[tri[1]];
                 const auto& v2 = rotated_vertices[tri[2]];
 
-                const glm::vec3 ray_origin(rotated_vertices[vertex_idx]);
-                const glm::vec3 ray_direction(0.0f, 0.0f,
-                                              1.0f); // we shoot the ray from the vertex towards the camera
                 const auto intersect = render::ray_triangle_intersect(
                     ray_origin, ray_direction, glm::vec3(v0), glm::vec3(v1), glm::vec3(v2), false);
                 // first is bool intersect, second is the distance t
