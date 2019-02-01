@@ -508,24 +508,24 @@ int main(int argc, char* argv[])
     // Prior and constraints on blendshapes:
     fitting::add_blendshape_prior_cost_function<EOS_CERES_BLENDSHAPES_NUM>(overall_problem, blendshape_coefficients);
 
-    // Colour model fitting (this needs a Morphable Model with colour (albedo) model, see note above main()):
+    // Colour model fitting (this needs a Morphable Model with color (albedo) model, see note above main()):
     Eigen::VectorXf color_instance;
-    darray<EOS_CERES_COLOR_COEFFS_NUM> colour_coefficients;
+    darray<EOS_CERES_COLOR_COEFFS_NUM> color_coefficients;
     if (morphable_model.has_color_model()) {
         // Add a residual for each vertex:
         fitting::add_image_cost_function<EOS_CERES_SHAPES_NUM,
                                          EOS_CERES_BLENDSHAPES_NUM,
                                          EOS_CERES_COLOR_COEFFS_NUM,
                                          EOS_CERES_USE_PERSPECTIVE>(overall_problem,
-                                                                    colour_coefficients,
+                                                                    color_coefficients,
                                                                     camera_rotation, camera_translation_and_intrinsics,
                                                                     shape_coefficients, blendshape_coefficients,
                                                                     morphable_model, blendshapes, image);
 
-        fitting::add_image_prior_cost_function<EOS_CERES_COLOR_COEFFS_NUM>(overall_problem, colour_coefficients);
-        color_instance = morphable_model.get_color_model().draw_sample(colour_coefficients);
+        fitting::add_image_prior_cost_function<EOS_CERES_COLOR_COEFFS_NUM>(overall_problem, color_coefficients);
+        color_instance = morphable_model.get_color_model().draw_sample(color_coefficients);
     } else {
-        std::cout << "The MorphableModel used does not contain a colour (albedo) model. No ImageCost will be applied."
+        std::cout << "The MorphableModel used does not contain a color (albedo) model. No ImageCost will be applied."
                   << std::endl;
         color_instance = Eigen::VectorXf();
     }

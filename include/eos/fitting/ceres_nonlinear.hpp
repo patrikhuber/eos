@@ -57,12 +57,12 @@ std::array<T, 3> get_shape_point(const morphablemodel::PcaModel& shape_model,
                                  std::size_t num_coeffs_fitting);
 
 template <typename T>
-std::array<T, 3> get_vertex_colour(const morphablemodel::PcaModel& colour_model, int vertex_id,
-                                   const T* const colour_coeffs, std::size_t num_coeffs_fitting);
+std::array<T, 3> get_vertex_color(const morphablemodel::PcaModel& color_model, int vertex_id,
+                                  const T* const color_coeffs, std::size_t num_coeffs_fitting);
 
 /**
  * Cost function for a prior on the parameters.
- * 
+ *
  * Prior towards zero (0, 0...) for the parameters.
  * Note: The weight is inside the norm, so may not correspond to the "usual"
  * formulas. However I think it's equivalent up to a scaling factor, but it
@@ -97,13 +97,13 @@ struct PriorCost
     };
 
 private:
-    int num_variables;
+    std::size_t num_variables;
     double weight;
 };
 
 /**
  * 2D landmark error cost function.
- * 
+ *
  * Computes the landmark reprojection error in 2D.
  * Models the cost for one landmark. The residual is 2-dim, [x, y].
  * Its input params are camera parameters, shape coefficients and
@@ -129,7 +129,7 @@ struct LandmarkCost
      */
     LandmarkCost(const morphablemodel::PcaModel& shape_model,
                  const std::vector<morphablemodel::Blendshape>& blendshapes, Eigen::Vector2f observed_landmark,
-                 int vertex_id, int image_width, int image_height, bool use_perspective)
+                 int vertex_id, std::size_t image_width, std::size_t image_height, bool use_perspective)
         : shape_model(shape_model), blendshapes(blendshapes), observed_landmark(std::move(observed_landmark)),
           vertex_id(vertex_id), image_width(image_width), image_height(image_height),
           aspect_ratio(static_cast<double>(image_width) / image_height), use_perspective(use_perspective){};
@@ -159,31 +159,31 @@ struct LandmarkCost
                                                   blendshape_coeffs, num_cam_params(use_perspective));
 
         // Project the point to 2D:
-        const tvec3<T> point_3d(point_arr[0], point_arr[1], point_arr[2]);
+        const auto point_3d = tvec3<T>(point_arr[0], point_arr[1], point_arr[2]);
         // I think the quaternion is always normalised because we run Ceres with QuaternionParameterization
-        const tquat<T> rot_quat(camera_rotation[0], camera_rotation[1], camera_rotation[2],
-                                camera_rotation[3]);
+        const auto rot_quat = tquat<T>(camera_rotation[0], camera_rotation[1], camera_rotation[2], camera_rotation[3]);
         // We rotate ZXY*p, which is RPY*p. I'm not sure this matrix still corresponds to RPY - probably if we
         // use glm::eulerAngles(), these are not RPY anymore and we'd have to adjust if we were to use
         // rotation matrices.
-        const tmat4x4<T> rot_mtx = glm::mat4_cast(rot_quat);
+        const auto rot_mtx = glm::mat4_cast(rot_quat);
 
         // Todo: use get_opencv_viewport() from nonlin_cam_esti.hpp.
-        const tvec4<T> viewport(0, image_height, image_width, -image_height); // OpenCV convention
+        const auto viewport = tvec4<T>(0, image_height, image_width, -image_height); // OpenCV convention
 
-        tvec3<T> projected_point; // Note: could avoid default construction by using a lambda and immediate
+        auto projected_point = tvec3<T>(); // Note: could avoid default construction by using a lambda and immediate
                                   // invocation
         if (use_perspective)
         {
             const auto t_mtx = glm::translate(tvec3<T>(camera_translation_and_intrinsics[0],
                                                        camera_translation_and_intrinsics[1],
                                                        camera_translation_and_intrinsics[2]));
-            const T& fov = camera_translation_and_intrinsics[3];
-            const auto persp_mtx = glm::perspective(fov, T(aspect_ratio), T(0.1), T(1000.0));
+            const auto& fov = camera_translation_and_intrinsics[3];
+            const auto persp_mtx = glm::perspective(fov, static_cast<T>(aspect_ratio),
+                                                    static_cast<T>(0.1), static_cast<T>(1000.0));
             projected_point = glm::project(point_3d, t_mtx * rot_mtx, persp_mtx, viewport);
         } else
         {
-            const T& frustum_scale = camera_translation_and_intrinsics[2];
+            const auto& frustum_scale = camera_translation_and_intrinsics[2];
             const auto t_mtx = glm::translate(
                 tvec3<T>(camera_translation_and_intrinsics[0], camera_translation_and_intrinsics[1],
                          0.0)); // we don't have t_z in ortho camera, it doesn't matter where it is
@@ -193,30 +193,29 @@ struct LandmarkCost
             projected_point = glm::project(point_3d, t_mtx * rot_mtx, ortho_mtx, viewport);
         }
         // Residual: Projected point minus the observed 2D landmark point
-        residual[0] = projected_point.x - T(observed_landmark[0]);
-        residual[1] = projected_point.y - T(observed_landmark[1]);
+        residual[0] = projected_point.x - static_cast<T>(observed_landmark[0]);
+        residual[1] = projected_point.y - static_cast<T>(observed_landmark[1]);
         return true;
     };
 
 private:
-    const morphablemodel::PcaModel&
-        shape_model; // Or store as pointer (non-owning) or std::reference_wrapper?
+    const morphablemodel::PcaModel& shape_model; // Or store as pointer (non-owning) or std::reference_wrapper?
     const std::vector<morphablemodel::Blendshape>& blendshapes;
     const Eigen::Vector2f observed_landmark;
     const int vertex_id;
-    const int image_width;
-    const int image_height;
+    const std::size_t image_width;
+    const std::size_t image_height;
     const double aspect_ratio;
     const bool use_perspective;
 };
 
 /**
  * Image error cost function (at vertex locations).
- * 
+ *
  * Measures the RGB image error between a particular vertex point of the 3D
  * model at its projected location and the observed input image.
  * Models the cost for 1 vertex. The residual is 3-dim, [r, g, b].
- * Its input params are cam, shape-coeffs, BS-coeffs and colour coeffs.
+ * Its input params are cam, shape-coeffs, BS-coeffs and color coeffs.
  * This projects the vertex locations - so not a full rendering pass.
  */
 struct ImageCost
@@ -236,20 +235,20 @@ struct ImageCost
      * @throws std::runtime_error if the given \c image is not of type CV_8UC3.
      */
     ImageCost(const morphablemodel::MorphableModel& morphable_model,
-              const std::vector<morphablemodel::Blendshape>& blendshapes, cv::Mat image, int vertex_id,
-              bool use_perspective)
-        : morphable_model(morphable_model), blendshapes(blendshapes), image(image),
-          aspect_ratio(static_cast<double>(image.cols) / image.rows), vertex_id(vertex_id),
-          use_perspective(use_perspective)
-    {
+              const std::vector<morphablemodel::Blendshape>& blendshapes, const cv::Mat& image, int vertex_id,
+              bool use_perspective): morphable_model(morphable_model), blendshapes(blendshapes),
+                                     image(image),
+                                     aspect_ratio(static_cast<double>(image.cols) / image.rows),
+                                     vertex_id(vertex_id),
+                                     use_perspective(use_perspective) {
         if (image.type() != CV_8UC3)
         {
             throw std::runtime_error("The image given to ImageCost must be of type CV_8UC3.");
         }
         if (!morphable_model.has_color_model())
         {
-            throw std::runtime_error("The MorphableModel used does not contain a colour (albedo) model. "
-                                     "ImageCost requires a model that contains a colour PCA model. You may "
+            throw std::runtime_error("The MorphableModel used does not contain a color (albedo) model. "
+                                     "ImageCost requires a model that contains a color PCA model. You may "
                                      "want to use the full Surrey Face Model.");
         }
     };
@@ -267,7 +266,7 @@ struct ImageCost
      * t_y frustum_scale]. Perspective: [t_x t_y t_z fov].
      * @param[in] shape_coeffs A set of PCA shape coefficients.
      * @param[in] blendshape_coeffs A set of blendshape coefficients.
-     * @param[in] color_coeffs A set of PCA colour (albedo) coefficients.
+     * @param[in] color_coeffs A set of PCA color (albedo) coefficients.
      * @param[in] residual An array of the resulting residuals.
      * @return Returns true. The ceres documentation is not clear about that I think.
      */
@@ -285,15 +284,15 @@ struct ImageCost
         // Project the point to 2D:
         const tvec3<T> point_3d(point_arr[0], point_arr[1], point_arr[2]);
         // I think the quaternion is always normalised because we run Ceres with QuaternionParameterization
-        const tquat<T> rot_quat(camera_rotation[0], camera_rotation[1], camera_rotation[2],
-                                camera_rotation[3]);
+        const auto rot_quat = tquat<T>(camera_rotation[0], camera_rotation[1], camera_rotation[2],
+                                       camera_rotation[3]);
         // We rotate ZXY*p, which is RPY*p. I'm not sure this matrix still corresponds to RPY - probably if we
         // use glm::eulerAngles(), these are not RPY anymore and we'd have to adjust if we were to use
         // rotation matrices.
-        const tmat4x4<T> rot_mtx = glm::mat4_cast(rot_quat);
+        const auto rot_mtx = glm::mat4_cast(rot_quat);
 
         // Todo: use get_opencv_viewport() from nonlin_cam_esti.hpp.
-        const tvec4<T> viewport(0, image.rows, image.cols, -image.rows); // OpenCV convention
+        const auto viewport = tvec4<T>(0, image.rows, image.cols, -image.rows); // OpenCV convention
 
         tvec3<T> projected_point;
         if (use_perspective)
@@ -301,37 +300,39 @@ struct ImageCost
             const auto t_mtx = glm::translate(tvec3<T>(camera_translation_and_intrinsics[0],
                                                        camera_translation_and_intrinsics[1],
                                                        camera_translation_and_intrinsics[2]));
-            const T& focal = camera_translation_and_intrinsics[3];
-            const auto persp_mtx = glm::perspective(focal, T(aspect_ratio), T(0.1), T(1000.0));
+            const auto& focal = camera_translation_and_intrinsics[3];
+            const auto persp_mtx = glm::perspective(focal, static_cast<T>(aspect_ratio),
+                                                    static_cast<T>(0.1), static_cast<T>(1000.0));
             projected_point = glm::project(point_3d, t_mtx * rot_mtx, persp_mtx, viewport);
         } else
         {
-            const T& frustum_scale = camera_translation_and_intrinsics[2];
+            const auto& frustum_scale = camera_translation_and_intrinsics[2];
             const auto t_mtx = glm::translate(
                 tvec3<T>(camera_translation_and_intrinsics[0], camera_translation_and_intrinsics[1],
                          0.0)); // we don't have t_z in ortho camera, it doesn't matter where it is
-            const auto ortho_mtx =
-                glm::ortho(-1.0 * aspect_ratio * frustum_scale, 1.0 * aspect_ratio * frustum_scale,
-                           -1.0 * frustum_scale, 1.0 * frustum_scale);
+            const auto ortho_mtx = glm::ortho(-1.0 * aspect_ratio * frustum_scale, 1.0 * aspect_ratio * frustum_scale,
+                                              -1.0 * frustum_scale, 1.0 * frustum_scale);
             projected_point = glm::project(point_3d, t_mtx * rot_mtx, ortho_mtx, viewport);
         }
 
-        // Access the image colour value at the projected pixel location, if inside the image - otherwise set
+        // Access the image color value at the projected pixel location, if inside the image - otherwise set
         // to (127, 127, 127) (maybe not ideal...):
-        if (projected_point.y < T(0) || projected_point.y >= T(image.rows) || projected_point.x < T(0) ||
-            projected_point.x >= T(image.cols))
+        if (projected_point.y < static_cast<T>(0) ||
+            projected_point.y >= static_cast<T>(image.rows) ||
+            projected_point.x < static_cast<T>(0) ||
+            projected_point.x >= static_cast<T>(image.cols))
         {
             // The point is outside the image.
-            residual[0] = T(127.0);
-            residual[1] = T(127.0);
-            residual[2] = T(127.0);
+            residual[0] = static_cast<T>(127.0);
+            residual[1] = static_cast<T>(127.0);
+            residual[2] = static_cast<T>(127.0);
 
             // TODO: What does interpolator.Evaluate() return in this case?
             /*	Grid2D<uchar, 3> grid(image.ptr(0), 0, image.rows, 0, image.cols);
             BiCubicInterpolator<Grid2D<uchar, 3>> interpolator(grid);
-            T observed_colour[3];
-            interpolator.Evaluate(projected_y, projected_x, &observed_colour[0]); // says it returns false when (r, c) is out of bounds... but it returns void?
-            //std::cout << observed_colour[0] << ", " << observed_colour[1] << ", " << observed_colour[2] << "\n";
+            T observed_color[3];
+            interpolator.Evaluate(projected_y, projected_x, &observed_color[0]); // says it returns false when (r, c) is out of bounds... but it returns void?
+            //std::cout << observed_color[0] << ", " << observed_color[1] << ", " << observed_color[2] << "\n";
             */
             // It kind of looks like as if when it's out of bounds, there will be a vector out of bound access
             // and an assert/crash? No, in debugging, it looks like it just interpolates or something. Not
@@ -341,21 +342,21 @@ struct ImageCost
             // Note: We could store the BiCubicInterpolator as member variable.
             // The default template arguments for Grid2D are <T, kDataDim=1, kRowMajor=true,
             // kInterleaved=true> and (except for the dimension), they're the right ones for us.
-            ceres::Grid2D<uchar, 3> grid(image.ptr(0), 0, image.rows, 0, image.cols);
-            ceres::BiCubicInterpolator<ceres::Grid2D<uchar, 3>> interpolator(grid);
-            T observed_colour[3];
-            interpolator.Evaluate(projected_point.y, projected_point.x, &observed_colour[0]);
+            auto grid = ceres::Grid2D<uchar, 3>(image.ptr(0), 0, image.rows, 0, image.cols);
+            auto interpolator = ceres::BiCubicInterpolator<ceres::Grid2D<uchar, 3>>(grid);
+            auto observed_color = std::array<T, 3>();
+            interpolator.Evaluate(projected_point.y, projected_point.x, &observed_color[0]);
 
             // This probably needs to be modified if we add a light model.
-            auto model_colour = get_vertex_colour(morphable_model.get_color_model(), vertex_id,
-                                                  color_coeffs, num_cam_params(use_perspective));
+            auto model_color = get_vertex_color(morphable_model.get_color_model(), vertex_id,
+                                                color_coeffs, num_cam_params(use_perspective));
             // I think this returns RGB, and between [0, 1].
 
-            // Residual: Vertex colour of model point minus the observed colour in the 2D image
-            // observed_colour is BGR, model_colour is RGB. Residual will be RGB.
-            residual[0] = model_colour[0] * 255.0 - T(observed_colour[2]);
-            residual[1] = model_colour[1] * 255.0 - T(observed_colour[1]);
-            residual[2] = model_colour[2] * 255.0 - T(observed_colour[0]);
+            // Residual: Vertex color of model point minus the observed color in the 2D image
+            // observed_color is BGR, model_color is RGB. Residual will be RGB.
+            residual[0] = model_color[0] * static_cast<T>(255.0) - static_cast<T>(observed_color[2]);
+            residual[1] = model_color[1] * static_cast<T>(255.0) - static_cast<T>(observed_color[1]);
+            residual[2] = model_color[2] * static_cast<T>(255.0) - static_cast<T>(observed_color[0]);
         }
         return true;
     };
@@ -389,72 +390,82 @@ std::array<T, 3> get_shape_point(const morphablemodel::PcaModel& shape_model,
     auto basis = shape_model.get_rescaled_pca_basis_at_point(vertex_id);
     // Computing Shape = mean + basis * coeffs:
     // Note: Could use an Eigen matrix with type T to see if it gives a speedup.
-    std::array<T, 3> point{T(mean[0]), T(mean[1]), T(mean[2])};
+    std::array<T, 3> point {static_cast<T>(mean[0]), static_cast<T>(mean[1]), static_cast<T>(mean[2])};
     for (int i = 0; i < num_coeffs_fitting; ++i)
     {
-        point[0] += T(basis.row(0).col(i)(0)) * shape_coeffs[i]; // it seems to be ~15% faster when these are
-                                                                 // static_cast<double>() instead of T()?
+        point[0] += static_cast<T>(basis.row(0).col(i)(0)) * shape_coeffs[i];
     }
     for (int i = 0; i < num_coeffs_fitting; ++i)
     {
-        point[1] += T(basis.row(1).col(i)(0)) * shape_coeffs[i];
+        point[1] += static_cast<T>(basis.row(1).col(i)(0)) * shape_coeffs[i];
     }
     for (int i = 0; i < num_coeffs_fitting; ++i)
     {
-        point[2] += T(basis.row(2).col(i)(0)) * shape_coeffs[i];
+        point[2] += static_cast<T>(basis.row(2).col(i)(0)) * shape_coeffs[i];
     }
     // Adding the blendshape offsets:
     // Shape = mean + basis * coeffs + blendshapes * bs_coeffs:
     auto num_blendshapes = blendshapes.size();
     for (int i = 0; i < num_blendshapes; ++i)
     {
-        point[0] += T(blendshapes[i].deformation(3 * vertex_id + 0)) * blendshape_coeffs[i];
+        point[0] += static_cast<T>(blendshapes[i].deformation(3 * vertex_id + 0)) * blendshape_coeffs[i];
     }
     for (int i = 0; i < num_blendshapes; ++i)
     {
-        point[1] += T(blendshapes[i].deformation(3 * vertex_id + 1)) * blendshape_coeffs[i];
+        point[1] += static_cast<T>(blendshapes[i].deformation(3 * vertex_id + 1)) * blendshape_coeffs[i];
     }
     for (int i = 0; i < num_blendshapes; ++i)
     {
-        point[2] += T(blendshapes[i].deformation(3 * vertex_id + 2)) * blendshape_coeffs[i];
+        point[2] += static_cast<T>(blendshapes[i].deformation(3 * vertex_id + 2)) * blendshape_coeffs[i];
     }
     return point;
 };
 
 /**
- * Returns the colour value of a single point of the 3D model generated by the parameters given.
+ * Returns the color value of a single point of the 3D model generated by the parameters given.
  *
- * @param[in] color_model A PCA 3D colour (albedo) model.
- * @param[in] vertex_id Vertex id of the 3D model whose colour is to be returned.
- * @param[in] color_coeffs A set of PCA colour coefficients.
- * @return The colour. As RGB? In [0, 1]?
+ * @param[in] color_model A PCA 3D color (albedo) model.
+ * @param[in] vertex_id Vertex id of the 3D model whose color is to be returned.
+ * @param[in] color_coeffs A set of PCA color coefficients.
+ * @return The color. As RGB? In [0, 1]?
  */
 template <typename T>
-std::array<T, 3> get_vertex_colour(const morphablemodel::PcaModel& color_model, int vertex_id,
-                                   const T* const color_coeffs, std::size_t num_coeffs_fitting)
+std::array<T, 3> get_vertex_color(const morphablemodel::PcaModel& color_model, int vertex_id,
+                                  const T* const color_coeffs, std::size_t num_coeffs_fitting)
 {
     auto mean = color_model.get_mean_at_point(vertex_id);
     auto basis = color_model.get_rescaled_pca_basis_at_point(vertex_id);
     // Computing Colour = mean + basis * coeffs
     // Note: Could use an Eigen matrix with type T to see if it gives a speedup.
-    std::array<T, 3> point{T(mean[0]), T(mean[1]), T(mean[2])};
+    std::array<T, 3> point{static_cast<T>(mean[0]), static_cast<T>(mean[1]), static_cast<T>(mean[2])};
     for (int i = 0; i < num_coeffs_fitting; ++i)
     {
-        point[0] += T(basis.row(0).col(i)(0)) * color_coeffs[i]; // it seems to be ~15% faster when these are
-                                                                 // static_cast<double>() instead of T()?
+        point[0] += static_cast<T>(basis.row(0).col(i)(0)) * color_coeffs[i];
     }
     for (int i = 0; i < num_coeffs_fitting; ++i)
     {
-        point[1] += T(basis.row(1).col(i)(0)) * color_coeffs[i];
+        point[1] += static_cast<T>(basis.row(1).col(i)(0)) * color_coeffs[i];
     }
     for (int i = 0; i < num_coeffs_fitting; ++i)
     {
-        point[2] += T(basis.row(2).col(i)(0)) * color_coeffs[i];
+        point[2] += static_cast<T>(basis.row(2).col(i)(0)) * color_coeffs[i];
     }
     return point;
 };
 
 
+/**
+ * Add residual block with camera cost function to the passed problem
+ *
+ * @param[in, out] problem A problem that will be complemented.
+ * @param[in, out] camera_rotation camera_rotation quaternion
+ * @param[in, out] camera_translation_and_intrinsics 4 or 3 dimentional vector with camera parameters
+ * @param[in, out] shape_coefficients model shape coeffs
+ * @param[in, out] blendshape_coefficients model blendshape coeffs
+ * @param[in] landmarks all landmarks to fit
+ * @param[in] morphable_model morphable model instance
+ * @param[in] blendshapes all blendshapes to fit
+ */
 template<std::size_t shapes_num, std::size_t blendshapes_num, bool use_perspective, typename LandmarkType>
 void add_camera_cost_function(ceres::Problem& problem,
                               darray<4>& camera_rotation,
@@ -497,26 +508,44 @@ void add_camera_cost_function(ceres::Problem& problem,
 }
 
 
+/**
+ * Add residual block with shape prior cost function to the passed problem
+ *
+ * @param[in, out] problem A problem that will be complemented.
+ * @param[in, out] shape_coefficients model shape coeffs
+ * @param[in] weight constant to multiply all shapes
+ */
 template<std::size_t shapes_num>
-void add_shape_prior_cost_function(ceres::Problem& problem, darray<shapes_num>& shape_coefficients) {
+void add_shape_prior_cost_function(ceres::Problem& problem,
+                                   darray<shapes_num>& shape_coefficients,
+                                   double weigth = 35.0,
+                                   double shape_coeff_limit = 3.0) {
     /* Templates: CostFunctor, num residuals, shape-coeffs */
     auto* shape_prior_cost = new ceres::AutoDiffCostFunction<fitting::PriorCost, shapes_num, shapes_num>(
-            new fitting::PriorCost(shapes_num, 35.0));
+            new fitting::PriorCost(shapes_num, weigth));
     problem.AddResidualBlock(shape_prior_cost, nullptr, &shape_coefficients[0]);
     for (int i = 0; i < shapes_num; ++i)
     {
-        problem.SetParameterLowerBound(&shape_coefficients[0], i, -3.0);
-        problem.SetParameterUpperBound(&shape_coefficients[0], i, 3.0);
+        problem.SetParameterLowerBound(&shape_coefficients[0], i, -shape_coeff_limit);
+        problem.SetParameterUpperBound(&shape_coefficients[0], i, shape_coeff_limit);
     }
 }
 
 
+/**
+ * Add residual block with shape prior cost function to the passed problem
+ *
+ * @param[in, out] problem A problem that will be complemented.
+ * @param[in, out] blendshape_coefficients model blendshape coeffs
+ * @param[in] weight constant to multiply all blendshapes
+ */
 template<std::size_t blendshapes_num>
 void add_blendshape_prior_cost_function(ceres::Problem& problem,
-                                        darray<blendshapes_num>& blendshape_coefficients) {
+                                        darray<blendshapes_num>& blendshape_coefficients,
+                                        double weigth = 10.0) {
     /* Templates: CostFunctor, num residuals, blendshape-coeffs */
     auto* blendshapes_prior_cost = new ceres::AutoDiffCostFunction<fitting::PriorCost, blendshapes_num,
-            blendshapes_num>(new fitting::PriorCost(blendshapes_num, 10.0));
+            blendshapes_num>(new fitting::PriorCost(blendshapes_num, weigth));
     problem.AddResidualBlock(blendshapes_prior_cost, nullptr, &blendshape_coefficients[0]);
 
     for (int i = 0; i < blendshapes_num; ++i) {
@@ -525,9 +554,21 @@ void add_blendshape_prior_cost_function(ceres::Problem& problem,
 }
 
 
+/**
+ * Add residual block with image cost function to the passed problem
+ *
+ * @param[in, out] problem A problem that will be complemented.
+ * @param[in, out] color_coefficients model color coeffs
+ * @param[in, out] camera_translation_and_intrinsics 4 or 3 dimentional vector with camera parameters
+ * @param[in, out] shape_coefficients model shape coeffs
+ * @param[in, out] blendshape_coefficients model blendshape coeffs
+ * @param[in] morphable_model morphable model instance
+ * @param[in] blendshapes all blendshapes to fit
+ * @param[in] image image to fit
+ */
 template<std::size_t shapes_num, std::size_t blendshapes_num, std::size_t color_coeffs_num, bool use_perspective>
 void add_image_cost_function(ceres::Problem& problem,
-                             darray<color_coeffs_num>& colour_coefficients,
+                             darray<color_coeffs_num>& color_coefficients,
                              darray<4>& camera_rotation,
                              darray<num_cam_params(use_perspective)>& camera_translation_and_intrinsics,
                              darray<shapes_num>& shape_coefficients,
@@ -535,11 +576,10 @@ void add_image_cost_function(ceres::Problem& problem,
                              const morphablemodel::MorphableModel& morphable_model,
                              const std::vector<eos::morphablemodel::Blendshape>& blendshapes,
                              const cv::Mat& image) {
-
     // Add a residual for each vertex:
     for (int i = 0; i < morphable_model.get_shape_model().get_data_dimension() / 3; ++i) {
         // Templates: CostFunctor, Residuals: [R, G, B], camera rotation (quaternion),
-        //            camera translation & focal length, shape-coeffs, bs-coeffs, colour coeffs
+        //            camera translation & focal length, shape-coeffs, bs-coeffs, color coeffs
 
         auto* cost_function = new ceres::AutoDiffCostFunction<fitting::ImageCost, 3, 4,
                                                               num_cam_params(use_perspective),
@@ -548,23 +588,32 @@ void add_image_cost_function(ceres::Problem& problem,
 
         problem.AddResidualBlock(cost_function, nullptr, &camera_rotation[0],
                                  &camera_translation_and_intrinsics[0], &shape_coefficients[0],
-                                 &blendshape_coefficients[0], &colour_coefficients[0]);
+                                 &blendshape_coefficients[0], &color_coefficients[0]);
     }
 }
 
 
-// Prior for the colour coefficients:
+/**
+ * Add residual block with shape prior cost function to the passed problem
+ *
+ * @param[in, out] problem A problem that will be complemented.
+ * @param[in, out] color_coefficients model color coeffs
+ * @param[in] weight constant to multiply all colors
+ */
 template<std::size_t color_coeffs_num>
-void add_image_prior_cost_function(ceres::Problem& problem, darray<color_coeffs_num>& colour_coefficients) {
-    // Templates: CostFunctor, num residuals, colour-coeffs
-    auto* colour_prior_cost =
+void add_image_prior_cost_function(ceres::Problem& problem,
+                                   darray<color_coeffs_num>& color_coefficients,
+                                   double weigth = 35.0,
+                                   double color_coeff_limit = 3.0) {
+    // Templates: CostFunctor, num residuals, color-coeffs
+    auto* color_prior_cost =
             new ceres::AutoDiffCostFunction<fitting::PriorCost, color_coeffs_num, color_coeffs_num>(
-                    new fitting::PriorCost(color_coeffs_num, 35.0));
+                    new fitting::PriorCost(color_coeffs_num, weigth));
 
-    problem.AddResidualBlock(colour_prior_cost, nullptr, &colour_coefficients[0]);
+    problem.AddResidualBlock(color_prior_cost, nullptr, &color_coefficients[0]);
     for (int i = 0; i < color_coeffs_num; ++i) {
-        problem.SetParameterLowerBound(&colour_coefficients[0], i, -3.0);
-        problem.SetParameterUpperBound(&colour_coefficients[0], i, 3.0);
+        problem.SetParameterLowerBound(&color_coefficients[0], i, -color_coeff_limit);
+        problem.SetParameterUpperBound(&color_coefficients[0], i, color_coeff_limit);
     }
 }
 
