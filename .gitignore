@@ -1,3 +1,14 @@
 # Ignore (optional) configuration files with user-specific paths:
 initial_cache.cmake
 setup.cfg
+
+# Mac specific files
+*.DS_Store
+
+# IntelliJ IDEA files
+.idea/
+cmake-build-*
+
+# Testing data files
+examples/data
+
