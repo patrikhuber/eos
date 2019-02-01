@@ -64,7 +64,7 @@ core::Mesh sample_to_mesh(
 
 /**
  * @brief A class representing a 3D Morphable Model, consisting
- * of a shape- and color (albedo) PCA model.
+ * of a shape- and colour (albedo) PCA model.
  *
  * For the general idea of 3DMMs see T. Vetter, V. Blanz,
  * 'A Morphable Model for the Synthesis of 3D Faces', SIGGRAPH 1999.
@@ -75,11 +75,11 @@ public:
     MorphableModel() = default;
 
     /**
-     * Create a Morphable Model from a shape and a color PCA model, and optional
+     * Create a Morphable Model from a shape and a colour PCA model, and optional
      * texture coordinates.
      *
      * @param[in] shape_model A PCA model over the shape.
-     * @param[in] color_model A PCA model over the color (albedo).
+     * @param[in] color_model A PCA model over the colour (albedo).
      * @param[in] landmark_definitions A set of landmark definitions, mapping from identifiers to vertex
      * numbers.
      * @param[in] texture_coordinates Optional texture coordinates for every vertex.
@@ -93,12 +93,12 @@ public:
           texture_coordinates(texture_coordinates), texture_triangle_indices(texture_triangle_indices){};
 
     /**
-     * Create a Morphable Model from a shape and a color PCA model, an expression PCA model or blendshapes,
+     * Create a Morphable Model from a shape and a colour PCA model, an expression PCA model or blendshapes,
      * and optional texture coordinates.
      *
      * @param[in] shape_model A PCA model over the shape.
      * @param[in] expression_model A PCA model over expressions, or a set of blendshapes.
-     * @param[in] color_model A PCA model over the color (albedo).
+     * @param[in] color_model A PCA model over the colour (albedo).
      * @param[in] landmark_definitions A set of landmark definitions, mapping from identifiers to vertex
      * numbers.
      * @param[in] texture_coordinates Optional texture coordinates for every vertex.
@@ -126,9 +126,9 @@ public:
     };
 
     /**
-     * Returns the PCA color (albedo) model of this Morphable Model.
+     * Returns the PCA colour (albedo) model of this Morphable Model.
      *
-     * @return The color model.
+     * @return The colour model.
      */
     const PcaModel& get_color_model() const
     {
@@ -151,7 +151,7 @@ public:
     }
 
     /**
-     * Returns the mean of the shape (identity, and expressions, if present) and color model as a Mesh.
+     * Returns the mean of the shape (identity, and expressions, if present) and colour model as a Mesh.
      *
      * If the model contains a separate PCA expression model, the mean of that model is added and the overall
      * shape mean is returned.
@@ -189,15 +189,15 @@ public:
 
     /**
      * Draws a random sample from the model, where the coefficients
-     * for the shape- and color models are both drawn from a standard
+     * for the shape- and colour models are both drawn from a standard
      * normal (or with the given standard deviation).
      *
      * If the Morphable Model is a shape-only model, the returned mesh will
-     * not contain any color data.
+     * not contain any colour data.
      *
      * @param[in] engine Random number engine used to draw random coefficients.
      * @param[in] shape_sigma The shape model standard deviation.
-     * @param[in] color_sigma The color model standard deviation.
+     * @param[in] color_sigma The colour model standard deviation.
      * @return A random sample from the model.
      */
     template <class RNG>
@@ -225,16 +225,16 @@ public:
 
     /**
      * Returns a sample from the model with the given shape and
-     * color PCA coefficients.
+     * colour PCA coefficients.
      *
      * If one of the given vectors is empty, the mean is used.
      * The coefficient vectors should contain normalised, i.e. standard normal distributed coefficients.
-     * If the Morphable Model is a shape-only model (without color model), make sure to
+     * If the Morphable Model is a shape-only model (without colour model), make sure to
      * leave \c color_coefficients empty.
      * If a partial coefficient vector is given, it is filled with zeros up to the end.
      *
      * @param[in] shape_coefficients The PCA coefficients used to generate the shape sample.
-     * @param[in] color_coefficients The PCA coefficients used to generate the vertex coloring.
+     * @param[in] color_coefficients The PCA coefficients used to generate the vertex colouring.
      * @return A model instance with given coefficients.
      */
     core::Mesh draw_sample(std::vector<float> shape_coefficients, std::vector<float> color_coefficients) const
@@ -275,18 +275,18 @@ public:
     };
 
     /**
-     * Returns a sample from the model with the given shape, expression and color PCA coefficients.
+     * Returns a sample from the model with the given shape, expression and colour PCA coefficients.
      *
      * If you call this method on a MorphableModel that doesn't contain an expression model, it'll throw an
      * exception.
      * If one of the given vectors is empty, the mean is used. The coefficient vectors should
      * contain normalised, i.e. standard normal distributed coefficients. If the Morphable Model is a
-     * shape-only model (without color model), make sure to leave \c color_coefficients empty. If a partial
+     * shape-only model (without colour model), make sure to leave \c color_coefficients empty. If a partial
      * coefficient vector is given, it is filled with zeros up to the end.
      *
      * @param[in] shape_coefficients The PCA coefficients used to generate the shape sample.
      * @param[in] expression_coefficients The PCA coefficients used to generate the expression sample.
-     * @param[in] color_coefficients The PCA coefficients used to generate the vertex coloring.
+     * @param[in] color_coefficients The PCA coefficients used to generate the vertex colouring.
      * @return A model instance with given coefficients.
      */
     core::Mesh draw_sample(std::vector<float> shape_coefficients, std::vector<float> expression_coefficients,
@@ -363,10 +363,10 @@ public:
     };
 
     /**
-     * Returns true if this Morphable Model contains a color model. Returns false if it is a shape-only
+     * Returns true if this Morphable Model contains a colour model. Returns false if it is a shape-only
      * model.
      *
-     * @return True if the Morphable Model has a color model (i.e. is not a shape-only model).
+     * @return True if the Morphable Model has a colour model (i.e. is not a shape-only model).
      */
     bool has_color_model() const
     {
@@ -455,7 +455,7 @@ public:
 
 private:
     PcaModel shape_model;                              ///< A PCA model of the shape
-    PcaModel color_model;                              ///< A PCA model of vertex color information
+    PcaModel color_model;                              ///< A PCA model of vertex colour information
     cpp17::optional<ExpressionModel> expression_model; ///< Blendshapes or PcaModel
     cpp17::optional<std::unordered_map<std::string, int>> landmark_definitions; ///< A set of landmark
                                                                                 ///< definitions for the
@@ -555,17 +555,17 @@ inline void save_model(MorphableModel model, std::string filename)
 };
 
 /**
- * Helper function that creates a Mesh from given shape and color PCA
+ * Helper function that creates a Mesh from given shape and colour PCA
  * instances. Needs the vertex index lists as well to assemble the mesh -
  * and optional texture coordinates.
  *
- * If \c color_instance is empty, it will create a mesh without vertex coloring.
+ * If \c color_instance is empty, it will create a mesh without vertex colouring.
  * Colour values are assumed to be in the range [0, 1] and will be clamped to [0, 1].
  *
  * @param[in] shape_instance PCA shape model instance.
- * @param[in] color_instance PCA color model instance.
+ * @param[in] color_instance PCA colour model instance.
  * @param[in] tvi Triangle vertex indices.
- * @param[in] tci Triangle color indices (usually identical to the vertex indices).
+ * @param[in] tci Triangle colour indices (usually identical to the vertex indices).
  * @param[in] texture_coordinates Optional texture coordinates for each vertex.
  * @param[in] texture_triangle_indices Optional triangulation for the texture coordinates.
  * @return A mesh created from given parameters.
@@ -600,7 +600,7 @@ inline core::Mesh sample_to_mesh(
             shape_instance(i * 3 + 2)); // Note: This can probably be simplified now, Eigen on both sides!
     }
 
-    // Assign the vertex color information if it's not a shape-only model:
+    // Assign the vertex colour information if it's not a shape-only model:
     if (color_instance.size() > 0)
     {
         mesh.colors.resize(num_vertices);

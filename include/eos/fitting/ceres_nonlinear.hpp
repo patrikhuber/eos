@@ -57,8 +57,8 @@ std::array<T, 3> get_shape_point(const morphablemodel::PcaModel& shape_model,
                                  std::size_t num_coeffs_fitting);
 
 template <typename T>
-std::array<T, 3> get_vertex_color(const morphablemodel::PcaModel& color_model, int vertex_id,
-                                  const T* const color_coeffs, std::size_t num_coeffs_fitting);
+std::array<T, 3> get_vertex_colour(const morphablemodel::PcaModel& colour_model, int vertex_id,
+                                   const T* const colour_coeffs, std::size_t num_coeffs_fitting);
 
 /**
  * Cost function for a prior on the parameters.
@@ -129,7 +129,7 @@ struct LandmarkCost
      */
     LandmarkCost(const morphablemodel::PcaModel& shape_model,
                  const std::vector<morphablemodel::Blendshape>& blendshapes, Eigen::Vector2f observed_landmark,
-                 int vertex_id, std::size_t image_width, std::size_t image_height, bool use_perspective)
+                 int vertex_id, int image_width, int image_height, bool use_perspective)
         : shape_model(shape_model), blendshapes(blendshapes), observed_landmark(std::move(observed_landmark)),
           vertex_id(vertex_id), image_width(image_width), image_height(image_height),
           aspect_ratio(static_cast<double>(image_width) / image_height), use_perspective(use_perspective){};
@@ -203,8 +203,8 @@ private:
     const std::vector<morphablemodel::Blendshape>& blendshapes;
     const Eigen::Vector2f observed_landmark;
     const int vertex_id;
-    const std::size_t image_width;
-    const std::size_t image_height;
+    const int image_width;
+    const int image_height;
     const double aspect_ratio;
     const bool use_perspective;
 };
@@ -215,7 +215,7 @@ private:
  * Measures the RGB image error between a particular vertex point of the 3D
  * model at its projected location and the observed input image.
  * Models the cost for 1 vertex. The residual is 3-dim, [r, g, b].
- * Its input params are cam, shape-coeffs, BS-coeffs and color coeffs.
+ * Its input params are cam, shape-coeffs, BS-coeffs and colour coeffs.
  * This projects the vertex locations - so not a full rendering pass.
  */
 struct ImageCost
@@ -247,8 +247,8 @@ struct ImageCost
         }
         if (!morphable_model.has_color_model())
         {
-            throw std::runtime_error("The MorphableModel used does not contain a color (albedo) model. "
-                                     "ImageCost requires a model that contains a color PCA model. You may "
+            throw std::runtime_error("The MorphableModel used does not contain a colour (albedo) model. "
+                                     "ImageCost requires a model that contains a colour PCA model. You may "
                                      "want to use the full Surrey Face Model.");
         }
     };
@@ -266,7 +266,7 @@ struct ImageCost
      * t_y frustum_scale]. Perspective: [t_x t_y t_z fov].
      * @param[in] shape_coeffs A set of PCA shape coefficients.
      * @param[in] blendshape_coeffs A set of blendshape coefficients.
-     * @param[in] color_coeffs A set of PCA color (albedo) coefficients.
+     * @param[in] color_coeffs A set of PCA colour (albedo) coefficients.
      * @param[in] residual An array of the resulting residuals.
      * @return Returns true. The ceres documentation is not clear about that I think.
      */
@@ -315,7 +315,7 @@ struct ImageCost
             projected_point = glm::project(point_3d, t_mtx * rot_mtx, ortho_mtx, viewport);
         }
 
-        // Access the image color value at the projected pixel location, if inside the image - otherwise set
+        // Access the image colour value at the projected pixel location, if inside the image - otherwise set
         // to (127, 127, 127) (maybe not ideal...):
         if (projected_point.y < static_cast<T>(0) ||
             projected_point.y >= static_cast<T>(image.rows) ||
@@ -330,9 +330,9 @@ struct ImageCost
             // TODO: What does interpolator.Evaluate() return in this case?
             /*	Grid2D<uchar, 3> grid(image.ptr(0), 0, image.rows, 0, image.cols);
             BiCubicInterpolator<Grid2D<uchar, 3>> interpolator(grid);
-            T observed_color[3];
-            interpolator.Evaluate(projected_y, projected_x, &observed_color[0]); // says it returns false when (r, c) is out of bounds... but it returns void?
-            //std::cout << observed_color[0] << ", " << observed_color[1] << ", " << observed_color[2] << "\n";
+            T observed_colour[3];
+            interpolator.Evaluate(projected_y, projected_x, &observed_colour[0]); // says it returns false when (r, c) is out of bounds... but it returns void?
+            //std::cout << observed_colour[0] << ", " << observed_colour[1] << ", " << observed_colour[2] << "\n";
             */
             // It kind of looks like as if when it's out of bounds, there will be a vector out of bound access
             // and an assert/crash? No, in debugging, it looks like it just interpolates or something. Not
@@ -344,19 +344,19 @@ struct ImageCost
             // kInterleaved=true> and (except for the dimension), they're the right ones for us.
             auto grid = ceres::Grid2D<uchar, 3>(image.ptr(0), 0, image.rows, 0, image.cols);
             auto interpolator = ceres::BiCubicInterpolator<ceres::Grid2D<uchar, 3>>(grid);
-            auto observed_color = std::array<T, 3>();
-            interpolator.Evaluate(projected_point.y, projected_point.x, &observed_color[0]);
+            auto observed_colour = std::array<T, 3>();
+            interpolator.Evaluate(projected_point.y, projected_point.x, &observed_colour[0]);
 
             // This probably needs to be modified if we add a light model.
-            auto model_color = get_vertex_color(morphable_model.get_color_model(), vertex_id,
-                                                color_coeffs, num_cam_params(use_perspective));
+            auto model_colour = get_vertex_colour(morphable_model.get_color_model(), vertex_id,
+                                                  color_coeffs, num_cam_params(use_perspective));
             // I think this returns RGB, and between [0, 1].
 
-            // Residual: Vertex color of model point minus the observed color in the 2D image
-            // observed_color is BGR, model_color is RGB. Residual will be RGB.
-            residual[0] = model_color[0] * static_cast<T>(255.0) - static_cast<T>(observed_color[2]);
-            residual[1] = model_color[1] * static_cast<T>(255.0) - static_cast<T>(observed_color[1]);
-            residual[2] = model_color[2] * static_cast<T>(255.0) - static_cast<T>(observed_color[0]);
+            // Residual: Vertex colour of model point minus the observed colour in the 2D image
+            // observed_colour is BGR, model_colour is RGB. Residual will be RGB.
+            residual[0] = model_colour[0] * static_cast<T>(255.0) - static_cast<T>(observed_colour[2]);
+            residual[1] = model_colour[1] * static_cast<T>(255.0) - static_cast<T>(observed_colour[1]);
+            residual[2] = model_colour[2] * static_cast<T>(255.0) - static_cast<T>(observed_colour[0]);
         }
         return true;
     };
@@ -422,16 +422,16 @@ std::array<T, 3> get_shape_point(const morphablemodel::PcaModel& shape_model,
 };
 
 /**
- * Returns the color value of a single point of the 3D model generated by the parameters given.
+ * Returns the colour value of a single point of the 3D model generated by the parameters given.
  *
- * @param[in] color_model A PCA 3D color (albedo) model.
- * @param[in] vertex_id Vertex id of the 3D model whose color is to be returned.
- * @param[in] color_coeffs A set of PCA color coefficients.
- * @return The color. As RGB? In [0, 1]?
+ * @param[in] color_model A PCA 3D colour (albedo) model.
+ * @param[in] vertex_id Vertex id of the 3D model whose colour is to be returned.
+ * @param[in] color_coeffs A set of PCA colour coefficients.
+ * @return The colour. As RGB? In [0, 1]?
  */
 template <typename T>
-std::array<T, 3> get_vertex_color(const morphablemodel::PcaModel& color_model, int vertex_id,
-                                  const T* const color_coeffs, std::size_t num_coeffs_fitting)
+std::array<T, 3> get_vertex_colour(const morphablemodel::PcaModel& color_model, int vertex_id,
+                                   const T* const color_coeffs, std::size_t num_coeffs_fitting)
 {
     auto mean = color_model.get_mean_at_point(vertex_id);
     auto basis = color_model.get_rescaled_pca_basis_at_point(vertex_id);
@@ -558,7 +558,7 @@ void add_blendshape_prior_cost_function(ceres::Problem& problem,
  * Add residual block with image cost function to the passed problem
  *
  * @param[in, out] problem A problem that will be complemented.
- * @param[in, out] color_coefficients model color coeffs
+ * @param[in, out] colour_coefficients model colour coeffs
  * @param[in, out] camera_translation_and_intrinsics 4 or 3 dimentional vector with camera parameters
  * @param[in, out] shape_coefficients model shape coeffs
  * @param[in, out] blendshape_coefficients model blendshape coeffs
@@ -568,7 +568,7 @@ void add_blendshape_prior_cost_function(ceres::Problem& problem,
  */
 template<std::size_t shapes_num, std::size_t blendshapes_num, std::size_t color_coeffs_num, bool use_perspective>
 void add_image_cost_function(ceres::Problem& problem,
-                             darray<color_coeffs_num>& color_coefficients,
+                             darray<color_coeffs_num>& colour_coefficients,
                              darray<4>& camera_rotation,
                              darray<num_cam_params(use_perspective)>& camera_translation_and_intrinsics,
                              darray<shapes_num>& shape_coefficients,
@@ -579,7 +579,7 @@ void add_image_cost_function(ceres::Problem& problem,
     // Add a residual for each vertex:
     for (int i = 0; i < morphable_model.get_shape_model().get_data_dimension() / 3; ++i) {
         // Templates: CostFunctor, Residuals: [R, G, B], camera rotation (quaternion),
-        //            camera translation & focal length, shape-coeffs, bs-coeffs, color coeffs
+        //            camera translation & focal length, shape-coeffs, bs-coeffs, colour coeffs
 
         auto* cost_function = new ceres::AutoDiffCostFunction<fitting::ImageCost, 3, 4,
                                                               num_cam_params(use_perspective),
@@ -588,7 +588,7 @@ void add_image_cost_function(ceres::Problem& problem,
 
         problem.AddResidualBlock(cost_function, nullptr, &camera_rotation[0],
                                  &camera_translation_and_intrinsics[0], &shape_coefficients[0],
-                                 &blendshape_coefficients[0], &color_coefficients[0]);
+                                 &blendshape_coefficients[0], &colour_coefficients[0]);
     }
 }
 
@@ -597,23 +597,23 @@ void add_image_cost_function(ceres::Problem& problem,
  * Add residual block with shape prior cost function to the passed problem
  *
  * @param[in, out] problem A problem that will be complemented.
- * @param[in, out] color_coefficients model color coeffs
- * @param[in] weight constant to multiply all colors
+ * @param[in, out] colour_coefficients model colour coeffs
+ * @param[in] weight constant to multiply all colours
  */
 template<std::size_t color_coeffs_num>
 void add_image_prior_cost_function(ceres::Problem& problem,
-                                   darray<color_coeffs_num>& color_coefficients,
+                                   darray<color_coeffs_num>& colour_coefficients,
                                    double weigth = 35.0,
                                    double color_coeff_limit = 3.0) {
-    // Templates: CostFunctor, num residuals, color-coeffs
-    auto* color_prior_cost =
+    // Templates: CostFunctor, num residuals, colour-coeffs
+    auto* colour_prior_cost =
             new ceres::AutoDiffCostFunction<fitting::PriorCost, color_coeffs_num, color_coeffs_num>(
                     new fitting::PriorCost(color_coeffs_num, weigth));
 
-    problem.AddResidualBlock(color_prior_cost, nullptr, &color_coefficients[0]);
+    problem.AddResidualBlock(colour_prior_cost, nullptr, &colour_coefficients[0]);
     for (int i = 0; i < color_coeffs_num; ++i) {
-        problem.SetParameterLowerBound(&color_coefficients[0], i, -color_coeff_limit);
-        problem.SetParameterUpperBound(&color_coefficients[0], i, color_coeff_limit);
+        problem.SetParameterLowerBound(&colour_coefficients[0], i, -color_coeff_limit);
+        problem.SetParameterUpperBound(&colour_coefficients[0], i, color_coeff_limit);
     }
 }
 
