@@ -36,9 +36,18 @@ namespace core {
 template <class LandmarkType>
 struct Landmark
 {
+    Landmark(): name(), coordinates(), index() {}
+
+    Landmark(const Landmark& landmark): name(landmark.name), coordinates(landmark.coordinates) {
+        index = landmark.index ? std::make_unique<int>(*landmark.index) : nullptr;
+    }
+
+    Landmark(Landmark&& landmark): name(landmark.name), coordinates(landmark.coordinates),
+                                   index(std::move(landmark.index)) {}
+
     std::string name;         ///< Name of the landmark, often used as identifier.
     LandmarkType coordinates; ///< The position or coordinates of the landmark.
-    int index = -1;               ///< Index of landmark in mesh
+    std::unique_ptr<int> index;  ///< Index of landmark in mesh
 };
 
 /**

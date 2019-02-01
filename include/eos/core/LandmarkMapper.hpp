@@ -141,8 +141,8 @@ public:
             if (!converted_name) { // no mapping defined for the current landmark
                 continue;
             }
-            landmark.index = std::stoi(converted_name.value());
-            indexed_landmarks.emplace_back(landmark);
+            landmark.index = std::make_unique<int>(std::stoi(converted_name.value()));
+            indexed_landmarks.emplace_back(std::move(landmark));
         }
         return indexed_landmarks;
     }

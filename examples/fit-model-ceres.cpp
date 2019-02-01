@@ -55,20 +55,20 @@ using cv::Mat;
 using Eigen::Vector2f;
 
 
-#ifndef EOS_CERES_USE_PERSPECTIVE
-#define EOS_CERES_USE_PERSPECTIVE true
+#ifndef EOS_CERES_EXAMPLE_USE_PERSPECTIVE
+#define EOS_CERES_EXAMPLE_USE_PERSPECTIVE true
 #endif
 
-#ifndef EOS_CERES_SHAPES_NUM
-#define EOS_CERES_SHAPES_NUM 63
+#ifndef EOS_CERES_EXAMPLE_SHAPES_NUM
+#define EOS_CERES_EXAMPLE_SHAPES_NUM 63
 #endif
 
-#ifndef EOS_CERES_BLENDSHAPES_NUM
-#define EOS_CERES_BLENDSHAPES_NUM 6
+#ifndef EOS_CERES_EXAMPLE_BLENDSHAPES_NUM
+#define EOS_CERES_EXAMPLE_BLENDSHAPES_NUM 6
 #endif
 
-#ifndef EOS_CERES_COLOR_COEFFS_NUM
-#define EOS_CERES_COLOR_COEFFS_NUM 10
+#ifndef EOS_CERES_EXAMPLE_COLOR_COEFFS_NUM
+#define EOS_CERES_EXAMPLE_COLOR_COEFFS_NUM 10
 #endif
 
 
@@ -230,8 +230,8 @@ namespace eos {
             // Note: Actually, we estimate the model-view matrix and not the camera position. But one defines the
             // other.
 
-            darray<num_cam_params(EOS_CERES_USE_PERSPECTIVE)> camera_translation_and_intrinsics;
-            if (EOS_CERES_USE_PERSPECTIVE) {
+            darray<get_num_cam_params(EOS_CERES_EXAMPLE_USE_PERSPECTIVE)> camera_translation_and_intrinsics;
+            if (EOS_CERES_EXAMPLE_USE_PERSPECTIVE) {
                 camera_translation_and_intrinsics[2] = -400.0;              // Move the model back (along the -z axis)
                 camera_translation_and_intrinsics[3] = glm::radians(60.0f); // fov
             } else {
@@ -253,16 +253,16 @@ namespace eos {
         }
 
         auto get_translation_matrix(
-                const darray<num_cam_params(EOS_CERES_USE_PERSPECTIVE)> &camera_translation_and_intrinsics) {
+                const darray<get_num_cam_params(EOS_CERES_EXAMPLE_USE_PERSPECTIVE)> &camera_translation_and_intrinsics) {
             return glm::translate(glm::dvec3(camera_translation_and_intrinsics[0],
                                              camera_translation_and_intrinsics[1],
-                                             EOS_CERES_USE_PERSPECTIVE ? camera_translation_and_intrinsics[2] : 0.0));
+                                             EOS_CERES_EXAMPLE_USE_PERSPECTIVE ? camera_translation_and_intrinsics[2] : 0.0));
         };
 
         auto get_projection_matrix(
-                const darray<num_cam_params(EOS_CERES_USE_PERSPECTIVE)> &camera_translation_and_intrinsics,
+                const darray<get_num_cam_params(EOS_CERES_EXAMPLE_USE_PERSPECTIVE)> &camera_translation_and_intrinsics,
                 double aspect) {
-            if (EOS_CERES_USE_PERSPECTIVE) {
+            if (EOS_CERES_EXAMPLE_USE_PERSPECTIVE) {
                 const auto &focal = camera_translation_and_intrinsics[3];
                 return glm::perspective(focal, aspect, 0.1, 1000.0);
             } else {
@@ -275,7 +275,7 @@ namespace eos {
         struct FittingResult {
             explicit FittingResult(
                     const darray<4> &camera_rotation,
-                    const darray<num_cam_params(EOS_CERES_USE_PERSPECTIVE)> &camera_translation_and_intrinsics,
+                    const darray<get_num_cam_params(EOS_CERES_EXAMPLE_USE_PERSPECTIVE)> &camera_translation_and_intrinsics,
                     const glm::dvec4 &viewport,
                     double aspect) : aspect(aspect), viewport(viewport) {
                 quaternion_rotation = glm::dquat(camera_rotation[0], camera_rotation[1],
@@ -311,7 +311,7 @@ namespace eos {
                                 const FittingResult &fitting_result,
                                 const cv::Scalar &color = {0.0f, 0.0f, 255.0f}) {
             for (const auto &landmark : landmarks) {
-                const auto &vertex = mesh.vertices[landmark.index];
+                const auto &vertex = mesh.vertices[*landmark.index];
                 glm::dvec3 point_3d(vertex[0], vertex[1], vertex[2]); // The 3D model point
                 glm::dvec3 projected_point = glm::project(point_3d,
                                                           fitting_result.translation_matrix *
@@ -330,7 +330,7 @@ namespace eos {
             for (int i = 0; i < image_points_contour.size(); ++i) {
                 core::Landmark<Vector2f> landmark;
                 landmark.coordinates = image_points_contour[i];
-                landmark.index = vertex_indices_contour[i];
+                landmark.index = std::make_unique<int>(vertex_indices_contour[i]);
 
                 landmarks.emplace_back(landmark);
             }
@@ -401,39 +401,16 @@ int main(int argc, char* argv[])
     // Estimate the camera (pose) from the 2D - 3D point correspondences
     auto start = std::chrono::steady_clock::now();
 
-    // Prepare parameters for fitting
-    darray<4> camera_rotation {1.0, 0.0, 0.0, 0.0}; // Quaternion, [w x y z].
-    auto camera_translation_and_intrinsics = ceres_example::get_camera_translation_and_intrinsics();
-    auto shape_coefficients = darray<EOS_CERES_SHAPES_NUM>();
-    auto blendshape_coefficients = darray<EOS_CERES_BLENDSHAPES_NUM>();
+    auto model_fitter = fitting::ModelFitter<EOS_CERES_EXAMPLE_SHAPES_NUM,
+                                             EOS_CERES_EXAMPLE_BLENDSHAPES_NUM,
+                                             EOS_CERES_EXAMPLE_COLOR_COEFFS_NUM,
+                                             EOS_CERES_EXAMPLE_USE_PERSPECTIVE>(&morphable_model, &blendshapes);
+    model_fitter.add_camera_cost_function(indexed_landmarks, image.cols, image.rows);
+    model_fitter.block_shapes();
+    model_fitter.block_blendshapes();
+    model_fitter.block_fov(60.0);  // TODO: Delete this
 
-    // Create problem for only position fitiing
-    Problem camera_problem;
-
-    // Add cost function for position fitiing
-    fitting::add_camera_cost_function<EOS_CERES_SHAPES_NUM,
-                                      EOS_CERES_BLENDSHAPES_NUM,
-                                      EOS_CERES_USE_PERSPECTIVE> (camera_problem,
-                                                                  camera_rotation, camera_translation_and_intrinsics,
-                                                                  shape_coefficients, blendshape_coefficients,
-                                                                  indexed_landmarks, morphable_model, blendshapes,
-                                                                  image.cols, image.rows);
-    // Block face shape fitting
-    camera_problem.SetParameterBlockConstant(&shape_coefficients[0]);
-    camera_problem.SetParameterBlockConstant(&blendshape_coefficients[0]);
-    if (EOS_CERES_USE_PERSPECTIVE) {
-        std::vector<int> vec_constant_extrinsic = {3};
-        auto subset_parameterization =
-                new ceres::SubsetParameterization(num_cam_params(EOS_CERES_USE_PERSPECTIVE), vec_constant_extrinsic);
-        camera_problem.SetParameterization(&camera_translation_and_intrinsics[0], subset_parameterization);
-    }
-
-    // Get solver options
-    auto solver_options = ceres_example::get_solver_options();
-
-    // Fit position
-    Solver::Summary solver_summary;
-    Solve(solver_options, &camera_problem, &solver_summary);
+    auto solver_summary = model_fitter.solve();
 
     // Log fitting report
     std::cout << solver_summary.BriefReport() << std::endl;
@@ -443,7 +420,8 @@ int main(int argc, char* argv[])
     // Draw the mean-face landmarks projected using the estimated camera:
     // Construct the rotation & translation (model-view) matrices, projection matrix, and viewport:
 
-    auto fitting_result = ceres_example::FittingResult(camera_rotation, camera_translation_and_intrinsics,
+    auto fitting_result = ceres_example::FittingResult(model_fitter.camera_rotation,
+                                                       model_fitter.camera_translation_and_intrinsics,
                                                        glm::dvec4(0, image.rows, image.cols, -image.rows),
                                                        static_cast<double>(image.cols) / image.rows);
 
@@ -454,12 +432,12 @@ int main(int argc, char* argv[])
     fitting_log << "Pose fit with mean shape:\tYaw " << glm::degrees(fitting_result.euler_angles_rotation[1])
                 << ", Pitch " << glm::degrees(fitting_result.euler_angles_rotation[0]) << ", Roll "
                 << glm::degrees(fitting_result.euler_angles_rotation[2])
-                << "; t & f: " << camera_translation_and_intrinsics << '\n'
+                << "; t & f: " << model_fitter.camera_translation_and_intrinsics << '\n'
                 << "Ceres took: "
                 << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << "ms." << std::endl;
 
     const auto& outputfile = cli_arguments.outputfile;
-    auto new_path = outputfile.parent_path() / fs::path(outputfile.stem().string() + "_first");
+    auto new_path = outputfile.parent_path() / fs::path(outputfile.stem().string() + "_pos_only");
     new_path.replace_extension(".png");
     cv::imwrite(new_path.string(), outimg);
 
@@ -486,43 +464,22 @@ int main(int argc, char* argv[])
 
     // Full fitting - Estimate shape and pose, given the previous pose estimate:
     start = std::chrono::steady_clock::now();
-    Problem overall_problem;
-    fitting::add_camera_cost_function<EOS_CERES_SHAPES_NUM,
-                                      EOS_CERES_BLENDSHAPES_NUM,
-                                      EOS_CERES_USE_PERSPECTIVE>(overall_problem,
-                                                                 camera_rotation,
-                                                                 camera_translation_and_intrinsics,
-                                                                 shape_coefficients, blendshape_coefficients,
-                                                                 indexed_landmarks, morphable_model,
-                                                                 blendshapes, image.cols, image.rows);
-    if (EOS_CERES_USE_PERSPECTIVE) {
-        std::vector<int> vec_constant_extrinsic = {3};
-        auto subset_parameterization =
-                new ceres::SubsetParameterization(num_cam_params(EOS_CERES_USE_PERSPECTIVE), vec_constant_extrinsic);
-        overall_problem.SetParameterization(&camera_translation_and_intrinsics[0], subset_parameterization);
-    }
 
-    // Shape prior:
-    fitting::add_shape_prior_cost_function<EOS_CERES_SHAPES_NUM>(overall_problem, shape_coefficients);
+    model_fitter.reset_problem();
+    model_fitter.add_camera_cost_function(indexed_landmarks, image.cols, image.rows);
+    model_fitter.block_fov(60.0); // TODO: Delete this
 
-    // Prior and constraints on blendshapes:
-    fitting::add_blendshape_prior_cost_function<EOS_CERES_BLENDSHAPES_NUM>(overall_problem, blendshape_coefficients);
+    model_fitter.add_shape_prior_cost_function();
+    model_fitter.add_blendshape_prior_cost_function();
 
     // Colour model fitting (this needs a Morphable Model with colour (albedo) model, see note above main()):
     Eigen::VectorXf color_instance;
-    darray<EOS_CERES_COLOR_COEFFS_NUM> colour_coefficients;
+    darray<EOS_CERES_EXAMPLE_COLOR_COEFFS_NUM> colour_coefficients;
     if (morphable_model.has_color_model()) {
         // Add a residual for each vertex:
-        fitting::add_image_cost_function<EOS_CERES_SHAPES_NUM,
-                                         EOS_CERES_BLENDSHAPES_NUM,
-                                         EOS_CERES_COLOR_COEFFS_NUM,
-                                         EOS_CERES_USE_PERSPECTIVE>(overall_problem,
-                                                                    colour_coefficients,
-                                                                    camera_rotation, camera_translation_and_intrinsics,
-                                                                    shape_coefficients, blendshape_coefficients,
-                                                                    morphable_model, blendshapes, image);
+        model_fitter.add_image_cost_function(image);
+        model_fitter.add_image_prior_cost_function();
 
-        fitting::add_image_prior_cost_function<EOS_CERES_COLOR_COEFFS_NUM>(overall_problem, colour_coefficients);
         color_instance = morphable_model.get_color_model().draw_sample(colour_coefficients);
     } else {
         std::cout << "The MorphableModel used does not contain a colour (albedo) model. No ImageCost will be applied."
@@ -540,20 +497,22 @@ int main(int argc, char* argv[])
             solver_options.minimizer_progress_to_stdout = true;
             solver_options.max_num_iterations = 100;
             */
-    Solve(solver_options, &overall_problem, &solver_summary);
+
+    solver_summary = model_fitter.solve();
     std::cout << solver_summary.BriefReport() << std::endl;
     end = std::chrono::steady_clock::now();
 
     // Draw the landmarks projected using all estimated parameters:
     // Construct the rotation & translation (model-view) matrices, projection matrix, and viewport:
 
-    fitting_result = ceres_example::FittingResult(camera_rotation, camera_translation_and_intrinsics,
+    fitting_result = ceres_example::FittingResult(model_fitter.camera_rotation,
+                                                  model_fitter.camera_translation_and_intrinsics,
                                                   glm::dvec4(0, image.rows, image.cols, -image.rows),
                                                   static_cast<double>(image.cols) / image.rows);
 
-    auto blendshape_coefficients_float = std::vector<float>(std::begin(blendshape_coefficients),
-                                                            std::end(blendshape_coefficients));
-    auto shape_ceres = morphable_model.get_shape_model().draw_sample(shape_coefficients) +
+    auto blendshape_coefficients_float = std::vector<float>(std::begin(model_fitter.blendshape_coefficients),
+                                                            std::end(model_fitter.blendshape_coefficients));
+    auto shape_ceres = morphable_model.get_shape_model().draw_sample(model_fitter.shape_coefficients) +
                        to_matrix(fitting_data.blendshapes) *
                        Eigen::Map<const Eigen::VectorXf>(blendshape_coefficients_float.data(),
                                                          blendshape_coefficients_float.size());
@@ -570,7 +529,7 @@ int main(int argc, char* argv[])
     fitting_log << "Final fit:\t\t\tYaw " << glm::degrees(fitting_result.euler_angles_rotation[1]) << ", Pitch "
                 << glm::degrees(fitting_result.euler_angles_rotation[0]) << ", Roll "
                 << glm::degrees(fitting_result.euler_angles_rotation[2])
-                << "; t & f: " << camera_translation_and_intrinsics << std::endl;
+                << "; t & f: " << model_fitter.camera_translation_and_intrinsics << std::endl;
     fitting_log << "Ceres took: "
                 << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << "ms." << std::endl;
 

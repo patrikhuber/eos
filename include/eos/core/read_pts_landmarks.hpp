@@ -82,7 +82,7 @@ inline LandmarkCollection<Eigen::Vector2f> read_pts_landmarks(const std::string&
         // ==> So we shift every point by 1:
         landmark.coordinates[0] -= 1.0f;
         landmark.coordinates[1] -= 1.0f;
-        landmarks.emplace_back(landmark);
+        landmarks.emplace_back(std::move(landmark));
         ++ibugId;
     }
     return landmarks;
