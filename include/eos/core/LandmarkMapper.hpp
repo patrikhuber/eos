@@ -133,16 +133,21 @@ public:
         }
     };
 
+    /**
+     * @param landmarks landmarks to index
+     * @return new vector with landmarks for which index can be defined
+     */
     template<typename LandmarkType>
-    auto get_indexed_landmarks(LandmarkCollection<LandmarkType>& landmarks) const {
-        LandmarkCollection<LandmarkType> indexed_landmarks;
+    auto get_indexed_landmarks(const LandmarkCollection<LandmarkType>& landmarks) const {
+        IndexedLandmarkCollection<LandmarkType> indexed_landmarks;
         for (auto& landmark : landmarks) {
             auto converted_name = this->convert(landmark.name);
             if (!converted_name) { // no mapping defined for the current landmark
                 continue;
             }
-            landmark.index = std::make_unique<int>(std::stoi(converted_name.value()));
-            indexed_landmarks.emplace_back(std::move(landmark));
+            IndexedLandmark<LandmarkType> indexed_landmark{landmark.name, landmark.coordinates,
+                                                           std::stoi(converted_name.value())};
+            indexed_landmarks.emplace_back(std::move(indexed_landmark));
         }
         return indexed_landmarks;
     }

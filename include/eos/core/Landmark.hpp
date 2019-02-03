@@ -29,32 +29,39 @@
 namespace eos {
 namespace core {
 
+
 /**
- * @brief Representation of a landmark, consisting of a landmark name and
- * coordinates of the given type. Usually, the type would be \c Eigen::Vector2f.
+ * @brief Representation of a landmark, consisting of a landmark name,
+ * coordinates and index of the given type. Usually, the type would be \c Eigen::Vector2f.
  */
 template <class LandmarkType>
 struct Landmark
 {
-    Landmark(): name(), coordinates(), index() {}
-
-    Landmark(const Landmark& landmark): name(landmark.name), coordinates(landmark.coordinates) {
-        index = landmark.index ? std::make_unique<int>(*landmark.index) : nullptr;
-    }
-
-    Landmark(Landmark&& landmark): name(landmark.name), coordinates(landmark.coordinates),
-                                   index(std::move(landmark.index)) {}
-
     std::string name;         ///< Name of the landmark, often used as identifier.
     LandmarkType coordinates; ///< The position or coordinates of the landmark.
-    std::unique_ptr<int> index;  ///< Index of landmark in mesh
 };
+
+/**
+ * @brief Representation of a landmark with mesh index.
+ */
+template <class LandmarkType>
+struct IndexedLandmark: Landmark<LandmarkType>
+{
+    int model_index;  ///< Index of landmark in mesh
+};
+
 
 /**
  * @brief A trivial collection of landmarks that belong together.
  */
 template <class LandmarkType>
 using LandmarkCollection = std::vector<Landmark<LandmarkType>>;
+
+/**
+ * @brief A trivial collection of indexed landmarks that belong together.
+ */
+template <class LandmarkType>
+using IndexedLandmarkCollection = std::vector<IndexedLandmark<LandmarkType>>;
 
 /**
  * @brief Shorthand for a 2D floating point landmark type.
