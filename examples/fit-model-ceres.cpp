@@ -26,13 +26,6 @@
 
 #include "boost/filesystem.hpp"
 #include "boost/program_options.hpp"
-#include "ceres/ceres.h"
-#include "ceres/cubic_interpolation.h"
-#include "ceres/rotation.h"
-#include "Eigen/Core"
-#include "glm/ext.hpp"
-#include "glm/glm.hpp"
-#include "opencv2/core/core.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 #include "opencv2/highgui/highgui.hpp"
 
@@ -40,8 +33,6 @@
 #include "eos/core/LandmarkMapper.hpp"
 #include "eos/core/read_pts_landmarks.hpp"
 #include "eos/fitting/ceres_nonlinear.hpp"
-#include "eos/fitting/contour_correspondence.hpp"
-#include "eos/fitting/fitting.hpp"
 #include "eos/morphablemodel/Blendshape.hpp"
 
 
@@ -159,7 +150,7 @@ namespace eos {
             LandmarkCollection<Vector2f> landmarks;
             morphablemodel::MorphableModel morphable_model;
             core::LandmarkMapper landmark_mapper;
-            std::vector<eos::morphablemodel::Blendshape> blendshapes;
+            std::vector<morphablemodel::Blendshape> blendshapes;
         };
 
 
@@ -212,8 +203,8 @@ namespace eos {
             core::LandmarkMapper landmark_mapper =
                     mappingsfile.empty() ? core::LandmarkMapper() : core::LandmarkMapper(mappingsfile);
 
-            std::vector<eos::morphablemodel::Blendshape> blendshapes =
-                    eos::morphablemodel::load_blendshapes(blendshapesfile);
+            std::vector<morphablemodel::Blendshape> blendshapes =
+                    morphablemodel::load_blendshapes(blendshapesfile);
 
             return {model_contour,
                     ibug_contour,
