@@ -19,14 +19,11 @@
  */
 #pragma once
 
-#ifndef TRIANGLETORASTERIZE_HPP_
-#define TRIANGLETORASTERIZE_HPP_
+#ifndef EOS_TRIANGLE_TO_RASTERIZE_HPP
+#define EOS_TRIANGLE_TO_RASTERIZE_HPP
 
 #include "eos/render/detail/Vertex.hpp"
-
-#include "glm/glm.hpp"
-
-#include <cmath>
+#include "eos/render/detail/plane.hpp"
 
 /**
  * The detail namespace contains implementations of internal functions, not part of the API we expose and not
@@ -35,74 +32,6 @@
 namespace eos {
 namespace render {
 namespace detail {
-
-// plane should probably go into its own file as well.
-class plane
-{
-public:
-    plane() {}
-
-    plane(float a, float b, float c, float d)
-    {
-        this->a = a;
-        this->b = b;
-        this->c = c;
-        this->d = d;
-    }
-
-    plane(const glm::vec3& normal, float d = 0.0f)
-    {
-        this->a = normal[0];
-        this->b = normal[1];
-        this->c = normal[2];
-        this->d = d;
-    }
-
-    plane(const glm::vec3& point, const glm::vec3& normal)
-    {
-        a = normal[0];
-        b = normal[1];
-        c = normal[2];
-        d = -glm::dot(point, normal);
-    }
-
-    template <typename T, glm::precision P = glm::defaultp>
-    plane(const glm::tvec3<T, P>& point1, const glm::tvec3<T, P>& point2, const glm::tvec3<T, P>& point3)
-    {
-        const glm::tvec3<T, P> v1 = point2 - point1;
-        const glm::tvec3<T, P> v2 = point3 - point1;
-        glm::tvec3<T, P> normal = glm::cross(v1, v2);
-        normal = glm::normalize(normal);
-
-        a = normal[0];
-        b = normal[1];
-        c = normal[2];
-        d = -glm::dot(point1, normal);
-    }
-
-    void normalize()
-    {
-        const float length = std::sqrt(a * a + b * b + c * c);
-
-        a /= length;
-        b /= length;
-        c /= length;
-    }
-
-    float getSignedDistanceFromPoint(const glm::vec3& point) const
-    {
-        return a * point[0] + b * point[1] + c * point[2] + d;
-    }
-
-    float getSignedDistanceFromPoint(const glm::vec4& point) const
-    {
-        return a * point[0] + b * point[1] + c * point[2] + d;
-    }
-
-public:
-    float a, b, c;
-    float d;
-};
 
 /**
  * A representation for a triangle that is to be rasterised.
@@ -144,4 +73,4 @@ struct TriangleToRasterize
 } /* namespace render */
 } /* namespace eos */
 
-#endif /* TRIANGLETORASTERIZE_HPP_ */
+#endif /* EOS_TRIANGLE_TO_RASTERIZE_HPP */
