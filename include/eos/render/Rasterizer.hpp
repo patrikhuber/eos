@@ -23,10 +23,11 @@
 #define EOS_RASTERIZER_HPP
 
 #include "eos/core/Rect.hpp"
-#include "eos/render/detail/Vertex.hpp"
 #include "eos/core/Image.hpp"
 #include "eos/core/image/utils.hpp"
 #include "eos/render/Texture.hpp"
+#include "eos/render/detail/Vertex.hpp"
+#include "eos/render/detail/plane.hpp"
 #include "eos/cpp17/optional.hpp"
 
 #include <limits>
