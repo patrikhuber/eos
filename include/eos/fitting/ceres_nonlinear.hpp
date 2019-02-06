@@ -19,8 +19,8 @@
  */
 #pragma once
 
-#ifndef CERESNONLINEAR_HPP_
-#define CERESNONLINEAR_HPP_
+#ifndef EOS_CERES_NONLINEAR_HPP
+#define EOS_CERES_NONLINEAR_HPP
 
 #include "eos/morphablemodel/MorphableModel.hpp"
 #include "eos/morphablemodel/Blendshape.hpp"
@@ -447,4 +447,4 @@ std::array<T, 3> get_vertex_colour(const morphablemodel::PcaModel& color_model, 
 } /* namespace fitting */
 } /* namespace eos */
 
-#endif /* CERESNONLINEAR_HPP_ */
+#endif /* EOS_CERES_NONLINEAR_HPP */
