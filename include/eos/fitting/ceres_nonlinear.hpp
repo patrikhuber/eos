@@ -161,19 +161,18 @@ struct LandmarkCost
                                                   blendshape_coeffs, get_num_cam_params(use_perspective));
 
         // Project the point to 2D:
-        const auto point_3d = tvec3<T>(point_arr[0], point_arr[1], point_arr[2]);
+        const tvec3<T> point_3d(point_arr[0], point_arr[1], point_arr[2]);
         // I think the quaternion is always normalised because we run Ceres with QuaternionParameterization
-        const auto rot_quat =
-            tquat<T>(camera_rotation[0], camera_rotation[1], camera_rotation[2], camera_rotation[3]);
+        const tquat<T> rot_quat(camera_rotation[0], camera_rotation[1], camera_rotation[2], camera_rotation[3]);
         // We rotate ZXY*p, which is RPY*p. I'm not sure this matrix still corresponds to RPY - probably if we
         // use glm::eulerAngles(), these are not RPY anymore and we'd have to adjust if we were to use
         // rotation matrices.
         const auto rot_mtx = glm::mat4_cast(rot_quat);
 
         // Todo: use get_opencv_viewport() from nonlin_cam_esti.hpp.
-        const auto viewport = tvec4<T>(0, image_height, image_width, -image_height); // OpenCV convention
+        const tvec4<T> viewport(0, image_height, image_width, -image_height); // OpenCV convention
 
-        auto projected_point = tvec3<T>(); // Note: could avoid default construction by using a lambda and
+        tvec3<T> projected_point(); // Note: could avoid default construction by using a lambda and
                                            // immediate invocation
         if (use_perspective)
         {
@@ -464,7 +463,6 @@ ceres::Solver::Options get_default_solver_options()
     ceres::Solver::Options solver_options;
     solver_options.linear_solver_type = ceres::ITERATIVE_SCHUR;
     solver_options.num_threads = 8;
-    solver_options.num_linear_solver_threads = 8; // only SPARSE_SCHUR can use this
     solver_options.minimizer_progress_to_stdout = true;
     solver_options.max_num_iterations = 50;
 
@@ -612,9 +610,24 @@ public:
      */
     explicit ModelFitter(const morphablemodel::MorphableModel* const morphable_model,
                          const morphablemodel::Blendshapes* const blendshapes = nullptr)
-        : problem(std::make_unique<ceres::Problem>()), morphable_model(morphable_model),
-          blendshapes(find_blendshapes(blendshapes))
+        : problem(std::make_unique<ceres::Problem>()), morphable_model(morphable_model)
     {
+        if (blendshapes == nullptr)
+        {
+            if (!morphable_model->has_separate_expression_model())
+            {
+                throw std::runtime_error(
+                    "Blendshapes was not passed and morphable model does not contain them too."
+                    "Try to pass blendshapes explicitly.");
+            } else
+            {
+                this->blendshapes =
+                    &cpp17::get<morphablemodel::Blendshapes>(morphable_model->get_expression_model().value());
+            }
+        } else
+        {
+            this->blendshapes = blendshapes;
+        }
     }
 
     /*
@@ -820,7 +833,7 @@ public:
     /**
      * Block shapes fitting
      */
-    void block_shapes_fitting()
+    void set_shape_coefficients_constant()
     {
         problem->SetParameterBlockConstant(&shape_coefficients[0]);
     }
@@ -828,7 +841,7 @@ public:
     /**
      * Block blendshapes fitting
      */
-    void block_blendshapes_fitting()
+    void set_blendshape_coefficients_constant()
     {
         problem->SetParameterBlockConstant(&blendshape_coefficients[0]);
     }
@@ -841,7 +854,7 @@ public:
      * @param[in,out] camera perspective camera to fit
      * @param[in] fov_in_grad field of view to fix
      */
-    void block_fov_fitting(PerspectiveCameraParameters& camera, double fov_in_grad)
+    void set_fov_constant(PerspectiveCameraParameters &camera, double fov_in_grad)
     {
         auto& camera_translation_and_intrinsics = camera.translation_and_intrinsics;
         camera_translation_and_intrinsics[3] = glm::radians(fov_in_grad);
@@ -859,32 +872,6 @@ public:
     std::unique_ptr<ceres::Problem> problem;
 
 private:
-    /*
-     * Check if blendshapes is not nullptr or try to find them in morphable_model.
-     *
-     * * @return std::array with 3 or 4 (for perspective projection) parameters.
-     */
-    auto find_blendshapes(const morphablemodel::Blendshapes* const blendshapes = nullptr) const
-    {
-        if (blendshapes == nullptr)
-        {
-            const auto& blendshapes_optional = morphable_model->get_expression_model();
-
-            if (blendshapes_optional.has_value())
-            {
-                return &cpp17::get<morphablemodel::Blendshapes>(*blendshapes_optional);
-            } else
-            {
-                throw std::runtime_error(
-                    "Blendshapes was not passed and morphable model does not contain them too."
-                    "Try to pass blendshapes explicitly.");
-            }
-        } else
-        {
-            return blendshapes;
-        }
-    }
-
     const morphablemodel::MorphableModel* const morphable_model;
     const morphablemodel::Blendshapes* const blendshapes;
 };

@@ -303,10 +303,8 @@ int main(int argc, char* argv[])
     // These will be the 2D image points and their corresponding 3D vertex id's used for the fitting
     auto& landmarks = fitting_data.landmarks;
 
-    auto landmarks_definitions = morphable_model.get_landmark_definitions();
-    auto* landmarks_definitions_ptr =
-        landmarks_definitions.has_value() ? &landmarks_definitions.value() : nullptr;
-    auto indexed_landmarks = landmark_mapper.get_indexed_landmarks(landmarks, landmarks_definitions_ptr);
+    auto indexed_landmarks =
+        landmark_mapper.get_indexed_landmarks(landmarks, morphable_model.get_landmark_definitions());
 
     google::InitGoogleLogging(argv[0]); // Ceres logging initialisation
     std::stringstream fitting_log;
@@ -319,9 +317,9 @@ int main(int argc, char* argv[])
                              EOS_CERES_EXAMPLE_COLOR_COEFFS_NUM>(&morphable_model, &blendshapes);
     auto camera = fitting::PerspectiveCameraParameters(image.width(), image.height());
     model_fitter.add_camera_cost_function(camera, indexed_landmarks);
-    model_fitter.block_shapes_fitting();
-    model_fitter.block_blendshapes_fitting();
-    model_fitter.block_fov_fitting(camera, 60.0);
+    model_fitter.set_shape_coefficients_constant();
+    model_fitter.set_blendshape_coefficients_constant();
+    model_fitter.set_fov_constant(camera, 60.0);
 
     auto solver_summary = model_fitter.solve();
 
@@ -339,7 +337,7 @@ int main(int argc, char* argv[])
                                       camera.calculate_projection_matrix(), camera.get_viewport());
     ceres_example::draw_landmarks(outimg, indexed_landmarks);
 
-    auto camera_euler_rotation = camera.get_euler_rotation();
+    const auto camera_euler_rotation = camera.get_euler_rotation();
     fitting_log << "Pose fit with mean shape:\tYaw " << glm::degrees(camera_euler_rotation[1]) << ", Pitch "
                 << glm::degrees(camera_euler_rotation[0]) << ", Roll "
                 << glm::degrees(camera_euler_rotation[2]) << "; t & f: " << camera.translation_and_intrinsics
@@ -368,7 +366,7 @@ int main(int argc, char* argv[])
 
     model_fitter.reset_problem();
     model_fitter.add_camera_cost_function(camera, indexed_landmarks);
-    model_fitter.block_fov_fitting(camera, 60.0);
+    model_fitter.set_fov_constant(camera, 60.0);
 
     model_fitter.add_shape_prior_cost_function();
     model_fitter.add_blendshape_prior_cost_function();
@@ -398,7 +396,7 @@ int main(int argc, char* argv[])
     // Draw the landmarks projected using all estimated parameters:
     // Construct the rotation & translation (model-view) matrices, projection matrix, and viewport:
 
-    auto points = model_fitter.calculate_estimated_points_positions();
+    const auto points = model_fitter.calculate_estimated_points_positions();
 
     core::Mesh mesh = morphablemodel::sample_to_mesh(
         points, color_instance, morphable_model.get_shape_model().get_triangle_list(),

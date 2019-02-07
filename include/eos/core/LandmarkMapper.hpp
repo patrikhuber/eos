@@ -103,8 +103,7 @@ public:
      *
      * @param[in] mappings A set of landmark mappings.
      */
-    LandmarkMapper(std::unordered_map<std::string, std::string> mappings)
-        : landmark_mappings(std::move(mappings)){};
+    LandmarkMapper(std::unordered_map<std::string, std::string>& mappings) : landmark_mappings(mappings){};
 
     /**
      * @brief Converts the given landmark name to the mapped name.
@@ -141,7 +140,7 @@ public:
      */
     template <typename LandmarkType>
     auto get_indexed_landmarks(const LandmarkCollection<LandmarkType>& landmarks,
-                               const LandmarkDefinitions* const landmark_definitions = nullptr) const
+                               const cpp17::optional<LandmarkDefinitions> landmark_definitions = cpp17::nullopt) const
     {
         IndexedLandmarkCollection<LandmarkType> indexed_landmarks;
         for (auto& landmark : landmarks)
@@ -153,7 +152,7 @@ public:
             }
 
             int vertex_idx;
-            if (landmark_definitions != nullptr)
+            if (landmark_definitions)
             {
                 const auto found_vertex_idx = landmark_definitions->find(converted_name.value());
 
