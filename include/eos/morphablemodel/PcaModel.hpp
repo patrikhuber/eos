@@ -193,7 +193,7 @@ public:
         return draw_sample(coeffs_float);
     };
 
-    template<std::size_t N>
+    template <std::size_t N>
     Eigen::VectorXf draw_sample(std::array<double, N> coefficients) const
     {
         // We have to convert the vector of doubles to float:

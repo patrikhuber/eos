@@ -37,11 +37,9 @@
 #include "ceres/cubic_interpolation.h"
 #include "ceres/problem.h"
 
-
 #ifndef EOS_CERES_USE_OPENCV
 #define EOS_CERES_USE_OPENCV true
 #endif
-
 
 #if EOS_CERES_USE_OPENCV == true
 #include "opencv2/core/core.hpp"
@@ -50,11 +48,11 @@
 #include <array>
 #include <vector>
 
+#define get_num_cam_params(use_perspective)                                                                  \
+    static_cast<std::size_t>(3) + static_cast<std::size_t>(use_perspective)
 
-#define get_num_cam_params(use_perspective) static_cast<std::size_t>(3) + static_cast<std::size_t>(use_perspective)
-
-template<std::size_t N> using darray = std::array<double, N>;
-
+template <std::size_t N>
+using darray = std::array<double, N>;
 
 namespace eos {
 namespace fitting {
@@ -87,7 +85,8 @@ struct PriorCost
      * @param[in] num_variables Number of variables that the parameter vector contains.
      * @param[in] weight A weight that the parameters are multiplied with.
      */
-    explicit PriorCost(std::size_t num_variables, double weight = 1.0) : num_variables(num_variables), weight(weight){};
+    explicit PriorCost(std::size_t num_variables, double weight = 1.0)
+        : num_variables(num_variables), weight(weight){};
 
     /**
      * Cost function implementation.
@@ -110,7 +109,6 @@ private:
     std::size_t num_variables;
     double weight;
 };
-
 
 /**
  * 2D landmark error cost function.
@@ -138,9 +136,9 @@ struct LandmarkCost
      * @param[in] image_height Height of the image.
      * @param[in] use_perspective Whether a perspective or an orthographic projection should be used.
      */
-    LandmarkCost(const morphablemodel::PcaModel& shape_model,
-                 const morphablemodel::Blendshapes& blendshapes, Eigen::Vector2f observed_landmark,
-                 int vertex_id, int image_width, int image_height, bool use_perspective)
+    LandmarkCost(const morphablemodel::PcaModel& shape_model, const morphablemodel::Blendshapes& blendshapes,
+                 Eigen::Vector2f observed_landmark, int vertex_id, int image_width, int image_height,
+                 bool use_perspective)
         : shape_model(shape_model), blendshapes(blendshapes), observed_landmark(std::move(observed_landmark)),
           vertex_id(vertex_id), image_width(image_width), image_height(image_height),
           aspect_ratio(static_cast<double>(image_width) / image_height), use_perspective(use_perspective){};
@@ -172,7 +170,8 @@ struct LandmarkCost
         // Project the point to 2D:
         const auto point_3d = tvec3<T>(point_arr[0], point_arr[1], point_arr[2]);
         // I think the quaternion is always normalised because we run Ceres with QuaternionParameterization
-        const auto rot_quat = tquat<T>(camera_rotation[0], camera_rotation[1], camera_rotation[2], camera_rotation[3]);
+        const auto rot_quat =
+            tquat<T>(camera_rotation[0], camera_rotation[1], camera_rotation[2], camera_rotation[3]);
         // We rotate ZXY*p, which is RPY*p. I'm not sure this matrix still corresponds to RPY - probably if we
         // use glm::eulerAngles(), these are not RPY anymore and we'd have to adjust if we were to use
         // rotation matrices.
@@ -181,16 +180,16 @@ struct LandmarkCost
         // Todo: use get_opencv_viewport() from nonlin_cam_esti.hpp.
         const auto viewport = tvec4<T>(0, image_height, image_width, -image_height); // OpenCV convention
 
-        auto projected_point = tvec3<T>(); // Note: could avoid default construction by using a lambda and immediate
-                                  // invocation
+        auto projected_point = tvec3<T>(); // Note: could avoid default construction by using a lambda and
+                                           // immediate invocation
         if (use_perspective)
         {
             const auto t_mtx = glm::translate(tvec3<T>(camera_translation_and_intrinsics[0],
                                                        camera_translation_and_intrinsics[1],
                                                        camera_translation_and_intrinsics[2]));
             const auto& fov = camera_translation_and_intrinsics[3];
-            const auto persp_mtx = glm::perspective(fov, static_cast<T>(aspect_ratio),
-                                                    static_cast<T>(0.1), static_cast<T>(1000.0));
+            const auto persp_mtx = glm::perspective(fov, static_cast<T>(aspect_ratio), static_cast<T>(0.1),
+                                                    static_cast<T>(1000.0));
             projected_point = glm::project(point_3d, t_mtx * rot_mtx, persp_mtx, viewport);
         } else
         {
@@ -210,7 +209,8 @@ struct LandmarkCost
     };
 
 private:
-    const morphablemodel::PcaModel& shape_model; // Or store as pointer (non-owning) or std::reference_wrapper?
+    const morphablemodel::PcaModel&
+        shape_model; // Or store as pointer (non-owning) or std::reference_wrapper?
     const morphablemodel::Blendshapes& blendshapes;
     const Eigen::Vector2f observed_landmark;
     const int vertex_id;
@@ -219,7 +219,6 @@ private:
     const double aspect_ratio;
     const bool use_perspective;
 };
-
 
 #if EOS_CERES_USE_OPENCV
 /**
@@ -249,11 +248,11 @@ struct ImageCost
      */
     ImageCost(const morphablemodel::MorphableModel& morphable_model,
               const morphablemodel::Blendshapes& blendshapes, const cv::Mat& image, int vertex_id,
-              bool use_perspective): morphable_model(morphable_model), blendshapes(blendshapes),
-                                     image(image),
-                                     aspect_ratio(static_cast<double>(image.cols) / image.rows),
-                                     vertex_id(vertex_id),
-                                     use_perspective(use_perspective) {
+              bool use_perspective)
+        : morphable_model(morphable_model), blendshapes(blendshapes), image(image),
+          aspect_ratio(static_cast<double>(image.cols) / image.rows), vertex_id(vertex_id),
+          use_perspective(use_perspective)
+    {
         if (image.type() != CV_8UC3)
         {
             throw std::runtime_error("The image given to ImageCost must be of type CV_8UC3.");
@@ -291,14 +290,15 @@ struct ImageCost
         using namespace glm;
         // Note: The following is all duplicated code with LandmarkCost. Fix if possible performance-wise.
         // Generate 3D shape point using the current parameters:
-        const auto point_arr = get_shape_point<T>(morphable_model.get_shape_model(), blendshapes, vertex_id,
-                                                  shape_coeffs, blendshape_coeffs, get_num_cam_params(use_perspective));
+        const auto point_arr =
+            get_shape_point<T>(morphable_model.get_shape_model(), blendshapes, vertex_id, shape_coeffs,
+                               blendshape_coeffs, get_num_cam_params(use_perspective));
 
         // Project the point to 2D:
         const tvec3<T> point_3d(point_arr[0], point_arr[1], point_arr[2]);
         // I think the quaternion is always normalised because we run Ceres with QuaternionParameterization
-        const auto rot_quat = tquat<T>(camera_rotation[0], camera_rotation[1], camera_rotation[2],
-                                       camera_rotation[3]);
+        const auto rot_quat =
+            tquat<T>(camera_rotation[0], camera_rotation[1], camera_rotation[2], camera_rotation[3]);
         // We rotate ZXY*p, which is RPY*p. I'm not sure this matrix still corresponds to RPY - probably if we
         // use glm::eulerAngles(), these are not RPY anymore and we'd have to adjust if we were to use
         // rotation matrices.
@@ -314,8 +314,8 @@ struct ImageCost
                                                        camera_translation_and_intrinsics[1],
                                                        camera_translation_and_intrinsics[2]));
             const auto& focal = camera_translation_and_intrinsics[3];
-            const auto persp_mtx = glm::perspective(focal, static_cast<T>(aspect_ratio),
-                                                    static_cast<T>(0.1), static_cast<T>(1000.0));
+            const auto persp_mtx = glm::perspective(focal, static_cast<T>(aspect_ratio), static_cast<T>(0.1),
+                                                    static_cast<T>(1000.0));
             projected_point = glm::project(point_3d, t_mtx * rot_mtx, persp_mtx, viewport);
         } else
         {
@@ -323,17 +323,16 @@ struct ImageCost
             const auto t_mtx = glm::translate(
                 tvec3<T>(camera_translation_and_intrinsics[0], camera_translation_and_intrinsics[1],
                          0.0)); // we don't have t_z in ortho camera, it doesn't matter where it is
-            const auto ortho_mtx = glm::ortho(-1.0 * aspect_ratio * frustum_scale, 1.0 * aspect_ratio * frustum_scale,
-                                              -1.0 * frustum_scale, 1.0 * frustum_scale);
+            const auto ortho_mtx =
+                glm::ortho(-1.0 * aspect_ratio * frustum_scale, 1.0 * aspect_ratio * frustum_scale,
+                           -1.0 * frustum_scale, 1.0 * frustum_scale);
             projected_point = glm::project(point_3d, t_mtx * rot_mtx, ortho_mtx, viewport);
         }
 
         // Access the image colour value at the projected pixel location, if inside the image - otherwise set
         // to (127, 127, 127) (maybe not ideal...):
-        if (projected_point.y < static_cast<T>(0) ||
-            projected_point.y >= static_cast<T>(image.rows) ||
-            projected_point.x < static_cast<T>(0) ||
-            projected_point.x >= static_cast<T>(image.cols))
+        if (projected_point.y < static_cast<T>(0) || projected_point.y >= static_cast<T>(image.rows) ||
+            projected_point.x < static_cast<T>(0) || projected_point.x >= static_cast<T>(image.cols))
         {
             // The point is outside the image.
             residual[0] = static_cast<T>(127.0);
@@ -344,8 +343,10 @@ struct ImageCost
             /*	Grid2D<uchar, 3> grid(image.ptr(0), 0, image.rows, 0, image.cols);
             BiCubicInterpolator<Grid2D<uchar, 3>> interpolator(grid);
             T observed_colour[3];
-            interpolator.Evaluate(projected_y, projected_x, &observed_colour[0]); // says it returns false when (r, c) is out of bounds... but it returns void?
-            //std::cout << observed_colour[0] << ", " << observed_colour[1] << ", " << observed_colour[2] << "\n";
+            interpolator.Evaluate(projected_y, projected_x, &observed_colour[0]); // says it returns false
+            when (r, c) is out of bounds... but it returns void?
+            //std::cout << observed_colour[0] << ", " << observed_colour[1] << ", " << observed_colour[2] <<
+            "\n";
             */
             // It kind of looks like as if when it's out of bounds, there will be a vector out of bound access
             // and an assert/crash? No, in debugging, it looks like it just interpolates or something. Not
@@ -361,8 +362,8 @@ struct ImageCost
             interpolator.Evaluate(projected_point.y, projected_point.x, &observed_colour[0]);
 
             // This probably needs to be modified if we add a light model.
-            auto model_colour = get_vertex_colour(morphable_model.get_color_model(), vertex_id,
-                                                  color_coeffs, get_num_cam_params(use_perspective));
+            auto model_colour = get_vertex_colour(morphable_model.get_color_model(), vertex_id, color_coeffs,
+                                                  get_num_cam_params(use_perspective));
             // I think this returns RGB, and between [0, 1].
 
             // Residual: Vertex colour of model point minus the observed colour in the 2D image
@@ -375,14 +376,14 @@ struct ImageCost
     };
 
 private:
-    const morphablemodel::MorphableModel& morphable_model; // Or store as pointer (non-owning) or std::reference_wrapper?
+    const morphablemodel::MorphableModel&
+        morphable_model; // Or store as pointer (non-owning) or std::reference_wrapper?
     const morphablemodel::Blendshapes& blendshapes;
     const cv::Mat image; // the observed image
     const double aspect_ratio;
     const int vertex_id;
     const bool use_perspective;
 };
-
 
 /**
  * Returns the 3D position of a single point of the 3D shape generated by the parameters given.
@@ -404,7 +405,7 @@ std::array<T, 3> get_shape_point(const morphablemodel::PcaModel& shape_model,
     auto basis = shape_model.get_rescaled_pca_basis_at_point(vertex_id);
     // Computing Shape = mean + basis * coeffs:
     // Note: Could use an Eigen matrix with type T to see if it gives a speedup.
-    std::array<T, 3> point {static_cast<T>(mean[0]), static_cast<T>(mean[1]), static_cast<T>(mean[2])};
+    std::array<T, 3> point{static_cast<T>(mean[0]), static_cast<T>(mean[1]), static_cast<T>(mean[2])};
     for (int i = 0; i < num_coeffs_fitting; ++i)
     {
         point[0] += static_cast<T>(basis.row(0).col(i)(0)) * shape_coeffs[i];
@@ -469,8 +470,8 @@ std::array<T, 3> get_vertex_colour(const morphablemodel::PcaModel& color_model, 
 
 #endif /* EOS_CERES_USE_OPENCV */
 
-
-ceres::Solver::Options get_default_solver_options() {
+ceres::Solver::Options get_default_solver_options()
+{
     ceres::Solver::Options solver_options;
     solver_options.linear_solver_type = ceres::ITERATIVE_SCHUR;
     solver_options.num_threads = 8;
@@ -483,58 +484,66 @@ ceres::Solver::Options get_default_solver_options() {
 
 const auto default_solver_options = get_default_solver_options();
 
-
 /*
  * Parameters of camera
  *
  * They are not stored in ModelFitter to support many cameras optimization.
  */
-template<bool use_perspective>
-struct CameraParameters {
-    CameraParameters(int image_cols, int image_rows):
-            translation_and_intrinsics(get_translation_and_intrinsics()),
-            image_cols(image_cols), image_rows(image_rows) {}
+template <bool use_perspective>
+struct CameraParameters
+{
+    CameraParameters(int image_cols, int image_rows)
+        : translation_and_intrinsics(get_translation_and_intrinsics()), image_cols(image_cols),
+          image_rows(image_rows)
+    {
+    }
 
     /*
      * Return viewport for given image rows num and cols num.
      */
-    glm::dvec4 get_viewport() const {
+    glm::dvec4 get_viewport() const
+    {
         return glm::dvec4(0, image_rows, image_cols, -image_rows);
     }
 
     /**
      * Cast rotation_quaternion to euler angle
      */
-    glm::dvec3 get_euler_rotation() const {
+    glm::dvec3 get_euler_rotation() const
+    {
         return glm::eulerAngles(get_glm_rotation_quaternion());
     }
 
     /**
      * Calculate translation matrix from estimated camera parameters
      */
-    glm::dmat4x4 calculate_translation_matrix() const {
-        return glm::translate(glm::dvec3(translation_and_intrinsics[0],
-                                         translation_and_intrinsics[1],
+    glm::dmat4x4 calculate_translation_matrix() const
+    {
+        return glm::translate(glm::dvec3(translation_and_intrinsics[0], translation_and_intrinsics[1],
                                          use_perspective ? translation_and_intrinsics[2] : 0.0));
     }
 
     /**
      * Calculate rotation matrix from estimated camera parameters
      */
-    glm::dmat4x4 calculate_rotation_matrix() const {
+    glm::dmat4x4 calculate_rotation_matrix() const
+    {
         return glm::mat4_cast(get_glm_rotation_quaternion());
     }
 
     /**
      * Calculate projection matrix from estimated camera parameters
      */
-    glm::dmat4x4 calculate_projection_matrix() const {
+    glm::dmat4x4 calculate_projection_matrix() const
+    {
         auto aspect = static_cast<double>(image_cols) / image_rows;
-        if (use_perspective) {
-            const auto &focal = translation_and_intrinsics[3];
+        if (use_perspective)
+        {
+            const auto& focal = translation_and_intrinsics[3];
             return glm::perspective(focal, aspect, 0.1, 1000.0);
-        } else {
-            const auto &frustum_scale = translation_and_intrinsics[2];
+        } else
+        {
+            const auto& frustum_scale = translation_and_intrinsics[2];
             return glm::ortho(-1.0 * aspect * frustum_scale, 1.0 * aspect * frustum_scale,
                               -1.0 * frustum_scale, 1.0 * frustum_scale);
         }
@@ -542,8 +551,7 @@ struct CameraParameters {
 
     darray<4> rotation_quaternion = {1, 0, 0, 0}; // Quaternion, [w x y z].
     darray<get_num_cam_params(use_perspective)> translation_and_intrinsics;
-    int image_cols,
-        image_rows;
+    int image_cols, image_rows;
 
 private:
     /*
@@ -551,7 +559,8 @@ private:
      *
      * * @return std::array with 3 or 4 (for perspective projection) parameters.
      */
-    auto get_translation_and_intrinsics() const {
+    auto get_translation_and_intrinsics() const
+    {
         // Parameters for the orthographic projection: [t_x, t_y, frustum_scale]
         // And perspective projection: [t_x, t_y, t_z, fov].
         // Origin is assumed at center of image, and no lens distortions.
@@ -559,35 +568,42 @@ private:
         // other.
 
         darray<get_num_cam_params(use_perspective)> translation_and_intrinsics;
-        if (use_perspective) {
+        if (use_perspective)
+        {
             translation_and_intrinsics[2] = -400.0;              // Move the model back (along the -z axis)
             translation_and_intrinsics[3] = glm::radians(60.0f); // fov
-        } else {
+        } else
+        {
             translation_and_intrinsics[2] = 110.0; // frustum_scale
         }
         return translation_and_intrinsics;
     }
 
-
     /**
      * Cast rotation_quaternion to glm::quat
      */
-    glm::dquat get_glm_rotation_quaternion() const {
-        return glm::dquat(rotation_quaternion[0], rotation_quaternion[1],
-                          rotation_quaternion[2], rotation_quaternion[3]);
+    glm::dquat get_glm_rotation_quaternion() const
+    {
+        return glm::dquat(rotation_quaternion[0], rotation_quaternion[1], rotation_quaternion[2],
+                          rotation_quaternion[3]);
     }
 };
 
-struct PerspectiveCameraParameters: CameraParameters<true>{
-    PerspectiveCameraParameters(int image_cols, int image_rows):
-        CameraParameters<true>(image_cols, image_rows){}
+struct PerspectiveCameraParameters : CameraParameters<true>
+{
+    PerspectiveCameraParameters(int image_cols, int image_rows)
+        : CameraParameters<true>(image_cols, image_rows)
+    {
+    }
 };
 
-struct OrtogonalCameraParameters: CameraParameters<false>{
-    OrtogonalCameraParameters(int image_cols, int image_rows):
-        CameraParameters<false>(image_cols, image_rows){}
+struct OrtogonalCameraParameters : CameraParameters<false>
+{
+    OrtogonalCameraParameters(int image_cols, int image_rows)
+        : CameraParameters<false>(image_cols, image_rows)
+    {
+    }
 };
-
 
 /**
  * Class that maintain all model fitting process
@@ -597,28 +613,32 @@ struct OrtogonalCameraParameters: CameraParameters<false>{
  * @tparam color_coeffs_num number of color coefficients of model
  * @tparam use_perspective will fitting use perspective projection
  */
-template<std::size_t shapes_num, std::size_t blendshapes_num,
+template <std::size_t shapes_num, std::size_t blendshapes_num,
 #if EOS_CERES_USE_OPENCV == true
-        std::size_t color_coeffs_num
+          std::size_t color_coeffs_num
 #endif
-        >
-class ModelFitter {
+          >
+class ModelFitter
+{
 public:
     /**
      * @param[in] morphable_model morphable model instance
      * @param[in] blendshapes all blendshapes to fit
      */
     explicit ModelFitter(const morphablemodel::MorphableModel* const morphable_model,
-                         const morphablemodel::Blendshapes* const blendshapes = nullptr):
-                         problem(std::make_unique<ceres::Problem>()), morphable_model(morphable_model),
-                         blendshapes(find_blendshapes(blendshapes)){}
+                         const morphablemodel::Blendshapes* const blendshapes = nullptr)
+        : problem(std::make_unique<ceres::Problem>()), morphable_model(morphable_model),
+          blendshapes(find_blendshapes(blendshapes))
+    {
+    }
 
     /*
      * Apply solver to overall problem
      *
      * @param[in] solver_options ceres solver options
      */
-    ceres::Solver::Summary solve(const ceres::Solver::Options& solver_options = default_solver_options) {
+    ceres::Solver::Summary solve(const ceres::Solver::Options& solver_options = default_solver_options)
+    {
         // Fit position
         ceres::Solver::Summary solver_summary;
         ceres::Solve(solver_options, problem.get(), &solver_summary);
@@ -629,7 +649,8 @@ public:
     /**
      * Clean up all added blocks and cost functions.
      */
-    void reset_problem() {
+    void reset_problem()
+    {
         problem = std::make_unique<ceres::Problem>();
     }
 
@@ -642,26 +663,25 @@ public:
      * @param landmarks to contour search
      * @return vector with indexed Landmarks
      */
-    template<typename LandmarkType, bool use_perspective>
+    template <typename LandmarkType, bool use_perspective>
     auto estimate_contours(const CameraParameters<use_perspective>& camera,
                            const ContourLandmarks& landmarks_contour, const ModelContour& model_contour,
-                           const core::LandmarkCollection<LandmarkType>& landmarks) const {
+                           const core::LandmarkCollection<LandmarkType>& landmarks) const
+    {
         std::vector<Eigen::Vector2f> image_points_contour; // the 2D landmark points
-        std::vector<int> vertex_indices_contour; // their corresponding 3D vertex indices
+        std::vector<int> vertex_indices_contour;           // their corresponding 3D vertex indices
 
         // For each 2D contour landmark, get the corresponding 3D vertex point and vertex id:
         std::tie(image_points_contour, std::ignore, vertex_indices_contour) =
-                eos::fitting::get_contour_correspondences(landmarks, landmarks_contour, model_contour,
-                                                          static_cast<float>(
-                                                                  glm::degrees(camera.get_euler_rotation()[1])),
-                                                          morphable_model->get_mean(),
-                                                          camera.calculate_translation_matrix() *
-                                                                  camera.calculate_rotation_matrix(),
-                                                          camera.calculate_projection_matrix(),
-                                                          camera.get_viewport());
+            eos::fitting::get_contour_correspondences(
+                landmarks, landmarks_contour, model_contour,
+                static_cast<float>(glm::degrees(camera.get_euler_rotation()[1])), morphable_model->get_mean(),
+                camera.calculate_translation_matrix() * camera.calculate_rotation_matrix(),
+                camera.calculate_projection_matrix(), camera.get_viewport());
 
         auto contour_landmarks = core::IndexedLandmarkCollection<LandmarkType>();
-        for (int i = 0; i < image_points_contour.size(); ++i) {
+        for (int i = 0; i < image_points_contour.size(); ++i)
+        {
             core::IndexedLandmark<LandmarkType> landmark;
             landmark.coordinates = image_points_contour[i];
             landmark.model_index = vertex_indices_contour[i];
@@ -675,12 +695,14 @@ public:
     /**
      * Apply estimated shapes and blendshapes to morhable model and returns points.
      */
-    Eigen::VectorXf calculate_estimated_points_positions() const {
-        auto blendshape_coefficients_float = std::vector<float>(std::begin(blendshape_coefficients),
-                                                                std::end(blendshape_coefficients));
+    Eigen::VectorXf calculate_estimated_points_positions() const
+    {
+        auto blendshape_coefficients_float =
+            std::vector<float>(std::begin(blendshape_coefficients), std::end(blendshape_coefficients));
         return morphable_model->get_shape_model().draw_sample(shape_coefficients) +
-               to_matrix(*blendshapes) * Eigen::Map<const Eigen::VectorXf>(blendshape_coefficients_float.data(),
-                                                                           blendshape_coefficients_float.size());
+               to_matrix(*blendshapes) *
+                   Eigen::Map<const Eigen::VectorXf>(blendshape_coefficients_float.data(),
+                                                     blendshape_coefficients_float.size());
     }
 
     /**
@@ -688,43 +710,42 @@ public:
      *
      * @param[in] camera camera to fit
      * @param[in] landmarks all landmarks with indices corresponding to model
-    */
-    template<typename LandmarkType, bool use_perspective>
+     */
+    template <typename LandmarkType, bool use_perspective>
     void add_camera_cost_function(CameraParameters<use_perspective>& camera,
-                                  const core::IndexedLandmarkCollection<LandmarkType>& landmarks) {
+                                  const core::IndexedLandmarkCollection<LandmarkType>& landmarks)
+    {
         auto& camera_rotation = camera.rotation_quaternion;
         auto& camera_translation_and_intrinsics = camera.translation_and_intrinsics;
         for (const auto& landmark : landmarks)
         {
             /* Templates: CostFunctor, num residuals, camera rotation (quaternion),
                           camera translation & fov/frustum_scale, shape-coeffs, bs-coeffs */
-            auto* cost_function = new ceres::AutoDiffCostFunction<fitting::LandmarkCost, 2, 4,
-                    get_num_cam_params(use_perspective),
-                    shapes_num, blendshapes_num>(
-                    new LandmarkCost(morphable_model->get_shape_model(),
-                                     *blendshapes, landmark.coordinates, landmark.model_index,
-                                     camera.image_cols, camera.image_rows, use_perspective));
+            auto* cost_function =
+                new ceres::AutoDiffCostFunction<fitting::LandmarkCost, 2, 4,
+                                                get_num_cam_params(use_perspective), shapes_num,
+                                                blendshapes_num>(new LandmarkCost(
+                    morphable_model->get_shape_model(), *blendshapes, landmark.coordinates,
+                    landmark.model_index, camera.image_cols, camera.image_rows, use_perspective));
 
             problem->AddResidualBlock(cost_function, nullptr, &camera_rotation[0],
-                                     &camera_translation_and_intrinsics[0], &shape_coefficients[0],
-                                     &blendshape_coefficients[0]);
+                                      &camera_translation_and_intrinsics[0], &shape_coefficients[0],
+                                      &blendshape_coefficients[0]);
         }
         if (use_perspective)
         {
-            problem->SetParameterUpperBound(
-                    &camera_translation_and_intrinsics[0], 2,
-                    -std::numeric_limits<float>::epsilon()); // t_z has to be negative
+            problem->SetParameterUpperBound(&camera_translation_and_intrinsics[0], 2,
+                                            -std::numeric_limits<float>::epsilon()); // t_z has to be negative
             problem->SetParameterLowerBound(
-                    &camera_translation_and_intrinsics[0], 3,
-                    std::numeric_limits<float>::epsilon()); // fov in radians, must be > 0
+                &camera_translation_and_intrinsics[0], 3,
+                std::numeric_limits<float>::epsilon()); // fov in radians, must be > 0
         } else
         {
             problem->SetParameterLowerBound(&camera_translation_and_intrinsics[0], 2,
-                                           1.0); // frustum_scale must be > 0
+                                            1.0); // frustum_scale must be > 0
         }
         problem->SetParameterization(&camera_rotation[0], new ceres::QuaternionParameterization);
     }
-
 
     /**
      * Add residual block with shape prior cost function to the overall problem
@@ -732,10 +753,11 @@ public:
      * @param[in] weight constant to multiply all shapes
      * @param[in, out] upper and lower bound of each shape_coefficient
      */
-    void add_shape_prior_cost_function(double weigth = 35.0, double shape_coeff_limit = 3.0) {
+    void add_shape_prior_cost_function(double weigth = 35.0, double shape_coeff_limit = 3.0)
+    {
         /* Templates: CostFunctor, num residuals, shape-coeffs */
         auto* shape_prior_cost = new ceres::AutoDiffCostFunction<fitting::PriorCost, shapes_num, shapes_num>(
-                new fitting::PriorCost(shapes_num, weigth));
+            new fitting::PriorCost(shapes_num, weigth));
         problem->AddResidualBlock(shape_prior_cost, nullptr, &shape_coefficients[0]);
         for (int i = 0; i < shapes_num; ++i)
         {
@@ -744,47 +766,49 @@ public:
         }
     }
 
-
     /**
      * Add residual block with shape prior cost function to the passed problem
      *
      * @param[in] weight constant to multiply all blendshapes
      */
-    void add_blendshape_prior_cost_function(double weigth = 10.0) {
+    void add_blendshape_prior_cost_function(double weigth = 10.0)
+    {
         /* Templates: CostFunctor, num residuals, blendshape-coeffs */
         auto* blendshapes_prior_cost =
-                new ceres::AutoDiffCostFunction<fitting::PriorCost,blendshapes_num, blendshapes_num>(
-                        new fitting::PriorCost(blendshapes_num, weigth));
+            new ceres::AutoDiffCostFunction<fitting::PriorCost, blendshapes_num, blendshapes_num>(
+                new fitting::PriorCost(blendshapes_num, weigth));
         problem->AddResidualBlock(blendshapes_prior_cost, nullptr, &blendshape_coefficients[0]);
 
-        for (int i = 0; i < blendshapes_num; ++i) {
+        for (int i = 0; i < blendshapes_num; ++i)
+        {
             problem->SetParameterLowerBound(&blendshape_coefficients[0], i, 0.0);
         }
     }
 
-
-    #if EOS_CERES_USE_OPENCV == true
+#if EOS_CERES_USE_OPENCV == true
     /**
      * Add residual block with image cost function to the passed problem
      *
      * @param[in, out] camera camera to fit
      * @param[in] image image to fit
      */
-    template<bool use_perspective>
-    void add_image_cost_function(CameraParameters<use_perspective>& camera, const cv::Mat& image) {
+    template <bool use_perspective>
+    void add_image_cost_function(CameraParameters<use_perspective>& camera, const cv::Mat& image)
+    {
         // Add a residual for each vertex:
-        for (int i = 0; i < morphable_model->get_shape_model().get_data_dimension() / 3; ++i) {
+        for (int i = 0; i < morphable_model->get_shape_model().get_data_dimension() / 3; ++i)
+        {
             // Templates: CostFunctor, Residuals: [R, G, B], camera rotation (quaternion),
             //            camera translation & focal length, shape-coeffs, bs-coeffs, colour coeffs
 
-            auto* cost_function = new ceres::AutoDiffCostFunction<fitting::ImageCost, 3, 4,
-                    get_num_cam_params(use_perspective),
-                    shapes_num, blendshapes_num, color_coeffs_num>(
+            auto* cost_function =
+                new ceres::AutoDiffCostFunction<fitting::ImageCost, 3, 4, get_num_cam_params(use_perspective),
+                                                shapes_num, blendshapes_num, color_coeffs_num>(
                     new fitting::ImageCost(*morphable_model, *blendshapes, image, i, use_perspective));
 
             problem->AddResidualBlock(cost_function, nullptr, &camera.rotation_quaternion[0],
-                                     &camera.translation_and_intrinsics[0], &shape_coefficients[0],
-                                     &blendshape_coefficients[0], &colour_coefficients[0]);
+                                      &camera.translation_and_intrinsics[0], &shape_coefficients[0],
+                                      &blendshape_coefficients[0], &colour_coefficients[0]);
         }
     }
 
@@ -794,32 +818,35 @@ public:
      * @param[in] weight constant to multiply all colours
      * @param[in, out] upper and lower bound of each colour_coefficient
      */
-    void add_image_prior_cost_function(double weigth = 35.0,
-                                       double color_coeff_limit = 3.0) {
+    void add_image_prior_cost_function(double weigth = 35.0, double color_coeff_limit = 3.0)
+    {
         // Templates: CostFunctor, num residuals, colour-coeffs
         auto* colour_prior_cost =
-                new ceres::AutoDiffCostFunction<fitting::PriorCost, color_coeffs_num, color_coeffs_num>(
-                        new fitting::PriorCost(color_coeffs_num, weigth));
+            new ceres::AutoDiffCostFunction<fitting::PriorCost, color_coeffs_num, color_coeffs_num>(
+                new fitting::PriorCost(color_coeffs_num, weigth));
 
         problem->AddResidualBlock(colour_prior_cost, nullptr, &colour_coefficients[0]);
-        for (int i = 0; i < color_coeffs_num; ++i) {
+        for (int i = 0; i < color_coeffs_num; ++i)
+        {
             problem->SetParameterLowerBound(&colour_coefficients[0], i, -color_coeff_limit);
             problem->SetParameterUpperBound(&colour_coefficients[0], i, color_coeff_limit);
         }
     }
-    #endif
+#endif
 
     /**
      * Block shapes fitting
      */
-    void block_shapes_fitting() {
+    void block_shapes_fitting()
+    {
         problem->SetParameterBlockConstant(&shape_coefficients[0]);
     }
 
     /**
      * Block blendshapes fitting
      */
-    void block_blendshapes_fitting() {
+    void block_blendshapes_fitting()
+    {
         problem->SetParameterBlockConstant(&blendshape_coefficients[0]);
     }
 
@@ -831,14 +858,14 @@ public:
      * @param[in,out] camera perspective camera to fit
      * @param[in] fov_in_grad field of view to fix
      */
-    void block_fov_fitting(PerspectiveCameraParameters& camera, double fov_in_grad) {
+    void block_fov_fitting(PerspectiveCameraParameters& camera, double fov_in_grad)
+    {
         auto& camera_translation_and_intrinsics = camera.translation_and_intrinsics;
         camera_translation_and_intrinsics[3] = glm::radians(fov_in_grad);
 
         std::vector<int> vec_constant_extrinsic = {3};
-        auto subset_parameterization =
-                new ceres::SubsetParameterization(static_cast<int>(get_num_cam_params(true)),
-                                                  vec_constant_extrinsic);
+        auto subset_parameterization = new ceres::SubsetParameterization(
+            static_cast<int>(get_num_cam_params(true)), vec_constant_extrinsic);
         problem->SetParameterization(&camera_translation_and_intrinsics[0], subset_parameterization);
     }
 
@@ -849,26 +876,30 @@ public:
 #endif
 
     std::unique_ptr<ceres::Problem> problem;
+
 private:
     /*
      * Check if blendshapes is not nullptr or try to find them in morphable_model.
      *
      * * @return std::array with 3 or 4 (for perspective projection) parameters.
      */
-    auto find_blendshapes(const morphablemodel::Blendshapes* const blendshapes = nullptr) const {
-        if (blendshapes == nullptr) {
+    auto find_blendshapes(const morphablemodel::Blendshapes* const blendshapes = nullptr) const
+    {
+        if (blendshapes == nullptr)
+        {
             const auto& blendshapes_optional = morphable_model->get_expression_model();
 
             if (blendshapes_optional.has_value())
             {
                 return &cpp17::get<morphablemodel::Blendshapes>(*blendshapes_optional);
-            }
-            else
+            } else
             {
-                throw std::runtime_error("Blendshapes was not passed and morphable model does not contain them too."
-                                         "Try to pass blendshapes explicitly.");
+                throw std::runtime_error(
+                    "Blendshapes was not passed and morphable model does not contain them too."
+                    "Try to pass blendshapes explicitly.");
             }
-        } else {
+        } else
+        {
             return blendshapes;
         }
     }

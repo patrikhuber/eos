@@ -103,7 +103,8 @@ public:
      *
      * @param[in] mappings A set of landmark mappings.
      */
-    LandmarkMapper(std::unordered_map<std::string, std::string> mappings) : landmark_mappings(std::move(mappings)) {};
+    LandmarkMapper(std::unordered_map<std::string, std::string> mappings)
+        : landmark_mappings(std::move(mappings)){};
 
     /**
      * @brief Converts the given landmark name to the mapped name.
@@ -133,19 +134,21 @@ public:
         }
     };
 
-
     using LandmarkDefinitions = std::unordered_map<std::string, int>;
     /**
      * @param landmarks landmarks to index
      * @return new vector with landmarks for which index can be defined
      */
-    template<typename LandmarkType>
+    template <typename LandmarkType>
     auto get_indexed_landmarks(const LandmarkCollection<LandmarkType>& landmarks,
-                               const LandmarkDefinitions* const landmark_definitions = nullptr) const {
+                               const LandmarkDefinitions* const landmark_definitions = nullptr) const
+    {
         IndexedLandmarkCollection<LandmarkType> indexed_landmarks;
-        for (auto& landmark : landmarks) {
+        for (auto& landmark : landmarks)
+        {
             auto converted_name = this->convert(landmark.name);
-            if (!converted_name) { // no mapping defined for the current landmark
+            if (!converted_name)
+            { // no mapping defined for the current landmark
                 continue;
             }
 
@@ -166,7 +169,7 @@ public:
                 vertex_idx = std::stoi(converted_name.value());
             }
 
-            IndexedLandmark<LandmarkType> indexed_landmark {landmark.name, landmark.coordinates, vertex_idx};
+            IndexedLandmark<LandmarkType> indexed_landmark{landmark.name, landmark.coordinates, vertex_idx};
             indexed_landmarks.emplace_back(std::move(indexed_landmark));
         }
         return indexed_landmarks;
@@ -177,7 +180,8 @@ public:
      *
      * @return The number of landmark mappings.
      */
-    auto num_mappings() const {
+    auto num_mappings() const
+    {
         return landmark_mappings.size();
     };
 
@@ -186,7 +190,8 @@ public:
      *
      * @return All mappings contained in the mapper.
      */
-    const auto& get_mappings() const {
+    const auto& get_mappings() const
+    {
         return landmark_mappings;
     };
 

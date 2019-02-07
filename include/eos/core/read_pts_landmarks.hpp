@@ -47,7 +47,7 @@ inline LandmarkCollection<Eigen::Vector2f> read_pts_landmarks(const std::string&
     using std::getline;
     using std::string;
     LandmarkCollection<Vector2f> landmarks;
-    landmarks.reserve(68);  // number of landmarks in ibug markup
+    landmarks.reserve(68); // number of landmarks in ibug markup
 
     std::ifstream file(filename);
     if (!file)
