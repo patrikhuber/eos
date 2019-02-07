@@ -53,7 +53,7 @@ public:
         : height_(height), width_(width), row_stride(PixelTraits<PixelType>::num_bytes * width)
     {
         // data_.reserve(row_stride * height); // just reserves, doesn't put any elements into the vector
-        data_.resize(row_stride * height);
+        data_.resize(static_cast<size_t >(row_stride * height));
     };
 
     int height() const noexcept
@@ -82,6 +82,12 @@ public:
         assert(x >= 0 && x < width_);
         return *data(y, x);
     };
+
+    template<typename T>
+    const T* const ptr(int y, int x) const noexcept
+    {
+        return reinterpret_cast<const T*>(byte_ptr(y, x));
+    }
 
 private:
     int height_ = 0;

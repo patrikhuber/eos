@@ -23,6 +23,7 @@
 #define CERESNONLINEAR_HPP_
 #endif
 
+#include "eos/core/Image.hpp"
 #include "eos/core/Landmark.hpp"
 #include "eos/fitting/contour_correspondence.hpp"
 #include "eos/morphablemodel/MorphableModel.hpp"
@@ -36,14 +37,6 @@
 #include "ceres/ceres.h"
 #include "ceres/cubic_interpolation.h"
 #include "ceres/problem.h"
-
-#ifndef EOS_CERES_USE_OPENCV
-#define EOS_CERES_USE_OPENCV true
-#endif
-
-#if EOS_CERES_USE_OPENCV == true
-#include "opencv2/core/core.hpp"
-#endif
 
 #include <array>
 #include <vector>
@@ -220,7 +213,6 @@ private:
     const bool use_perspective;
 };
 
-#if EOS_CERES_USE_OPENCV
 /**
  * Image error cost function (at vertex locations).
  *
@@ -247,16 +239,12 @@ struct ImageCost
      * @throws std::runtime_error if the given \c image is not of type CV_8UC3.
      */
     ImageCost(const morphablemodel::MorphableModel& morphable_model,
-              const morphablemodel::Blendshapes& blendshapes, const cv::Mat& image, int vertex_id,
+              const morphablemodel::Blendshapes& blendshapes, const core::Image3u& image, int vertex_id,
               bool use_perspective)
         : morphable_model(morphable_model), blendshapes(blendshapes), image(image),
-          aspect_ratio(static_cast<double>(image.cols) / image.rows), vertex_id(vertex_id),
+          aspect_ratio(static_cast<double>(image.width()) / image.height()), vertex_id(vertex_id),
           use_perspective(use_perspective)
     {
-        if (image.type() != CV_8UC3)
-        {
-            throw std::runtime_error("The image given to ImageCost must be of type CV_8UC3.");
-        }
         if (!morphable_model.has_color_model())
         {
             throw std::runtime_error("The MorphableModel used does not contain a colour (albedo) model. "
@@ -305,7 +293,7 @@ struct ImageCost
         const auto rot_mtx = glm::mat4_cast(rot_quat);
 
         // Todo: use get_opencv_viewport() from nonlin_cam_esti.hpp.
-        const auto viewport = tvec4<T>(0, image.rows, image.cols, -image.rows); // OpenCV convention
+        const auto viewport = tvec4<T>(0, image.height(), image.width(), -image.height()); // OpenCV convention
 
         tvec3<T> projected_point;
         if (use_perspective)
@@ -331,8 +319,8 @@ struct ImageCost
 
         // Access the image colour value at the projected pixel location, if inside the image - otherwise set
         // to (127, 127, 127) (maybe not ideal...):
-        if (projected_point.y < static_cast<T>(0) || projected_point.y >= static_cast<T>(image.rows) ||
-            projected_point.x < static_cast<T>(0) || projected_point.x >= static_cast<T>(image.cols))
+        if (projected_point.y < static_cast<T>(0) || projected_point.y >= static_cast<T>(image.height()) ||
+            projected_point.x < static_cast<T>(0) || projected_point.x >= static_cast<T>(image.width()))
         {
             // The point is outside the image.
             residual[0] = static_cast<T>(127.0);
@@ -356,8 +344,11 @@ struct ImageCost
             // Note: We could store the BiCubicInterpolator as member variable.
             // The default template arguments for Grid2D are <T, kDataDim=1, kRowMajor=true,
             // kInterleaved=true> and (except for the dimension), they're the right ones for us.
-            auto grid = ceres::Grid2D<uchar, 3>(image.ptr(0), 0, image.rows, 0, image.cols);
-            auto interpolator = ceres::BiCubicInterpolator<ceres::Grid2D<uchar, 3>>(grid);
+
+            using Grid2D3d = ceres::Grid2D<std::uint8_t, 3>;
+
+            Grid2D3d grid(image.ptr<std::uint8_t>(0, 0), 0, image.height(), 0, image.width());
+            auto interpolator = ceres::BiCubicInterpolator<Grid2D3d>(grid);
             auto observed_colour = std::array<T, 3>();
             interpolator.Evaluate(projected_point.y, projected_point.x, &observed_colour[0]);
 
@@ -379,7 +370,7 @@ private:
     const morphablemodel::MorphableModel&
         morphable_model; // Or store as pointer (non-owning) or std::reference_wrapper?
     const morphablemodel::Blendshapes& blendshapes;
-    const cv::Mat image; // the observed image
+    const core::Image3u image; // the observed image
     const double aspect_ratio;
     const int vertex_id;
     const bool use_perspective;
@@ -467,8 +458,6 @@ std::array<T, 3> get_vertex_colour(const morphablemodel::PcaModel& color_model, 
     }
     return point;
 };
-
-#endif /* EOS_CERES_USE_OPENCV */
 
 ceres::Solver::Options get_default_solver_options()
 {
@@ -613,11 +602,7 @@ struct OrtogonalCameraParameters : CameraParameters<false>
  * @tparam color_coeffs_num number of color coefficients of model
  * @tparam use_perspective will fitting use perspective projection
  */
-template <std::size_t shapes_num, std::size_t blendshapes_num,
-#if EOS_CERES_USE_OPENCV == true
-          std::size_t color_coeffs_num
-#endif
-          >
+template <std::size_t shapes_num, std::size_t blendshapes_num, std::size_t color_coeffs_num>
 class ModelFitter
 {
 public:
@@ -785,7 +770,6 @@ public:
         }
     }
 
-#if EOS_CERES_USE_OPENCV == true
     /**
      * Add residual block with image cost function to the passed problem
      *
@@ -793,7 +777,7 @@ public:
      * @param[in] image image to fit
      */
     template <bool use_perspective>
-    void add_image_cost_function(CameraParameters<use_perspective>& camera, const cv::Mat& image)
+    void add_image_cost_function(CameraParameters<use_perspective>& camera, const core::Image3u& image)
     {
         // Add a residual for each vertex:
         for (int i = 0; i < morphable_model->get_shape_model().get_data_dimension() / 3; ++i)
@@ -832,7 +816,6 @@ public:
             problem->SetParameterUpperBound(&colour_coefficients[0], i, color_coeff_limit);
         }
     }
-#endif
 
     /**
      * Block shapes fitting
@@ -871,9 +854,7 @@ public:
 
     darray<shapes_num> shape_coefficients;
     darray<blendshapes_num> blendshape_coefficients;
-#if EOS_CERES_USE_OPENCV == true
     darray<color_coeffs_num> colour_coefficients;
-#endif
 
     std::unique_ptr<ceres::Problem> problem;
 

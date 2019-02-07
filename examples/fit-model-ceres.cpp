@@ -226,6 +226,19 @@ void draw_mesh_vertices(Mat& image, const core::Mesh& mesh,
         cv::circle(image, cv::Point2d(projected_point.x, projected_point.y), 3, color); // red
     }
 }
+
+core::Image3u cv_mat_to_image3u(const cv::Mat& cv_image) {
+    core::Image3u image(cv_image.rows, cv_image.cols);
+    for (int y = 0; y < image.height(); ++y) {
+        for (int x = 0; x < image.width(); ++x) {
+            const auto &pixel = cv_image.at<cv::Vec3b>(y, x);
+            image(y, x) = core::Image3u::pixel_type(pixel.val[0], pixel.val[1], pixel.val[2]);
+        }
+    }
+
+    return image;
+}
+
 } // namespace ceres_example
 } // namespace eos
 
@@ -280,10 +293,12 @@ int main(int argc, char* argv[])
 
     const auto& model_contour = fitting_data.model_contour;
     const auto& ibug_contour = fitting_data.ibug_contour;
-    const auto& image = fitting_data.image;
+    const auto& cv_image = fitting_data.image;
     const auto& morphable_model = fitting_data.morphable_model;
     const auto& landmark_mapper = fitting_data.landmark_mapper;
     const auto& blendshapes = fitting_data.blendshapes;
+
+    auto image = eos::ceres_example::cv_mat_to_image3u(cv_image);
 
     // These will be the 2D image points and their corresponding 3D vertex id's used for the fitting
     auto& landmarks = fitting_data.landmarks;
@@ -302,7 +317,7 @@ int main(int argc, char* argv[])
     auto model_fitter =
         fitting::ModelFitter<EOS_CERES_EXAMPLE_SHAPES_NUM, EOS_CERES_EXAMPLE_BLENDSHAPES_NUM,
                              EOS_CERES_EXAMPLE_COLOR_COEFFS_NUM>(&morphable_model, &blendshapes);
-    auto camera = fitting::PerspectiveCameraParameters(image.cols, image.rows);
+    auto camera = fitting::PerspectiveCameraParameters(image.width(), image.height());
     model_fitter.add_camera_cost_function(camera, indexed_landmarks);
     model_fitter.block_shapes_fitting();
     model_fitter.block_blendshapes_fitting();
@@ -317,7 +332,7 @@ int main(int argc, char* argv[])
     // Draw the mean-face landmarks projected using the estimated camera:
     // Construct the rotation & translation (model-view) matrices, projection matrix, and viewport:
 
-    Mat outimg = image.clone();
+    Mat outimg = cv_image.clone();
     ceres_example::draw_mesh_vertices(outimg, morphable_model.get_mean(), indexed_landmarks,
                                       camera.calculate_translation_matrix() *
                                           camera.calculate_rotation_matrix(),
