@@ -168,8 +168,7 @@ public:
                 vertex_idx = std::stoi(converted_name.value());
             }
 
-            IndexedLandmark<LandmarkType> indexed_landmark{landmark.name, landmark.coordinates, vertex_idx};
-            indexed_landmarks.emplace_back(std::move(indexed_landmark));
+            indexed_landmarks.emplace_back(landmark, vertex_idx);
         }
         return indexed_landmarks;
     }

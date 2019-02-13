@@ -46,6 +46,11 @@ struct Landmark
 template <class LandmarkType>
 struct IndexedLandmark : Landmark<LandmarkType>
 {
+    IndexedLandmark(const Landmark<LandmarkType>& landmark, int model_index)
+        : Landmark<LandmarkType>(landmark), model_index(model_index) {}
+    IndexedLandmark(const std::string& name, const LandmarkType& coordinates, int model_index)
+        : Landmark<LandmarkType>{name, coordinates}, model_index(model_index) {}
+
     int model_index; ///< Index of landmark in mesh
 };
 
