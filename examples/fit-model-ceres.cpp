@@ -337,7 +337,7 @@ int main(int argc, char* argv[])
                                       camera.calculate_projection_matrix(), camera.get_viewport());
     ceres_example::draw_landmarks(outimg, indexed_landmarks);
 
-    const auto camera_euler_rotation = camera.get_euler_rotation();
+    auto camera_euler_rotation = camera.get_euler_rotation();
     fitting_log << "Pose fit with mean shape:\tYaw " << glm::degrees(camera_euler_rotation[1]) << ", Pitch "
                 << glm::degrees(camera_euler_rotation[0]) << ", Roll "
                 << glm::degrees(camera_euler_rotation[2]) << "; t & f: " << camera.translation_and_intrinsics

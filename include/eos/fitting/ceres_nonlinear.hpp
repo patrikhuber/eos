@@ -172,7 +172,7 @@ struct LandmarkCost
         // Todo: use get_opencv_viewport() from nonlin_cam_esti.hpp.
         const tvec4<T> viewport(0, image_height, image_width, -image_height); // OpenCV convention
 
-        tvec3<T> projected_point(); // Note: could avoid default construction by using a lambda and
+        tvec3<T> projected_point; // Note: could avoid default construction by using a lambda and
                                            // immediate invocation
         if (use_perspective)
         {
@@ -868,8 +868,8 @@ public:
     std::unique_ptr<ceres::Problem> problem;
 
 private:
-    const morphablemodel::MorphableModel* const morphable_model;
-    const morphablemodel::Blendshapes* const blendshapes;
+    const morphablemodel::MorphableModel* morphable_model;
+    const morphablemodel::Blendshapes* blendshapes;
 };
 
 } /* namespace fitting */
