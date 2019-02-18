@@ -458,19 +458,6 @@ std::array<T, 3> get_vertex_colour(const morphablemodel::PcaModel& color_model, 
     return point;
 };
 
-ceres::Solver::Options get_default_solver_options()
-{
-    ceres::Solver::Options solver_options;
-    solver_options.linear_solver_type = ceres::ITERATIVE_SCHUR;
-    solver_options.num_threads = 8;
-    solver_options.minimizer_progress_to_stdout = true;
-    solver_options.max_num_iterations = 50;
-
-    return solver_options;
-}
-
-const auto default_solver_options = get_default_solver_options();
-
 /*
  * Parameters of camera
  *
@@ -635,7 +622,7 @@ public:
      *
      * @param[in] solver_options ceres solver options
      */
-    ceres::Solver::Summary solve(const ceres::Solver::Options& solver_options = default_solver_options)
+    ceres::Solver::Summary solve(const ceres::Solver::Options& solver_options)
     {
         // Fit position
         ceres::Solver::Summary solver_summary;

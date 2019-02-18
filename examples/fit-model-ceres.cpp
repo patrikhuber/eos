@@ -325,7 +325,13 @@ int main(int argc, char* argv[])
     model_fitter.set_blendshape_coefficients_constant();
     model_fitter.set_fov_constant(camera, 60.0);
 
-    auto solver_summary = model_fitter.solve();
+    ceres::Solver::Options solver_options;
+    solver_options.linear_solver_type = ceres::ITERATIVE_SCHUR;
+    solver_options.num_threads = 8;
+    solver_options.minimizer_progress_to_stdout = true;
+    solver_options.max_num_iterations = 50;
+
+    auto solver_summary = model_fitter.solve(solver_options);
 
     auto end = std::chrono::steady_clock::now();
     // Log fitting report
@@ -393,7 +399,7 @@ int main(int argc, char* argv[])
         color_instance = Eigen::VectorXf();
     }
 
-    solver_summary = model_fitter.solve();
+    solver_summary = model_fitter.solve(solver_options);
     std::cout << solver_summary.BriefReport() << std::endl;
     end = std::chrono::steady_clock::now();
 
