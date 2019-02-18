@@ -59,7 +59,7 @@ std::array<T, 3> get_shape_point(const morphablemodel::PcaModel& shape_model,
 
 template <typename T>
 std::array<T, 3> get_vertex_colour(const morphablemodel::PcaModel& colour_model, int vertex_id,
-                                   const T* const colour_coeffs, std::size_t num_coeffs_fitting);
+                                   const T* const color_coeffs, std::size_t num_coeffs_fitting);
 
 /**
  * Cost function for a prior on the parameters.
