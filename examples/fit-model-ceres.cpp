@@ -314,7 +314,11 @@ int main(int argc, char* argv[])
 
     auto model_fitter =
         fitting::ModelFitter<EOS_CERES_EXAMPLE_SHAPES_NUM, EOS_CERES_EXAMPLE_BLENDSHAPES_NUM,
-                             EOS_CERES_EXAMPLE_COLOR_COEFFS_NUM>(&morphable_model, &blendshapes);
+                             EOS_CERES_EXAMPLE_COLOR_COEFFS_NUM>(
+                                     &morphable_model,
+                                     morphable_model.has_separate_expression_model() ? nullptr : &blendshapes
+    );
+
     auto camera = fitting::PerspectiveCameraParameters(image.width(), image.height());
     model_fitter.add_camera_cost_function(camera, indexed_landmarks);
     model_fitter.set_shape_coefficients_constant();
