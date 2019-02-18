@@ -19,15 +19,15 @@
  */
 #pragma once
 
-#ifndef RASTERIZER_HPP_
-#define RASTERIZER_HPP_
+#ifndef EOS_RASTERIZER_HPP
+#define EOS_RASTERIZER_HPP
 
 #include "eos/core/Rect.hpp"
 #include "eos/render/detail/Vertex.hpp"
-#include "eos/render/utils.hpp" // for Texture
+#include "eos/core/Image.hpp"
+#include "eos/core/image/utils.hpp"
+#include "eos/render/Texture.hpp"
 #include "eos/cpp17/optional.hpp"
-
-#include "opencv2/core/core.hpp"
 
 #include <limits>
 
@@ -48,9 +48,11 @@ public:
     Rasterizer(int viewport_width, int viewport_height)
         : viewport_width(viewport_width), viewport_height(viewport_height)
     {
-        colorbuffer = cv::Mat(viewport_height, viewport_width, CV_8UC4, cv::Scalar::all(255));
+        colorbuffer = eos::core::image::constant(viewport_height, viewport_width,
+			eos::core::Pixel<std::uint8_t, 4>(255, 255, 255, 255));
         depthbuffer =
-            std::numeric_limits<double>::max() * cv::Mat::ones(viewport_height, viewport_width, CV_64FC1);
+            eos::core::image::constant(
+            viewport_height, viewport_width, std::numeric_limits<double>::max());
     };
 
     /**
@@ -66,7 +68,7 @@ public:
                          const detail::Vertex<T, P>& point_c, const cpp17::optional<Texture>& texture)
     {
         // We already calculated this in the culling/clipping stage. Maybe we should save/cache it after all.
-        Rect<int> boundingBox = detail::calculate_clipped_bounding_box(
+        const auto boundingBox = detail::calculate_clipped_bounding_box(
             glm::tvec2<T, P>(point_a.position.x, point_a.position.y),
             glm::tvec2<T, P>(point_b.position.x, point_b.position.y),
             glm::tvec2<T, P>(point_c.position.x, point_c.position.y), viewport_width, viewport_height);
@@ -157,7 +159,7 @@ public:
                         // If enable_depth_test=false, avoid accessing the depthbuffer at all - it might be
                         // empty or have other dimensions.
                         passes_depth_test =
-                            (z_affine < depthbuffer.at<double>(pixel_index_row, pixel_index_col));
+                            (z_affine < depthbuffer(pixel_index_row, pixel_index_col));
                     }
                     // The '<= 1.0' clips against the far-plane in NDC. We clip against the near-plane
                     // earlier.
@@ -207,10 +209,10 @@ public:
                                 one_over_squared_one_over_z * (alpha_ffy * one_over_z - u_over_z * gamma_ffy);
                             float dvdy =
                                 one_over_squared_one_over_z * (beta_ffy * one_over_z - v_over_z * gamma_ffy);
-                            dudx *= texture.get().mipmaps[0].cols;
-                            dudy *= texture.get().mipmaps[0].cols;
-                            dvdx *= texture.get().mipmaps[0].rows;
-                            dvdy *= texture.get().mipmaps[0].rows;
+                            dudx *= texture.value().mipmaps[0].width();
+                            dudy *= texture.value().mipmaps[0].width();
+                            dvdx *= texture.value().mipmaps[0].height();
+                            dvdy *= texture.value().mipmaps[0].height();
 
                             // Why does it need x and y? Maybe some shaders (eg TexExtr?) need it?
                             pixel_color = fragment_shader.shade_triangle_pixel(
@@ -236,14 +238,14 @@ public:
                             static_cast<unsigned char>(255.0f * std::min(pixel_color[3], T(1)));
 
                         // update buffers
-                        colorbuffer.at<cv::Vec4b>(pixel_index_row, pixel_index_col)[0] = blue;
-                        colorbuffer.at<cv::Vec4b>(pixel_index_row, pixel_index_col)[1] = green;
-                        colorbuffer.at<cv::Vec4b>(pixel_index_row, pixel_index_col)[2] = red;
-                        colorbuffer.at<cv::Vec4b>(pixel_index_row, pixel_index_col)[3] = alpha;
+                        colorbuffer(pixel_index_row, pixel_index_col)[0] = blue;
+                        colorbuffer(pixel_index_row, pixel_index_col)[1] = green;
+                        colorbuffer(pixel_index_row, pixel_index_col)[2] = red;
+                        colorbuffer(pixel_index_row, pixel_index_col)[3] = alpha;
                         if (enable_depth_test) // TODO: A better name for this might be enable_zbuffer? or
                                                // enable_zbuffer_test?
                         {
-                            depthbuffer.at<double>(pixel_index_row, pixel_index_col) = z_affine;
+                            depthbuffer(pixel_index_row, pixel_index_col) = z_affine;
                         }
                     }
                 }
@@ -262,11 +264,11 @@ public:                            // will eventually go private
     int viewport_width;
     int viewport_height;
 
-    cv::Mat colorbuffer;
-    cv::Mat depthbuffer;
+    eos::core::Image4u colorbuffer;
+	eos::core::Image1d depthbuffer;
 };
 
-} /* namespace render */
-} /* namespace eos */
+} // namespace render
+} // namespace eos
 
-#endif /* RASTERIZER_HPP_ */
+#endif /* EOS_RASTERIZER_HPP */

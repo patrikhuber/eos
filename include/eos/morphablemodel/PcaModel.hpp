@@ -193,6 +193,14 @@ public:
         return draw_sample(coeffs_float);
     };
 
+    template <std::size_t N>
+    Eigen::VectorXf draw_sample(std::array<double, N> coefficients) const
+    {
+        // We have to convert the vector of doubles to float:
+        const std::vector<float> coeffs_float(std::begin(coefficients), std::end(coefficients));
+        return draw_sample(coeffs_float);
+    };
+
     /**
      * Returns the PCA basis matrix, i.e. the eigenvectors.
      * Each column of the matrix is an eigenvector.

@@ -18,56 +18,237 @@
  * limitations under the License.
  */
 #define GLM_FORCE_UNRESTRICTED_GENTYPE
+
+#include <chrono>
+#include <iostream>
+#include <stdexcept>
+#include <vector>
+
+#include "boost/filesystem.hpp"
+#include "boost/program_options.hpp"
+#include "opencv2/imgproc/imgproc.hpp"
+#include "opencv2/highgui/highgui.hpp"
+
 #include "eos/core/Landmark.hpp"
 #include "eos/core/LandmarkMapper.hpp"
 #include "eos/core/read_pts_landmarks.hpp"
 #include "eos/fitting/ceres_nonlinear.hpp"
-#include "eos/fitting/contour_correspondence.hpp"
-#include "eos/fitting/fitting.hpp"
 #include "eos/morphablemodel/Blendshape.hpp"
 
-#include "Eigen/Core"
-
-#include "glm/ext.hpp"
-#include "glm/glm.hpp"
-
-#include "ceres/ceres.h"
-#include "ceres/cubic_interpolation.h"
-#include "ceres/rotation.h"
-
-#include "opencv2/core/core.hpp"
-#include "opencv2/imgproc/imgproc.hpp"
-#include "opencv2/highgui/highgui.hpp"
-
-#include "boost/filesystem.hpp"
-#include "boost/program_options.hpp"
-
-#include <chrono>
-#include <iostream>
-#include <vector>
-
 using namespace eos;
-using namespace glm;
 using namespace ceres;
 namespace po = boost::program_options;
 namespace fs = boost::filesystem;
-using eos::core::Landmark;
-using eos::core::LandmarkCollection;
 using cv::Mat;
 using Eigen::Vector2f;
-using std::cout;
-using std::endl;
-using std::string;
-using std::vector;
+using eos::core::IndexedLandmark;
+using eos::core::IndexedLandmarkCollection;
+using eos::core::Landmark;
+using eos::core::LandmarkCollection;
 
-// print a vector:
-template <typename T>
-std::ostream& operator<<(std::ostream& out, const std::vector<T>& v)
+#ifndef EOS_CERES_EXAMPLE_USE_PERSPECTIVE
+#define EOS_CERES_EXAMPLE_USE_PERSPECTIVE true
+#endif
+
+#ifndef EOS_CERES_EXAMPLE_SHAPES_NUM
+#define EOS_CERES_EXAMPLE_SHAPES_NUM 63
+#endif
+
+#ifndef EOS_CERES_EXAMPLE_BLENDSHAPES_NUM
+#define EOS_CERES_EXAMPLE_BLENDSHAPES_NUM 6
+#endif
+
+#ifndef EOS_CERES_EXAMPLE_COLOR_COEFFS_NUM
+#define EOS_CERES_EXAMPLE_COLOR_COEFFS_NUM 10
+#endif
+
+namespace eos {
+namespace ceres_example {
+struct HelpCallException : public std::exception
 {
-    if (!v.empty())
+    const char* what() const noexcept override
+    {
+        return "User called help";
+    }
+};
+
+struct CliArguments
+{
+    fs::path blendshapesfile, contourfile, imagefile, landmarksfile, mappingsfile, modelfile, outputfile;
+};
+
+CliArguments parse_cli_arguments(int argc, char* argv[])
+{
+    fs::path blendshapesfile, contourfile, imagefile, landmarksfile, mappingsfile, modelfile, outputfile;
+
+    try
+    {
+        po::options_description desc("Allowed options");
+        // clang-format off
+                desc.add_options()
+                        ("help,h", "display the help message")
+                        ("model,m", po::value<fs::path>(&modelfile)->required()->default_value(
+                                "../share/sfm_shape_3448.bin"),
+                         "a Morphable Model, containing a shape and albedo model, stored as cereal BinaryArchive")
+                        ("blendshapes,b", po::value<fs::path>(&blendshapesfile)->required()->default_value(
+                                "../share/expression_blendshapes_3448.bin"),
+                         "file with blendshapes")
+                        ("image,i", po::value<fs::path>(&imagefile)->required()->default_value("data/image_0010.png"),
+                         "an input image")
+                        ("landmarks,l",
+                         po::value<fs::path>(&landmarksfile)->required()->default_value("data/image_0010.pts"),
+                         "2D landmarks for the image, in ibug .pts format")
+                        ("mapping,p",
+                         po::value<fs::path>(&mappingsfile)->required()->default_value("../share/ibug_to_sfm.txt"),
+                         "landmark identifier to model vertex number mapping")
+                        ("model-contour,c",
+                         po::value<fs::path>(&contourfile)->required()->default_value(
+                                 "../share/sfm_model_contours.json"),
+                         "file with model contour indices")
+                        ("output,o", po::value<fs::path>(&outputfile)->required()->default_value("out"),
+                         "basename for the output obj file");
+        // clang-format on
+        po::variables_map vm;
+        po::store(po::command_line_parser(argc, argv).options(desc).run(), vm);
+        if (vm.count("help"))
+        {
+            std::cout << "Usage: fit-model-ceres [options]" << std::endl;
+            std::cout << desc;
+            throw HelpCallException();
+        }
+        po::notify(vm);
+    } catch (const po::error& e)
+    {
+        std::string error_text =
+            static_cast<std::string>("Error while parsing command-line arguments: ") + e.what() + '\n';
+        std::cout << error_text;
+        std::cout << "Use --help to display a list of options." << std::endl;
+        throw std::invalid_argument(error_text);
+    }
+
+    return CliArguments{blendshapesfile, contourfile, imagefile, landmarksfile,
+                        mappingsfile,    modelfile,   outputfile};
+}
+
+struct FittingData
+{
+    fitting::ModelContour model_contour;
+    fitting::ContourLandmarks ibug_contour;
+    Mat image;
+    LandmarkCollection<Vector2f> landmarks;
+    morphablemodel::MorphableModel morphable_model;
+    core::LandmarkMapper landmark_mapper;
+    std::vector<morphablemodel::Blendshape> blendshapes;
+};
+
+FittingData read_fitting_data(const std::string& blendshapesfile, const std::string& contourfile,
+                              const std::string& imagefile, const std::string& landmarksfile,
+                              const std::string& mappingsfile, const std::string& modelfile,
+                              const std::string& outputfile)
+{
+    fitting::ModelContour model_contour;
+    fitting::ContourLandmarks ibug_contour;
+    if (contourfile.empty())
+    {
+        model_contour = fitting::ModelContour();
+        ibug_contour = fitting::ContourLandmarks();
+    } else
+    {
+        model_contour = fitting::ModelContour::load(contourfile);
+        try
+        {
+            ibug_contour = fitting::ContourLandmarks::load(mappingsfile);
+        } catch (const std::runtime_error& e)
+        {
+            const std::string error_text =
+                static_cast<std::string>("Error reading the contour mappings file: ") + e.what() + '\n';
+            std::cout << error_text << std::flush;
+            throw std::runtime_error(error_text);
+        }
+    }
+
+    Mat image = cv::imread(imagefile);
+    LandmarkCollection<Vector2f> landmarks;
+    try
+    {
+        landmarks = core::read_pts_landmarks(landmarksfile);
+    } catch (const std::runtime_error& e)
+    {
+        const std::string error_text =
+            static_cast<std::string>("Error reading the landmarks: ") + e.what() + '\n';
+        std::cout << error_text << std::flush;
+        throw std::runtime_error(error_text);
+    }
+    morphablemodel::MorphableModel morphable_model;
+    try
+    {
+        morphable_model = morphablemodel::load_model(modelfile);
+    } catch (const std::runtime_error& e)
+    {
+        const std::string error_text =
+            static_cast<std::string>("Error loading the Morphable Model: ") + e.what() + '\n';
+        std::cout << error_text << std::flush;
+        throw std::runtime_error(error_text);
+    }
+
+    // Note: Actually it's a required argument, so it'll never be empty.
+    core::LandmarkMapper landmark_mapper =
+        mappingsfile.empty() ? core::LandmarkMapper() : core::LandmarkMapper(mappingsfile);
+
+    std::vector<morphablemodel::Blendshape> blendshapes = morphablemodel::load_blendshapes(blendshapesfile);
+
+    return FittingData{model_contour,   ibug_contour,    image,      landmarks,
+                       morphable_model, landmark_mapper, blendshapes};
+}
+
+template <typename LandmarkType>
+void draw_landmarks(Mat& image, const IndexedLandmarkCollection<LandmarkType>& landmarks,
+                    const cv::Scalar& color = {0.0, 255.0, 255.0})
+{
+    for (const auto& landmark : landmarks)
+    {
+        cv::rectangle(image, cv::Point2d(landmark.coordinates[0] - 2.0f, landmark.coordinates[1] - 2.0f),
+                      cv::Point2d(landmark.coordinates[0] + 2.0f, landmark.coordinates[1] + 2.0f), color);
+    }
+}
+
+template <typename LandmarkType>
+void draw_mesh_vertices(Mat& image, const core::Mesh& mesh,
+                        const IndexedLandmarkCollection<LandmarkType>& landmarks,
+                        const glm::dmat4x4& tr_matrix, const glm::dmat4x4& projection_matrix,
+                        const glm::dvec4& viewport, const cv::Scalar& color = {0.0f, 0.0f, 255.0f})
+{
+    for (const auto& landmark : landmarks)
+    {
+        const auto& vertex = mesh.vertices[landmark.model_index];
+        glm::dvec3 point_3d(vertex[0], vertex[1], vertex[2]); // The 3D model point
+        glm::dvec3 projected_point = glm::project(point_3d, tr_matrix, projection_matrix, viewport);
+        cv::circle(image, cv::Point2d(projected_point.x, projected_point.y), 3, color); // red
+    }
+}
+
+core::Image3u cv_mat_to_image3u(const cv::Mat& cv_image) {
+    core::Image3u image(cv_image.rows, cv_image.cols);
+    for (int y = 0; y < image.height(); ++y) {
+        for (int x = 0; x < image.width(); ++x) {
+            const auto &pixel = cv_image.at<cv::Vec3b>(y, x);
+            image(y, x) = core::Image3u::pixel_type(pixel.val[0], pixel.val[1], pixel.val[2]);
+        }
+    }
+
+    return image;
+}
+
+} // namespace ceres_example
+} // namespace eos
+
+template <typename T, std::size_t N>
+std::ostream& operator<<(std::ostream& out, const std::array<T, N>& a)
+{
+    if (!a.empty())
     {
         out << '[';
-        std::copy(v.begin(), v.end(), std::ostream_iterator<T>(out, ", "));
+        std::copy(a.begin(), a.end(), std::ostream_iterator<T>(out, ", "));
         out << "\b\b]";
     }
     return out;
@@ -83,406 +264,177 @@ std::ostream& operator<<(std::ostream& out, const std::vector<T>& v)
  */
 int main(int argc, char* argv[])
 {
-    fs::path modelfile, isomapfile, imagefile, landmarksfile, mappingsfile, contourfile, blendshapesfile,
-        outputfile;
+    // Read cli arguments
+    ceres_example::CliArguments cli_arguments;
     try
     {
-        po::options_description desc("Allowed options");
-        // clang-format off
-        desc.add_options()
-            ("help,h", "display the help message")
-            ("model,m", po::value<fs::path>(&modelfile)->required()->default_value("../share/sfm_3448.bin"),
-                "a Morphable Model, containing a shape and albedo model, stored as cereal BinaryArchive")
-            ("blendshapes,b", po::value<fs::path>(&blendshapesfile)->required()->default_value("../share/expression_blendshapes_3448.bin"),
-                "file with blendshapes")
-            ("image,i", po::value<fs::path>(&imagefile)->required()->default_value("data/image_0010.png"),
-                "an input image")
-            ("landmarks,l", po::value<fs::path>(&landmarksfile)->required()->default_value("data/image_0010.pts"),
-                "2D landmarks for the image, in ibug .pts format")
-            ("mapping,p", po::value<fs::path>(&mappingsfile)->required()->default_value("../share/ibug_to_sfm.txt"),
-                "landmark identifier to model vertex number mapping")
-            ("model-contour,c", po::value<fs::path>(&contourfile)->required()->default_value("../share/sfm_model_contours.json"),
-                "file with model contour indices")
-            ("output,o", po::value<fs::path>(&outputfile)->required()->default_value("out"),
-                "basename for the output obj file");
-        // clang-format on
-        po::variables_map vm;
-        po::store(po::command_line_parser(argc, argv).options(desc).run(), vm);
-        if (vm.count("help"))
-        {
-            cout << "Usage: fit-model-ceres [options]" << endl;
-            cout << desc;
-            return EXIT_SUCCESS;
-        }
-        po::notify(vm);
-    } catch (const po::error& e)
+        cli_arguments = ceres_example::parse_cli_arguments(argc, argv);
+    } catch (const ceres_example::HelpCallException& e)
     {
-        cout << "Error while parsing command-line arguments: " << e.what() << endl;
-        cout << "Use --help to display a list of options." << endl;
+        return EXIT_SUCCESS;
+    } catch (const std::invalid_argument& e)
+    {
         return EXIT_FAILURE;
     }
+
+    // Read all data from disk
+    ceres_example::FittingData fitting_data;
+    try
+    {
+        fitting_data = ceres_example::read_fitting_data(
+            cli_arguments.blendshapesfile.string(), cli_arguments.contourfile.string(),
+            cli_arguments.imagefile.string(), cli_arguments.landmarksfile.string(),
+            cli_arguments.mappingsfile.string(), cli_arguments.modelfile.string(),
+            cli_arguments.outputfile.string());
+    } catch (const std::runtime_error& e)
+    {
+        return EXIT_FAILURE;
+    }
+
+    const auto& model_contour = fitting_data.model_contour;
+    const auto& ibug_contour = fitting_data.ibug_contour;
+    const auto& cv_image = fitting_data.image;
+    const auto& morphable_model = fitting_data.morphable_model;
+    const auto& landmark_mapper = fitting_data.landmark_mapper;
+    const auto& blendshapes = fitting_data.blendshapes;
+
+    auto image = eos::ceres_example::cv_mat_to_image3u(cv_image);
+
+    // These will be the 2D image points and their corresponding 3D vertex id's used for the fitting
+    auto& landmarks = fitting_data.landmarks;
+
+    auto indexed_landmarks =
+        landmark_mapper.get_indexed_landmarks(landmarks, morphable_model.get_landmark_definitions());
 
     google::InitGoogleLogging(argv[0]); // Ceres logging initialisation
-
-    fitting::ModelContour model_contour =
-        contourfile.empty() ? fitting::ModelContour() : fitting::ModelContour::load(contourfile.string());
-
-    fitting::ContourLandmarks ibug_contour;
-    try
-    {
-        ibug_contour = fitting::ContourLandmarks::load(mappingsfile.string());
-    } catch (const std::runtime_error& e)
-    {
-        cout << "Error reading the contour mappings file: " << e.what() << endl;
-        return EXIT_FAILURE;
-    }
-
-    // Load the image, landmarks, LandmarkMapper and the Morphable Model:
-    Mat image = cv::imread(imagefile.string());
-    LandmarkCollection<Eigen::Vector2f> landmarks;
-    try
-    {
-        landmarks = core::read_pts_landmarks(landmarksfile.string());
-    } catch (const std::runtime_error& e)
-    {
-        cout << "Error reading the landmarks: " << e.what() << endl;
-        return EXIT_FAILURE;
-    }
-    morphablemodel::MorphableModel morphable_model;
-    try
-    {
-        morphable_model = morphablemodel::load_model(modelfile.string());
-    } catch (const std::runtime_error& e)
-    {
-        cout << "Error loading the Morphable Model: " << e.what() << endl;
-        return EXIT_FAILURE;
-    }
-
-    // Note: Actually it's a required argument, so it'll never be empty.
-    core::LandmarkMapper landmark_mapper =
-        mappingsfile.empty() ? core::LandmarkMapper() : core::LandmarkMapper(mappingsfile.string());
-
-    std::vector<eos::morphablemodel::Blendshape> blendshapes =
-        eos::morphablemodel::load_blendshapes(blendshapesfile.string());
-
-    // Draw the loaded landmarks:
-    Mat outimg = image.clone();
-    for (const auto& lm : landmarks)
-    {
-        cv::rectangle(outimg, cv::Point2f(lm.coordinates[0] - 2.0f, lm.coordinates[1] - 2.0f),
-                      cv::Point2f(lm.coordinates[0] + 2.0f, lm.coordinates[1] + 2.0f), {255, 0, 0});
-    }
-
-    constexpr bool use_perspective = false;
-
-    // These will be the 2D image points and their corresponding 3D vertex id's used for the fitting:
-    vector<Vector2f> image_points; // the 2D landmark points
-    vector<int> vertex_indices; // their corresponding vertex indices
-
-    // Sub-select all the landmarks which we have a mapping for (i.e. that are defined in the 3DMM):
-    for (int i = 0; i < landmarks.size(); ++i)
-    {
-        auto converted_name = landmark_mapper.convert(landmarks[i].name);
-        if (!converted_name)
-        { // no mapping defined for the current landmark
-            continue;
-        }
-        int vertex_idx = std::stoi(converted_name.value());
-        vertex_indices.emplace_back(vertex_idx);
-        image_points.emplace_back(landmarks[i].coordinates);
-    }
+    std::stringstream fitting_log;
 
     // Estimate the camera (pose) from the 2D - 3D point correspondences
-    std::stringstream fitting_log;
     auto start = std::chrono::steady_clock::now();
 
-    std::vector<double> camera_rotation; // Quaternion, [w x y z]. Todo: Actually, use std::array for all of these.
-    camera_rotation.resize(4); // initialises with zeros
-    camera_rotation[0] = 1.0;
-    std::vector<double> camera_translation_and_intrinsics;
-    constexpr int num_cam_trans_intr_params = use_perspective ? 4 : 3;
-    // Parameters for the orthographic projection: [t_x, t_y, frustum_scale]
-    // And perspective projection: [t_x, t_y, t_z, fov].
-    // Origin is assumed at center of image, and no lens distortions.
-    // Note: Actually, we estimate the model-view matrix and not the camera position. But one defines the
-    // other.
-    camera_translation_and_intrinsics.resize(num_cam_trans_intr_params); // initialises with zeros
-    if (use_perspective)
-    {
-        camera_translation_and_intrinsics[2] = -400.0;              // Move the model back (along the -z axis)
-        camera_translation_and_intrinsics[3] = glm::radians(45.0f); // fov
-    } else
-    {
-        camera_translation_and_intrinsics[2] = 110.0; // frustum_scale
-    }
+    auto model_fitter =
+        fitting::ModelFitter<EOS_CERES_EXAMPLE_SHAPES_NUM, EOS_CERES_EXAMPLE_BLENDSHAPES_NUM,
+                             EOS_CERES_EXAMPLE_COLOR_COEFFS_NUM>(
+                                     &morphable_model,
+                                     morphable_model.has_separate_expression_model() ? nullptr : &blendshapes
+    );
 
-    std::vector<double> shape_coefficients;
-    shape_coefficients.resize(10); // Todo: Currently, the value '10' is hard-coded everywhere. Make it dynamic.
-    std::vector<double> blendshape_coefficients;
-    blendshape_coefficients.resize(6);
+    auto camera = fitting::PerspectiveCameraParameters(image.width(), image.height());
+    model_fitter.add_camera_cost_function(camera, indexed_landmarks);
+    model_fitter.set_shape_coefficients_constant();
+    model_fitter.set_blendshape_coefficients_constant();
+    model_fitter.set_fov_constant(camera, 60.0);
 
-    Problem camera_costfunction;
-    for (int i = 0; i < image_points.size(); ++i)
-    {
-        CostFunction* cost_function =
-            new AutoDiffCostFunction<fitting::LandmarkCost, 2 /* num residuals */,
-                                     4 /* camera rotation (quaternion) */,
-                                     num_cam_trans_intr_params /* camera translation & fov/frustum_scale */,
-                                     10 /* shape-coeffs */, 6 /* bs-coeffs */>(
-                new fitting::LandmarkCost(morphable_model.get_shape_model(), blendshapes, image_points[i],
-                                          vertex_indices[i], image.cols, image.rows, use_perspective));
-
-        camera_costfunction.AddResidualBlock(cost_function, NULL, &camera_rotation[0],
-                                             &camera_translation_and_intrinsics[0], &shape_coefficients[0],
-                                             &blendshape_coefficients[0]);
-    }
-    camera_costfunction.SetParameterBlockConstant(&shape_coefficients[0]); // keep the shape constant
-    camera_costfunction.SetParameterBlockConstant(&blendshape_coefficients[0]);
-    if (use_perspective)
-    {
-        camera_costfunction.SetParameterUpperBound(
-            &camera_translation_and_intrinsics[0], 2,
-            -std::numeric_limits<double>::epsilon()); // t_z has to be negative
-        camera_costfunction.SetParameterLowerBound(&camera_translation_and_intrinsics[0], 3,
-                                                   0.01); // fov in radians, must be > 0
-    } else
-    {
-        camera_costfunction.SetParameterLowerBound(&camera_translation_and_intrinsics[0], 2,
-                                                   1.0); // frustum_scale must be > 0
-    }
-    QuaternionParameterization* camera_fit_quaternion_parameterisation = new QuaternionParameterization;
-    camera_costfunction.SetParameterization(&camera_rotation[0], camera_fit_quaternion_parameterisation);
-
-    Solver::Options solver_options;
-    solver_options.linear_solver_type = ITERATIVE_SCHUR;
+    ceres::Solver::Options solver_options;
+    solver_options.linear_solver_type = ceres::ITERATIVE_SCHUR;
     solver_options.num_threads = 8;
-    solver_options.num_linear_solver_threads = 8; // only SPARSE_SCHUR can use this
     solver_options.minimizer_progress_to_stdout = true;
-    // solver_options.max_num_iterations = 100;
-    Solver::Summary solver_summary;
-    Solve(solver_options, &camera_costfunction, &solver_summary);
-    std::cout << solver_summary.BriefReport() << "\n";
+    solver_options.max_num_iterations = 50;
+
+    auto solver_summary = model_fitter.solve(solver_options);
+
     auto end = std::chrono::steady_clock::now();
+    // Log fitting report
+    std::cout << solver_summary.BriefReport() << std::endl;
 
     // Draw the mean-face landmarks projected using the estimated camera:
     // Construct the rotation & translation (model-view) matrices, projection matrix, and viewport:
-    glm::dquat estimated_rotation(camera_rotation[0], camera_rotation[1], camera_rotation[2],
-                                  camera_rotation[3]);
-    auto rot_mtx = glm::mat4_cast(estimated_rotation);
-    const double aspect = static_cast<double>(image.cols) / image.rows;
-    auto get_translation_matrix = [](auto&& camera_translation_and_intrinsics, auto&& use_perspective) {
-        if (use_perspective)
-        {
-            return glm::translate(glm::dvec3(camera_translation_and_intrinsics[0],
-                                             camera_translation_and_intrinsics[1],
-                                             camera_translation_and_intrinsics[2]));
-        } else
-        {
-            return glm::translate(
-                glm::dvec3(camera_translation_and_intrinsics[0], camera_translation_and_intrinsics[1], 0.0));
-        }
-    };
-    auto get_projection_matrix = [](auto&& camera_translation_and_intrinsics, auto&& aspect,
-                                    auto&& use_perspective) {
-        if (use_perspective)
-        {
-            const auto& focal = camera_translation_and_intrinsics[3];
-            return glm::perspective(focal, aspect, 0.1, 1000.0);
-        } else
-        {
-            const auto& frustum_scale = camera_translation_and_intrinsics[2];
-            return glm::ortho(-1.0 * aspect * frustum_scale, 1.0 * aspect * frustum_scale,
-                              -1.0 * frustum_scale, 1.0 * frustum_scale);
-        }
-    };
-    auto t_mtx = get_translation_matrix(camera_translation_and_intrinsics, use_perspective);
-    auto projection_mtx = get_projection_matrix(camera_translation_and_intrinsics, aspect, use_perspective);
-    const glm::dvec4 viewport(0, image.rows, image.cols, -image.rows); // OpenCV convention
 
-    auto mean_mesh = morphable_model.get_mean();
-    for (auto idx : vertex_indices)
-    {
-        glm::dvec3 point_3d(mean_mesh.vertices[idx][0], mean_mesh.vertices[idx][1],
-                            mean_mesh.vertices[idx][2]); // The 3D model point
-        glm::dvec3 projected_point = glm::project(point_3d, t_mtx * rot_mtx, projection_mtx, viewport);
-        cv::circle(outimg, cv::Point2f(projected_point.x, projected_point.y), 3, {0.0f, 0.0f, 255.0f}); // red
-    }
-    for (const auto& lm : image_points)
-    {
-        cv::circle(outimg, cv::Point2f(lm(0), lm(1)), 3,
-                   {0.0f, 255.0f, 255.0f}); // yellow: subset of the detected LMs that we use
-    }
-    auto euler_angles = glm::eulerAngles(estimated_rotation); // returns [P, Y, R]
-    fitting_log << "Pose fit with mean shape:\tYaw " << glm::degrees(euler_angles[1]) << ", Pitch "
-                << glm::degrees(euler_angles[0]) << ", Roll " << glm::degrees(euler_angles[2])
-                << "; t & f: " << camera_translation_and_intrinsics << '\n';
-    fitting_log << "Ceres took: "
-                << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << "ms.\n";
+    Mat outimg = cv_image.clone();
+    ceres_example::draw_mesh_vertices(outimg, morphable_model.get_mean(), indexed_landmarks,
+                                      camera.calculate_translation_matrix() *
+                                          camera.calculate_rotation_matrix(),
+                                      camera.calculate_projection_matrix(), camera.get_viewport());
+    ceres_example::draw_landmarks(outimg, indexed_landmarks);
+
+    auto camera_euler_rotation = camera.get_euler_rotation();
+    fitting_log << "Pose fit with mean shape:\tYaw " << glm::degrees(camera_euler_rotation[1]) << ", Pitch "
+                << glm::degrees(camera_euler_rotation[0]) << ", Roll "
+                << glm::degrees(camera_euler_rotation[2]) << "; t & f: " << camera.translation_and_intrinsics
+                << '\n'
+                << "Ceres took: "
+                << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << "ms."
+                << std::endl;
+
+    const auto& outputfile = cli_arguments.outputfile;
+    auto new_path = outputfile.parent_path() / fs::path(outputfile.stem().string() + "_pos_only");
+    new_path.replace_extension(".png");
+    cv::imwrite(new_path.string(), outimg);
 
     // Contour fitting:
-    // These are the additional contour-correspondences we're going to find and then use:
-    vector<Vector2f> image_points_contour; // the 2D landmark points
-    vector<int> vertex_indices_contour; // their corresponding 3D vertex indices
-    // For each 2D contour landmark, get the corresponding 3D vertex point and vertex id:
-    std::tie(image_points_contour, std::ignore, vertex_indices_contour) =
-        fitting::get_contour_correspondences(landmarks, ibug_contour, model_contour,
-                                             glm::degrees(euler_angles[1]), morphable_model.get_mean(),
-                                             t_mtx * rot_mtx, projection_mtx, viewport);
-    using eos::fitting::concat;
-    vertex_indices = concat(vertex_indices, vertex_indices_contour);
-    image_points = concat(image_points, image_points_contour);
+    if (!fitting_data.ibug_contour.empty())
+    {
+        auto indexed_contours = model_fitter.estimate_contours(camera, fitting_data.ibug_contour,
+                                                               fitting_data.model_contour, landmarks);
+        indexed_landmarks.insert(indexed_landmarks.end(), indexed_contours.begin(), indexed_contours.end());
+        ceres_example::draw_landmarks(outimg, indexed_landmarks); // yellow: subset of the detected LMs that
+                                                                  // we use (draw with contour landmarks)
+    }
 
     // Full fitting - Estimate shape and pose, given the previous pose estimate:
     start = std::chrono::steady_clock::now();
-    Problem fitting_costfunction;
-    // Landmark constraint:
-    for (int i = 0; i < image_points.size(); ++i)
-    {
-        CostFunction* cost_function =
-            new AutoDiffCostFunction<fitting::LandmarkCost, 2 /* num residuals */,
-                                     4 /* camera rotation (quaternion) */,
-                                     num_cam_trans_intr_params /* camera translation & focal length */,
-                                     10 /* shape-coeffs */, 6 /* bs-coeffs */>(
-                new fitting::LandmarkCost(morphable_model.get_shape_model(), blendshapes, image_points[i],
-                                          vertex_indices[i], image.cols, image.rows, use_perspective));
-        fitting_costfunction.AddResidualBlock(cost_function, NULL, &camera_rotation[0],
-                                              &camera_translation_and_intrinsics[0], &shape_coefficients[0],
-                                              &blendshape_coefficients[0]);
-    }
-    // Shape prior:
-    CostFunction* shape_prior_cost =
-        new AutoDiffCostFunction<fitting::PriorCost, 10 /* num residuals */, 10 /* shape-coeffs */>(
-            new fitting::PriorCost(10, 35.0));
-    fitting_costfunction.AddResidualBlock(shape_prior_cost, NULL, &shape_coefficients[0]);
-    for (int i = 0; i < 10; ++i)
-    {
-        fitting_costfunction.SetParameterLowerBound(&shape_coefficients[0], i, -3.0);
-        fitting_costfunction.SetParameterUpperBound(&shape_coefficients[0], i, 3.0);
-    }
-    // Prior and constraints on blendshapes:
-    CostFunction* blendshapes_prior_cost =
-        new AutoDiffCostFunction<fitting::PriorCost, 6 /* num residuals */, 6 /* bs-coeffs */>(
-            new fitting::PriorCost(6, 10.0));
-    fitting_costfunction.AddResidualBlock(blendshapes_prior_cost, NULL, &blendshape_coefficients[0]);
-    fitting_costfunction.SetParameterLowerBound(&blendshape_coefficients[0], 0, 0.0);
-    fitting_costfunction.SetParameterLowerBound(&blendshape_coefficients[0], 1, 0.0);
-    fitting_costfunction.SetParameterLowerBound(&blendshape_coefficients[0], 2, 0.0);
-    fitting_costfunction.SetParameterLowerBound(&blendshape_coefficients[0], 3, 0.0);
-    fitting_costfunction.SetParameterLowerBound(&blendshape_coefficients[0], 4, 0.0);
-    fitting_costfunction.SetParameterLowerBound(&blendshape_coefficients[0], 5, 0.0);
-    // Some constraints on the camera translation and fov/scale:
-    if (use_perspective)
-    {
-        fitting_costfunction.SetParameterUpperBound(
-            &camera_translation_and_intrinsics[0], 2,
-            -std::numeric_limits<double>::epsilon()); // t_z has to be negative
-        fitting_costfunction.SetParameterLowerBound(&camera_translation_and_intrinsics[0], 3,
-                                                    0.01); // fov in radians, must be > 0
-    } else
-    {
-        fitting_costfunction.SetParameterLowerBound(&camera_translation_and_intrinsics[0], 2,
-                                                    1.0); // frustum_scale must be > 0
-    }
 
-    QuaternionParameterization* full_fit_quaternion_parameterisation = new QuaternionParameterization;
-    fitting_costfunction.SetParameterization(&camera_rotation[0], full_fit_quaternion_parameterisation);
+    model_fitter.reset_problem();
+    model_fitter.add_camera_cost_function(camera, indexed_landmarks);
+    model_fitter.set_fov_constant(camera, 60.0);
+
+    model_fitter.add_shape_prior_cost_function();
+    model_fitter.add_blendshape_prior_cost_function();
 
     // Colour model fitting (this needs a Morphable Model with colour (albedo) model, see note above main()):
-    if (!morphable_model.has_color_model())
+    Eigen::VectorXf color_instance;
+    darray<EOS_CERES_EXAMPLE_COLOR_COEFFS_NUM> colour_coefficients;
+    if (morphable_model.has_color_model())
     {
-        cout << "Error: The MorphableModel used does not contain a colour (albedo) model. ImageCost requires "
-                "a model that contains a colour PCA model. You may want to use the full Surrey Face Model or "
-                "remove this section.";
-        return EXIT_FAILURE;
-    }
-    std::vector<double> colour_coefficients;
-    colour_coefficients.resize(10);
-    // Add a residual for each vertex:
-    for (int i = 0; i < morphable_model.get_shape_model().get_data_dimension() / 3; ++i)
+        // Add a residual for each vertex:
+        model_fitter.add_image_cost_function(camera, image);
+        model_fitter.add_image_prior_cost_function();
+
+        color_instance = morphable_model.get_color_model().draw_sample(colour_coefficients);
+    } else
     {
-        CostFunction* cost_function =
-            new AutoDiffCostFunction<fitting::ImageCost, 3 /* Residuals: [R, G, B] */,
-                                     4 /* camera rotation (quaternion) */,
-                                     num_cam_trans_intr_params /* camera translation & focal length */,
-                                     10 /* shape-coeffs */, 6 /* bs-coeffs */, 10 /* colour coeffs */>(
-                new fitting::ImageCost(morphable_model, blendshapes, image, i, use_perspective));
-        fitting_costfunction.AddResidualBlock(cost_function, NULL, &camera_rotation[0],
-                                              &camera_translation_and_intrinsics[0], &shape_coefficients[0],
-                                              &blendshape_coefficients[0], &colour_coefficients[0]);
-    }
-    // Prior for the colour coefficients:
-    CostFunction* colour_prior_cost =
-        new AutoDiffCostFunction<fitting::PriorCost, 10 /* num residuals */, 10 /* colour-coeffs */>(
-            new fitting::PriorCost(10, 35.0));
-    fitting_costfunction.AddResidualBlock(colour_prior_cost, NULL, &colour_coefficients[0]);
-    for (int i = 0; i < 10; ++i)
-    {
-        fitting_costfunction.SetParameterLowerBound(&colour_coefficients[0], i, -3.0);
-        fitting_costfunction.SetParameterUpperBound(&colour_coefficients[0], i, 3.0);
+        std::cout << "The MorphableModel used does not contain a colour (albedo) model. No ImageCost will be "
+                     "applied."
+                  << std::endl;
+        color_instance = Eigen::VectorXf();
     }
 
-    // Set different options for the full fitting:
-    /*	solver_options.linear_solver_type = ceres::ITERATIVE_SCHUR;
-            //solver_options.linear_solver_type = ceres::DENSE_QR;
-            //solver_options.minimizer_type = ceres::TRUST_REGION; // default I think
-            //solver_options.minimizer_type = ceres::LINE_SEARCH;
-            solver_options.num_threads = 8;
-            solver_options.num_linear_solver_threads = 8; // only SPARSE_SCHUR can use this
-            solver_options.minimizer_progress_to_stdout = true;
-            solver_options.max_num_iterations = 100;
-            */
-    Solve(solver_options, &fitting_costfunction, &solver_summary);
-    std::cout << solver_summary.BriefReport() << "\n";
+    solver_summary = model_fitter.solve(solver_options);
+    std::cout << solver_summary.BriefReport() << std::endl;
     end = std::chrono::steady_clock::now();
 
     // Draw the landmarks projected using all estimated parameters:
     // Construct the rotation & translation (model-view) matrices, projection matrix, and viewport:
-    estimated_rotation =
-        glm::dquat(camera_rotation[0], camera_rotation[1], camera_rotation[2], camera_rotation[3]);
-    rot_mtx = glm::mat4_cast(estimated_rotation);
-    t_mtx = get_translation_matrix(camera_translation_and_intrinsics, use_perspective);
-    projection_mtx = get_projection_matrix(camera_translation_and_intrinsics, aspect, use_perspective);
 
-    auto vectord_to_vectorf = [](const std::vector<double>& vec) {
-        return std::vector<float>(std::begin(vec), std::end(vec));
-    };
-    auto blendshape_coeffs_float = vectord_to_vectorf(blendshape_coefficients);
-    Eigen::VectorXf shape_ceres =
-        morphable_model.get_shape_model().draw_sample(shape_coefficients) +
-        to_matrix(blendshapes) *
-            Eigen::Map<const Eigen::VectorXf>(blendshape_coeffs_float.data(), blendshape_coeffs_float.size());
+    const auto points = model_fitter.calculate_estimated_points_positions();
+
     core::Mesh mesh = morphablemodel::sample_to_mesh(
-        shape_ceres, morphable_model.get_color_model().draw_sample(colour_coefficients),
-        morphable_model.get_shape_model().get_triangle_list(),
-        morphable_model.get_color_model().get_triangle_list(), morphable_model.get_texture_coordinates());
-    for (auto idx : vertex_indices)
-    {
-        glm::dvec3 point_3d(mesh.vertices[idx][0], mesh.vertices[idx][1],
-                            mesh.vertices[idx][2]); // The 3D model point
-        glm::dvec3 projected_point = glm::project(point_3d, t_mtx * rot_mtx, projection_mtx, viewport);
-        cv::circle(outimg, cv::Point2f(projected_point.x, projected_point.y), 3,
-                   {0.0f, 76.0f, 255.0f}); // orange
-    }
-    for (const auto& lm : image_points)
-    {
-        cv::circle(outimg, cv::Point2f(lm(0), lm(1)), 3,
-                   {0.0f, 255.0f,
-                    255.0f}); // yellow: subset of the detected LMs that we use (including contour landmarks)
-    }
+        points, color_instance, morphable_model.get_shape_model().get_triangle_list(),
+        morphable_model.get_color_model().get_triangle_list(), morphable_model.get_texture_coordinates(),
+        morphable_model.get_texture_triangle_indices());
 
-    estimated_rotation =
-        glm::dquat(camera_rotation[0], camera_rotation[1], camera_rotation[2], camera_rotation[3]);
-    euler_angles = glm::eulerAngles(estimated_rotation); // returns [P, Y, R]
-    fitting_log << "Final fit:\t\t\tYaw " << glm::degrees(euler_angles[1]) << ", Pitch "
-                << glm::degrees(euler_angles[0]) << ", Roll " << glm::degrees(euler_angles[2])
-                << "; t & f: " << camera_translation_and_intrinsics << '\n';
+    ceres_example::draw_mesh_vertices(
+        outimg, morphable_model.get_mean(), indexed_landmarks,
+        camera.calculate_translation_matrix() * camera.calculate_rotation_matrix(),
+        camera.calculate_projection_matrix(), camera.get_viewport(), {0.0f, 76.0f, 255.0f}); // orange
+
+    camera_euler_rotation = camera.get_euler_rotation();
+    fitting_log << "Final fit:\t\t\tYaw " << glm::degrees(camera_euler_rotation[1]) << ", Pitch "
+                << glm::degrees(camera_euler_rotation[0]) << ", Roll "
+                << glm::degrees(camera_euler_rotation[2]) << "; t & f: " << camera.translation_and_intrinsics
+                << std::endl;
     fitting_log << "Ceres took: "
-                << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << "ms.\n";
+                << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << "ms."
+                << std::endl;
 
-    cout << fitting_log.str();
+    std::cout << fitting_log.str();
 
-    outputfile.replace_extension(".obj");
-    core::write_obj(mesh, outputfile.string());
+    new_path = outputfile;
+    new_path.replace_extension(".obj");
+    core::write_obj(mesh, new_path.string());
+
+    new_path.replace_extension(".png");
+    cv::imwrite(new_path.string(), outimg);
 
     return EXIT_SUCCESS;
 }

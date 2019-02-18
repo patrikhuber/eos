@@ -240,10 +240,10 @@ inline void raster_triangle(TriangleToRasterize triangle, core::Image4u& colorbu
                         float dvdy = one_over_squared_one_over_z *
                                      (triangle.beta_ffy * one_over_z - v_over_z * triangle.gamma_ffy);
 
-                        dudx *= texture.value().mipmaps[0].cols;
-                        dudy *= texture.value().mipmaps[0].cols;
-                        dvdx *= texture.value().mipmaps[0].rows;
-                        dvdy *= texture.value().mipmaps[0].rows;
+                        dudx *= texture.value().mipmaps[0].width();
+                        dudy *= texture.value().mipmaps[0].width();
+                        dvdx *= texture.value().mipmaps[0].height();
+                        dvdy *= texture.value().mipmaps[0].height();
 
                         // The Texture is in BGR, thus tex2D returns BGR
                         glm::tvec3<float> texture_color =

@@ -22,6 +22,7 @@
 #ifndef LANDMARKMAPPER_HPP_
 #define LANDMARKMAPPER_HPP_
 
+#include "eos/core/Landmark.hpp"
 #include "eos/cpp17/optional.hpp"
 
 #include "toml.hpp"
@@ -68,7 +69,7 @@ public:
      * @param[in] filename A file with landmark mappings.
      * @throws runtime_error or toml::exception if there is an error loading the mappings from the file.
      */
-    LandmarkMapper(std::string filename)
+    LandmarkMapper(const std::string& filename)
     {
         // parse() as well as extracting the data can throw std::runtime error or toml::exception,
         // so ideally you'd want to call this c'tor within a try-catch.
@@ -102,8 +103,7 @@ public:
      *
      * @param[in] mappings A set of landmark mappings.
      */
-    LandmarkMapper(const std::unordered_map<std::string, std::string>& mappings) : landmark_mappings(mappings)
-    {};
+    LandmarkMapper(std::unordered_map<std::string, std::string>& mappings) : landmark_mappings(mappings){};
 
     /**
      * @brief Converts the given landmark name to the mapped name.
@@ -133,12 +133,53 @@ public:
         }
     };
 
+    using LandmarkDefinitions = std::unordered_map<std::string, int>;
+    /**
+     * @param landmarks landmarks to index
+     * @return new vector with landmarks for which index can be defined
+     */
+    template <typename LandmarkType>
+    auto get_indexed_landmarks(const LandmarkCollection<LandmarkType>& landmarks,
+                               const cpp17::optional<LandmarkDefinitions> landmark_definitions = cpp17::nullopt) const
+    {
+        IndexedLandmarkCollection<LandmarkType> indexed_landmarks;
+        for (auto& landmark : landmarks)
+        {
+            auto converted_name = this->convert(landmark.name);
+            if (!converted_name)
+            { // no mapping defined for the current landmark
+                continue;
+            }
+
+            int vertex_idx;
+            if (landmark_definitions)
+            {
+                const auto found_vertex_idx = landmark_definitions->find(converted_name.value());
+
+                if (found_vertex_idx != std::end(*landmark_definitions))
+                {
+                    vertex_idx = found_vertex_idx->second;
+                } else
+                {
+                    continue;
+                }
+            } else
+            {
+                vertex_idx = std::stoi(converted_name.value());
+            }
+
+            indexed_landmarks.emplace_back(landmark, vertex_idx);
+        }
+        return indexed_landmarks;
+    }
+
     /**
      * @brief Returns the number of loaded landmark mappings.
      *
      * @return The number of landmark mappings.
      */
-    auto num_mappings() const {
+    auto num_mappings() const
+    {
         return landmark_mappings.size();
     };
 
@@ -147,7 +188,8 @@ public:
      *
      * @return All mappings contained in the mapper.
      */
-    const auto& get_mappings() const {
+    const auto& get_mappings() const
+    {
         return landmark_mappings;
     };
 

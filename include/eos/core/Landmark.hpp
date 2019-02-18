@@ -41,10 +41,30 @@ struct Landmark
 };
 
 /**
+ * @brief Representation of a landmark with mesh index.
+ */
+template <class LandmarkType>
+struct IndexedLandmark : Landmark<LandmarkType>
+{
+    IndexedLandmark(const Landmark<LandmarkType>& landmark, int model_index)
+        : Landmark<LandmarkType>(landmark), model_index(model_index) {}
+    IndexedLandmark(const std::string& name, const LandmarkType& coordinates, int model_index)
+        : Landmark<LandmarkType>{name, coordinates}, model_index(model_index) {}
+
+    int model_index; ///< Index of landmark in mesh
+};
+
+/**
  * @brief A trivial collection of landmarks that belong together.
  */
 template <class LandmarkType>
 using LandmarkCollection = std::vector<Landmark<LandmarkType>>;
+
+/**
+ * @brief A trivial collection of indexed landmarks that belong together.
+ */
+template <class LandmarkType>
+using IndexedLandmarkCollection = std::vector<IndexedLandmark<LandmarkType>>;
 
 /**
  * @brief Shorthand for a 2D floating point landmark type.

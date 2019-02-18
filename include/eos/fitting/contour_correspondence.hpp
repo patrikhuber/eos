@@ -147,6 +147,10 @@ struct ContourLandmarks
 
     // Note: We store r/l separately because we currently only fit to the contour facing the camera.
 
+    bool empty() const {
+        return right_contour.empty() && left_contour.empty();
+    }
+
     /**
      * Helper method to load contour landmarks from a text file with landmark
      * mappings, like ibug_to_sfm.txt.

@@ -19,11 +19,11 @@
  */
 #pragma once
 
-#ifndef FRAGMENTSHADER_HPP_
-#define FRAGMENTSHADER_HPP_
+#ifndef EOS_FRAGMENT_SHADER_HPP
+#define EOS_FRAGMENT_SHADER_HPP
 
 #include "eos/render/detail/Vertex.hpp"
-#include "eos/render/utils.hpp"
+#include "eos/render/detail/texturing.hpp"
 #include "eos/cpp17/optional.hpp"
 
 #include "glm/vec3.hpp"
@@ -31,7 +31,7 @@
 
 // Fragment shaders are a more accurate name for the same functionality as Pixel shaders. They aren't pixels
 // yet, since the output still has to past several tests (depth, alpha, stencil) as well as the fact that one
-// may be using antialiasing, which renders one-fragment-to-one-pixel non-true.
+// may be using anti-aliasing, which renders one-fragment-to-one-pixel non-true.
 // The "pixel" in "pixel shader" is a misnomer because the pixel shader doesn't operate on pixels directly.
 // The pixel shader operates on "fragments" which may or may not end up as actual pixels, depending on several
 // factors outside of the pixel shader.
@@ -52,15 +52,15 @@ public:
     /**
      * @brief Todo.
      *
-     * X
+     * Todo.
      * lambda is not perspectively corrected. Note: In our case, it is, as we do it in the raster loop at
      * the moment?
-     * Note/TODO: We should document in what range we expect ::color to be! Eg specify that Mesh should be
-     * [0,255]? But don't we then lose precision sometimes (e.g. superres)? I think we can leave Mesh /
-     * everything in [0,1] and convert at the very end.
+     * The given colour values should be in the range [0, 1]. The returned colour will also be in the range
+     * [0, 1]. Note/Todo: Can colour values be <0 and >1? If so, we should document and tell the user to
+     * perhaps clamp the values.
      *
      * @param[in] x X.
-     * @ return RGBA... in [0, 1]?
+     * @return RGBA colour in the range [0, 1].
      */
     template <typename T, glm::precision P = glm::defaultp>
     glm::tvec4<T, P> shade_triangle_pixel(int x, int y, const detail::Vertex<T, P>& point_a,
@@ -87,10 +87,15 @@ public:
     /**
      * @brief Todo.
      *
-     * See comments above about lambda (persp. corrected?) and the colour range.
+     * See comments above about lambda (persp. corrected?).
+     *
+     * This shader reads the colour value from the given \p texture.
+     * The returned colour will be in the range [0, 1].
+     * Note/Todo: Can colour values be <0 and >1? If so, we should document and tell the user to perhaps clamp
+     * the values.
      *
      * @param[in] x X.
-     * @ return RGBA... in [0, 1]?
+     * @return RGBA colour in the range [0, 1].
      */
     template <typename T, glm::precision P = glm::defaultp>
     glm::tvec4<T, P> shade_triangle_pixel(int x, int y, const detail::Vertex<T, P>& point_a,
@@ -104,8 +109,9 @@ public:
 
         // The Texture is in BGR, thus tex2D returns BGR
         // Todo: Think about changing that.
+        // tex2d divides the colour values by 255, so that the return value we get here is in the range [0, 1].
         glm::tvec3<T, P> texture_color =
-            detail::tex2d(texcoords_persp, texture.get(), dudx, dudy, dvdx, dvdy); // uses the current texture
+            detail::tex2d(texcoords_persp, texture.value(), dudx, dudy, dvdx, dvdy); // uses the current texture
         glm::tvec3<T, P> pixel_color = glm::tvec3<T, P>(texture_color[2], texture_color[1], texture_color[0]);
         // other: color.mul(tex2D(texture, texCoord));
         return glm::tvec4<T, P>(pixel_color, T(1));
@@ -175,10 +181,10 @@ public:
                                            corrected_lambda[2] * point_c.texcoords;
 
         // Texturing, no mipmapping:
-        cv::Vec2f image_tex_coords = detail::texcoord_wrap(cv::Vec2f(texcoords_persp.s, texcoords_persp.t));
-        image_tex_coords[0] *= texture->mipmaps[0].cols;
-        image_tex_coords[1] *= texture->mipmaps[0].rows;
-        cv::Vec3f texture_color = detail::tex2d_linear(image_tex_coords, 0, texture.get()) / 255.0;
+        glm::vec2 image_tex_coords = detail::texcoord_wrap(texcoords_persp);
+        image_tex_coords[0] *= texture->mipmaps[0].width();
+        image_tex_coords[1] *= texture->mipmaps[0].height();
+        glm::vec3 texture_color = detail::tex2d_linear(image_tex_coords, 0, texture.value()) / 255.0f;
         glm::tvec3<T, P> pixel_color = glm::tvec3<T, P>(texture_color[2], texture_color[1], texture_color[0]);
         return glm::tvec4<T, P>(pixel_color, T(1));
     };
@@ -187,4 +193,4 @@ public:
 } /* namespace render */
 } /* namespace eos */
 
-#endif /* FRAGMENTSHADER_HPP_ */
+#endif /* EOS_FRAGMENT_SHADER_HPP */

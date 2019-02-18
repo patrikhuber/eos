@@ -19,16 +19,18 @@
  */
 #pragma once
 
-#ifndef TEXTURE_EXTRACTION_HPP_
-#define TEXTURE_EXTRACTION_HPP_
+#ifndef EOS_TEXTURE_EXTRACTION_HPP
+#define EOS_TEXTURE_EXTRACTION_HPP
 
 #include "eos/core/Image.hpp"
 #include "eos/core/Mesh.hpp"
 #include "eos/render/detail/texture_extraction_detail.hpp"
 #include "eos/render/render_affine.hpp"
-//#include "eos/render/utils.hpp" // for clip_to_screen_space() in v2::
-//#include "eos/render/Rasterizer.hpp"
-//#include "eos/render/FragmentShader.hpp"
+
+// The following four includes are for v2::extract_texture(...):
+#include "eos/render/utils.hpp" // for clip_to_screen_space()
+#include "eos/render/Rasterizer.hpp"
+#include "eos/render/FragmentShader.hpp"
 #include "eos/fitting/closest_edge_fitting.hpp" // for ray_triangle_intersect(). Move to eos/render/raycasting.hpp?
 
 #include "glm/mat4x4.hpp"
@@ -542,10 +544,9 @@ namespace v2 {
  * @param[in] isomap_resolution The resolution of the generated isomap. Defaults to 512x512.
  * @return The extracted texture as isomap (texture map).
  */
-//cv::Mat extract_texture(const core::Mesh& mesh, glm::mat4x4 view_model_matrix, glm::mat4x4 projection_matrix,
-//                        glm::vec4 /*viewport, not needed at the moment */, cv::Mat image,
-//                        bool /* compute_view_angle, unused atm */, int isomap_resolution = 512)
-/*
+eos::core::Image4u extract_texture(const core::Mesh& mesh, glm::mat4x4 view_model_matrix, glm::mat4x4 projection_matrix,
+                        glm::vec4 /*viewport, not needed at the moment */, const eos::core::Image4u& image,
+                        bool /* compute_view_angle, unused atm */, int isomap_resolution = 512)
 {
     using detail::divide_by_w;
     using glm::vec2;
@@ -563,9 +564,11 @@ namespace v2 {
     // In perspective case... does the perspective projection matrix not change visibility? Do we not need to
     // apply it?
     // (If so, then we can change the two input matrices to this function to one (mvp_matrix)).
+    // Note 2019: I think it does and we need to take care of it, by changing the dot product, like we would
+    // change it for perspective contour fitting.
     std::for_each(std::begin(mesh.vertices), std::end(mesh.vertices),
                   [&rotated_vertices, &view_model_matrix](auto&& v) {
-                      rotated_vertices.push_back(view_model_matrix * v);
+                      rotated_vertices.push_back(view_model_matrix * glm::vec4(v.x(), v.y(), v.z(), 1.0));
                   });
     // This code is duplicated from the edge-fitting. I think I can put this into a function in the library.
     for (const auto& vertex : rotated_vertices)
@@ -588,7 +591,7 @@ namespace v2 {
                 // We've hit a triangle. Ray hit its own triangle. If it's behind the ray origin, ignore the
                 // intersection:
                 // Check if in front or behind?
-                if (intersect.second.get() <= 1e-4)
+                if (intersect.second.value() <= 1e-4)
                 {
                     continue; // the intersection is behind the vertex, we don't care about it
                 }
@@ -603,9 +606,9 @@ namespace v2 {
     vector<vec4> wnd_coords; // will contain [x_wnd, y_wnd, z_ndc, 1/w_clip]
     for (auto&& vtx : mesh.vertices)
     {
-        auto clip_coords = projection_matrix * view_model_matrix * vtx;
+        auto clip_coords = projection_matrix * view_model_matrix * glm::vec4(vtx.x(), vtx.y(), vtx.z(), 1.0f);
         clip_coords = divide_by_w(clip_coords);
-        const vec2 screen_coords = clip_to_screen_space(clip_coords.x, clip_coords.y, image.cols, image.rows);
+        const vec2 screen_coords = clip_to_screen_space(clip_coords.x, clip_coords.y, image.width(), image.height());
         clip_coords.x = screen_coords.x;
         clip_coords.y = screen_coords.y;
         wnd_coords.push_back(clip_coords);
@@ -630,8 +633,8 @@ namespace v2 {
 					 wnd_coords[tvi[0]].w), // 1/w_clip
                 vec3(), // empty
                 vec2(
-                    wnd_coords[tvi[0]].x / image.cols,
-                    wnd_coords[tvi[0]].y / image.rows // (maybe '1 - wndcoords...'?) wndcoords of the projected/rendered model triangle (in the input img). Normalised to 0,1.
+                    wnd_coords[tvi[0]].x / image.width(),
+                    wnd_coords[tvi[0]].y / image.height() // (maybe '1 - wndcoords...'?) wndcoords of the projected/rendered model triangle (in the input img). Normalised to 0,1.
 					)};
             detail::Vertex<double> pb{
                 vec4(mesh.texcoords[tvi[1]][0] * tex_width,
@@ -640,8 +643,8 @@ namespace v2 {
 				wnd_coords[tvi[1]].w), // 1/w_clip
                 vec3(), // empty
                 vec2(
-                    wnd_coords[tvi[1]].x / image.cols,
-                    wnd_coords[tvi[1]].y / image.rows // (maybe '1 - wndcoords...'?) wndcoords of the projected/rendered model triangle (in the input img). Normalised to 0,1.
+                    wnd_coords[tvi[1]].x / image.width(),
+                    wnd_coords[tvi[1]].y / image.height() // (maybe '1 - wndcoords...'?) wndcoords of the projected/rendered model triangle (in the input img). Normalised to 0,1.
 					)};
             detail::Vertex<double> pc{
                 vec4(mesh.texcoords[tvi[2]][0] * tex_width,
@@ -650,8 +653,8 @@ namespace v2 {
 				wnd_coords[tvi[2]].w), // 1/w_clip
                 vec3(), // empty
                 vec2(
-                    wnd_coords[tvi[2]].x / image.cols,
-                    wnd_coords[tvi[2]].y / image.rows // (maybe '1 - wndcoords...'?) wndcoords of the projected/rendered model triangle (in the input img). Normalised to 0,1.
+                    wnd_coords[tvi[2]].x / image.width(),
+                    wnd_coords[tvi[2]].y / image.height() // (maybe '1 - wndcoords...'?) wndcoords of the projected/rendered model triangle (in the input img). Normalised to 0,1.
 					)};
             extraction_rasterizer.raster_triangle(pa, pb, pc, image_to_extract_from_as_tex);
         }
@@ -659,7 +662,6 @@ namespace v2 {
 
     return extraction_rasterizer.colorbuffer;
 };
-*/
 
 } /* namespace v2 */
 
@@ -744,4 +746,4 @@ inline core::Image4u interpolate_black_line(core::Image4u& isomap)
 } /* namespace render */
 } /* namespace eos */
 
-#endif /* TEXTURE_EXTRACTION_HPP_ */
+#endif /* EOS_TEXTURE_EXTRACTION_HPP */

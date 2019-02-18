@@ -54,6 +54,18 @@ using std::endl;
 using std::vector;
 using std::string;
 
+core::Image4u cv_mat_to_image4u(const cv::Mat& cv_image) {
+    core::Image4u image(cv_image.rows, cv_image.cols);
+    for (int y = 0; y < image.height(); ++y) {
+        for (int x = 0; x < image.width(); ++x) {
+            const auto &pixel = cv_image.at<cv::Vec4b>(y, x);
+            image(y, x) = core::Image4u::pixel_type(pixel.val[0], pixel.val[1], pixel.val[2], pixel.val[3]);
+        }
+    }
+
+    return image;
+}
+
 /**
  * @brief Merges isomaps from a live video with a weighted averaging, based
  * on the view angle of each vertex to the camera.
@@ -301,7 +313,7 @@ int main(int argc, char *argv[])
             morphable_model.get_color_model().get_triangle_list(), morphable_model.get_texture_coordinates());
         std::tie(frontal_rendering, std::ignore) = render::render(
             neutral_expression, modelview_frontal, glm::ortho(-130.0f, 130.0f, -130.0f, 130.0f), 256, 256,
-            render::create_mipmapped_texture(isomap), true, false, false);
+            render::create_mipmapped_texture(cv_mat_to_image4u(isomap)), true, false, false);
         outputfile.replace_extension(".frontal.png");
         cv::imwrite(outputfile.string(), core::to_mat(frontal_rendering));
         outputfile.replace_extension("");
@@ -329,7 +341,9 @@ int main(int argc, char *argv[])
         morphable_model.get_color_model().get_triangle_list(), morphable_model.get_texture_coordinates());
     std::tie(frontal_rendering, std::ignore) =
         render::render(neutral_expression, modelview_frontal, glm::ortho(-130.0f, 130.0f, -130.0f, 130.0f),
-                       512, 512, render::create_mipmapped_texture(merged_isomap), true, false, false);
+                       512, 512, render::create_mipmapped_texture(
+                               cv_mat_to_image4u(merged_isomap)), true, false, false
+    );
     outputfile.replace_extension(".frontal.png");
     cv::imwrite(outputfile.string(), core::to_mat(frontal_rendering));
     outputfile.replace_extension("");
