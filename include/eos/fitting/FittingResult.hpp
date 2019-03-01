@@ -19,8 +19,8 @@
  */
 #pragma once
 
-#ifndef FITTINGRESULT_HPP_
-#define FITTINGRESULT_HPP_
+#ifndef EOS_FITTINGRESULT_HPP
+#define EOS_FITTINGRESULT_HPP
 
 #include "eos/fitting/RenderingParameters.hpp"
 
@@ -45,4 +45,4 @@ struct FittingResult
 } /* namespace fitting */
 } /* namespace eos */
 
-#endif /* FITTINGRESULT_HPP_ */
+#endif /* EOS_FITTINGRESULT_HPP */

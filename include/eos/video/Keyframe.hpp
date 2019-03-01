@@ -19,8 +19,8 @@
  */
 #pragma once
 
-#ifndef KEYFRAME_HPP_
-#define KEYFRAME_HPP_
+#ifndef EOS_KEYFRAME_HPP
+#define EOS_KEYFRAME_HPP
 
 #include "eos/fitting/FittingResult.hpp"
 
@@ -158,4 +158,4 @@ private:
 } /* namespace video */
 } /* namespace eos */
 
-#endif /* KEYFRAME_HPP_ */
+#endif /* EOS_KEYFRAME_HPP */
