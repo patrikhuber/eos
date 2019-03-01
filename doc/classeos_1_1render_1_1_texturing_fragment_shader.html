@@ -28,7 +28,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">eos
-   &#160;<span id="projectnumber">0.16.0</span>
+   &#160;<span id="projectnumber">1.1.0</span>
    </div>
   </td>
  </tr>
@@ -84,17 +84,17 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a66e927e563b124257faffaaa7231126f"><td class="memTemplParams" colspan="2">template&lt;typename T , glm::precision P = glm::defaultp&gt; </td></tr>
-<tr class="memitem:a66e927e563b124257faffaaa7231126f"><td class="memTemplItemLeft" align="right" valign="top">glm::tvec4&lt; T, P &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classeos_1_1render_1_1_texturing_fragment_shader.html#a66e927e563b124257faffaaa7231126f">shade_triangle_pixel</a> (int x, int y, const detail::Vertex&lt; T, P &gt; &amp;point_a, const detail::Vertex&lt; T, P &gt; &amp;point_b, const detail::Vertex&lt; T, P &gt; &amp;point_c, const glm::tvec3&lt; T, P &gt; &amp;lambda, const boost::optional&lt; <a class="el" href="classeos_1_1render_1_1_texture.html">eos::render::Texture</a> &gt; &amp;texture, float dudx, float dudy, float dvdx, float dvdy)</td></tr>
-<tr class="memdesc:a66e927e563b124257faffaaa7231126f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Todo.  <a href="#a66e927e563b124257faffaaa7231126f">More...</a><br /></td></tr>
-<tr class="separator:a66e927e563b124257faffaaa7231126f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3e48c929b57c108bc0477007bb5e05be"><td class="memTemplParams" colspan="2">template&lt;typename T , glm::precision P = glm::defaultp&gt; </td></tr>
+<tr class="memitem:a3e48c929b57c108bc0477007bb5e05be"><td class="memTemplItemLeft" align="right" valign="top">glm::tvec4&lt; T, P &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classeos_1_1render_1_1_texturing_fragment_shader.html#a3e48c929b57c108bc0477007bb5e05be">shade_triangle_pixel</a> (int x, int y, const detail::Vertex&lt; T, P &gt; &amp;point_a, const detail::Vertex&lt; T, P &gt; &amp;point_b, const detail::Vertex&lt; T, P &gt; &amp;point_c, const glm::tvec3&lt; T, P &gt; &amp;lambda, const cpp17::optional&lt; <a class="el" href="classeos_1_1render_1_1_texture.html">Texture</a> &gt; &amp;texture, float dudx, float dudy, float dvdx, float dvdy)</td></tr>
+<tr class="memdesc:a3e48c929b57c108bc0477007bb5e05be"><td class="mdescLeft">&#160;</td><td class="mdescRight">Todo.  <a href="#a3e48c929b57c108bc0477007bb5e05be">More...</a><br /></td></tr>
+<tr class="separator:a3e48c929b57c108bc0477007bb5e05be"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>A fragment shader that textures... </p>
 <p>X. </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
-<a id="a66e927e563b124257faffaaa7231126f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a66e927e563b124257faffaaa7231126f">&#9670;&nbsp;</a></span>shade_triangle_pixel()</h2>
+<a id="a3e48c929b57c108bc0477007bb5e05be"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3e48c929b57c108bc0477007bb5e05be">&#9670;&nbsp;</a></span>shade_triangle_pixel()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -143,7 +143,7 @@ template&lt;typename T , glm::precision P = glm::defaultp&gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const boost::optional&lt; <a class="el" href="classeos_1_1render_1_1_texture.html">eos::render::Texture</a> &gt; &amp;&#160;</td>
+          <td class="paramtype">const cpp17::optional&lt; <a class="el" href="classeos_1_1render_1_1_texture.html">Texture</a> &gt; &amp;&#160;</td>
           <td class="paramname"><em>texture</em>, </td>
         </tr>
         <tr>
@@ -184,13 +184,15 @@ template&lt;typename T , glm::precision P = glm::defaultp&gt; </div>
 </div><div class="memdoc">
 
 <p>Todo. </p>
-<p>See comments above about lambda (persp. corrected?) and the colour range.</p>
+<p>See comments above about lambda (persp. corrected?).</p>
+<p>This shader reads the colour value from the given <code>texture</code>. The returned colour will be in the range [0, 1]. Note/Todo: Can colour values be &lt;0 and &gt;1? If so, we should document and tell the user to perhaps clamp the values.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">x</td><td>X. @ return RGBA... in [0, 1]? </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">x</td><td>X. </td></tr>
   </table>
   </dd>
 </dl>
+<dl class="section return"><dt>Returns</dt><dd>RGBA colour in the range [0, 1]. </dd></dl>
 
 </div>
 </div>

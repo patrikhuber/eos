@@ -28,7 +28,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">eos
-   &#160;<span id="projectnumber">0.16.0</span>
+   &#160;<span id="projectnumber">1.1.0</span>
    </div>
   </td>
  </tr>
@@ -94,25 +94,25 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:adfe95021eb5f46dc59c4acf9a786b1a8"><td class="memItemLeft" align="right" valign="top"><a id="adfe95021eb5f46dc59c4acf9a786b1a8"></a>
 <a class="el" href="classeos_1_1render_1_1_software_renderer.html">SoftwareRenderer</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (const <a class="el" href="classeos_1_1render_1_1_software_renderer.html">SoftwareRenderer</a> &amp;)=delete</td></tr>
 <tr class="separator:adfe95021eb5f46dc59c4acf9a786b1a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1ece5bb43ffa0c3ed4d0be82718ed8a0"><td class="memTemplParams" colspan="2">template&lt;typename T , glm::precision P = glm::defaultp&gt; </td></tr>
-<tr class="memitem:a1ece5bb43ffa0c3ed4d0be82718ed8a0"><td class="memTemplItemLeft" align="right" valign="top">cv::Mat&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classeos_1_1render_1_1_software_renderer.html#a1ece5bb43ffa0c3ed4d0be82718ed8a0">render</a> (const <a class="el" href="structeos_1_1core_1_1_mesh.html">core::Mesh</a> &amp;mesh, const glm::tmat4x4&lt; T, P &gt; &amp;model_view_matrix, const glm::tmat4x4&lt; T, P &gt; &amp;projection_matrix, const boost::optional&lt; <a class="el" href="classeos_1_1render_1_1_texture.html">Texture</a> &gt; &amp;texture=boost::none)</td></tr>
-<tr class="memdesc:a1ece5bb43ffa0c3ed4d0be82718ed8a0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Todo.  <a href="#a1ece5bb43ffa0c3ed4d0be82718ed8a0">More...</a><br /></td></tr>
-<tr class="separator:a1ece5bb43ffa0c3ed4d0be82718ed8a0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afee2441c0717b99cea3039b60d0e6d72"><td class="memTemplParams" colspan="2">template&lt;typename T , glm::precision P = glm::defaultp&gt; </td></tr>
+<tr class="memitem:afee2441c0717b99cea3039b60d0e6d72"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classeos_1_1core_1_1_image.html">core::Image4u</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classeos_1_1render_1_1_software_renderer.html#afee2441c0717b99cea3039b60d0e6d72">render</a> (const <a class="el" href="structeos_1_1core_1_1_mesh.html">core::Mesh</a> &amp;mesh, const glm::tmat4x4&lt; T, P &gt; &amp;model_view_matrix, const glm::tmat4x4&lt; T, P &gt; &amp;projection_matrix, const cpp17::optional&lt; <a class="el" href="classeos_1_1render_1_1_texture.html">Texture</a> &gt; &amp;texture=cpp17::nullopt)</td></tr>
+<tr class="memdesc:afee2441c0717b99cea3039b60d0e6d72"><td class="mdescLeft">&#160;</td><td class="mdescRight">Todo.  <a href="#afee2441c0717b99cea3039b60d0e6d72">More...</a><br /></td></tr>
+<tr class="separator:afee2441c0717b99cea3039b60d0e6d72"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:a14f12448926ffff7e8565eca7cf4ba3b"><td class="memItemLeft" align="right" valign="top"><a id="a14f12448926ffff7e8565eca7cf4ba3b"></a>
-boost::optional&lt; <a class="el" href="classeos_1_1render_1_1_texture.html">Texture</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>texture</b> = boost::none</td></tr>
-<tr class="separator:a14f12448926ffff7e8565eca7cf4ba3b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a57999afb47e272beef88f9089576189a"><td class="memItemLeft" align="right" valign="top"><a id="a57999afb47e272beef88f9089576189a"></a>
+cpp17::optional&lt; <a class="el" href="classeos_1_1render_1_1_texture.html">Texture</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>texture</b> = cpp17::nullopt</td></tr>
+<tr class="separator:a57999afb47e272beef88f9089576189a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afbac1af8c12f88c884ade26f0888fee8"><td class="memItemLeft" align="right" valign="top"><a id="afbac1af8c12f88c884ade26f0888fee8"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>enable_backface_culling</b> = false</td></tr>
 <tr class="separator:afbac1af8c12f88c884ade26f0888fee8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aaf82cf79ec98af8162fc8a50c9bf3e79"><td class="memItemLeft" align="right" valign="top"><a id="aaf82cf79ec98af8162fc8a50c9bf3e79"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>enable_near_clipping</b> = true</td></tr>
 <tr class="separator:aaf82cf79ec98af8162fc8a50c9bf3e79"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7e5b118dec9bf5147f8011c52da92016"><td class="memItemLeft" align="right" valign="top"><a id="a7e5b118dec9bf5147f8011c52da92016"></a>
-std::unique_ptr&lt; <a class="el" href="classeos_1_1render_1_1_rasterizer.html">Rasterizer</a>&lt; FragmentShaderType &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>rasterizer</b></td></tr>
-<tr class="separator:a7e5b118dec9bf5147f8011c52da92016"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7270659610f9ae0b77b11b6d773eda1b"><td class="memItemLeft" align="right" valign="top"><a id="a7270659610f9ae0b77b11b6d773eda1b"></a>
+<a class="el" href="classeos_1_1render_1_1_rasterizer.html">Rasterizer</a>&lt; FragmentShaderType &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>rasterizer</b></td></tr>
+<tr class="separator:a7270659610f9ae0b77b11b6d773eda1b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><h3>template&lt;typename VertexShaderType, typename FragmentShaderType&gt;<br />
@@ -128,8 +128,8 @@ class eos::render::SoftwareRenderer&lt; VertexShaderType, FragmentShaderType &gt
   </dd>
 </dl>
 </div><h2 class="groupheader">Member Function Documentation</h2>
-<a id="a1ece5bb43ffa0c3ed4d0be82718ed8a0"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1ece5bb43ffa0c3ed4d0be82718ed8a0">&#9670;&nbsp;</a></span>render()</h2>
+<a id="afee2441c0717b99cea3039b60d0e6d72"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afee2441c0717b99cea3039b60d0e6d72">&#9670;&nbsp;</a></span>render()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -142,7 +142,7 @@ template&lt;typename T , glm::precision P = glm::defaultp&gt; </div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">cv::Mat <a class="el" href="classeos_1_1render_1_1_software_renderer.html">eos::render::SoftwareRenderer</a>&lt; VertexShaderType, FragmentShaderType &gt;::render </td>
+          <td class="memname"><a class="el" href="classeos_1_1core_1_1_image.html">core::Image4u</a> <a class="el" href="classeos_1_1render_1_1_software_renderer.html">eos::render::SoftwareRenderer</a>&lt; VertexShaderType, FragmentShaderType &gt;::render </td>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="structeos_1_1core_1_1_mesh.html">core::Mesh</a> &amp;&#160;</td>
           <td class="paramname"><em>mesh</em>, </td>
@@ -162,8 +162,8 @@ template&lt;typename T , glm::precision P = glm::defaultp&gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const boost::optional&lt; <a class="el" href="classeos_1_1render_1_1_texture.html">Texture</a> &gt; &amp;&#160;</td>
-          <td class="paramname"><em>texture</em> = <code>boost::none</code>&#160;</td>
+          <td class="paramtype">const cpp17::optional&lt; <a class="el" href="classeos_1_1render_1_1_texture.html">Texture</a> &gt; &amp;&#160;</td>
+          <td class="paramname"><em>texture</em> = <code>cpp17::nullopt</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -179,7 +179,7 @@ template&lt;typename T , glm::precision P = glm::defaultp&gt; </div>
 </div><div class="memdoc">
 
 <p>Todo. </p>
-<p>Todo. The returned framebuffer cv::Mat is a smart-pointer to the colorbuffer object inside <a class="el" href="classeos_1_1render_1_1_software_renderer.html" title="X. ">SoftwareRenderer</a>, and will be overwritten on the next call to <a class="el" href="classeos_1_1render_1_1_software_renderer.html#a1ece5bb43ffa0c3ed4d0be82718ed8a0" title="Todo. ">render()</a>. If you want a copy, use .clone()!</p>
+<p>Todo. The returned framebuffer cv::Mat is a smart-pointer to the colorbuffer object inside <a class="el" href="classeos_1_1render_1_1_software_renderer.html" title="X. ">SoftwareRenderer</a>, and will be overwritten on the next call to <a class="el" href="classeos_1_1render_1_1_software_renderer.html#afee2441c0717b99cea3039b60d0e6d72" title="Todo. ">render()</a>. If you want a copy, use .clone()! Note: This comment is sort-of obsolete as of Jan 2019, when we switched this code to <a class="el" href="classeos_1_1core_1_1_image.html" title="Class to represent images. ">eos::core::Image</a>.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">mesh</td><td>The mesh to render. </td></tr>

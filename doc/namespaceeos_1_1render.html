@@ -28,7 +28,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">eos
-   &#160;<span id="projectnumber">0.16.0</span>
+   &#160;<span id="projectnumber">1.1.0</span>
    </div>
   </td>
  </tr>
@@ -89,9 +89,6 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classeos_1_1render_1_1_rasterizer.html">Rasterizer</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Todo.  <a href="classeos_1_1render_1_1_rasterizer.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structeos_1_1render_1_1_rect.html">Rect</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A simple type representing a rectangle.  <a href="structeos_1_1render_1_1_rect.html#details">More...</a><br /></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classeos_1_1render_1_1_software_renderer.html">SoftwareRenderer</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">X.  <a href="classeos_1_1render_1_1_software_renderer.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -133,6 +130,19 @@ Functions</h2></td></tr>
 <tr class="memitem:a3fdbbe1d81cf4f48e958162493973276"><td class="memTemplItemLeft" align="right" valign="top">glm::tvec3&lt; T, P &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceeos_1_1render.html#a3fdbbe1d81cf4f48e958162493973276">compute_inverse_perspectively_correct_lambda</a> (const glm::tvec3&lt; T, P &gt; &amp;lambda_world, const T &amp;one_over_w0, const T &amp;one_over_w1, const T &amp;one_over_w2)</td></tr>
 <tr class="memdesc:a3fdbbe1d81cf4f48e958162493973276"><td class="mdescLeft">&#160;</td><td class="mdescRight">X.  <a href="#a3fdbbe1d81cf4f48e958162493973276">More...</a><br /></td></tr>
 <tr class="separator:a3fdbbe1d81cf4f48e958162493973276"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6c9fd3f70cca4fdac35d2a01df36488c"><td class="memItemLeft" align="right" valign="top">Eigen::Vector3f&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceeos_1_1render.html#a6c9fd3f70cca4fdac35d2a01df36488c">compute_face_normal</a> (const Eigen::Vector3f &amp;v0, const Eigen::Vector3f &amp;v1, const Eigen::Vector3f &amp;v2)</td></tr>
+<tr class="separator:a6c9fd3f70cca4fdac35d2a01df36488c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a182473d4bf5ed064098f7733b28001e3"><td class="memItemLeft" align="right" valign="top">Eigen::Vector3f&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceeos_1_1render.html#a182473d4bf5ed064098f7733b28001e3">compute_face_normal</a> (const Eigen::Vector4f &amp;v0, const Eigen::Vector4f &amp;v1, const Eigen::Vector4f &amp;v2)</td></tr>
+<tr class="separator:a182473d4bf5ed064098f7733b28001e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a152bc39ef2b37236c20db055bb78a12e"><td class="memItemLeft" align="right" valign="top">glm::vec3&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceeos_1_1render.html#a152bc39ef2b37236c20db055bb78a12e">compute_face_normal</a> (const glm::vec3 &amp;v0, const glm::vec3 &amp;v1, const glm::vec3 &amp;v2)</td></tr>
+<tr class="separator:a152bc39ef2b37236c20db055bb78a12e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2c84c0edc59635360fa95e36fe75dadc"><td class="memItemLeft" align="right" valign="top">std::vector&lt; Eigen::Vector3f &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceeos_1_1render.html#a2c84c0edc59635360fa95e36fe75dadc">compute_face_normals</a> (const std::vector&lt; Eigen::Vector3f &gt; &amp;vertices, const std::vector&lt; std::array&lt; int, 3 &gt;&gt; &amp;triangle_vertex_indices)</td></tr>
+<tr class="separator:a2c84c0edc59635360fa95e36fe75dadc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad64d3983f2a9442d28c876d29c57d3b6"><td class="memItemLeft" align="right" valign="top">std::vector&lt; Eigen::Vector3f &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceeos_1_1render.html#ad64d3983f2a9442d28c876d29c57d3b6">compute_vertex_normals</a> (const std::vector&lt; Eigen::Vector3f &gt; &amp;vertices, const std::vector&lt; std::array&lt; int, 3 &gt;&gt; &amp;triangle_vertex_indices, const std::vector&lt; Eigen::Vector3f &gt; &amp;face_normals)</td></tr>
+<tr class="separator:ad64d3983f2a9442d28c876d29c57d3b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae879ee3d069a827201a1597dcaf2bf46"><td class="memItemLeft" align="right" valign="top">std::pair&lt; bool, cpp17::optional&lt; float &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceeos_1_1render.html#ae879ee3d069a827201a1597dcaf2bf46">ray_triangle_intersect</a> (const glm::vec3 &amp;ray_origin, const glm::vec3 &amp;ray_direction, const glm::vec3 &amp;v0, const glm::vec3 &amp;v1, const glm::vec3 &amp;v2, bool enable_backculling)</td></tr>
+<tr class="memdesc:ae879ee3d069a827201a1597dcaf2bf46"><td class="mdescLeft">&#160;</td><td class="mdescRight">Computes the intersection of the given ray with the given triangle.  <a href="#ae879ee3d069a827201a1597dcaf2bf46">More...</a><br /></td></tr>
+<tr class="separator:ae879ee3d069a827201a1597dcaf2bf46"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abef58049de4619a413bc33630d05a127"><td class="memItemLeft" align="right" valign="top">std::pair&lt; <a class="el" href="classeos_1_1core_1_1_image.html">core::Image4u</a>, <a class="el" href="classeos_1_1core_1_1_image.html">core::Image1d</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceeos_1_1render.html#abef58049de4619a413bc33630d05a127">render</a> (<a class="el" href="structeos_1_1core_1_1_mesh.html">core::Mesh</a> mesh, glm::tmat4x4&lt; float &gt; model_view_matrix, glm::tmat4x4&lt; float &gt; projection_matrix, int viewport_width, int viewport_height, const cpp17::optional&lt; <a class="el" href="classeos_1_1render_1_1_texture.html">Texture</a> &gt; &amp;texture=cpp17::nullopt, bool enable_backface_culling=false, bool enable_near_clipping=true, bool enable_far_clipping=true)</td></tr>
 <tr class="separator:abef58049de4619a413bc33630d05a127"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afa58987af5ac9e133013e679e427172b"><td class="memItemLeft" align="right" valign="top">std::pair&lt; <a class="el" href="classeos_1_1core_1_1_image.html">core::Image4u</a>, <a class="el" href="classeos_1_1core_1_1_image.html">core::Image1d</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceeos_1_1render.html#afa58987af5ac9e133013e679e427172b">render_affine</a> (const <a class="el" href="structeos_1_1core_1_1_mesh.html">core::Mesh</a> &amp;mesh, Eigen::Matrix&lt; float, 3, 4 &gt; affine_camera_matrix, int viewport_width, int viewport_height, bool do_backface_culling=true)</td></tr>
@@ -147,9 +157,9 @@ unsigned int&#160;</td><td class="memItemRight" valign="bottom"><b>get_max_possi
 <tr class="memitem:a8206355ac99e122f0a612c0fffa95f5c"><td class="memItemLeft" align="right" valign="top"><a id="a8206355ac99e122f0a612c0fffa95f5c"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>is_power_of_two</b> (int x)</td></tr>
 <tr class="separator:a8206355ac99e122f0a612c0fffa95f5c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a73d461e2a61bd7ab7d90734ec779250d"><td class="memItemLeft" align="right" valign="top"><a id="a73d461e2a61bd7ab7d90734ec779250d"></a>
-<a class="el" href="classeos_1_1render_1_1_texture.html">Texture</a>&#160;</td><td class="memItemRight" valign="bottom"><b>create_mipmapped_texture</b> (cv::Mat image, unsigned int mipmapsNum=0)</td></tr>
-<tr class="separator:a73d461e2a61bd7ab7d90734ec779250d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3e548a36b692e9c1e5589791c2e5e549"><td class="memItemLeft" align="right" valign="top"><a id="a3e548a36b692e9c1e5589791c2e5e549"></a>
+<a class="el" href="classeos_1_1render_1_1_texture.html">Texture</a>&#160;</td><td class="memItemRight" valign="bottom"><b>create_mipmapped_texture</b> (const <a class="el" href="classeos_1_1core_1_1_image.html">eos::core::Image4u</a> &amp;image, unsigned int mipmapsNum=0)</td></tr>
+<tr class="separator:a3e548a36b692e9c1e5589791c2e5e549"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a446dbb9ee64286742462256e884bd0d9"><td class="memItemLeft" align="right" valign="top"><a id="a446dbb9ee64286742462256e884bd0d9"></a>
 Eigen::Matrix&lt; float, 2, 3 &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>get_affine_transform</b> (const std::array&lt; Eigen::Vector2f, 3 &gt; &amp;src, const std::array&lt; Eigen::Vector2f, 3 &gt; &amp;dst)</td></tr>
 <tr class="separator:a446dbb9ee64286742462256e884bd0d9"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -162,13 +172,6 @@ Eigen::Matrix&lt; float, 2, 3 &gt;&#160;</td><td class="memItemRight" valign="bo
 <tr class="memitem:a39b27d0277e495c37fb34be1add7cd7d"><td class="memTemplParams" colspan="2">template&lt;typename T , glm::precision P = glm::defaultp&gt; </td></tr>
 <tr class="memitem:a39b27d0277e495c37fb34be1add7cd7d"><td class="memTemplItemLeft" align="right" valign="top">glm::tvec2&lt; T, P &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceeos_1_1render.html#a39b27d0277e495c37fb34be1add7cd7d">clip_to_screen_space</a> (const T clip_coord_x, const T clip_coord_y, int screen_width, int screen_height)</td></tr>
 <tr class="separator:a39b27d0277e495c37fb34be1add7cd7d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6c9fd3f70cca4fdac35d2a01df36488c"><td class="memItemLeft" align="right" valign="top">Eigen::Vector3f&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceeos_1_1render.html#a6c9fd3f70cca4fdac35d2a01df36488c">compute_face_normal</a> (const Eigen::Vector3f &amp;v0, const Eigen::Vector3f &amp;v1, const Eigen::Vector3f &amp;v2)</td></tr>
-<tr class="separator:a6c9fd3f70cca4fdac35d2a01df36488c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a182473d4bf5ed064098f7733b28001e3"><td class="memItemLeft" align="right" valign="top"><a id="a182473d4bf5ed064098f7733b28001e3"></a>
-Eigen::Vector3f&#160;</td><td class="memItemRight" valign="bottom"><b>compute_face_normal</b> (const Eigen::Vector4f &amp;v0, const Eigen::Vector4f &amp;v1, const Eigen::Vector4f &amp;v2)</td></tr>
-<tr class="separator:a182473d4bf5ed064098f7733b28001e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a152bc39ef2b37236c20db055bb78a12e"><td class="memItemLeft" align="right" valign="top">glm::vec3&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceeos_1_1render.html#a152bc39ef2b37236c20db055bb78a12e">compute_face_normal</a> (const glm::vec3 &amp;v0, const glm::vec3 &amp;v1, const glm::vec3 &amp;v2)</td></tr>
-<tr class="separator:a152bc39ef2b37236c20db055bb78a12e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Software rendering and texture extraction functionality. </p>
@@ -363,7 +366,7 @@ template&lt;typename T , glm::precision P = glm::defaultp&gt; </div>
 </div>
 </div>
 <a id="a6c9fd3f70cca4fdac35d2a01df36488c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a6c9fd3f70cca4fdac35d2a01df36488c">&#9670;&nbsp;</a></span>compute_face_normal() <span class="overload">[1/2]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a6c9fd3f70cca4fdac35d2a01df36488c">&#9670;&nbsp;</a></span>compute_face_normal() <span class="overload">[1/3]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -401,7 +404,61 @@ template&lt;typename T , glm::precision P = glm::defaultp&gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Calculates the normal of a face (or triangle), i.e. the per-face normal. Return normal will be normalised. Assumes the triangle is given in CCW order, i.e. vertices in counterclockwise order on the screen are front-facing.</p>
+<p>Computes the normal of a face (triangle), i.e. the per-face normal. Returned normal will be unit length.</p>
+<p>Assumes the triangle is given in CCW order, i.e. vertices in counterclockwise order on the screen are front-facing.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">v0</td><td>First vertex. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">v1</td><td>Second vertex. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">v2</td><td>Third vertex. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The unit-length normal of the given triangle. </dd></dl>
+
+</div>
+</div>
+<a id="a182473d4bf5ed064098f7733b28001e3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a182473d4bf5ed064098f7733b28001e3">&#9670;&nbsp;</a></span>compute_face_normal() <span class="overload">[2/3]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">Eigen::Vector3f eos::render::compute_face_normal </td>
+          <td>(</td>
+          <td class="paramtype">const Eigen::Vector4f &amp;&#160;</td>
+          <td class="paramname"><em>v0</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const Eigen::Vector4f &amp;&#160;</td>
+          <td class="paramname"><em>v1</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const Eigen::Vector4f &amp;&#160;</td>
+          <td class="paramname"><em>v2</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Computes the normal of a face (triangle), i.e. the per-face normal. Returned normal will be unit length.</p>
+<p>Assumes the triangle is given in CCW order, i.e. vertices in counterclockwise order on the screen are front-facing.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">v0</td><td>First vertex. </td></tr>
@@ -415,7 +472,7 @@ template&lt;typename T , glm::precision P = glm::defaultp&gt; </div>
 </div>
 </div>
 <a id="a152bc39ef2b37236c20db055bb78a12e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a152bc39ef2b37236c20db055bb78a12e">&#9670;&nbsp;</a></span>compute_face_normal() <span class="overload">[2/2]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a152bc39ef2b37236c20db055bb78a12e">&#9670;&nbsp;</a></span>compute_face_normal() <span class="overload">[3/3]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -453,7 +510,8 @@ template&lt;typename T , glm::precision P = glm::defaultp&gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Computes the normal of a face (or triangle), i.e. the per-face normal. Return normal will be normalised. Assumes the triangle is given in CCW order, i.e. vertices in counterclockwise order on the screen are front-facing.</p>
+<p>Computes the normal of a face (triangle), i.e. the per-face normal. Returned normal will be unit length.</p>
+<p>Assumes the triangle is given in CCW order, i.e. vertices in counterclockwise order on the screen are front-facing.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">v0</td><td>First vertex. </td></tr>
@@ -463,6 +521,52 @@ template&lt;typename T , glm::precision P = glm::defaultp&gt; </div>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The unit-length normal of the given triangle. </dd></dl>
+
+</div>
+</div>
+<a id="a2c84c0edc59635360fa95e36fe75dadc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2c84c0edc59635360fa95e36fe75dadc">&#9670;&nbsp;</a></span>compute_face_normals()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt;Eigen::Vector3f&gt; eos::render::compute_face_normals </td>
+          <td>(</td>
+          <td class="paramtype">const std::vector&lt; Eigen::Vector3f &gt; &amp;&#160;</td>
+          <td class="paramname"><em>vertices</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::vector&lt; std::array&lt; int, 3 &gt;&gt; &amp;&#160;</td>
+          <td class="paramname"><em>triangle_vertex_indices</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Computes the per-face (per-triangle) normals of all triangles of the given mesh. Returned normals will be unit length.</p>
+<p>Assumes triangles are given in CCW order, i.e. vertices in counterclockwise order on the screen are front-facing.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">vertices</td><td>A list of vertices. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">triangle_vertex_indices</td><td>Triangle list for the given vertices. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The unit-length per-face normals. </dd></dl>
 
 </div>
 </div>
@@ -515,6 +619,59 @@ template&lt;typename T , glm::precision P = glm::defaultp&gt; </div>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>X. </dd></dl>
+
+</div>
+</div>
+<a id="ad64d3983f2a9442d28c876d29c57d3b6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad64d3983f2a9442d28c876d29c57d3b6">&#9670;&nbsp;</a></span>compute_vertex_normals()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt;Eigen::Vector3f&gt; eos::render::compute_vertex_normals </td>
+          <td>(</td>
+          <td class="paramtype">const std::vector&lt; Eigen::Vector3f &gt; &amp;&#160;</td>
+          <td class="paramname"><em>vertices</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::vector&lt; std::array&lt; int, 3 &gt;&gt; &amp;&#160;</td>
+          <td class="paramname"><em>triangle_vertex_indices</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::vector&lt; Eigen::Vector3f &gt; &amp;&#160;</td>
+          <td class="paramname"><em>face_normals</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Computes the per-vertex normals of all vertices of the given mesh. Returned normals will be unit length.</p>
+<p>Assumes triangles are given in CCW order, i.e. vertices in counterclockwise order on the screen are front-facing.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">vertices</td><td>A list of vertices. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">triangle_vertex_indices</td><td>Triangle list for the given vertices. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">face_normals</td><td>Per-face normals for all triangles. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The unit-length per-vertex normals. </dd></dl>
 
 </div>
 </div>
@@ -791,6 +948,83 @@ template&lt;typename T , glm::precision P = glm::defaultp&gt; </div>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The extracted texture as isomap (texture map). </dd></dl>
+
+</div>
+</div>
+<a id="ae879ee3d069a827201a1597dcaf2bf46"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae879ee3d069a827201a1597dcaf2bf46">&#9670;&nbsp;</a></span>ray_triangle_intersect()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::pair&lt;bool, cpp17::optional&lt;float&gt; &gt; eos::render::ray_triangle_intersect </td>
+          <td>(</td>
+          <td class="paramtype">const glm::vec3 &amp;&#160;</td>
+          <td class="paramname"><em>ray_origin</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const glm::vec3 &amp;&#160;</td>
+          <td class="paramname"><em>ray_direction</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const glm::vec3 &amp;&#160;</td>
+          <td class="paramname"><em>v0</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const glm::vec3 &amp;&#160;</td>
+          <td class="paramname"><em>v1</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const glm::vec3 &amp;&#160;</td>
+          <td class="paramname"><em>v2</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>enable_backculling</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Computes the intersection of the given ray with the given triangle. </p>
+<p>Uses the Möller-Trumbore algorithm algorithm "Fast Minimum Storage
+Ray/Triangle Intersection". Independent implementation, inspired by: <a href="http://www.scratchapixel.com/lessons/3d-basic-rendering/ray-tracing-rendering-a-triangle/moller-trumbore-ray-triangle-intersection">http://www.scratchapixel.com/lessons/3d-basic-rendering/ray-tracing-rendering-a-triangle/moller-trumbore-ray-triangle-intersection</a> The default eps (1e-6f) is from the paper. When culling is on, rays intersecting triangles from the back will be discarded - otherwise, the triangles normal direction w.r.t. the ray direction is just ignored.</p>
+<p>Todo: We don't need the pair&lt;&gt; here, we could just return optional&lt;float&gt;. Also, I hope optional wouldn't be a performance problem here, as this function is called loads of times.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">ray_origin</td><td>Ray origin. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">ray_direction</td><td>Ray direction. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">v0</td><td>First vertex of a triangle. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">v1</td><td>Second vertex of a triangle. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">v2</td><td>Third vertex of a triangle. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">enable_backculling</td><td>When culling is on, rays intersecting triangles from the back will be discarded. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Whether the ray intersects the triangle, and if yes, including the distance. </dd></dl>
 
 </div>
 </div>

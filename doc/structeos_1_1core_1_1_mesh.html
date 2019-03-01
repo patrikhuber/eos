@@ -28,7 +28,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">eos
-   &#160;<span id="projectnumber">0.16.0</span>
+   &#160;<span id="projectnumber">1.1.0</span>
    </div>
   </td>
  </tr>
@@ -94,7 +94,7 @@ std::vector&lt; Eigen::Vector3f &gt;&#160;</td><td class="memItemRight" valign="
 <tr class="separator:a00e8873f83fe7769fa8d04bb2690836e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aeef1b2025f6648592c913352b1d61f19"><td class="memItemLeft" align="right" valign="top"><a id="aeef1b2025f6648592c913352b1d61f19"></a>
 std::vector&lt; Eigen::Vector2f &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structeos_1_1core_1_1_mesh.html#aeef1b2025f6648592c913352b1d61f19">texcoords</a></td></tr>
-<tr class="memdesc:aeef1b2025f6648592c913352b1d61f19"><td class="mdescLeft">&#160;</td><td class="mdescRight">Texture coordinates for each vertex. <br /></td></tr>
+<tr class="memdesc:aeef1b2025f6648592c913352b1d61f19"><td class="mdescLeft">&#160;</td><td class="mdescRight">Texture coordinates. <br /></td></tr>
 <tr class="separator:aeef1b2025f6648592c913352b1d61f19"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a694e8011dc6d4647b7b815f23b7847c7"><td class="memItemLeft" align="right" valign="top"><a id="a694e8011dc6d4647b7b815f23b7847c7"></a>
 std::vector&lt; std::array&lt; int, 3 &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structeos_1_1core_1_1_mesh.html#a694e8011dc6d4647b7b815f23b7847c7">tvi</a></td></tr>
@@ -102,12 +102,17 @@ std::vector&lt; std::array&lt; int, 3 &gt; &gt;&#160;</td><td class="memItemRigh
 <tr class="separator:a694e8011dc6d4647b7b815f23b7847c7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a104fe5a6f32ef5ae9e677be794a05fb6"><td class="memItemLeft" align="right" valign="top"><a id="a104fe5a6f32ef5ae9e677be794a05fb6"></a>
 std::vector&lt; std::array&lt; int, 3 &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structeos_1_1core_1_1_mesh.html#a104fe5a6f32ef5ae9e677be794a05fb6">tci</a></td></tr>
-<tr class="memdesc:a104fe5a6f32ef5ae9e677be794a05fb6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Triangle color indices. <br /></td></tr>
+<tr class="memdesc:a104fe5a6f32ef5ae9e677be794a05fb6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Triangle color indices (usually the same as tvi) <br /></td></tr>
 <tr class="separator:a104fe5a6f32ef5ae9e677be794a05fb6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6d780d8c53b05ef186492442e8402ff8"><td class="memItemLeft" align="right" valign="top"><a id="a6d780d8c53b05ef186492442e8402ff8"></a>
+std::vector&lt; std::array&lt; int, 3 &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structeos_1_1core_1_1_mesh.html#a6d780d8c53b05ef186492442e8402ff8">tti</a></td></tr>
+<tr class="memdesc:a6d780d8c53b05ef186492442e8402ff8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Triangle texture indices. <br /></td></tr>
+<tr class="separator:a6d780d8c53b05ef186492442e8402ff8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>This class represents a 3D mesh consisting of vertices, vertex colour information and texture coordinates. </p>
-<p>Additionally it stores the indices that specify which vertices to use to generate the triangle mesh out of the vertices. </p>
+<p>Additionally it stores the indices that specify which vertices to use to generate the triangle mesh out of the vertices.</p>
+<p><code>texcoords</code> should either be the same size as <code>vertices</code> (i.e. one set of texture coordinates per vertex), or alternatively <code>tti</code> can be set, then a separate triangulation for the texture coordinates can be used (e.g. for texture maps that contain seams). </p>
 </div><hr/>The documentation for this struct was generated from the following file:<ul>
 <li>include/eos/core/<a class="el" href="_mesh_8hpp_source.html">Mesh.hpp</a></li>
 </ul>

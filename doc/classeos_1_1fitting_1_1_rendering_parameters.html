@@ -28,7 +28,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">eos
-   &#160;<span id="projectnumber">0.16.0</span>
+   &#160;<span id="projectnumber">1.1.0</span>
    </div>
   </td>
  </tr>
@@ -91,6 +91,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a90e7df8531075451027aea109bb7ee1b"><td class="memItemLeft" align="right" valign="top"><a id="a90e7df8531075451027aea109bb7ee1b"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>RenderingParameters</b> (<a class="el" href="structeos_1_1fitting_1_1_scaled_ortho_projection_parameters.html">ScaledOrthoProjectionParameters</a> ortho_params, int screen_width, int screen_height)</td></tr>
 <tr class="separator:a90e7df8531075451027aea109bb7ee1b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaab45907250a75bfad9bb51dbd6d1bdb"><td class="memItemLeft" align="right" valign="top"><a id="aaab45907250a75bfad9bb51dbd6d1bdb"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>RenderingParameters</b> (glm::quat rotation, glm::vec3 translation, float fov_y, int image_width, int image_height)</td></tr>
+<tr class="separator:aaab45907250a75bfad9bb51dbd6d1bdb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af518711dcf2c3d04d7e37958464cb15e"><td class="memItemLeft" align="right" valign="top"><a id="af518711dcf2c3d04d7e37958464cb15e"></a>
 auto&#160;</td><td class="memItemRight" valign="bottom"><b>get_camera_type</b> () const</td></tr>
 <tr class="separator:af518711dcf2c3d04d7e37958464cb15e"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -100,9 +103,15 @@ glm::quat&#160;</td><td class="memItemRight" valign="bottom"><b>get_rotation</b>
 <tr class="memitem:adde737f67b89334ad3291b3a0c70f99b"><td class="memItemLeft" align="right" valign="top"><a id="adde737f67b89334ad3291b3a0c70f99b"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>set_rotation</b> (glm::quat rotation_quaternion)</td></tr>
 <tr class="separator:adde737f67b89334ad3291b3a0c70f99b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad70693654df83ac0aca77a3e4c331a2f"><td class="memItemLeft" align="right" valign="top"><a id="ad70693654df83ac0aca77a3e4c331a2f"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>set_translation</b> (float t_x, float t_y)</td></tr>
-<tr class="separator:ad70693654df83ac0aca77a3e4c331a2f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a29fd29546bfc4e55da0966da5b8125c5"><td class="memItemLeft" align="right" valign="top"><a id="a29fd29546bfc4e55da0966da5b8125c5"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>set_translation</b> (float t_x, float t_y, cpp17::optional&lt; float &gt; t_z=cpp17::nullopt)</td></tr>
+<tr class="separator:a29fd29546bfc4e55da0966da5b8125c5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0747e495da4d34a84e253f81b925740a"><td class="memItemLeft" align="right" valign="top"><a id="a0747e495da4d34a84e253f81b925740a"></a>
+glm::vec3&#160;</td><td class="memItemRight" valign="bottom"><b>get_translation</b> () const</td></tr>
+<tr class="separator:a0747e495da4d34a84e253f81b925740a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1619a2a3814ef4b933bb390d811585c5"><td class="memItemLeft" align="right" valign="top"><a id="a1619a2a3814ef4b933bb390d811585c5"></a>
+cpp17::optional&lt; float &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>get_fov_y</b> () const</td></tr>
+<tr class="separator:a1619a2a3814ef4b933bb390d811585c5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad2e09b409b7c2ef30cfa6a693baf4449"><td class="memItemLeft" align="right" valign="top"><a id="ad2e09b409b7c2ef30cfa6a693baf4449"></a>
 glm::mat4x4&#160;</td><td class="memItemRight" valign="bottom"><b>get_modelview</b> () const</td></tr>
 <tr class="separator:ad2e09b409b7c2ef30cfa6a693baf4449"><td class="memSeparator" colspan="2">&#160;</td></tr>

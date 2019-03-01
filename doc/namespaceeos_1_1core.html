@@ -28,7 +28,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">eos
-   &#160;<span id="projectnumber">0.16.0</span>
+   &#160;<span id="projectnumber">1.1.0</span>
    </div>
   </td>
  </tr>
@@ -84,10 +84,10 @@ $(function() {
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
 Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classeos_1_1core_1_1_image.html">Image</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Representation of an image with <code>num_channels</code> channels.  <a href="classeos_1_1core_1_1_image.html#details">More...</a><br /></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Class to represent images.  <a href="classeos_1_1core_1_1_image.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structeos_1_1core_1_1_landmark.html">Landmark</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Representation of a landmark, consisting of a landmark name and coordinates of the given type. Usually, the type would be <code>cv::Vec2f</code>.  <a href="structeos_1_1core_1_1_landmark.html#details">More...</a><br /></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Representation of a landmark, consisting of a landmark name and coordinates of the given type. Usually, the type would be <code>Eigen::Vector2f</code>.  <a href="structeos_1_1core_1_1_landmark.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classeos_1_1core_1_1_landmark_mapper.html">LandmarkMapper</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Represents a mapping from one kind of landmarks to a different format (e.g. model vertices).  <a href="classeos_1_1core_1_1_landmark_mapper.html#details">More...</a><br /></td></tr>
@@ -95,21 +95,39 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structeos_1_1core_1_1_mesh.html">Mesh</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">This class represents a 3D mesh consisting of vertices, vertex colour information and texture coordinates.  <a href="structeos_1_1core_1_1_mesh.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classeos_1_1core_1_1_pixel.html">Pixel</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Represents a pixel with given type and number of channels.  <a href="classeos_1_1core_1_1_pixel.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structeos_1_1core_1_1_pixel_traits.html">PixelTraits</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Todo.  <a href="structeos_1_1core_1_1_pixel_traits.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structeos_1_1core_1_1_pixel_traits_3_01_pixel_3_01_element_type_00_01_num_channels_01_4_01_4.html">PixelTraits&lt; Pixel&lt; ElementType, NumChannels &gt; &gt;</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Todo.  <a href="structeos_1_1core_1_1_pixel_traits_3_01_pixel_3_01_element_type_00_01_num_channels_01_4_01_4.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structeos_1_1core_1_1_rect.html">Rect</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A simple type representing a rectangle.  <a href="structeos_1_1core_1_1_rect.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="typedef-members"></a>
 Typedefs</h2></td></tr>
-<tr class="memitem:a33d81f3ad5a4206160501a26a9b159a7"><td class="memItemLeft" align="right" valign="top"><a id="a33d81f3ad5a4206160501a26a9b159a7"></a>
-using&#160;</td><td class="memItemRight" valign="bottom"><b>Image1u</b> = <a class="el" href="classeos_1_1core_1_1_image.html">Image</a>&lt; std::uint8_t, 1 &gt;</td></tr>
-<tr class="separator:a33d81f3ad5a4206160501a26a9b159a7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8d55dd34e5191797de4e3ca7a41f1ab1"><td class="memItemLeft" align="right" valign="top"><a id="a8d55dd34e5191797de4e3ca7a41f1ab1"></a>
-using&#160;</td><td class="memItemRight" valign="bottom"><b>Image3u</b> = <a class="el" href="classeos_1_1core_1_1_image.html">Image</a>&lt; std::array&lt; std::uint8_t, 3 &gt;, 3 &gt;</td></tr>
-<tr class="separator:a8d55dd34e5191797de4e3ca7a41f1ab1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa1f7b9a63025572d48df77cacfae81b8"><td class="memItemLeft" align="right" valign="top"><a id="aa1f7b9a63025572d48df77cacfae81b8"></a>
-using&#160;</td><td class="memItemRight" valign="bottom"><b>Image4u</b> = <a class="el" href="classeos_1_1core_1_1_image.html">Image</a>&lt; std::array&lt; std::uint8_t, 4 &gt;, 4 &gt;</td></tr>
-<tr class="separator:aa1f7b9a63025572d48df77cacfae81b8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af92079a0eac0797f95b886814b05755e"><td class="memItemLeft" align="right" valign="top"><a id="af92079a0eac0797f95b886814b05755e"></a>
-using&#160;</td><td class="memItemRight" valign="bottom"><b>Image1d</b> = <a class="el" href="classeos_1_1core_1_1_image.html">Image</a>&lt; double, 1 &gt;</td></tr>
-<tr class="separator:af92079a0eac0797f95b886814b05755e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a56fac0833e796cb64068a9471e6c46e8"><td class="memItemLeft" align="right" valign="top"><a id="a56fac0833e796cb64068a9471e6c46e8"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>Image1u</b> = <a class="el" href="classeos_1_1core_1_1_image.html">Image</a>&lt; std::uint8_t &gt;</td></tr>
+<tr class="separator:a56fac0833e796cb64068a9471e6c46e8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4aeb1a74cb5edc88ce2e2a2d0389fc2c"><td class="memItemLeft" align="right" valign="top"><a id="a4aeb1a74cb5edc88ce2e2a2d0389fc2c"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>Image3u</b> = <a class="el" href="classeos_1_1core_1_1_image.html">Image</a>&lt; <a class="el" href="classeos_1_1core_1_1_pixel.html">Pixel</a>&lt; std::uint8_t, 3 &gt; &gt;</td></tr>
+<tr class="separator:a4aeb1a74cb5edc88ce2e2a2d0389fc2c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5278f6405e161fe1a92f82a8de4d7310"><td class="memItemLeft" align="right" valign="top"><a id="a5278f6405e161fe1a92f82a8de4d7310"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>Image4u</b> = <a class="el" href="classeos_1_1core_1_1_image.html">Image</a>&lt; <a class="el" href="classeos_1_1core_1_1_pixel.html">Pixel</a>&lt; std::uint8_t, 4 &gt; &gt;</td></tr>
+<tr class="separator:a5278f6405e161fe1a92f82a8de4d7310"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0ae331b72ecc7bca25d4b08770e7348a"><td class="memItemLeft" align="right" valign="top"><a id="a0ae331b72ecc7bca25d4b08770e7348a"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>Image1f</b> = <a class="el" href="classeos_1_1core_1_1_image.html">Image</a>&lt; float &gt;</td></tr>
+<tr class="separator:a0ae331b72ecc7bca25d4b08770e7348a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a89c9d0d9ee1b9ae063301c852d293d4b"><td class="memItemLeft" align="right" valign="top"><a id="a89c9d0d9ee1b9ae063301c852d293d4b"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>Image3f</b> = <a class="el" href="classeos_1_1core_1_1_image.html">Image</a>&lt; <a class="el" href="classeos_1_1core_1_1_pixel.html">Pixel</a>&lt; float, 3 &gt; &gt;</td></tr>
+<tr class="separator:a89c9d0d9ee1b9ae063301c852d293d4b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5783f78996d57c806905f324ec1cfd6b"><td class="memItemLeft" align="right" valign="top"><a id="a5783f78996d57c806905f324ec1cfd6b"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>Image1d</b> = <a class="el" href="classeos_1_1core_1_1_image.html">Image</a>&lt; double &gt;</td></tr>
+<tr class="separator:a5783f78996d57c806905f324ec1cfd6b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2e387e1c6514d710eece73f9edd727fe"><td class="memTemplParams" colspan="2"><a id="a2e387e1c6514d710eece73f9edd727fe"></a>
 template&lt;class LandmarkType &gt; </td></tr>
 <tr class="memitem:a2e387e1c6514d710eece73f9edd727fe"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceeos_1_1core.html#a2e387e1c6514d710eece73f9edd727fe">LandmarkCollection</a> = std::vector&lt; <a class="el" href="structeos_1_1core_1_1_landmark.html">Landmark</a>&lt; LandmarkType &gt; &gt;</td></tr>
@@ -127,6 +145,13 @@ cv::Mat&#160;</td><td class="memItemRight" valign="bottom"><b>to_mat</b> (const 
 <tr class="memitem:a22a35fd7d7d16f55b636777620d5c34c"><td class="memItemLeft" align="right" valign="top"><a id="a22a35fd7d7d16f55b636777620d5c34c"></a>
 <a class="el" href="classeos_1_1core_1_1_image.html">Image3u</a>&#160;</td><td class="memItemRight" valign="bottom"><b>from_mat</b> (const cv::Mat &amp;image)</td></tr>
 <tr class="separator:a22a35fd7d7d16f55b636777620d5c34c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ade21f3d5bd1eb739da22f9c811a149e2"><td class="memItemLeft" align="right" valign="top"><a id="ade21f3d5bd1eb739da22f9c811a149e2"></a>
+<a class="el" href="classeos_1_1core_1_1_image.html">Image4u</a>&#160;</td><td class="memItemRight" valign="bottom"><b>from_mat_with_alpha</b> (const cv::Mat &amp;image)</td></tr>
+<tr class="separator:ade21f3d5bd1eb739da22f9c811a149e2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae55df20dda40b875e667336a4ab9f022"><td class="memTemplParams" colspan="2"><a id="ae55df20dda40b875e667336a4ab9f022"></a>
+template&lt;typename ElementType , int NumChannels&gt; </td></tr>
+<tr class="memitem:ae55df20dda40b875e667336a4ab9f022"><td class="memTemplItemLeft" align="right" valign="top">constexpr bool&#160;</td><td class="memTemplItemRight" valign="bottom"><b>operator==</b> (const <a class="el" href="classeos_1_1core_1_1_pixel.html">Pixel</a>&lt; ElementType, NumChannels &gt; &amp;lhs, const <a class="el" href="classeos_1_1core_1_1_pixel.html">Pixel</a>&lt; ElementType, NumChannels &gt; &amp;rhs) noexcept</td></tr>
+<tr class="separator:ae55df20dda40b875e667336a4ab9f022"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aacf41dc417a1dbfc929c9cc7f2c7feeb"><td class="memTemplParams" colspan="2">template&lt;class T &gt; </td></tr>
 <tr class="memitem:aacf41dc417a1dbfc929c9cc7f2c7feeb"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="namespaceeos_1_1core.html#a2e387e1c6514d710eece73f9edd727fe">LandmarkCollection</a>&lt; T &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespaceeos_1_1core.html#aacf41dc417a1dbfc929c9cc7f2c7feeb">filter</a> (const <a class="el" href="namespaceeos_1_1core.html#a2e387e1c6514d710eece73f9edd727fe">LandmarkCollection</a>&lt; T &gt; &amp;landmarks, const std::vector&lt; std::string &gt; &amp;filter)</td></tr>
 <tr class="memdesc:aacf41dc417a1dbfc929c9cc7f2c7feeb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Shorthand for a 2D floating point landmark type.  <a href="#aacf41dc417a1dbfc929c9cc7f2c7feeb">More...</a><br /></td></tr>
@@ -212,14 +237,14 @@ template&lt;class T &gt; </div>
 </div><div class="memdoc">
 
 <p>Reads the given Wavefront .obj file into a <code><a class="el" href="structeos_1_1core_1_1_mesh.html" title="This class represents a 3D mesh consisting of vertices, vertex colour information and texture coordin...">Mesh</a></code>. </p>
-<p>X. <a href="https://en.wikipedia.org/wiki/Wavefront_.obj_file">https://en.wikipedia.org/wiki/Wavefront_.obj_file</a> as of 22 August 2017.</p>
+<p><a href="https://en.wikipedia.org/wiki/Wavefront_.obj_file">https://en.wikipedia.org/wiki/Wavefront_.obj_file</a> as of 22 August 2017.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">filename</td><td>Input filename (ending in ".obj"). </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>X. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>A <a class="el" href="structeos_1_1core_1_1_mesh.html" title="This class represents a 3D mesh consisting of vertices, vertex colour information and texture coordin...">Mesh</a> with the data read from the obj file. </dd></dl>
 
 </div>
 </div>

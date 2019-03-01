@@ -28,7 +28,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">eos
-   &#160;<span id="projectnumber">0.16.0</span>
+   &#160;<span id="projectnumber">1.1.0</span>
    </div>
   </td>
  </tr>
@@ -104,6 +104,12 @@ $(function() {
 <li>get_keyframes()
 : <a class="el" href="structeos_1_1video_1_1_pose_binning_keyframe_selector.html#adfdcdfa9379fad82bbce056733d8d6ab">eos::video::PoseBinningKeyframeSelector&lt; ImageType &gt;</a>
 </li>
+<li>get_landmark_definitions()
+: <a class="el" href="classeos_1_1morphablemodel_1_1_morphable_model.html#a2d2dfc128fbfe2892f38825f6f048478">eos::morphablemodel::MorphableModel</a>
+</li>
+<li>get_mappings()
+: <a class="el" href="classeos_1_1core_1_1_landmark_mapper.html#acab00923e9e382a82c7fdd7b86946831">eos::core::LandmarkMapper</a>
+</li>
 <li>get_mean()
 : <a class="el" href="classeos_1_1morphablemodel_1_1_morphable_model.html#a7dc5fc08df4081db14d7324d2fdc5e0d">eos::morphablemodel::MorphableModel</a>
 , <a class="el" href="classeos_1_1morphablemodel_1_1_pca_model.html#ae99fc9aa1917db9ea12f7344f8f8cc36">eos::morphablemodel::PcaModel</a>
@@ -130,10 +136,13 @@ $(function() {
 : <a class="el" href="classeos_1_1morphablemodel_1_1_morphable_model.html#aa1bca5e995c721adda9aeec2102c520e">eos::morphablemodel::MorphableModel</a>
 </li>
 <li>get_texture_coordinates()
-: <a class="el" href="classeos_1_1morphablemodel_1_1_morphable_model.html#a38cd0f228752a7cfcf982d0d298ac284">eos::morphablemodel::MorphableModel</a>
+: <a class="el" href="classeos_1_1morphablemodel_1_1_morphable_model.html#a7a214be3268b833bd0e0b68e4d74cf7f">eos::morphablemodel::MorphableModel</a>
+</li>
+<li>get_texture_triangle_indices()
+: <a class="el" href="classeos_1_1morphablemodel_1_1_morphable_model.html#a53e0fc0da6828dc62ea2599464c833b7">eos::morphablemodel::MorphableModel</a>
 </li>
 <li>get_triangle_list()
-: <a class="el" href="classeos_1_1morphablemodel_1_1_pca_model.html#a37f97cb7018f2725c84e19143607b159">eos::morphablemodel::PcaModel</a>
+: <a class="el" href="classeos_1_1morphablemodel_1_1_pca_model.html#ab426904dbfde277d313fe056de721c6c">eos::morphablemodel::PcaModel</a>
 </li>
 </ul>
 
@@ -141,6 +150,9 @@ $(function() {
 <h3><a id="index_h"></a>- h -</h3><ul>
 <li>has_color_model()
 : <a class="el" href="classeos_1_1morphablemodel_1_1_morphable_model.html#a0e498c23c5c63988a644e26a4f03f230">eos::morphablemodel::MorphableModel</a>
+</li>
+<li>has_separate_expression_model()
+: <a class="el" href="classeos_1_1morphablemodel_1_1_morphable_model.html#acedd5b6aaea521a61d24d28147eb15d8">eos::morphablemodel::MorphableModel</a>
 </li>
 </ul>
 
@@ -175,7 +187,7 @@ $(function() {
 
 <h3><a id="index_m"></a>- m -</h3><ul>
 <li>MorphableModel()
-: <a class="el" href="classeos_1_1morphablemodel_1_1_morphable_model.html#a2ca648a06e06eccfa4ed4716434a267d">eos::morphablemodel::MorphableModel</a>
+: <a class="el" href="classeos_1_1morphablemodel_1_1_morphable_model.html#a2922708c308eaac30376c4db8734ce2e">eos::morphablemodel::MorphableModel</a>
 </li>
 </ul>
 
@@ -219,10 +231,10 @@ $(function() {
 
 <h3><a id="index_r"></a>- r -</h3><ul>
 <li>raster_triangle()
-: <a class="el" href="classeos_1_1render_1_1_rasterizer.html#ac5ce6a5c81d6a6343d357532b84fad4f">eos::render::Rasterizer&lt; FragmentShaderType &gt;</a>
+: <a class="el" href="classeos_1_1render_1_1_rasterizer.html#a8ac57d3aa2d006d36a64fbea010c4ded">eos::render::Rasterizer&lt; FragmentShaderType &gt;</a>
 </li>
 <li>render()
-: <a class="el" href="classeos_1_1render_1_1_software_renderer.html#a1ece5bb43ffa0c3ed4d0be82718ed8a0">eos::render::SoftwareRenderer&lt; VertexShaderType, FragmentShaderType &gt;</a>
+: <a class="el" href="classeos_1_1render_1_1_software_renderer.html#afee2441c0717b99cea3039b60d0e6d72">eos::render::SoftwareRenderer&lt; VertexShaderType, FragmentShaderType &gt;</a>
 </li>
 </ul>
 
@@ -235,9 +247,9 @@ $(function() {
 , <a class="el" href="structeos_1_1morphablemodel_1_1_edge_topology.html#a053aed5eee4a43168c5df3d914ec708d">eos::morphablemodel::EdgeTopology</a>
 </li>
 <li>shade_triangle_pixel()
-: <a class="el" href="classeos_1_1render_1_1_extraction_fragment_shader.html#ae80729e5cc5e4b4f7efa97434d8a2df5">eos::render::ExtractionFragmentShader</a>
-, <a class="el" href="classeos_1_1render_1_1_texturing_fragment_shader.html#a66e927e563b124257faffaaa7231126f">eos::render::TexturingFragmentShader</a>
-, <a class="el" href="classeos_1_1render_1_1_vertex_coloring_fragment_shader.html#af22e4ac6fe5996a9f13d212c9fe99dd8">eos::render::VertexColoringFragmentShader</a>
+: <a class="el" href="classeos_1_1render_1_1_extraction_fragment_shader.html#a7359e7cb1adcbbb45380af75d3f5b24f">eos::render::ExtractionFragmentShader</a>
+, <a class="el" href="classeos_1_1render_1_1_texturing_fragment_shader.html#a3e48c929b57c108bc0477007bb5e05be">eos::render::TexturingFragmentShader</a>
+, <a class="el" href="classeos_1_1render_1_1_vertex_coloring_fragment_shader.html#a698909fae0669e18acd870c269c59bf5">eos::render::VertexColoringFragmentShader</a>
 </li>
 </ul>
 

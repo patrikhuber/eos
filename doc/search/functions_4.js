@@ -2,7 +2,7 @@ var searchData=
 [
   ['get_5f3x4_5faffine_5fcamera_5fmatrix',['get_3x4_affine_camera_matrix',['../namespaceeos_1_1fitting.html#ae171e545d0896a74976e2d9a62369370',1,'eos::fitting']]],
   ['get_5fcolor_5fmodel',['get_color_model',['../classeos_1_1morphablemodel_1_1_morphable_model.html#a2ba3b8547479aeb07e3af9bb1697b9dc',1,'eos::morphablemodel::MorphableModel']]],
-  ['get_5fcontour_5fcorrespondences',['get_contour_correspondences',['../namespaceeos_1_1fitting.html#a140ead165ca9fc56180ad938cfc37efd',1,'eos::fitting']]],
+  ['get_5fcontour_5fcorrespondences',['get_contour_correspondences',['../namespaceeos_1_1fitting.html#ab17ef6a8122ac6ff36f628c8a64c377b',1,'eos::fitting']]],
   ['get_5fcorresponding_5fpointset',['get_corresponding_pointset',['../namespaceeos_1_1fitting.html#a73cb82b9f04cb095e9e763672b358018',1,'eos::fitting']]],
   ['get_5fdata_5fdimension',['get_data_dimension',['../classeos_1_1morphablemodel_1_1_pca_model.html#ae742e85b7daafdced61e7637b2e39c0a',1,'eos::morphablemodel::PcaModel']]],
   ['get_5feigenvalue',['get_eigenvalue',['../classeos_1_1morphablemodel_1_1_pca_model.html#aeb1b90650be8c50dd066d3eb643fa102',1,'eos::morphablemodel::PcaModel']]],
@@ -10,6 +10,8 @@ var searchData=
   ['get_5fexpression_5fmodel',['get_expression_model',['../classeos_1_1morphablemodel_1_1_morphable_model.html#a868691562882faa515e1a254b135c5c5',1,'eos::morphablemodel::MorphableModel']]],
   ['get_5fexpression_5fmodel_5ftype',['get_expression_model_type',['../classeos_1_1morphablemodel_1_1_morphable_model.html#af12218fec205fbcfa0c5ca1ecb1be3e5',1,'eos::morphablemodel::MorphableModel']]],
   ['get_5fkeyframes',['get_keyframes',['../structeos_1_1video_1_1_pose_binning_keyframe_selector.html#adfdcdfa9379fad82bbce056733d8d6ab',1,'eos::video::PoseBinningKeyframeSelector']]],
+  ['get_5flandmark_5fdefinitions',['get_landmark_definitions',['../classeos_1_1morphablemodel_1_1_morphable_model.html#a2d2dfc128fbfe2892f38825f6f048478',1,'eos::morphablemodel::MorphableModel']]],
+  ['get_5fmappings',['get_mappings',['../classeos_1_1core_1_1_landmark_mapper.html#acab00923e9e382a82c7fdd7b86946831',1,'eos::core::LandmarkMapper']]],
   ['get_5fmean',['get_mean',['../classeos_1_1morphablemodel_1_1_morphable_model.html#a7dc5fc08df4081db14d7324d2fdc5e0d',1,'eos::morphablemodel::MorphableModel::get_mean()'],['../classeos_1_1morphablemodel_1_1_pca_model.html#ae99fc9aa1917db9ea12f7344f8f8cc36',1,'eos::morphablemodel::PcaModel::get_mean()']]],
   ['get_5fmean_5fat_5fpoint',['get_mean_at_point',['../classeos_1_1morphablemodel_1_1_pca_model.html#a23acbc66e597f93314ed550a48afcb47',1,'eos::morphablemodel::PcaModel']]],
   ['get_5fnearest_5fcontour_5fcorrespondences',['get_nearest_contour_correspondences',['../namespaceeos_1_1fitting.html#a39b82996959bc351f7fb2afd72a701b9',1,'eos::fitting']]],
@@ -21,7 +23,8 @@ var searchData=
   ['get_5frescaled_5fpca_5fbasis_5fat_5fpoint',['get_rescaled_pca_basis_at_point',['../classeos_1_1morphablemodel_1_1_pca_model.html#a43084f55fdadb895f1363db037f07353',1,'eos::morphablemodel::PcaModel']]],
   ['get_5fshape_5fmodel',['get_shape_model',['../classeos_1_1morphablemodel_1_1_morphable_model.html#aa1bca5e995c721adda9aeec2102c520e',1,'eos::morphablemodel::MorphableModel']]],
   ['get_5fshape_5fpoint',['get_shape_point',['../namespaceeos_1_1fitting.html#a8cbd14805664180f3eca321aa8be8c0d',1,'eos::fitting']]],
-  ['get_5ftexture_5fcoordinates',['get_texture_coordinates',['../classeos_1_1morphablemodel_1_1_morphable_model.html#a38cd0f228752a7cfcf982d0d298ac284',1,'eos::morphablemodel::MorphableModel']]],
-  ['get_5ftriangle_5flist',['get_triangle_list',['../classeos_1_1morphablemodel_1_1_pca_model.html#a37f97cb7018f2725c84e19143607b159',1,'eos::morphablemodel::PcaModel']]],
+  ['get_5ftexture_5fcoordinates',['get_texture_coordinates',['../classeos_1_1morphablemodel_1_1_morphable_model.html#a7a214be3268b833bd0e0b68e4d74cf7f',1,'eos::morphablemodel::MorphableModel']]],
+  ['get_5ftexture_5ftriangle_5findices',['get_texture_triangle_indices',['../classeos_1_1morphablemodel_1_1_morphable_model.html#a53e0fc0da6828dc62ea2599464c833b7',1,'eos::morphablemodel::MorphableModel']]],
+  ['get_5ftriangle_5flist',['get_triangle_list',['../classeos_1_1morphablemodel_1_1_pca_model.html#ab426904dbfde277d313fe056de721c6c',1,'eos::morphablemodel::PcaModel']]],
   ['get_5fvertex_5fcolour',['get_vertex_colour',['../namespaceeos_1_1fitting.html#a80cd220776a04f2738b80930c1cc70a7',1,'eos::fitting']]]
 ];

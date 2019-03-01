@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.13"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>eos: eos::core::Image&lt; T, num_channels &gt; Class Template Reference</title>
+<title>eos: eos::core::Image&lt; PixelType &gt; Class Template Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -28,7 +28,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">eos
-   &#160;<span id="projectnumber">0.16.0</span>
+   &#160;<span id="projectnumber">1.1.0</span>
    </div>
   </td>
  </tr>
@@ -70,51 +70,50 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
+<a href="#pub-types">Public Types</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
-<a href="#pub-attribs">Public Attributes</a> &#124;
 <a href="classeos_1_1core_1_1_image-members.html">List of all members</a>  </div>
   <div class="headertitle">
-<div class="title">eos::core::Image&lt; T, num_channels &gt; Class Template Reference</div>  </div>
+<div class="title">eos::core::Image&lt; PixelType &gt; Class Template Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
 
-<p>Representation of an image with <code>num_channels</code> channels.  
+<p>Class to represent images.  
  <a href="classeos_1_1core_1_1_image.html#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="_image_8hpp_source.html">Image.hpp</a>&gt;</code></p>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-types"></a>
+Public Types</h2></td></tr>
+<tr class="memitem:a7623c738c55a33963e9da32a13b66afd"><td class="memItemLeft" align="right" valign="top"><a id="a7623c738c55a33963e9da32a13b66afd"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>pixel_type</b> = PixelType</td></tr>
+<tr class="separator:a7623c738c55a33963e9da32a13b66afd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a67f9d853ae2fdad569f6b6e1c7fab602"><td class="memItemLeft" align="right" valign="top"><a id="a67f9d853ae2fdad569f6b6e1c7fab602"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>Image</b> (std::size_t rows, std::size_t cols)</td></tr>
-<tr class="separator:a67f9d853ae2fdad569f6b6e1c7fab602"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abd0183460c239d0f04fb842e77cc03bc"><td class="memItemLeft" align="right" valign="top"><a id="abd0183460c239d0f04fb842e77cc03bc"></a>
-T &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator()</b> (std::size_t row, std::size_t col)</td></tr>
-<tr class="separator:abd0183460c239d0f04fb842e77cc03bc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a14f104cab2776f88fff8eef9b39f06b2"><td class="memItemLeft" align="right" valign="top"><a id="a14f104cab2776f88fff8eef9b39f06b2"></a>
-const T &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator()</b> (std::size_t row, std::size_t col) const</td></tr>
-<tr class="separator:a14f104cab2776f88fff8eef9b39f06b2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
-Public Attributes</h2></td></tr>
-<tr class="memitem:aaa2efcd766b99a48132f979b8080089e"><td class="memItemLeft" align="right" valign="top"><a id="aaa2efcd766b99a48132f979b8080089e"></a>
-std::vector&lt; T &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>data</b></td></tr>
-<tr class="separator:aaa2efcd766b99a48132f979b8080089e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af3958af7e7589e7182da691bdb68f410"><td class="memItemLeft" align="right" valign="top"><a id="af3958af7e7589e7182da691bdb68f410"></a>
-std::size_t&#160;</td><td class="memItemRight" valign="bottom"><b>rows</b> = 0</td></tr>
-<tr class="separator:af3958af7e7589e7182da691bdb68f410"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa90d792a772af5c86da78f1d2322aa86"><td class="memItemLeft" align="right" valign="top"><a id="aa90d792a772af5c86da78f1d2322aa86"></a>
-std::size_t&#160;</td><td class="memItemRight" valign="bottom"><b>cols</b> = 0</td></tr>
-<tr class="separator:aa90d792a772af5c86da78f1d2322aa86"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae7a126baa6d52283a677c28bc0f45a24"><td class="memItemLeft" align="right" valign="top"><a id="ae7a126baa6d52283a677c28bc0f45a24"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Image</b> (int height, int width)</td></tr>
+<tr class="separator:ae7a126baa6d52283a677c28bc0f45a24"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa8d18b2af5b2cc5dd1e2f18df0217ac2"><td class="memItemLeft" align="right" valign="top"><a id="aa8d18b2af5b2cc5dd1e2f18df0217ac2"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>height</b> () const noexcept</td></tr>
+<tr class="separator:aa8d18b2af5b2cc5dd1e2f18df0217ac2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1bd4e23dc2a051e12e1c17aa70a9e921"><td class="memItemLeft" align="right" valign="top"><a id="a1bd4e23dc2a051e12e1c17aa70a9e921"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>width</b> () const noexcept</td></tr>
+<tr class="separator:a1bd4e23dc2a051e12e1c17aa70a9e921"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2cb9e3a02b3a3c34340edb92b706a90c"><td class="memItemLeft" align="right" valign="top"><a id="a2cb9e3a02b3a3c34340edb92b706a90c"></a>
+PixelType &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator()</b> (int y, int x) noexcept</td></tr>
+<tr class="separator:a2cb9e3a02b3a3c34340edb92b706a90c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a216cd9a9a5de9127f0e021c8d58bda19"><td class="memItemLeft" align="right" valign="top"><a id="a216cd9a9a5de9127f0e021c8d58bda19"></a>
+const PixelType &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator()</b> (int y, int x) const noexcept</td></tr>
+<tr class="separator:a216cd9a9a5de9127f0e021c8d58bda19"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><h3>template&lt;class T, int num_channels&gt;<br />
-class eos::core::Image&lt; T, num_channels &gt;</h3>
+<div class="textblock"><h3>template&lt;class PixelType&gt;<br />
+class eos::core::Image&lt; PixelType &gt;</h3>
 
-<p>Representation of an image with <code>num_channels</code> channels. </p>
-<p>This is a quickly hacked-together implementation of an image class, to be able to represent 1 and 3-channel images. The class was mainly created to be able to remove OpenCV and cv::Mat as a dependency for the core of the eos headers.</p>
-<p>The class currently uses col-major storage order.</p>
-<p>Note: Ideally we'd have a template param for row and col major too? And then we could do stuff like strides and all too but then we'd end up with a matrix class like Eigen::Matrix...? It means we probably can't accept ROI's from Python into larger images without copying, but doesn't matter. Also what about vector&lt;Eigen::Matrix&gt;(num_channels)? But having an own type would be good? </p>
+<p>Class to represent images. </p>
+<p>The class currently uses row-major storage order.</p>
+<p>Some of the code is inspired by the Selene library (<a href="https://github.com/kmhofmann/selene,">https://github.com/kmhofmann/selene,</a> MIT license). </p>
 </div><hr/>The documentation for this class was generated from the following file:<ul>
 <li>include/eos/core/<a class="el" href="_image_8hpp_source.html">Image.hpp</a></li>
 </ul>

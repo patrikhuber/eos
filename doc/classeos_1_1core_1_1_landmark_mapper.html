@@ -28,7 +28,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">eos
-   &#160;<span id="projectnumber">0.16.0</span>
+   &#160;<span id="projectnumber">1.1.0</span>
    </div>
   </td>
  </tr>
@@ -91,15 +91,18 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a22b803a11a9d47d1a4afb92913785852"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classeos_1_1core_1_1_landmark_mapper.html#a22b803a11a9d47d1a4afb92913785852">LandmarkMapper</a> (std::string filename)</td></tr>
 <tr class="memdesc:a22b803a11a9d47d1a4afb92913785852"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructs a new landmark mapper from a file containing mappings from one set of landmark identifiers to another.  <a href="#a22b803a11a9d47d1a4afb92913785852">More...</a><br /></td></tr>
 <tr class="separator:a22b803a11a9d47d1a4afb92913785852"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acd798aa55b2783d2b824caf95d3e8c3b"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classeos_1_1core_1_1_landmark_mapper.html#acd798aa55b2783d2b824caf95d3e8c3b">LandmarkMapper</a> (const std::unordered_map&lt; std::string, std::string &gt; &amp;mappings)</td></tr>
+<tr class="memdesc:acd798aa55b2783d2b824caf95d3e8c3b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructs a new landmark mapper from a set of existing mappings.  <a href="#acd798aa55b2783d2b824caf95d3e8c3b">More...</a><br /></td></tr>
+<tr class="separator:acd798aa55b2783d2b824caf95d3e8c3b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a40aa709ffb774c69b122d9b37dca248e"><td class="memItemLeft" align="right" valign="top">cpp17::optional&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classeos_1_1core_1_1_landmark_mapper.html#a40aa709ffb774c69b122d9b37dca248e">convert</a> (std::string landmark_name) const</td></tr>
 <tr class="memdesc:a40aa709ffb774c69b122d9b37dca248e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Converts the given landmark name to the mapped name.  <a href="#a40aa709ffb774c69b122d9b37dca248e">More...</a><br /></td></tr>
 <tr class="separator:a40aa709ffb774c69b122d9b37dca248e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:add5249b4d8aca1239d20827e919dcbf0"><td class="memItemLeft" align="right" valign="top">auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classeos_1_1core_1_1_landmark_mapper.html#add5249b4d8aca1239d20827e919dcbf0">num_mappings</a> () const</td></tr>
 <tr class="memdesc:add5249b4d8aca1239d20827e919dcbf0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the number of loaded landmark mappings.  <a href="#add5249b4d8aca1239d20827e919dcbf0">More...</a><br /></td></tr>
 <tr class="separator:add5249b4d8aca1239d20827e919dcbf0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae4be320092479535059d1065035c88e5"><td class="memItemLeft" align="right" valign="top"><a id="ae4be320092479535059d1065035c88e5"></a>
-const auto &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>get_all_mappings</b> () const</td></tr>
-<tr class="separator:ae4be320092479535059d1065035c88e5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acab00923e9e382a82c7fdd7b86946831"><td class="memItemLeft" align="right" valign="top">const auto &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classeos_1_1core_1_1_landmark_mapper.html#acab00923e9e382a82c7fdd7b86946831">get_mappings</a> () const</td></tr>
+<tr class="memdesc:acab00923e9e382a82c7fdd7b86946831"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the mappings held by this mapper.  <a href="#acab00923e9e382a82c7fdd7b86946831">More...</a><br /></td></tr>
+<tr class="separator:acab00923e9e382a82c7fdd7b86946831"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Represents a mapping from one kind of landmarks to a different format (e.g. model vertices). </p>
@@ -110,7 +113,7 @@ const auto &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>get_all_m
 </ul>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a22b803a11a9d47d1a4afb92913785852"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a22b803a11a9d47d1a4afb92913785852">&#9670;&nbsp;</a></span>LandmarkMapper()</h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a22b803a11a9d47d1a4afb92913785852">&#9670;&nbsp;</a></span>LandmarkMapper() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -144,6 +147,40 @@ const auto &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>get_all_m
 <dl class="exception"><dt>Exceptions</dt><dd>
   <table class="exception">
     <tr><td class="paramname">runtime_error</td><td>or toml::exception if there is an error loading the mappings from the file. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="acd798aa55b2783d2b824caf95d3e8c3b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acd798aa55b2783d2b824caf95d3e8c3b">&#9670;&nbsp;</a></span>LandmarkMapper() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">eos::core::LandmarkMapper::LandmarkMapper </td>
+          <td>(</td>
+          <td class="paramtype">const std::unordered_map&lt; std::string, std::string &gt; &amp;&#160;</td>
+          <td class="paramname"><em>mappings</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Constructs a new landmark mapper from a set of existing mappings. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">mappings</td><td>A set of landmark mappings. </td></tr>
   </table>
   </dd>
 </dl>
@@ -184,6 +221,34 @@ const auto &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>get_all_m
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The mapped landmark name if a mapping exists, an empty optional otherwise. </dd></dl>
+
+</div>
+</div>
+<a id="acab00923e9e382a82c7fdd7b86946831"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acab00923e9e382a82c7fdd7b86946831">&#9670;&nbsp;</a></span>get_mappings()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const auto&amp; eos::core::LandmarkMapper::get_mappings </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Returns the mappings held by this mapper. </p>
+<dl class="section return"><dt>Returns</dt><dd>All mappings contained in the mapper. </dd></dl>
 
 </div>
 </div>

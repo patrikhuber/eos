@@ -28,7 +28,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">eos
-   &#160;<span id="projectnumber">0.16.0</span>
+   &#160;<span id="projectnumber">1.1.0</span>
    </div>
   </td>
  </tr>
@@ -130,8 +130,8 @@ Functions</h2></td></tr>
 <tr class="separator:a2da57994ff04eabca09422a9ddb1dcc8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a97f71002d99ac05883c3ed46dab53f7a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classeos_1_1morphablemodel_1_1_morphable_model.html">MorphableModel</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceeos_1_1morphablemodel.html#a97f71002d99ac05883c3ed46dab53f7a">load_scm_model</a> (std::string model_filename, std::string isomap_file=std::string())</td></tr>
 <tr class="separator:a97f71002d99ac05883c3ed46dab53f7a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8d6e6d23f777bf6d8b54b12106a8eac5"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structeos_1_1core_1_1_mesh.html">core::Mesh</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceeos_1_1morphablemodel.html#a8d6e6d23f777bf6d8b54b12106a8eac5">sample_to_mesh</a> (const Eigen::VectorXf &amp;shape_instance, const Eigen::VectorXf &amp;color_instance, const std::vector&lt; std::array&lt; int, 3 &gt;&gt; &amp;tvi, const std::vector&lt; std::array&lt; int, 3 &gt;&gt; &amp;tci, const std::vector&lt; std::array&lt; double, 2 &gt;&gt; &amp;texture_coordinates=std::vector&lt; std::array&lt; double, 2 &gt;&gt;())</td></tr>
-<tr class="separator:a8d6e6d23f777bf6d8b54b12106a8eac5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a237808cb7da60d9bb245d2007fa5819d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structeos_1_1core_1_1_mesh.html">core::Mesh</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceeos_1_1morphablemodel.html#a237808cb7da60d9bb245d2007fa5819d">sample_to_mesh</a> (const Eigen::VectorXf &amp;shape_instance, const Eigen::VectorXf &amp;color_instance, const std::vector&lt; std::array&lt; int, 3 &gt;&gt; &amp;tvi, const std::vector&lt; std::array&lt; int, 3 &gt;&gt; &amp;tci, const std::vector&lt; std::array&lt; double, 2 &gt;&gt; &amp;texture_coordinates=std::vector&lt; std::array&lt; double, 2 &gt;&gt;(), const std::vector&lt; std::array&lt; int, 3 &gt;&gt; &amp;texture_triangle_indices=std::vector&lt; std::array&lt; int, 3 &gt;&gt;())</td></tr>
+<tr class="separator:a237808cb7da60d9bb245d2007fa5819d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0da6e35ec49f1ebdf55f9596540cf8f8"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classeos_1_1morphablemodel_1_1_morphable_model.html">MorphableModel</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceeos_1_1morphablemodel.html#a0da6e35ec49f1ebdf55f9596540cf8f8">load_model</a> (std::string filename)</td></tr>
 <tr class="separator:a0da6e35ec49f1ebdf55f9596540cf8f8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aad09e0fd0788cb7fea41ed799c653e71"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceeos_1_1morphablemodel.html#aad09e0fd0788cb7fea41ed799c653e71">save_model</a> (<a class="el" href="classeos_1_1morphablemodel_1_1_morphable_model.html">MorphableModel</a> model, std::string filename)</td></tr>
@@ -186,6 +186,9 @@ Functions</h2></td></tr>
 
 <div class="memitem">
 <div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
       <table class="memname">
         <tr>
           <td class="memname">Eigen::VectorXf eos::morphablemodel::draw_sample </td>
@@ -205,11 +208,17 @@ Functions</h2></td></tr>
           <td></td><td></td>
         </tr>
       </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
 </div><div class="memdoc">
-<p>Returns a sample from the model with the given expression coefficients.</p>
+<p>Returns a sample from an expression model with the given expression coefficients.</p>
 <p>The underlying expression model can be both a <a class="el" href="classeos_1_1morphablemodel_1_1_pca_model.html" title="This class represents a PCA-model that consists of: ">PcaModel</a> as well as a Blendshapes model. If a partial coefficient vector is given, it is filled with zeros up to the end.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">expression_model</td><td>The expression model to draw a sample from. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">expression_coefficients</td><td>The coefficients used to generate the expression sample. </td></tr>
   </table>
   </dd>
@@ -602,8 +611,8 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a8d6e6d23f777bf6d8b54b12106a8eac5"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a8d6e6d23f777bf6d8b54b12106a8eac5">&#9670;&nbsp;</a></span>sample_to_mesh()</h2>
+<a id="a237808cb7da60d9bb245d2007fa5819d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a237808cb7da60d9bb245d2007fa5819d">&#9670;&nbsp;</a></span>sample_to_mesh()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -639,7 +648,13 @@ Functions</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">const std::vector&lt; std::array&lt; double, 2 &gt;&gt; &amp;&#160;</td>
-          <td class="paramname"><em>texture_coordinates</em>&#160;</td>
+          <td class="paramname"><em>texture_coordinates</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::vector&lt; std::array&lt; int, 3 &gt;&gt; &amp;&#160;</td>
+          <td class="paramname"><em>texture_triangle_indices</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -662,6 +677,7 @@ Functions</h2></td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">tvi</td><td>Triangle vertex indices. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">tci</td><td>Triangle colour indices (usually identical to the vertex indices). </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">texture_coordinates</td><td>Optional texture coordinates for each vertex. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">texture_triangle_indices</td><td>Optional triangulation for the texture coordinates. </td></tr>
   </table>
   </dd>
 </dl>
