@@ -3,7 +3,7 @@
  *
  * File: python/generate-python-bindings.cpp
  *
- * Copyright 2016 Patrik Huber
+ * Copyright 2016-2019 Patrik Huber
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
