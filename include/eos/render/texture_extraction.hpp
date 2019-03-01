@@ -606,7 +606,7 @@ eos::core::Image4u extract_texture(const core::Mesh& mesh, glm::mat4x4 view_mode
     vector<vec4> wnd_coords; // will contain [x_wnd, y_wnd, z_ndc, 1/w_clip]
     for (auto&& vtx : mesh.vertices)
     {
-        auto clip_coords = projection_matrix * view_model_matrix * glm::tvec4(vtx.x(), vtx.y(), vtx.z(), 1.0f);
+        auto clip_coords = projection_matrix * view_model_matrix * vec4(vtx.x(), vtx.y(), vtx.z(), 1.0f);
         clip_coords = divide_by_w(clip_coords);
         const vec2 screen_coords = clip_to_screen_space(clip_coords.x, clip_coords.y, image.width(), image.height());
         clip_coords.x = screen_coords.x;
