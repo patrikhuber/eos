@@ -256,7 +256,6 @@ int main(int argc, char* argv[])
     Solver::Options solver_options;
     solver_options.linear_solver_type = ITERATIVE_SCHUR;
     solver_options.num_threads = 8;
-    solver_options.num_linear_solver_threads = 8; // only SPARSE_SCHUR can use this
     solver_options.minimizer_progress_to_stdout = true;
     // solver_options.max_num_iterations = 100;
     Solver::Summary solver_summary;
