@@ -43,11 +43,12 @@ namespace morphablemodel {
 using ExpressionModel = cpp17::variant<PcaModel, Blendshapes>;
 
 /**
- * Returns a sample from the model with the given expression coefficients.
+ * Returns a sample from an expression model with the given expression coefficients.
  *
  * The underlying expression model can be both a PcaModel as well as a Blendshapes model.
  * If a partial coefficient vector is given, it is filled with zeros up to the end.
  *
+ * @param[in] expression_model The expression model to draw a sample from.
  * @param[in] expression_coefficients The coefficients used to generate the expression sample.
  * @return A model instance with given coefficients.
  */

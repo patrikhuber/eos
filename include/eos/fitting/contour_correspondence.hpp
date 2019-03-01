@@ -231,6 +231,7 @@ struct ContourLandmarks
  * @param[in] view_model Model-view matrix of the current fitting to project the 3D model vertices to 2D.
  * @param[in] ortho_projection Projection matrix to project the 3D model vertices to 2D.
  * @param[in] viewport Current viewport to use.
+ * @param[in] frontal_range_threshold If the yaw angle is between +- this threshold (in degrees), both contours will be selected.
  * @return A tuple with the 2D contour landmark points, the corresponding points in the 3D shape model and their vertex indices.
  */
 inline std::tuple<std::vector<Eigen::Vector2f>, std::vector<Eigen::Vector4f>, std::vector<int>>
@@ -266,7 +267,7 @@ get_contour_correspondences(const core::LandmarkCollection<Eigen::Vector2f>& lan
  * @param[in] yaw_angle Yaw angle in degrees.
  * @param[in] contour_landmarks 2D image contour ids of left or right side (for example for ibug landmarks).
  * @param[in] model_contour The model contour indices that should be used/considered to find the closest corresponding 3D vertex.
- * @param[in] frontal_angle_threshold If the yaw angle is between +- this threshold (in degrees), both contours will be selected.
+ * @param[in] frontal_range_threshold If the yaw angle is between +- this threshold (in degrees), both contours will be selected.
  * @return A pair with two vectors containing the selected 2D image contour landmark ids and the 3D model contour indices.
  */
 inline std::pair<std::vector<std::string>, std::vector<int>>

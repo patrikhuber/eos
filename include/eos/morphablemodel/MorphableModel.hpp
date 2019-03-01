@@ -83,6 +83,7 @@ public:
      * @param[in] landmark_definitions A set of landmark definitions, mapping from identifiers to vertex
      * numbers.
      * @param[in] texture_coordinates Optional texture coordinates for every vertex.
+     * @param[in] texture_triangle_indices Optional triangulation for the texture coordinates.
      */
     MorphableModel(
         PcaModel shape_model, PcaModel color_model,
@@ -102,6 +103,7 @@ public:
      * @param[in] landmark_definitions A set of landmark definitions, mapping from identifiers to vertex
      * numbers.
      * @param[in] texture_coordinates Optional texture coordinates for every vertex.
+     * @param[in] texture_triangle_indices Optional triangulation for the texture coordinates.
      */
     MorphableModel(
         PcaModel shape_model, ExpressionModel expression_model, PcaModel color_model,

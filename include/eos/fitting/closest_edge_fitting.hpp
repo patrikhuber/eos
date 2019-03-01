@@ -289,6 +289,7 @@ struct KDTreeVectorOfVectorsAdaptor
  * @param[in] rendering_parameters Rendering (pose) parameters of the mesh.
  * @param[in] image_edges A list of points that are edges.
  * @param[in] distance_threshold All correspondences below this threshold.
+ * @param[in] perform_self_occlusion_check Check the computed boundary vertices for self-occlusion and remove these.
  * @return A pair consisting of the used image edge points and their associated 3D vertex index.
  */
 inline std::pair<std::vector<Eigen::Vector2f>, std::vector<int>> find_occluding_edge_correspondences(
