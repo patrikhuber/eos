@@ -22,6 +22,7 @@
 #include "eos/core/read_pts_landmarks.hpp"
 #include "eos/core/Image.hpp"
 #include "eos/core/image/opencv_interop.hpp"
+#include "eos/core/write_obj.hpp"
 #include "eos/morphablemodel/MorphableModel.hpp"
 #include "eos/morphablemodel/Blendshape.hpp"
 #include "eos/fitting/fitting.hpp"

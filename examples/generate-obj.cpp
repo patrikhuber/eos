@@ -19,6 +19,7 @@
  */
 #include "eos/core/Image.hpp"
 #include "eos/core/image/opencv_interop.hpp"
+#include "eos/core/write_obj.hpp"
 #include "eos/morphablemodel/MorphableModel.hpp"
 #include "eos/render/render.hpp"
 #include "eos/cpp17/optional.hpp"

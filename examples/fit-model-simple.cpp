@@ -22,6 +22,7 @@
 #include "eos/core/Landmark.hpp"
 #include "eos/core/LandmarkMapper.hpp"
 #include "eos/core/read_pts_landmarks.hpp"
+#include "eos/core/write_obj.hpp"
 #include "eos/fitting/RenderingParameters.hpp"
 #include "eos/fitting/linear_shape_fitting.hpp"
 #include "eos/fitting/orthographic_camera_estimation_linear.hpp"

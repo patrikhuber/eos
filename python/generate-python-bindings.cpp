@@ -22,6 +22,7 @@
 #include "eos/core/LandmarkMapper.hpp"
 #include "eos/core/Mesh.hpp"
 #include "eos/core/read_obj.hpp"
+#include "eos/core/write_obj.hpp"
 #include "eos/core/Image.hpp"
 #include "eos/fitting/RenderingParameters.hpp"
 #include "eos/fitting/contour_correspondence.hpp"

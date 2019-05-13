@@ -22,6 +22,7 @@
 #include "eos/core/Landmark.hpp"
 #include "eos/core/LandmarkMapper.hpp"
 #include "eos/core/read_pts_landmarks.hpp"
+#include "eos/core/write_obj.hpp"
 #include "eos/fitting/fitting.hpp"
 #include "eos/morphablemodel/Blendshape.hpp"
 #include "eos/morphablemodel/MorphableModel.hpp"
