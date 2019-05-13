@@ -19,8 +19,8 @@
  */
 #pragma once
 
-#ifndef READ_PTS_LANDMARKS_HPP_
-#define READ_PTS_LANDMARKS_HPP_
+#ifndef EOS_READ_PTS_LANDMARKS_HPP
+#define EOS_READ_PTS_LANDMARKS_HPP
 
 #include "eos/core/Landmark.hpp"
 
@@ -91,4 +91,4 @@ inline LandmarkCollection<Eigen::Vector2f> read_pts_landmarks(std::string filena
 } /* namespace core */
 } /* namespace eos */
 
-#endif /* READ_PTS_LANDMARKS_HPP_ */
+#endif /* EOS_READ_PTS_LANDMARKS_HPP */

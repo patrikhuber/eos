@@ -19,8 +19,8 @@
  */
 #pragma once
 
-#ifndef LANDMARKMAPPER_HPP_
-#define LANDMARKMAPPER_HPP_
+#ifndef EOS_LANDMARKMAPPER_HPP
+#define EOS_LANDMARKMAPPER_HPP
 
 #include "eos/cpp17/optional.hpp"
 
@@ -160,4 +160,4 @@ private:
 } /* namespace core */
 } /* namespace eos */
 
-#endif /* LANDMARKMAPPER_HPP_ */
+#endif /* EOS_LANDMARKMAPPER_HPP */

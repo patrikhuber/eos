@@ -19,8 +19,8 @@
  */
 #pragma once
 
-#ifndef EOS_MESH_HPP_
-#define EOS_MESH_HPP_
+#ifndef EOS_MESH_HPP
+#define EOS_MESH_HPP
 
 #include "Eigen/Core"
 
@@ -192,4 +192,4 @@ inline void write_textured_obj(Mesh mesh, std::string filename)
 } /* namespace core */
 } /* namespace eos */
 
-#endif /* EOS_MESH_HPP_ */
+#endif /* EOS_MESH_HPP */

@@ -19,8 +19,8 @@
  */
 #pragma once
 
-#ifndef EOS_IMAGE_OPENCV_INTEROP_HPP_
-#define EOS_IMAGE_OPENCV_INTEROP_HPP_
+#ifndef EOS_IMAGE_OPENCV_INTEROP_HPP
+#define EOS_IMAGE_OPENCV_INTEROP_HPP
 
 #include "eos/core/Image.hpp"
 
@@ -132,4 +132,4 @@ inline Image4u from_mat_with_alpha(const cv::Mat& image)
 } /* namespace core */
 } /* namespace eos */
 
-#endif /* EOS_IMAGE_OPENCV_INTEROP_HPP_ */
+#endif /* EOS_IMAGE_OPENCV_INTEROP_HPP */
