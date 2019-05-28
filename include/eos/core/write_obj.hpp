@@ -43,6 +43,7 @@ namespace core {
 inline void write_obj(Mesh mesh, std::string filename)
 {
     assert(mesh.vertices.size() == mesh.colors.size() || mesh.colors.empty());
+    assert(mesh.tvi.size() == mesh.tti.size() || mesh.tti.empty());
 
     std::ofstream obj_file(filename);
 
@@ -72,10 +73,29 @@ inline void write_obj(Mesh mesh, std::string filename)
         }
     }
 
-    for (auto&& v : mesh.tvi)
+    for (std::size_t i = 0; i < mesh.tvi.size(); ++i)
     {
-        // Add one because obj starts counting triangle indices at 1
-        obj_file << "f " << v[0] + 1 << " " << v[1] + 1 << " " << v[2] + 1 << std::endl;
+        const auto& vi = mesh.tvi[i];
+        // We add one to the indices because obj starts counting triangle indices at 1
+        if (mesh.texcoords.empty())
+        {
+            obj_file << "f " << vi[0] + 1 << " " << vi[1] + 1 << " " << vi[2] + 1 << std::endl;
+        } else
+        {
+            if (mesh.tti.empty())
+            {
+                assert(mesh.texcoords.size() == mesh.vertices.size());
+                // Using the mesh triangulation as uv triangle indices:
+                obj_file << "f " << vi[0] + 1 << "/" << vi[0] + 1 << " " << vi[1] + 1 << "/" << vi[1] + 1
+                         << " " << vi[2] + 1 << "/" << vi[2] + 1 << std::endl;
+            } else
+            {
+                // Separate triangle indices for the uv coordinates:
+                const auto& ti = mesh.tti[i];
+                obj_file << "f " << vi[0] + 1 << "/" << ti[0] + 1 << " " << vi[1] + 1 << "/" << ti[1] + 1
+                         << " " << vi[2] + 1 << "/" << ti[2] + 1 << std::endl;
+            }
+        }
     }
 
     return;
@@ -94,7 +114,9 @@ inline void write_obj(Mesh mesh, std::string filename)
  */
 inline void write_textured_obj(Mesh mesh, std::string filename)
 {
-    assert((mesh.vertices.size() == mesh.colors.size() || mesh.colors.empty()) && !mesh.texcoords.empty());
+    assert(mesh.vertices.size() == mesh.colors.size() || mesh.colors.empty());
+    assert(!mesh.texcoords.empty());
+    assert(mesh.tvi.size() == mesh.tti.size() || mesh.tti.empty());
 
     if (filename.at(filename.size() - 4) != '.')
     {
@@ -143,17 +165,29 @@ inline void write_textured_obj(Mesh mesh, std::string filename)
     for (std::size_t i = 0; i < mesh.texcoords.size(); ++i)
     {
         obj_file << "vt " << mesh.texcoords[i][0] << " " << 1.0f - mesh.texcoords[i][1] << std::endl;
-        // We invert y because Meshlab's uv origin (0, 0) is on the bottom-left
+        // We invert y because MeshLab's uv origin (0, 0) is on the bottom-left
     }
 
+    // Note: This can't be at the top, otherwise MeshLab displays the mesh in all-black.
     obj_file << "usemtl FaceTexture" << std::endl; // the name of our texture (material) will be 'FaceTexture'
 
-    for (auto&& v : mesh.tvi)
+    for (std::size_t i = 0; i < mesh.tvi.size(); ++i)
     {
-        // This assumes mesh.texcoords.size() == mesh.vertices.size(). The texture indices could theoretically be different (for example in the cube-mapped 3D scan).
-        // Add one because obj starts counting triangle indices at 1
-        obj_file << "f " << v[0] + 1 << "/" << v[0] + 1 << " " << v[1] + 1 << "/" << v[1] + 1 << " "
-                 << v[2] + 1 << "/" << v[2] + 1 << std::endl;
+        const auto& vi = mesh.tvi[i];
+        // We add one to the indices because obj starts counting triangle indices at 1
+        if (mesh.tti.empty())
+        {
+            assert(mesh.texcoords.size() == mesh.vertices.size());
+            // Using the mesh triangulation as uv triangle indices:
+            obj_file << "f " << vi[0] + 1 << "/" << vi[0] + 1 << " " << vi[1] + 1 << "/" << vi[1] + 1 << " "
+                     << vi[2] + 1 << "/" << vi[2] + 1 << std::endl;
+        } else
+        {
+            // Separate triangle indices for the uv coordinates:
+            const auto& ti = mesh.tti[i];
+            obj_file << "f " << vi[0] + 1 << "/" << ti[0] + 1 << " " << vi[1] + 1 << "/" << ti[1] + 1 << " "
+                     << vi[2] + 1 << "/" << ti[2] + 1 << std::endl;
+        }
     }
 
     std::ofstream mtl_file(mtl_filename);
