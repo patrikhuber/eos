@@ -67,7 +67,8 @@ inline void write_obj(Mesh mesh, std::string filename)
     {
         for (auto&& tc : mesh.texcoords)
         {
-            obj_file << "vt " << tc[0] << " " << tc[1] << std::endl;
+            obj_file << "vt " << tc[0] << " " << 1.0f - tc[1] << std::endl;
+            // We invert y because MeshLab's uv origin (0, 0) is on the bottom-left
         }
     }
 
