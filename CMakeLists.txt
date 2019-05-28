@@ -69,6 +69,7 @@ set(HEADERS
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/core/image/opencv_interop.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/core/Mesh.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/core/read_obj.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/core/write_obj.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/core/Rect.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/morphablemodel/PcaModel.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/morphablemodel/MorphableModel.hpp
