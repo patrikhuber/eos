@@ -22,6 +22,7 @@
 
 #include "boost/program_options.hpp"
 
+#include <string>
 #include <iostream>
 
 using namespace eos;
