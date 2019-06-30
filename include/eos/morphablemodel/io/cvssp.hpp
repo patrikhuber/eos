@@ -40,7 +40,7 @@ namespace morphablemodel {
 std::vector<std::array<double, 2>> load_isomap(std::string isomap_file);
 
 /**
- * Load a shape or color model from a .scm file containing
+ * Load a shape and color model from a .scm file containing
  * a Morphable Model in the Surrey format. CVSSP's software
  * internally trains and stores the model in this custom binary
  * format and this class provides means to load them.
