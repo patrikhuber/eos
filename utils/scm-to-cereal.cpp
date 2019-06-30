@@ -19,6 +19,7 @@
  */
 #include "eos/morphablemodel/MorphableModel.hpp"
 #include "eos/morphablemodel/io/cvssp.hpp"
+#include "eos/cpp17/optional.hpp"
 
 #include "boost/program_options.hpp"
 
@@ -69,8 +70,12 @@ int main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
+    cpp17::optional<std::string> isomapfile_optional =
+        isomapfile.empty() ? cpp17::nullopt : cpp17::optional<std::string>(isomapfile);
+
     // Load the .scm Morphable Model and save it as cereal model:
-    morphablemodel::MorphableModel morphable_model = morphablemodel::load_scm_model(scmmodelfile, isomapfile);
+    morphablemodel::MorphableModel morphable_model =
+        morphablemodel::load_scm_model(scmmodelfile, isomapfile_optional);
 
     if (save_shape_only)
     {

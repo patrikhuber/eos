@@ -23,6 +23,7 @@
 #define EOS_IO_CVSSP_HPP
 
 #include "eos/morphablemodel/MorphableModel.hpp"
+#include "eos/cpp17/optional.hpp"
 
 #include "Eigen/Core"
 
@@ -60,7 +61,8 @@ std::vector<std::array<double, 2>> load_isomap(std::string isomap_file);
  * @return The Morphable Model loaded from the file.
  * @throws std::runtime_error when reading either of the files fails.
  */
-inline MorphableModel load_scm_model(std::string model_filename, std::string isomap_file = std::string())
+inline MorphableModel load_scm_model(std::string model_filename,
+                                     cpp17::optional<std::string> isomap_file = cpp17::nullopt)
 {
     using Eigen::MatrixXf;
     using Eigen::VectorXf;
@@ -241,9 +243,9 @@ inline MorphableModel load_scm_model(std::string model_filename, std::string iso
 
     // Load the isomap with texture coordinates if a filename has been given:
     std::vector<std::array<double, 2>> tex_coords;
-    if (!isomap_file.empty())
+    if (isomap_file)
     {
-        tex_coords = load_isomap(isomap_file);
+        tex_coords = load_isomap(isomap_file.value());
         if (shape_model.get_data_dimension() / 3.0f != tex_coords.size())
         {
             const std::string error_msg("Error, wrong number of texture coordinates. Don't have the same "
