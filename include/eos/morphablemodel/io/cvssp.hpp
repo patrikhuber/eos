@@ -19,8 +19,8 @@
  */
 #pragma once
 
-#ifndef IO_CVSSP_HPP_
-#define IO_CVSSP_HPP_
+#ifndef EOS_IO_CVSSP_HPP
+#define EOS_IO_CVSSP_HPP
 
 #include "eos/morphablemodel/MorphableModel.hpp"
 
@@ -315,4 +315,4 @@ inline std::vector<std::array<double, 2>> load_isomap(std::string isomap_file)
 } /* namespace morphablemodel */
 } /* namespace eos */
 
-#endif /* IO_CVSSP_HPP_ */
+#endif /* EOS_IO_CVSSP_HPP */
