@@ -47,7 +47,7 @@ int main(int argc, char* argv[])
             ("model,m", po::value<std::string>(&scmmodelfile)->required(),
                 "a CVSSP .scm Morphable Model file")
             ("isomap,t", po::value<std::string>(&isomapfile),
-                "optional isomap containing the texture mapping coordinates")
+                "optional text file containing CVSSP texture mapping coordinates")
             ("shape-only,s", po::value<bool>(&save_shape_only)->default_value(false)->implicit_value(true),
                 "save only the shape-model part of the full 3DMM")
             ("output,o", po::value<std::string>(&outputfile)->required()->default_value("converted_model.bin"),

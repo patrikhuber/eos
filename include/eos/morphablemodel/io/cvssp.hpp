@@ -49,11 +49,14 @@ std::vector<std::array<double, 2>> load_isomap(std::string isomap_file);
  * that on.
  * Note: For new landmarks we add, this might not be the case if we add them in the highest resolution model, so take care!
  *
+ * For the optional \p isomap_file, a text file along the lines of 'IsoMnF_Ar2.txt' or 'isomap.txt' from CVSSP
+ * can be given.
+ *
  * The PCA basis matrix stored in the file and loaded is the orthogonal PCA basis, i.e. it is not normalised
  * by the eigenvalues.
  *
  * @param[in] model_filename A binary .scm-file containing the model.
- * @param[in] isomap_file An optional path to an isomap containing texture coordinates.
+ * @param[in] isomap_file An optional path to a text file containing texture coordinates.
  * @return The Morphable Model loaded from the file.
  * @throws ...
  */
