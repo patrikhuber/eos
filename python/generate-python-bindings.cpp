@@ -32,6 +32,7 @@
 #include "eos/morphablemodel/EdgeTopology.hpp"
 #include "eos/morphablemodel/MorphableModel.hpp"
 #include "eos/morphablemodel/PcaModel.hpp"
+#include "eos/morphablemodel/io/cvssp.hpp"
 #include "eos/pca/pca.hpp"
 #include "eos/render/texture_extraction.hpp"
 
@@ -212,6 +213,14 @@ PYBIND11_MODULE(eos, eos_module)
 
     morphablemodel_module.def("load_edge_topology", &morphablemodel::load_edge_topology, "Load a 3DMM edge topology file from a json file.", py::arg("filename"));
     morphablemodel_module.def("save_edge_topology", &morphablemodel::save_edge_topology, "Save a 3DMM edge topology file to a json file.", py::arg("edge_topology"), py::arg("filename"));
+
+    /**
+     *  - load_scm_model()
+     */
+    morphablemodel_module.def("load_scm_model", &morphablemodel::load_scm_model,
+                              "Load a shape and color model from a .scm file containing a Morphable Model in "
+                              "the Surrey CVSSP binary format.",
+                              py::arg("model_filename"), py::arg("isomap_file") = cpp17::nullopt);
 
     /**
      * Bindings for the eos::pca namespace:
