@@ -58,7 +58,7 @@ std::vector<std::array<double, 2>> load_isomap(std::string isomap_file);
  * @param[in] model_filename A binary .scm-file containing the model.
  * @param[in] isomap_file An optional path to a text file containing texture coordinates.
  * @return The Morphable Model loaded from the file.
- * @throws ...
+ * @throws std::runtime_error when reading either of the files fails.
  */
 inline MorphableModel load_scm_model(std::string model_filename, std::string isomap_file = std::string())
 {
