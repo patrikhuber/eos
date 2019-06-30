@@ -24,7 +24,7 @@
 
 #include "eos/morphablemodel/MorphableModel.hpp"
 
-#include "opencv2/core/core.hpp"
+#include "Eigen/Core"
 
 #include <array>
 #include <iostream>
@@ -60,7 +60,9 @@ std::vector<std::array<double, 2>> load_isomap(std::string isomap_file);
  */
 inline MorphableModel load_scm_model(std::string model_filename, std::string isomap_file = std::string())
 {
-    using cv::Mat;
+    using Eigen::MatrixXf;
+    using Eigen::VectorXf;
+
     if (sizeof(unsigned int) != 4) // note/todo: maybe use uint32 or similar instead? Yep, but still we could encounter endianness-trouble.
     {
         std::cout << "Warning: We're reading 4 Bytes from the file but sizeof(unsigned int) != 4. Check the code/behaviour." << std::endl;
@@ -116,17 +118,17 @@ inline MorphableModel load_scm_model(std::string model_filename, std::string iso
     }
 
     // Read shape projection matrix
-    Mat orthonormal_pca_basis_shape(num_shape_dims, num_shape_pca_coeffs,
-                                    CV_32FC1); // m x n (rows x cols) = numShapeDims x numShapePcaCoeffs
-    std::cout << "Loading shape PCA basis matrix with " << orthonormal_pca_basis_shape.rows << " rows and "
-              << orthonormal_pca_basis_shape.cols << " cols." << std::endl;
+    MatrixXf orthonormal_pca_basis_shape(
+        num_shape_dims, num_shape_pca_coeffs); // m x n (rows x cols) = num_shape_dims x num_shape_pca_coeffs
+    std::cout << "Loading shape PCA basis matrix with " << orthonormal_pca_basis_shape.rows() << " rows and "
+              << orthonormal_pca_basis_shape.cols() << " cols." << std::endl;
     for (unsigned int col = 0; col < num_shape_pca_coeffs; ++col)
     {
         for (unsigned int row = 0; row < num_shape_dims; ++row)
         {
             double var = 0.0;
             model_file.read(reinterpret_cast<char*>(&var), 8);
-            orthonormal_pca_basis_shape.at<float>(row, col) = static_cast<float>(var);
+            orthonormal_pca_basis_shape(row, col) = static_cast<float>(var);
         }
     }
 
@@ -139,7 +141,7 @@ inline MorphableModel load_scm_model(std::string model_filename, std::string iso
                      "mean. Something will probably go wrong during the loading."
                   << std::endl;
     }
-    Mat mean_shape(mean_dims, 1, CV_32FC1);
+    VectorXf mean_shape(mean_dims);
     unsigned int counter = 0;
     double vd0, vd1, vd2;
     for (unsigned int i = 0; i < mean_dims / 3; ++i)
@@ -148,11 +150,11 @@ inline MorphableModel load_scm_model(std::string model_filename, std::string iso
         model_file.read(reinterpret_cast<char*>(&vd0), 8);
         model_file.read(reinterpret_cast<char*>(&vd1), 8);
         model_file.read(reinterpret_cast<char*>(&vd2), 8);
-        mean_shape.at<float>(counter, 0) = static_cast<float>(vd0);
+        mean_shape(counter) = static_cast<float>(vd0);
         ++counter;
-        mean_shape.at<float>(counter, 0) = static_cast<float>(vd1);
+        mean_shape(counter) = static_cast<float>(vd1);
         ++counter;
-        mean_shape.at<float>(counter, 0) = static_cast<float>(vd2);
+        mean_shape(counter) = static_cast<float>(vd2);
         ++counter;
     }
 
@@ -165,23 +167,15 @@ inline MorphableModel load_scm_model(std::string model_filename, std::string iso
                      "eigenvalues. Something will probably go wrong during the loading."
                   << std::endl;
     }
-    Mat eigenvalues_shape(num_eigenvals_shape, 1, CV_32FC1);
+    VectorXf eigenvalues_shape(num_eigenvals_shape);
     for (unsigned int i = 0; i < num_eigenvals_shape; ++i)
     {
         double var = 0.0;
         model_file.read(reinterpret_cast<char*>(&var), 8);
-        eigenvalues_shape.at<float>(i, 0) = static_cast<float>(var);
+        eigenvalues_shape(i) = static_cast<float>(var);
     }
 
-    // Todo: We should change these to read into an Eigen matrix directly, and not into a cv::Mat first.
-    using RowMajorMatrixXf = Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
-    const Eigen::Map<RowMajorMatrixXf> orthonormal_pca_basis_shape_(orthonormal_pca_basis_shape.ptr<float>(),
-                                                                    orthonormal_pca_basis_shape.rows,
-                                                                    orthonormal_pca_basis_shape.cols);
-    const Eigen::Map<RowMajorMatrixXf> eigenvalues_shape_(eigenvalues_shape.ptr<float>(),
-                                                          eigenvalues_shape.rows, eigenvalues_shape.cols);
-    const Eigen::Map<RowMajorMatrixXf> mean_shape_(mean_shape.ptr<float>(), mean_shape.rows, mean_shape.cols);
-    const PcaModel shape_model(mean_shape_, orthonormal_pca_basis_shape_, eigenvalues_shape_, triangle_list);
+    const PcaModel shape_model(mean_shape, orthonormal_pca_basis_shape, eigenvalues_shape, triangle_list);
 
     // Reading the color model
     // Read number of rows and columns of projection matrix
@@ -190,23 +184,23 @@ inline MorphableModel load_scm_model(std::string model_filename, std::string iso
     model_file.read(reinterpret_cast<char*>(&num_color_pca_coeffs), 4);
     model_file.read(reinterpret_cast<char*>(&num_color_dims), 4);
     // Read color projection matrix
-    Mat orthonormal_pca_basis_color(num_color_dims, num_color_pca_coeffs, CV_32FC1);
-    std::cout << "Loading color PCA basis matrix with " << orthonormal_pca_basis_color.rows << " rows and "
-              << orthonormal_pca_basis_color.cols << " cols." << std::endl;
+    MatrixXf orthonormal_pca_basis_color(num_color_dims, num_color_pca_coeffs);
+    std::cout << "Loading color PCA basis matrix with " << orthonormal_pca_basis_color.rows() << " rows and "
+              << orthonormal_pca_basis_color.cols() << " cols." << std::endl;
     for (unsigned int col = 0; col < num_color_pca_coeffs; ++col)
     {
         for (unsigned int row = 0; row < num_color_dims; ++row)
         {
             double var = 0.0;
             model_file.read(reinterpret_cast<char*>(&var), 8);
-            orthonormal_pca_basis_color.at<float>(row, col) = static_cast<float>(var);
+            orthonormal_pca_basis_color(row, col) = static_cast<float>(var);
         }
     }
 
     // Read mean color vector
     unsigned int color_mean_dims = 0; // dimension of the mean (3*num_vertices)
     model_file.read(reinterpret_cast<char*>(&color_mean_dims), 4);
-    Mat mean_color(color_mean_dims, 1, CV_32FC1);
+    VectorXf mean_color(color_mean_dims);
     counter = 0;
     for (unsigned int i = 0; i < color_mean_dims / 3; ++i)
     {
@@ -215,33 +209,26 @@ inline MorphableModel load_scm_model(std::string model_filename, std::string iso
                         8); // order in hdf5: RGB. Order in OCV: BGR. But order in vertex.color: RGB
         model_file.read(reinterpret_cast<char*>(&vd1), 8);
         model_file.read(reinterpret_cast<char*>(&vd2), 8);
-        mean_color.at<float>(counter, 0) = static_cast<float>(vd0);
+        mean_color(counter) = static_cast<float>(vd0);
         ++counter;
-        mean_color.at<float>(counter, 0) = static_cast<float>(vd1);
+        mean_color(counter) = static_cast<float>(vd1);
         ++counter;
-        mean_color.at<float>(counter, 0) = static_cast<float>(vd2);
+        mean_color(counter) = static_cast<float>(vd2);
         ++counter;
     }
 
     // Read color eigenvalues
     unsigned int num_eigenvals_color = 0;
     model_file.read(reinterpret_cast<char*>(&num_eigenvals_color), 4);
-    Mat eigenvalues_color(num_eigenvals_color, 1, CV_32FC1);
+    VectorXf eigenvalues_color(num_eigenvals_color);
     for (unsigned int i = 0; i < num_eigenvals_color; ++i)
     {
         double var = 0.0;
         model_file.read(reinterpret_cast<char*>(&var), 8);
-        eigenvalues_color.at<float>(i, 0) = static_cast<float>(var);
+        eigenvalues_color(i) = static_cast<float>(var);
     }
 
-    // Todo: We should change these to read into an Eigen matrix directly, and not into a cv::Mat first.
-    const Eigen::Map<RowMajorMatrixXf> orthonormal_pca_basis_color_(orthonormal_pca_basis_color.ptr<float>(),
-                                                                    orthonormal_pca_basis_color.rows,
-                                                                    orthonormal_pca_basis_color.cols);
-    const Eigen::Map<RowMajorMatrixXf> eigenvalues_color_(eigenvalues_color.ptr<float>(),
-                                                          eigenvalues_color.rows, eigenvalues_color.cols);
-    const Eigen::Map<RowMajorMatrixXf> mean_color_(mean_color.ptr<float>(), mean_color.rows, mean_color.cols);
-    const PcaModel color_model(mean_color_, orthonormal_pca_basis_color_, eigenvalues_color_, triangle_list);
+    const PcaModel color_model(mean_color, orthonormal_pca_basis_color, eigenvalues_color, triangle_list);
 
     model_file.close();
 
