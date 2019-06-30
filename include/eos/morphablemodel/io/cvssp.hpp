@@ -40,16 +40,14 @@ namespace morphablemodel {
 std::vector<std::array<double, 2>> load_isomap(std::string isomap_file);
 
 /**
- * Load a shape and color model from a .scm file containing
- * a Morphable Model in the Surrey format. CVSSP's software
- * internally trains and stores the model in this custom binary
- * format and this class provides means to load them.
+ * Load a shape and color model from a .scm file containing a Morphable Model in the Surrey format. CVSSP's
+ * software internally trains and stores the model in this custom binary format and this class provides means
+ * to load them.
  *
- * Note on multi-resolution models: The landmarks to vertex-id mapping is
- * always the same. The lowest resolution model has all the landmarks defined
- * and for the higher resolutions, the mesh is divided from that on.
- * Note: For new landmarks we add, this might not be the case if we add them
- * in the highest resolution model, so take care!
+ * Note on multi-resolution models: The landmarks to vertex-id mapping is always the same. The lowest
+ * resolution model has all the landmarks defined and for the higher resolutions, the mesh is divided from
+ * that on.
+ * Note: For new landmarks we add, this might not be the case if we add them in the highest resolution model, so take care!
  *
  * The PCA basis matrix stored in the file and loaded is the orthogonal PCA basis, i.e. it is not normalised
  * by the eigenvalues.
