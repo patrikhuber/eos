@@ -64,13 +64,18 @@ inline MorphableModel load_scm_model(std::string model_filename, std::string iso
     using Eigen::MatrixXf;
     using Eigen::VectorXf;
 
-    if (sizeof(unsigned int) != 4) // note/todo: maybe use uint32 or similar instead? Yep, but still we could encounter endianness-trouble.
+    if (sizeof(unsigned int) != 4) // Note: maybe use uint32 or similar instead? Yep, but still we could
+                                   // encounter endianness-trouble.
     {
-        std::cout << "Warning: We're reading 4 Bytes from the file but sizeof(unsigned int) != 4. Check the code/behaviour." << std::endl;
+        std::cout << "Warning: We're reading 4 Bytes from the file but sizeof(unsigned int) != 4. Check the "
+                     "code/behaviour."
+                  << std::endl;
     }
     if (sizeof(double) != 8)
     {
-        std::cout << "Warning: We're reading 8 Bytes from the file but sizeof(double) != 8. Check the code/behaviour." << std::endl;
+        std::cout << "Warning: We're reading 8 Bytes from the file but sizeof(double) != 8. Check the "
+                     "code/behaviour."
+                  << std::endl;
     }
 
     std::ifstream model_file(model_filename, std::ios::binary);
@@ -98,7 +103,7 @@ inline MorphableModel load_scm_model(std::string model_filename, std::string iso
     {
         v0 = v1 = v2 = 0;
         model_file.read(reinterpret_cast<char*>(&v0), 4); // would be nice to pass a &vector and do it in one
-        model_file.read(reinterpret_cast<char*>(&v1), 4); // go, but didn't work. Maybe a cv::Mat would work?
+        model_file.read(reinterpret_cast<char*>(&v1), 4); // go, but didn't work.
         model_file.read(reinterpret_cast<char*>(&v2), 4);
         triangle_list[i][0] = v0;
         triangle_list[i][1] = v1;
@@ -266,7 +271,8 @@ inline std::vector<std::array<double, 2>> load_isomap(std::string isomap_file)
     std::ifstream file(isomap_file);
     if (!file)
     {
-        const string error_msg("The isomap file could not be opened. Did you specify a correct filename? " + isomap_file);
+        const string error_msg("The isomap file could not be opened. Did you specify a correct filename? " +
+                               isomap_file);
         throw std::runtime_error(error_msg);
     } else
     {
@@ -281,7 +287,8 @@ inline std::vector<std::array<double, 2>> load_isomap(std::string isomap_file)
         file.close();
     }
     // Process the coordinates: Find the min/max and rescale to [0, 1] x [0, 1]
-    const auto min_max_x = std::minmax_element(begin(x_coords), end(x_coords)); // min_max_x is a pair, first=min, second=max
+    const auto min_max_x =
+        std::minmax_element(begin(x_coords), end(x_coords)); // min_max_x is a pair, first=min, second=max
     const auto min_max_y = std::minmax_element(begin(y_coords), end(y_coords));
 
     std::vector<std::array<double, 2>> tex_coords;
@@ -291,10 +298,9 @@ inline std::vector<std::array<double, 2>> load_isomap(std::string isomap_file)
     {
         tex_coords.push_back(std::array<double, 2>{
             (x_coords[i] - *min_max_x.first) / divisor_x,
-            1.0f - (y_coords[i] - *min_max_y.first) / divisor_y}); // We rescale to [0, 1] and at the same
-                                                                   // time flip the y-coords (because in the
-                                                                   // isomap, the coordinates are stored
-                                                                   // upside-down).
+            1.0f - (y_coords[i] - *min_max_y.first) /
+                       divisor_y}); // We rescale to [0, 1] and at the same time flip the y-coords (because in
+                                    // the isomap, the coordinates are stored upside-down).
     }
 
     return tex_coords;
