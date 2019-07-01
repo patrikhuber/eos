@@ -19,8 +19,8 @@
  */
 #pragma once
 
-#ifndef RENDER_DRAW_UTILS_HPP_
-#define RENDER_DRAW_UTILS_HPP_
+#ifndef EOS_RENDER_DRAW_UTILS_HPP
+#define EOS_RENDER_DRAW_UTILS_HPP
 
 #include "eos/core/Mesh.hpp"
 #include "eos/render/detail/render_detail.hpp"
@@ -116,4 +116,4 @@ inline cv::Mat draw_texcoords(core::Mesh mesh, cv::Mat image = cv::Mat())
 } /* namespace render */
 } /* namespace eos */
 
-#endif /* RENDER_DRAW_UTILS_HPP_ */
+#endif /* EOS_RENDER_DRAW_UTILS_HPP */

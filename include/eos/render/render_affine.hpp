@@ -19,8 +19,8 @@
  */
 #pragma once
 
-#ifndef RENDER_AFFINE_HPP_
-#define RENDER_AFFINE_HPP_
+#ifndef EOS_RENDER_AFFINE_HPP
+#define EOS_RENDER_AFFINE_HPP
 
 #include "eos/core/Image.hpp"
 #include "eos/core/image/utils.hpp"
@@ -154,4 +154,4 @@ inline std::pair<core::Image4u, core::Image1d> render_affine(const core::Mesh& m
 } /* namespace render */
 } /* namespace eos */
 
-#endif /* RENDER_AFFINE_HPP_ */
+#endif /* EOS_RENDER_AFFINE_HPP */

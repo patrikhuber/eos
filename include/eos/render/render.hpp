@@ -19,8 +19,8 @@
  */
 #pragma once
 
-#ifndef RENDER_HPP_
-#define RENDER_HPP_
+#ifndef EOS_RENDER_HPP
+#define EOS_RENDER_HPP
 
 #include "eos/core/Image.hpp"
 #include "eos/core/image/utils.hpp"
@@ -271,4 +271,4 @@ render(core::Mesh mesh, glm::tmat4x4<float> model_view_matrix, glm::tmat4x4<floa
 } /* namespace render */
 } /* namespace eos */
 
-#endif /* RENDER_HPP_ */
+#endif /* EOS_RENDER_HPP */
