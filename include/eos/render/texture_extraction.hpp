@@ -544,9 +544,10 @@ namespace v2 {
  * @param[in] isomap_resolution The resolution of the generated isomap. Defaults to 512x512.
  * @return The extracted texture as isomap (texture map).
  */
-eos::core::Image4u extract_texture(const core::Mesh& mesh, glm::mat4x4 view_model_matrix, glm::mat4x4 projection_matrix,
-                        glm::vec4 /*viewport, not needed at the moment */, const eos::core::Image4u& image,
-                        bool /* compute_view_angle, unused atm */, int isomap_resolution = 512)
+inline eos::core::Image4u
+extract_texture(const core::Mesh& mesh, glm::mat4x4 view_model_matrix, glm::mat4x4 projection_matrix,
+                glm::vec4 /*viewport, not needed at the moment */, const eos::core::Image4u& image,
+                bool /* compute_view_angle, unused atm */, int isomap_resolution = 512)
 {
     using detail::divide_by_w;
     using glm::vec2;
