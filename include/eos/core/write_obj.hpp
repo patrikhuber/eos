@@ -40,7 +40,7 @@ namespace core {
  * @param[in] mesh The mesh to save as obj.
  * @param[in] filename Output filename (including ".obj").
  */
-inline void write_obj(Mesh mesh, std::string filename)
+inline void write_obj(const Mesh& mesh, std::string filename)
 {
     assert(mesh.vertices.size() == mesh.colors.size() || mesh.colors.empty());
     assert(mesh.tvi.size() == mesh.tti.size() || mesh.tti.empty());
@@ -112,7 +112,7 @@ inline void write_obj(Mesh mesh, std::string filename)
  * @param[in] mesh The mesh to save as obj.
  * @param[in] filename Output filename, including .obj.
  */
-inline void write_textured_obj(Mesh mesh, std::string filename)
+inline void write_textured_obj(const Mesh& mesh, std::string filename)
 {
     assert(mesh.vertices.size() == mesh.colors.size() || mesh.colors.empty());
     assert(!mesh.texcoords.empty());
