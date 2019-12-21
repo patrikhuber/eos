@@ -26,7 +26,7 @@
 #include "eos/fitting/fitting.hpp"
 #include "eos/morphablemodel/Blendshape.hpp"
 #include "eos/morphablemodel/MorphableModel.hpp"
-#include "eos/render/draw_utils.hpp"
+#include "eos/render/opencv/draw_utils.hpp"
 #include "eos/render/texture_extraction.hpp"
 #include "eos/cpp17/optional.hpp"
 
