@@ -97,7 +97,7 @@ set(HEADERS
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/normals.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/transforms.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/ray_triangle_intersect.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/draw_utils.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/opencv/draw_utils.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/render.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/render_affine.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/detail/TriangleToRasterize.hpp
@@ -150,6 +150,7 @@ source_group(fitting REGULAR_EXPRESSION include/eos/fitting/*)
 source_group(fitting\\detail REGULAR_EXPRESSION include/eos/fitting/detail/*)
 source_group(render REGULAR_EXPRESSION include/eos/render/*)
 source_group(render\\detail REGULAR_EXPRESSION include/eos/render/detail/*)
+source_group(render\\opencv REGULAR_EXPRESSION include/eos/render/opencv/*)
 source_group(video REGULAR_EXPRESSION include/eos/video/*)
 source_group(cpp17 REGULAR_EXPRESSION include/eos/cpp17/*)
 source_group(cpp17\\detail REGULAR_EXPRESSION include/eos/cpp17/detail/*)

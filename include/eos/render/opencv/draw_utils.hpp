@@ -1,9 +1,9 @@
 /*
  * eos - A 3D Morphable Model fitting library written in modern C++11/14.
  *
- * File: include/eos/render/draw_utils.hpp
+ * File: include/eos/render/opencv/draw_utils.hpp
  *
- * Copyright 2017 Patrik Huber
+ * Copyright 2017-2019 Patrik Huber
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@
  */
 #pragma once
 
-#ifndef EOS_RENDER_DRAW_UTILS_HPP
-#define EOS_RENDER_DRAW_UTILS_HPP
+#ifndef EOS_RENDER_OPENCV_DRAW_UTILS_HPP
+#define EOS_RENDER_OPENCV_DRAW_UTILS_HPP
 
 #include "eos/core/Mesh.hpp"
 #include "eos/render/detail/render_detail.hpp"
@@ -116,4 +116,4 @@ inline cv::Mat draw_texcoords(core::Mesh mesh, cv::Mat image = cv::Mat())
 } /* namespace render */
 } /* namespace eos */
 
-#endif /* EOS_RENDER_DRAW_UTILS_HPP */
+#endif /* EOS_RENDER_OPENCV_DRAW_UTILS_HPP */
