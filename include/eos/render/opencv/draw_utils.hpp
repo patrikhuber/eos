@@ -40,6 +40,9 @@ namespace render {
  *
  * It does backface culling, i.e. draws only vertices in CCW order.
  *
+ * Note: This function might be deprecated in the future, in favour of draw_wireframe(...) in
+ * render/draw_utils.hpp, which doesn't depend on OpenCV anymore.
+ *
  * @param[in] image An image to draw into.
  * @param[in] mesh The mesh to draw.
  * @param[in] modelview Model-view matrix to draw the mesh.
