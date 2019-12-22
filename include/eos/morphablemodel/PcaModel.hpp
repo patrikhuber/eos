@@ -280,6 +280,31 @@ public:
         return eigenvalues(index);
     };
 
+    /**
+     * Projects the given data instance into the model space, and returns the PCA coefficients.
+     *
+     * @param[in] instance A 3m x 1 col-vector (xyzxyz...)', where m is the number of model-vertices.
+     * @return The PCA coefficients of the projected data.
+     */
+    std::vector<float> project(const Eigen::VectorXf& instance) const
+    {
+        // We are not transposing the basis - it's 3*num_vtx x num_components, which is correct for the
+        // projection.
+        // instance and mean are col-vectors, we transpose that to be a row-vector.
+        Eigen::VectorXf coeffs = (instance - mean).transpose() * rescaled_pca_basis;
+
+        // In the simple example below:
+        //   sample = m.get_shape_model().draw_sample([0.5, -0.5, 0, 1, -1])
+        //   c = m.get_shape_model().project(sample)
+        // we seem to need to divide the resulting coeffs by the eigenvalues, to make
+        // the output correct (i.e. the same as the input). I am not sure why. We should
+        // go through it on paper again. At the same time we can check github.com/patrikhuber/eos/issues/257.
+        coeffs = coeffs.array() / eigenvalues.array();
+
+        std::vector<float> coefficients(coeffs.data(), coeffs.data() + coeffs.size());
+        return coefficients;
+    };
+
 private:
     Eigen::VectorXf mean; ///< A 3m x 1 col-vector (xyzxyz...)', where m is the number of model-vertices.
     Eigen::MatrixXf orthonormal_pca_basis; ///< m x n (rows x cols) = numShapeDims x numShapePcaCoeffs,

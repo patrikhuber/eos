@@ -162,7 +162,8 @@ PYBIND11_MODULE(eos, eos_module)
         .def("get_orthonormal_pca_basis", &morphablemodel::PcaModel::get_orthonormal_pca_basis, "Returns the orthonormal PCA basis matrix, i.e. the eigenvectors. Each column of the matrix is an eigenvector.")
         .def("get_rescaled_pca_basis", &morphablemodel::PcaModel::get_rescaled_pca_basis, "Returns the rescaled PCA basis matrix, i.e. the eigenvectors. Each column of the matrix is an eigenvector, and each eigenvector has been rescaled by multiplying it with the square root of its eigenvalue.")
         .def("get_eigenvalues", &morphablemodel::PcaModel::get_eigenvalues, "Returns the models eigenvalues.")
-        .def("draw_sample", (Eigen::VectorXf(morphablemodel::PcaModel::*)(std::vector<float>)const)&morphablemodel::PcaModel::draw_sample, "Returns a sample from the model with the given PCA coefficients. The given coefficients should follow a standard normal distribution, i.e. not be scaled with their eigenvalues/variances.", py::arg("coefficients"));
+        .def("draw_sample", (Eigen::VectorXf(morphablemodel::PcaModel::*)(std::vector<float>)const)&morphablemodel::PcaModel::draw_sample, "Returns a sample from the model with the given PCA coefficients. The given coefficients should follow a standard normal distribution, i.e. not be scaled with their eigenvalues/variances.", py::arg("coefficients"))
+        .def("project", &morphablemodel::PcaModel::project, "Projects the given data instance into the model space, and returns the PCA coefficients.", py::arg("instance"));
 
     py::class_<morphablemodel::MorphableModel> morphable_model(morphablemodel_module, "MorphableModel", "A class representing a 3D Morphable Model, consisting of a shape- and colour (albedo) PCA model, as well as texture (uv) coordinates.");
 
