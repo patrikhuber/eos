@@ -29,7 +29,7 @@
 #include "eos/fitting/multi_image_fitting.hpp"
 #include "eos/render/texture_extraction.hpp"
 #include "eos/render/render.hpp"
-#include "eos/render/draw_utils.hpp"
+#include "eos/render/opencv/draw_utils.hpp"
 #include "eos/cpp17/optional.hpp"
 
 #include "opencv2/core/core.hpp"
