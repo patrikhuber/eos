@@ -19,12 +19,13 @@
  */
 #pragma once
 
-#ifndef EOS_PYBIND11_VARIANT_HPP_
-#define EOS_PYBIND11_VARIANT_HPP_
+#ifndef EOS_PYBIND11_VARIANT_HPP
+#define EOS_PYBIND11_VARIANT_HPP
 
 /**
  * @file python/pybind11_variant.hpp
- * @brief Define a type_caster for mpark::variant, which is used when the compiler doesn't have <variant> (e.g. on Apple).
+ * @brief Define a type_caster for mpark::variant, which is used when the compiler doesn't have <variant>
+ * (e.g. on Apple).
  */
 
 #if __cplusplus >= 201703L || (defined(_MSVC_LANG) && _MSVC_LANG >= 201703L)
@@ -40,7 +41,8 @@ namespace pybind11 {
 namespace detail {
 
 /**
- * @brief Type caster for mpark::variant, which is used when the compiler doesn't have <variant> (e.g. on Apple).
+ * @brief Type caster for mpark::variant, which is used when the compiler doesn't have <variant> (e.g. on
+ * Apple).
  */
 template <typename... Ts>
 struct type_caster<mpark::variant<Ts...>> : variant_caster<mpark::variant<Ts...>>
@@ -52,4 +54,4 @@ struct type_caster<mpark::variant<Ts...>> : variant_caster<mpark::variant<Ts...>
 
 #endif
 
-#endif /* EOS_PYBIND11_VARIANT_HPP_ */
+#endif /* EOS_PYBIND11_VARIANT_HPP */

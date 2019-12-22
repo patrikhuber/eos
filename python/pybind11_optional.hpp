@@ -19,12 +19,13 @@
  */
 #pragma once
 
-#ifndef EOS_PYBIND11_OPTIONAL_HPP_
-#define EOS_PYBIND11_OPTIONAL_HPP_
+#ifndef EOS_PYBIND11_OPTIONAL_HPP
+#define EOS_PYBIND11_OPTIONAL_HPP
 
 /**
  * @file python/pybind11_optional.hpp
- * @brief Define a type_caster for akrzemi1::optional, which is used when the compiler doesn't have <optional> (e.g. on Apple).
+ * @brief Define a type_caster for akrzemi1::optional, which is used when the compiler doesn't have <optional>
+ * (e.g. on Apple).
  */
 
 #if __cplusplus >= 201703L || (defined(_MSVC_LANG) && _MSVC_LANG >= 201703L)
@@ -40,7 +41,8 @@ namespace pybind11 {
 namespace detail {
 
 /**
- * @brief Type caster for akrzemi1::optional, which is used when the compiler doesn't have <optional> (e.g. on Apple).
+ * @brief Type caster for akrzemi1::optional, which is used when the compiler doesn't have <optional> (e.g. on
+ * Apple).
  */
 template <typename T>
 struct type_caster<akrzemi1::optional<T>> : optional_caster<akrzemi1::optional<T>>
@@ -52,4 +54,4 @@ struct type_caster<akrzemi1::optional<T>> : optional_caster<akrzemi1::optional<T
 
 #endif
 
-#endif /* EOS_PYBIND11_OPTIONAL_HPP_ */
+#endif /* EOS_PYBIND11_OPTIONAL_HPP */
