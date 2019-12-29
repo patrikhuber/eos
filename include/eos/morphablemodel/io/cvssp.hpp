@@ -299,11 +299,15 @@ inline std::vector<std::array<double, 2>> load_isomap(std::string isomap_file)
     const float divisor_y = *min_max_y.second - *min_max_y.first;
     for (int i = 0; i < x_coords.size(); ++i)
     {
-        tex_coords.push_back(std::array<double, 2>{
+        tex_coords.push_back(
+            std::array<double, 2>{
             (x_coords[i] - *min_max_x.first) / divisor_x,
-            1.0f - (y_coords[i] - *min_max_y.first) /
-                       divisor_y}); // We rescale to [0, 1] and at the same time flip the y-coords (because in
-                                    // the isomap, the coordinates are stored upside-down).
+            (y_coords[i] - *min_max_y.first) /
+                       divisor_y}); // Rescale to [0, 1]
+        // In the isomap, the coordinates are stored upside-down, (...what does it mean?) ... so... we don't
+        // flip? TODO. I think it looks like in the isomap.txt, it's a normal right-handed coordinate system,
+        // with the positive y-axis pointing upwards. So not flipping is the thing to do indeed as it's
+        // already like a 0, 0 on the bottom left coordinate system.
     }
 
     return tex_coords;

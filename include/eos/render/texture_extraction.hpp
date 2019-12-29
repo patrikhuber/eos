@@ -314,6 +314,7 @@ extract_texture(const core::Mesh& mesh, Eigen::Matrix<float, 3, 4> affine_camera
             res = affine_camera_matrix_with_z * vec;
             src_tri[2] = Vector2f(res[0], res[1]);
 
+			// TODO: Flip the y axis here:
             dst_tri[0] = Vector2f((isomap.width() - 0.5) * mesh.texcoords[triangle_texture_indices[0]][0],
                                   (isomap.height() - 0.5) * mesh.texcoords[triangle_texture_indices[0]][1]);
             dst_tri[1] = Vector2f((isomap.width() - 0.5) * mesh.texcoords[triangle_texture_indices[1]][0],

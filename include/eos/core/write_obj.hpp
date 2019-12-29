@@ -68,8 +68,9 @@ inline void write_obj(Mesh mesh, std::string filename)
     {
         for (auto&& tc : mesh.texcoords)
         {
-            obj_file << "vt " << tc[0] << " " << 1.0f - tc[1] << std::endl;
+            obj_file << "vt " << tc[0] << " " << tc[1] << std::endl;
             // We invert y because MeshLab's uv origin (0, 0) is on the bottom-left
+            // => Don't invert. The origin in the model stored uv coords is now the bottom left too.
         }
     }
 
@@ -164,8 +165,9 @@ inline void write_textured_obj(Mesh mesh, std::string filename)
 
     for (std::size_t i = 0; i < mesh.texcoords.size(); ++i)
     {
-        obj_file << "vt " << mesh.texcoords[i][0] << " " << 1.0f - mesh.texcoords[i][1] << std::endl;
+        obj_file << "vt " << mesh.texcoords[i][0] << " " << mesh.texcoords[i][1] << std::endl;
         // We invert y because MeshLab's uv origin (0, 0) is on the bottom-left
+        // => Don't invert. The origin in the model stored uv coords is now the bottom left too.
     }
 
     // Note: This can't be at the top, otherwise MeshLab displays the mesh in all-black.
