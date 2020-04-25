@@ -134,11 +134,13 @@ render(core::Mesh mesh, glm::tmat4x4<float> model_view_matrix, glm::tmat4x4<floa
     // - take a cv::Mat texture instead and convert to Texture internally? no, we don't want to recreate
     //   mipmap levels on each render() call.
 
-    assert(mesh.vertices.size() == mesh.colors.size() ||
-           mesh.colors.empty()); // The number of vertices has to be equal for both shape and colour, or,
-                                 // alternatively, it has to be a shape-only model.
-    assert(mesh.vertices.size() == mesh.texcoords.size() || mesh.texcoords.empty()); // same for the texcoords
-    // another assert: If cv::Mat texture != empty, then we need texcoords?
+    // The number of vertices has to be equal for both shape and colour, or, alternatively, it has to be a
+    // shape-only model:
+    assert(mesh.vertices.size() == mesh.colors.size() || mesh.colors.empty());
+    // The number of vertices has to be equal to the number of texture coordinates, if texcoords are present:
+    //   Note: It follows from that that currently, textures with seams are not supported by this function.
+    assert(mesh.vertices.size() == mesh.texcoords.size() || mesh.texcoords.empty());
+    // Potential todo: Another assert: If cv::Mat texture != empty, then we need texcoords?
 
     using std::vector;
 
