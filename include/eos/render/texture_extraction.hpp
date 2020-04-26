@@ -665,6 +665,14 @@ extract_texture(const core::Mesh& mesh, glm::mat4x4 view_model_matrix, glm::mat4
                     wnd_coords[tvi[2]].x / image.width(),
                     wnd_coords[tvi[2]].y / image.height() // (maybe '1 - wndcoords...'?) wndcoords of the projected/rendered model triangle (in the input img). Normalised to 0,1.
 					)};
+            // The wnd_coords (now p[a|b|c].texcoords) can actually be outside the image, if the head is
+            // outside the image. Just skip the whole triangle if that is the case:
+            if (pa.texcoords.x < 0 || pa.texcoords.x > 1 || pa.texcoords.y < 0 || pa.texcoords.y > 1 ||
+                pb.texcoords.x < 0 || pb.texcoords.x > 1 || pb.texcoords.y < 0 || pb.texcoords.y > 1 ||
+                pc.texcoords.x < 0 || pc.texcoords.x > 1 || pc.texcoords.y < 0 || pc.texcoords.y > 1)
+            {
+                continue;
+            }
             extraction_rasterizer.raster_triangle(pa, pb, pc, image_to_extract_from_as_tex);
         }
     }
