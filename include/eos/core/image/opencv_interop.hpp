@@ -110,20 +110,37 @@ inline Image3u from_mat(const cv::Mat& image)
     return converted;
 };
 
+/**
+ * Supports both CV_8UC3 and CV_8UC4 cv::Mat as input images. If a CV_8UC3 images is given, then all pixels of
+ * the alpha channel of the returned image are set to 255.
+ */
 inline Image4u from_mat_with_alpha(const cv::Mat& image)
 {
-    if (image.type() != CV_8UC4)
+    if (image.type() != CV_8UC3 && image.type() != CV_8UC4)
     {
-        throw std::runtime_error("Can only convert a CV_8UC4 cv::Mat to an eos::core::Image4u.");
+        throw std::runtime_error("Can only convert a CV_8UC3 or CV_8UC4 cv::Mat to an eos::core::Image4u.");
     }
 
     Image4u converted(image.rows, image.cols);
-    for (int r = 0; r < image.rows; ++r)
+    if (image.type() == CV_8UC3)
     {
-        for (int c = 0; c < image.cols; ++c)
+        for (int r = 0; r < image.rows; ++r)
         {
-            converted(r, c) = {image.at<cv::Vec4b>(r, c)[0], image.at<cv::Vec4b>(r, c)[1],
-                               image.at<cv::Vec4b>(r, c)[2], image.at<cv::Vec4b>(r, c)[3]};
+            for (int c = 0; c < image.cols; ++c)
+            {
+                converted(r, c) = {image.at<cv::Vec3b>(r, c)[0], image.at<cv::Vec3b>(r, c)[1],
+                                   image.at<cv::Vec3b>(r, c)[2], 255};
+            }
+        }
+    } else if (image.type() == CV_8UC4)
+    {
+        for (int r = 0; r < image.rows; ++r)
+        {
+            for (int c = 0; c < image.cols; ++c)
+            {
+                converted(r, c) = {image.at<cv::Vec4b>(r, c)[0], image.at<cv::Vec4b>(r, c)[1],
+                                   image.at<cv::Vec4b>(r, c)[2], image.at<cv::Vec4b>(r, c)[3]};
+            }
         }
     }
     return converted;
