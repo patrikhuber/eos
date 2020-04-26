@@ -53,7 +53,7 @@ inline void save_coefficients(std::vector<float> coefficients, std::string filen
 /**
  * Loads coefficients (for example PCA shape coefficients) from a json file.
  *
- * @param[in] filename The file to write.
+ * @param[in] filename The file to read.
  * @return Returns vector of floats.
  * @throws std::runtime_error if unable to open the given file for reading.
  */
