@@ -189,7 +189,11 @@ extract_texture(const core::Mesh& mesh, Eigen::Matrix<float, 3, 4> affine_camera
                 TextureInterpolation mapping_type = TextureInterpolation::NearestNeighbour,
                 int isomap_resolution = 512)
 {
+    // Assert that either there are texture coordinates given for each vertex (in which case the texture map
+    // doesn't contain any seams), or that a separate list of texture triangle indices is given (i.e. mesh.tti
+    // is not empty):
     assert(mesh.vertices.size() == mesh.texcoords.size() || !mesh.tti.empty());
+    // Sanity check on the texture triangle indices: They should be either empty or equal to tvi.size():
     assert(mesh.tti.empty() || mesh.tti.size() == mesh.tvi.size());
 
     using Eigen::Vector2f;
