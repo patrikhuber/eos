@@ -105,12 +105,22 @@ public:
                          const glm::tmat4x4<T, P>& projection_matrix,
                          const cpp17::optional<Texture>& texture = cpp17::nullopt)
     {
-        assert(mesh.vertices.size() == mesh.colors.size() ||
-               mesh.colors.empty()); // The number of vertices has to be equal for both shape and colour, or,
-                                     // alternatively, it has to be a shape-only model.
+        // The number of vertices has to be equal for both shape and colour, or, alternatively, it has to be a
+        // shape-only model:
+        assert(mesh.vertices.size() == mesh.colors.size() || mesh.colors.empty());
+        // Make sure one of these three things is true:
+        //  a) There are texture coordinates given for each vertex (the texture map doesn't contain any seams)
+        //  b) A different number of tex coords and vertices (i.e. the texture map contains seams): A separate
+        //     list of texture triangle indices has to be given (i.e. mesh.tti is not empty)
+        //  c) There are no texture coordinates given (i.e. rendering without texture).
         assert(mesh.vertices.size() == mesh.texcoords.size() ||
-               mesh.texcoords.empty()); // same for the texcoords
-        // Add another assert: If cv::Mat texture != empty (and/or texturing=true?), then we need texcoords?
+               ((mesh.vertices.size() != mesh.texcoords.size()) && !mesh.tti.empty()) ||
+               mesh.texcoords.empty());
+        // Sanity check on the texture triangle indices: They should be either empty or equal to tvi.size():
+        assert(mesh.tti.empty() || mesh.tti.size() == mesh.tvi.size());
+        // Make sure either no texture is given, or a texture and texture coords:
+        // (Potential todo: Is there a texturing flag we should check for too?)
+        assert(!texture.has_value() || (texture.has_value() && mesh.texcoords.size() > 0));
 
         using detail::divide_by_w;
         using std::vector;
@@ -128,11 +138,15 @@ public:
 
         // All vertices are in clip-space now. Prepare the rasterisation stage:
         vector<Triangle<T, P>> triangles_to_raster;
+        const auto& tti = mesh.tti.empty() ? mesh.tvi : mesh.tti; // If tti is not empty, we'll use it, otherwise,
+                                                                  // use tvi for texturing.
         // This builds the (one and final) triangles to render. Meaning: The triangles formed of mesh.tvi (the
         // ones that survived the clip/culling), plus possibly more that intersect one of the frustum planes
         // (i.e. this can generate new triangles with new pos/vc/texcoords).
-        for (const auto& tri_indices : mesh.tvi)
+        for (std::size_t tri_index = 0; tri_index < mesh.tvi.size(); ++tri_index)
         {
+            const auto& tri_indices = mesh.tvi[tri_index];
+            const auto& tri_tc_indices = tti[tri_index];
             unsigned char visibility_bits[3];
             for (unsigned char k = 0; k < 3; k++)
             {
@@ -221,20 +235,20 @@ public:
                                          glm::tvec3<T, P>(mesh.colors[tri_indices[0]](0),
                                                           mesh.colors[tri_indices[0]](1),
                                                           mesh.colors[tri_indices[0]](2)),
-                                         glm::tvec2<T, P>(mesh.texcoords[tri_indices[0]](0),
-                                                          mesh.texcoords[tri_indices[0]](1))},
+                                         glm::tvec2<T, P>(mesh.texcoords[tri_tc_indices[0]](0),
+                                                          mesh.texcoords[tri_tc_indices[0]](1))},
                     detail::Vertex<T, P>{prospective_tri[1],
                                          glm::tvec3<T, P>(mesh.colors[tri_indices[1]](0),
                                                           mesh.colors[tri_indices[1]](1),
                                                           mesh.colors[tri_indices[1]](2)),
-                                         glm::tvec2<T, P>(mesh.texcoords[tri_indices[1]](0),
-                                                          mesh.texcoords[tri_indices[1]](1))},
+                                         glm::tvec2<T, P>(mesh.texcoords[tri_tc_indices[1]](0),
+                                                          mesh.texcoords[tri_tc_indices[1]](1))},
                     detail::Vertex<T, P>{prospective_tri[2],
                                          glm::tvec3<T, P>(mesh.colors[tri_indices[2]](0),
                                                           mesh.colors[tri_indices[2]](1),
                                                           mesh.colors[tri_indices[2]](2)),
-                                         glm::tvec2<T, P>(mesh.texcoords[tri_indices[2]](0),
-                                                          mesh.texcoords[tri_indices[2]](1))}});
+                                         glm::tvec2<T, P>(mesh.texcoords[tri_tc_indices[2]](0),
+                                                          mesh.texcoords[tri_tc_indices[2]](1))}});
                 continue; // Triangle was either added or not added. Continue with next triangle.
             }
             // At this point, the triangle is known to be intersecting one of the view frustum's planes
@@ -247,17 +261,17 @@ public:
                 clipspace_vertices[tri_indices[0]],
                 glm::tvec3<T, P>(mesh.colors[tri_indices[0]](0), mesh.colors[tri_indices[0]](1),
                                  mesh.colors[tri_indices[0]](2)),
-                glm::tvec2<T, P>(mesh.texcoords[tri_indices[0]](0), mesh.texcoords[tri_indices[0]](1))});
+                glm::tvec2<T, P>(mesh.texcoords[tri_tc_indices[0]](0), mesh.texcoords[tri_tc_indices[0]](1))});
             vertices.push_back(detail::Vertex<T, P>{
                 clipspace_vertices[tri_indices[1]],
                 glm::tvec3<T, P>(mesh.colors[tri_indices[1]](0), mesh.colors[tri_indices[1]](1),
                                  mesh.colors[tri_indices[1]](2)),
-                glm::tvec2<T, P>(mesh.texcoords[tri_indices[1]](0), mesh.texcoords[tri_indices[1]](1))});
+                glm::tvec2<T, P>(mesh.texcoords[tri_tc_indices[1]](0), mesh.texcoords[tri_tc_indices[1]](1))});
             vertices.push_back(detail::Vertex<T, P>{
                 clipspace_vertices[tri_indices[2]],
                 glm::tvec3<T, P>(mesh.colors[tri_indices[2]](0), mesh.colors[tri_indices[2]](1),
                                  mesh.colors[tri_indices[2]](2)),
-                glm::tvec2<T, P>(mesh.texcoords[tri_indices[2]](0), mesh.texcoords[tri_indices[2]](1))});
+                glm::tvec2<T, P>(mesh.texcoords[tri_tc_indices[2]](0), mesh.texcoords[tri_tc_indices[2]](1))});
             // split the triangle if it intersects the near plane:
             if (enable_near_clipping)
             {
