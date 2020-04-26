@@ -134,11 +134,11 @@ glm::tvec3<T, P> compute_inverse_perspectively_correct_lambda(const glm::tvec3<T
                                                               const T& one_over_w0, const T& one_over_w1,
                                                               const T& one_over_w2)
 {
-    float w0 = 1 / one_over_w0;
-    float w1 = 1 / one_over_w1;
-    float w2 = 1 / one_over_w2;
+    const float w0 = 1 / one_over_w0;
+    const float w1 = 1 / one_over_w1;
+    const float w2 = 1 / one_over_w2;
 
-    float d = w0 - (w0 - w1) * lambda_world.y - (w0 - w2) * lambda_world.z;
+    const float d = w0 - (w0 - w1) * lambda_world.y - (w0 - w2) * lambda_world.z;
     if (d == 0)
         return lambda_world;
 
