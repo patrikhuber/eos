@@ -553,6 +553,13 @@ extract_texture(const core::Mesh& mesh, glm::mat4x4 view_model_matrix, glm::mat4
                 glm::vec4 /*viewport, not needed at the moment */, const eos::core::Image4u& image,
                 bool /* compute_view_angle, unused atm */, int isomap_resolution = 512)
 {
+    // Assert that either there are texture coordinates given for each vertex (in which case the texture map
+    // doesn't contain any seams), or that a separate list of texture triangle indices is given (i.e. mesh.tti
+    // is not empty):
+    assert(mesh.vertices.size() == mesh.texcoords.size() || !mesh.tti.empty());
+    // Sanity check on the texture triangle indices: They should be either empty or equal to tvi.size():
+    assert(mesh.tti.empty() || mesh.tti.size() == mesh.tvi.size());
+
     using detail::divide_by_w;
     using glm::vec2;
     using glm::vec3;
@@ -624,20 +631,30 @@ extract_texture(const core::Mesh& mesh, glm::mat4x4 view_model_matrix, glm::mat4
     const int tex_height =
         isomap_resolution; // keeping this in case we need non-square texture maps at some point
 
-    // Todo: This may need updating to support mesh.tti, potentially like:
-    //   const auto& tti = mesh.tti.empty() ? mesh.tvi : mesh.tti;
-    //   for (const auto& tvi : tti)
-    for (const auto& tvi : mesh.tvi)
+    // Use Mesh::tti as texture triangle indices if present, tvi otherwise:
+    const auto& mesh_tti = mesh.tti.empty() ? mesh.tvi : mesh.tti;
+
+    for (std::size_t triangle_index = 0; triangle_index < mesh.tvi.size(); ++triangle_index)
     {
+        // Select the three indices for the current triangle:
+        const auto& tvi = mesh.tvi[triangle_index];
+        const auto& tti = mesh_tti[triangle_index];
+
+        // Check if all three vertices of the current triangle are visible, and use the triangle if so:
         if (visibility_ray[tvi[0]] && visibility_ray[tvi[1]] &&
             visibility_ray[tvi[2]]) // can also try using ||, but...
         {
-            // Test with a rendered & re-extracted texture shows that we're off by a pixel or more,
-            // definitely need to correct this. Probably here.
-            // It looks like it is 1-2 pixels off. Definitely a bit more than 1.
+            // The model's texcoords become the locations to extract to in the framebuffer (which is the
+            // texture map we're extracting to). The wnd_coords are the coordinates we're extracting from (the
+            // original image), which from the perspective of the rasteriser, is the texture map, and thus
+            // from the rasteriser's perspective they're the texture coords.
+            //
+            // (Note: A test with a rendered & re-extracted texture showed that we're off by a pixel or more,
+            //  definitely need to correct this. Probably here. It looks like it is 1-2 pixels off. Definitely
+            //  a bit more than 1.)
             detail::Vertex<double> pa{
-                vec4(mesh.texcoords[tvi[0]][0] * tex_width,
-					 mesh.texcoords[tvi[0]][1] * tex_height,
+                vec4(mesh.texcoords[tti[0]][0] * tex_width,
+					 mesh.texcoords[tti[0]][1] * tex_height,
                      wnd_coords[tvi[0]].z, // z_ndc
 					 wnd_coords[tvi[0]].w), // 1/w_clip
                 vec3(), // empty
@@ -646,8 +663,8 @@ extract_texture(const core::Mesh& mesh, glm::mat4x4 view_model_matrix, glm::mat4
                     wnd_coords[tvi[0]].y / image.height() // (maybe '1 - wndcoords...'?) wndcoords of the projected/rendered model triangle (in the input img). Normalised to 0,1.
 					)};
             detail::Vertex<double> pb{
-                vec4(mesh.texcoords[tvi[1]][0] * tex_width,
-				mesh.texcoords[tvi[1]][1] * tex_height,
+                vec4(mesh.texcoords[tti[1]][0] * tex_width,
+				mesh.texcoords[tti[1]][1] * tex_height,
                 wnd_coords[tvi[1]].z, // z_ndc
 				wnd_coords[tvi[1]].w), // 1/w_clip
                 vec3(), // empty
@@ -656,8 +673,8 @@ extract_texture(const core::Mesh& mesh, glm::mat4x4 view_model_matrix, glm::mat4
                     wnd_coords[tvi[1]].y / image.height() // (maybe '1 - wndcoords...'?) wndcoords of the projected/rendered model triangle (in the input img). Normalised to 0,1.
 					)};
             detail::Vertex<double> pc{
-                vec4(mesh.texcoords[tvi[2]][0] * tex_width,
-				mesh.texcoords[tvi[2]][1] * tex_height,
+                vec4(mesh.texcoords[tti[2]][0] * tex_width,
+				mesh.texcoords[tti[2]][1] * tex_height,
                 wnd_coords[tvi[2]].z, // z_ndc 
 				wnd_coords[tvi[2]].w), // 1/w_clip
                 vec3(), // empty
