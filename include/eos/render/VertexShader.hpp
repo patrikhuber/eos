@@ -19,8 +19,8 @@
  */
 #pragma once
 
-#ifndef VERTEXSHADER_HPP_
-#define VERTEXSHADER_HPP_
+#ifndef EOS_VERTEX_SHADER_HPP
+#define EOS_VERTEX_SHADER_HPP
 
 #include "glm/mat4x4.hpp"
 #include "glm/vec4.hpp"
@@ -58,4 +58,4 @@ public:
 } /* namespace render */
 } /* namespace eos */
 
-#endif /* VERTEXSHADER_HPP_ */
+#endif /* EOS_VERTEX_SHADER_HPP */
