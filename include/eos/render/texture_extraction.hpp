@@ -119,9 +119,7 @@ core::Image4u extract_texture(const core::Mesh& mesh, Eigen::Matrix<float, 3, 4>
                               const core::Image3u& image, const core::Image1d& depthbuffer,
                               bool compute_view_angle, TextureInterpolation mapping_type,
                               int isomap_resolution);
-namespace detail {
-core::Image4u interpolate_black_line(core::Image4u& isomap);
-}
+
 
 /**
  * Extracts the texture of the face from the given image
@@ -519,12 +517,6 @@ extract_texture(const core::Mesh& mesh, Eigen::Matrix<float, 3, 4> affine_camera
         r.get();
     }
 
-    // Workaround for the black line in the isomap (see GitHub issue #4):
-  /*if (mesh.texcoords.size() <= 3448)
-    {
-        isomap = detail::interpolate_black_line(isomap);
-    } */
-
     return isomap;
 };
 
@@ -698,84 +690,6 @@ extract_texture(const core::Mesh& mesh, glm::mat4x4 view_model_matrix, glm::mat4
 };
 
 } /* namespace v2 */
-
-namespace detail {
-
-// Workaround for the pixels that don't get filled in extract_texture().
-// There's a vertical line of missing values in the middle of the isomap,
-// as well as a few pixels on a horizontal line around the mouth. They
-// manifest themselves as black lines in the final isomap. This function
-// just fills these missing values by interpolating between two neighbouring
-// pixels. See GitHub issue #4.
-inline core::Image4u interpolate_black_line(core::Image4u& isomap)
-{
-    // Replace the vertical black line ("missing data"):
-    using std::uint8_t;
-    using RGBAType = Eigen::Matrix<std::uint8_t, 1, 4>;
-    using Eigen::Map;
-    using Eigen::Vector4f;
-    const int col = isomap.width() / 2;
-    for (int row = 0; row < isomap.height(); ++row)
-    {
-        if (isomap(row, col) == core::Pixel<uint8_t, 4>{0, 0, 0, 0})
-        {
-            const Vector4f pixel_val =
-                Map<const RGBAType>(isomap(row, col - 1).data().data(), 4).cast<float>() * 0.5f +
-                Map<const RGBAType>(isomap(row, col + 1).data().data(), 4).cast<float>() * 0.5f;
-            isomap(row, col) = {static_cast<uint8_t>(pixel_val[0]), static_cast<uint8_t>(pixel_val[1]),
-                                static_cast<uint8_t>(pixel_val[2]), static_cast<uint8_t>(pixel_val[3])};
-        }
-    }
-
-    // Replace the horizontal line around the mouth that occurs in the
-    // isomaps of resolution 512x512 and higher:
-    if (isomap.height() == 512) // num cols is 512 as well
-    {
-        const int r = 362;
-        for (int c = 206; c <= 306; ++c)
-        {
-            if (isomap(r, c) == core::Pixel<uint8_t, 4>{0, 0, 0, 0})
-            {
-                const Vector4f pixel_val =
-                    Map<const RGBAType>(isomap(r - 1, c).data().data(), 4).cast<float>() * 0.5f +
-                    Map<const RGBAType>(isomap(r + 1, c).data().data(), 4).cast<float>() * 0.5f;
-                isomap(r, c) = {static_cast<uint8_t>(pixel_val[0]), static_cast<uint8_t>(pixel_val[1]),
-                                static_cast<uint8_t>(pixel_val[2]), static_cast<uint8_t>(pixel_val[3])};
-            }
-        }
-    }
-    if (isomap.height() == 1024) // num cols is 1024 as well
-    {
-        int r = 724;
-        for (int c = 437; c <= 587; ++c)
-        {
-            if (isomap(r, c) == core::Pixel<uint8_t, 4>{0, 0, 0, 0})
-            {
-                const Vector4f pixel_val =
-                    Map<const RGBAType>(isomap(r - 1, c).data().data(), 4).cast<float>() * 0.5f +
-                    Map<const RGBAType>(isomap(r + 1, c).data().data(), 4).cast<float>() * 0.5f;
-                isomap(r, c) = {static_cast<uint8_t>(pixel_val[0]), static_cast<uint8_t>(pixel_val[1]),
-                                static_cast<uint8_t>(pixel_val[2]), static_cast<uint8_t>(pixel_val[3])};
-            }
-        }
-        r = 725;
-        for (int c = 411; c <= 613; ++c)
-        {
-            if (isomap(r, c) == core::Pixel<uint8_t, 4>{0, 0, 0, 0})
-            {
-                const Vector4f pixel_val =
-                    Map<const RGBAType>(isomap(r - 1, c).data().data(), 4).cast<float>() * 0.5f +
-                    Map<const RGBAType>(isomap(r + 1, c).data().data(), 4).cast<float>() * 0.5f;
-                isomap(r, c) = {static_cast<uint8_t>(pixel_val[0]), static_cast<uint8_t>(pixel_val[1]),
-                                static_cast<uint8_t>(pixel_val[2]), static_cast<uint8_t>(pixel_val[3])};
-            }
-        }
-    }
-    // Higher resolutions are probably affected as well but not used so far in practice.
-
-    return isomap;
-};
-} /* namespace detail */
 
 } /* namespace render */
 } /* namespace eos */
