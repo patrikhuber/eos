@@ -3,7 +3,7 @@
  *
  * File: include/eos/render/texture_extraction.hpp
  *
- * Copyright 2014-2017 Patrik Huber
+ * Copyright 2014-2020 Patrik Huber
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,12 +24,10 @@
 
 #include "eos/core/Image.hpp"
 #include "eos/core/Mesh.hpp"
-#include "eos/render/detail/texture_extraction_detail.hpp"
-
-// The following four includes are for v2::extract_texture(...):
 #include "eos/render/transforms.hpp"
 #include "eos/render/Rasterizer.hpp"
 #include "eos/render/FragmentShader.hpp"
+#include "eos/render/detail/texture_extraction_detail.hpp"
 #include "eos/fitting/closest_edge_fitting.hpp" // for ray_triangle_intersect(). Move to eos/render/raycasting.hpp?
 
 #include "glm/mat4x4.hpp"
@@ -43,9 +41,6 @@
 
 namespace eos {
 namespace render {
-
-/* New texture extraction, will replace above one at some point: */
-namespace v2 {
 
 /**
  * @brief Extracts the texture of the face from the given image and stores it as isomap (a rectangular texture map).
@@ -212,8 +207,6 @@ extract_texture(const core::Mesh& mesh, glm::mat4x4 view_model_matrix, glm::mat4
 
     return extraction_rasterizer.colorbuffer;
 };
-
-} /* namespace v2 */
 
 } /* namespace render */
 } /* namespace eos */
