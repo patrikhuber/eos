@@ -27,8 +27,8 @@
 #include "eos/render/transforms.hpp"
 #include "eos/render/Rasterizer.hpp"
 #include "eos/render/FragmentShader.hpp"
+#include "eos/render/ray_triangle_intersect.hpp"
 #include "eos/render/detail/render_detail_utils.hpp" // for detail::divide_by_w()
-#include "eos/fitting/closest_edge_fitting.hpp" // for ray_triangle_intersect(). Move to eos/render/raycasting.hpp?
 
 #include "glm/mat4x4.hpp"
 #include "glm/vec2.hpp"
