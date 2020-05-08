@@ -80,7 +80,6 @@ set(HEADERS
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/morphablemodel/io/cvssp.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/morphablemodel/io/eigen_cerealisation.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/pca/pca.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/affine_camera_estimation.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/orthographic_camera_estimation_linear.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/nonlinear_camera_estimation.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/detail/nonlinear_camera_estimation_detail.hpp
