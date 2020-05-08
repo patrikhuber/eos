@@ -36,33 +36,41 @@
 #include "glm/vec4.hpp"
 
 #include <cassert>
-#include <vector>
 #include <cstddef>
+#include <vector>
+#include <algorithm>
 
 namespace eos {
 namespace render {
 
 /**
- * @brief Extracts the texture of the face from the given image and stores it as isomap (a rectangular texture map).
+ * @brief Extracts the texture from the given image and returns a texture map.
  *
- * New texture extraction, will replace above one at some point.
- * Copy the documentation from above extract_texture function, once we replace it.
+ * Remaps the texture from the given \p image, using the given \p mesh, projection matrices, and the mesh's uv
+ * coordinates, to a texture map.
  *
- * Note/Todo: Add an overload that takes a vector of bool / visible vertices, for the case when we already computed the visibility? (e.g. for edge-fitting)
+ * Notes & todo's:
+ *   - The function does currently not compute a view-angle and store that in the alpha channel, like the
+ *     previous function did. We have to re-add that. Documentation of the old parameter:
+ *     `compute_view_angle A flag whether the view angle of each vertex should be computed and returned. If
+ *     set to true, the angle will be encoded into the alpha channel (0 meaning occluded or facing away 90°,
+ *     127 meaning facing a 45° angle and 255 meaning front-facing, and all values in between). If set to
+ *     false, the alpha channel will only contain 0 for occluded vertices and 255 for visible vertices.`
+ *   - We perhaps should add another parameter, `glm::vec4 viewport`. We could need to change
+ *     `clip_to_screen_space()` to make use of that.
+ *   - Perhaps add an overload that takes a `vector<bool> visible vertices`, for the case when we already
+ *     computed the visibility? (e.g. from the edge-fitting)
  *
  * @param[in] mesh A mesh with texture coordinates.
- * @param[in] view_model_matrix Todo.
- * @param[in] projection_matrix Todo.
- * @param[in] viewport Not needed at the moment. Might be, if we change clip_to_screen_space() to take a viewport.
- * @param[in] image The image to extract the texture from. Todo: Does it have to be 8UC3 or something, or does it not matter?
- * @param[in] compute_view_angle Unused at the moment.
- * @param[in] isomap_resolution The resolution of the generated isomap. Defaults to 512x512.
- * @return The extracted texture as isomap (texture map).
+ * @param[in] view_model_matrix Model-view matrix, to bring the mesh into view-space.
+ * @param[in] projection_matrix Projection matrix, to bring the mesh into clip-space.
+ * @param[in] image The image to extract the texture from.
+ * @param[in] texturemap_resolution The resolution of the generated texture map. Defaults to 512x512.
+ * @return Texture map with the extracted texture.
  */
-inline eos::core::Image4u
-extract_texture(const core::Mesh& mesh, glm::mat4x4 view_model_matrix, glm::mat4x4 projection_matrix,
-                glm::vec4 /*viewport, not needed at the moment */, const eos::core::Image4u& image,
-                bool /* compute_view_angle, unused atm */, int isomap_resolution = 512)
+inline eos::core::Image4u extract_texture(const core::Mesh& mesh, glm::mat4x4 view_model_matrix,
+                                          glm::mat4x4 projection_matrix, const eos::core::Image4u& image,
+                                          int texturemap_resolution = 512)
 {
     // Assert that either there are texture coordinates given for each vertex (in which case the texture map
     // doesn't contain any seams), or that a separate list of texture triangle indices is given (i.e. mesh.tti
@@ -76,8 +84,8 @@ extract_texture(const core::Mesh& mesh, glm::mat4x4 view_model_matrix, glm::mat4
     using glm::vec3;
     using glm::vec4;
     using std::vector;
-    // actually we only need a rasteriser for this!
-    Rasterizer<ExtractionFragmentShader> extraction_rasterizer(isomap_resolution, isomap_resolution);
+    // We only need a rasteriser to remap the texture, not the complete SoftwareRenderer:
+    Rasterizer<ExtractionFragmentShader> extraction_rasterizer(texturemap_resolution, texturemap_resolution);
     Texture image_to_extract_from_as_tex = create_mipmapped_texture(image, 1);
     extraction_rasterizer.enable_depth_test = false;
     extraction_rasterizer.extracting_tex = true;
@@ -131,6 +139,7 @@ extract_texture(const core::Mesh& mesh, glm::mat4x4 view_model_matrix, glm::mat4
     {
         auto clip_coords = projection_matrix * view_model_matrix * vec4(vtx.x(), vtx.y(), vtx.z(), 1.0f);
         clip_coords = divide_by_w(clip_coords);
+        // Note: We could make use of a new `viewport` parameter here, to allow any viewport transformations.
         const vec2 screen_coords = clip_to_screen_space(clip_coords.x, clip_coords.y, image.width(), image.height());
         clip_coords.x = screen_coords.x;
         clip_coords.y = screen_coords.y;
@@ -138,9 +147,9 @@ extract_texture(const core::Mesh& mesh, glm::mat4x4 view_model_matrix, glm::mat4
     }
 
     // Go on with extracting: This only needs the rasteriser/FS, not the whole Renderer.
-    const int tex_width = isomap_resolution;
+    const int tex_width = texturemap_resolution;
     const int tex_height =
-        isomap_resolution; // keeping this in case we need non-square texture maps at some point
+        texturemap_resolution; // keeping this in case we need non-square texture maps at some point
 
     // Use Mesh::tti as texture triangle indices if present, tvi otherwise:
     const auto& mesh_tti = mesh.tti.empty() ? mesh.tvi : mesh.tti;
