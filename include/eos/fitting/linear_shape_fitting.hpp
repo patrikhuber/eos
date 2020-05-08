@@ -19,8 +19,8 @@
  */
 #pragma once
 
-#ifndef LINEARSHAPEFITTING_HPP_
-#define LINEARSHAPEFITTING_HPP_
+#ifndef EOS_LINEAR_SHAPE_FITTING_HPP
+#define EOS_LINEAR_SHAPE_FITTING_HPP
 
 #include "eos/morphablemodel/PcaModel.hpp"
 #include "eos/cpp17/optional.hpp"
@@ -304,4 +304,4 @@ fit_shape_to_landmarks_linear_multi(const morphablemodel::PcaModel& shape_model,
 } /* namespace fitting */
 } /* namespace eos */
 
-#endif /* LINEARSHAPEFITTING_HPP_ */
+#endif /* EOS_LINEAR_SHAPE_FITTING_HPP */

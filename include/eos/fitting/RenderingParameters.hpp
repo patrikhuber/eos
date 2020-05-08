@@ -19,8 +19,8 @@
  */
 #pragma once
 
-#ifndef RENDERINGPARAMETERS_HPP_
-#define RENDERINGPARAMETERS_HPP_
+#ifndef EOS_RENDERING_PARAMETERS_HPP
+#define EOS_RENDERING_PARAMETERS_HPP
 
 #include "eos/fitting/orthographic_camera_estimation_linear.hpp"
 #include "eos/cpp17/optional.hpp"
@@ -344,4 +344,4 @@ inline Eigen::Matrix<float, 3, 4> get_3x4_affine_camera_matrix(RenderingParamete
 } /* namespace fitting */
 } /* namespace eos */
 
-#endif /* RENDERINGPARAMETERS_HPP_ */
+#endif /* EOS_RENDERING_PARAMETERS_HPP */

@@ -19,8 +19,8 @@
  */
 #pragma once
 
-#ifndef ORTHOGRAPHICCAMERAESTIMATIONLINEAR_HPP_
-#define ORTHOGRAPHICCAMERAESTIMATIONLINEAR_HPP_
+#ifndef EOS_ORTHOGRAPHIC_CAMERA_ESTIMATION_LINEAR_HPP
+#define EOS_ORTHOGRAPHIC_CAMERA_ESTIMATION_LINEAR_HPP
 
 #include "eos/cpp17/optional.hpp"
 
@@ -156,4 +156,4 @@ inline ScaledOrthoProjectionParameters estimate_orthographic_projection_linear(
 } /* namespace fitting */
 } /* namespace eos */
 
-#endif /* ORTHOGRAPHICCAMERAESTIMATIONLINEAR_HPP_ */
+#endif /* EOS_ORTHOGRAPHIC_CAMERA_ESTIMATION_LINEAR_HPP */
