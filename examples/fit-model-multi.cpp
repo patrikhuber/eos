@@ -138,7 +138,7 @@ private:
 int main(int argc, char *argv[])
 {
     // Note: Could make these all std::string, see fit-model.cpp.
-    fs::path modelfile, isomapfile, mappingsfile, contourfile, edgetopologyfile, blendshapesfile, outputfilebase;
+    fs::path modelfile, mappingsfile, contourfile, edgetopologyfile, blendshapesfile, outputfilebase;
     vector<fs::path> imagefiles, landmarksfiles;
     try
     {

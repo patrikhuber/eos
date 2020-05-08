@@ -65,8 +65,8 @@ using std::vector;
  */
 int main(int argc, char* argv[])
 {
-    string modelfile, isomapfile, imagefile, landmarksfile, mappingsfile, contourfile, edgetopologyfile,
-        blendshapesfile, outputbasename;
+    string modelfile, imagefile, landmarksfile, mappingsfile, contourfile, edgetopologyfile, blendshapesfile,
+        outputbasename;
     try
     {
         po::options_description desc("Allowed options");

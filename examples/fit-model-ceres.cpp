@@ -83,8 +83,7 @@ std::ostream& operator<<(std::ostream& out, const std::vector<T>& v)
  */
 int main(int argc, char* argv[])
 {
-    fs::path modelfile, isomapfile, imagefile, landmarksfile, mappingsfile, contourfile, blendshapesfile,
-        outputfile;
+    fs::path modelfile, imagefile, landmarksfile, mappingsfile, contourfile, blendshapesfile, outputfile;
     try
     {
         po::options_description desc("Allowed options");
