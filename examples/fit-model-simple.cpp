@@ -177,7 +177,9 @@ int main(int argc, char* argv[])
     const core::Mesh mesh = morphable_model.draw_sample(fitted_coeffs, vector<float>());
 
     // Extract the texture from the image using given mesh and camera parameters:
-    const core::Image4u isomap = render::extract_texture(mesh, affine_from_ortho, core::from_mat(image));
+    const core::Image4u texturemap =
+        render::extract_texture(mesh, rendering_params.get_modelview(), rendering_params.get_projection(),
+                                core::from_mat_with_alpha(image));
 
     // Save the mesh as textured obj:
     fs::path outputfile = outputbasename + ".obj";
@@ -185,7 +187,7 @@ int main(int argc, char* argv[])
 
     // And save the isomap:
     outputfile.replace_extension(".isomap.png");
-    cv::imwrite(outputfile.string(), core::to_mat(isomap));
+    cv::imwrite(outputfile.string(), core::to_mat(texturemap));
 
     cout << "Finished fitting and wrote result mesh and isomap to files with basename "
          << outputfile.stem().stem() << "." << endl;
