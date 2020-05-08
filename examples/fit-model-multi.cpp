@@ -259,8 +259,8 @@ int main(int argc, char *argv[])
     }
     cout << endl;
 
-    WeightedIsomapAveraging isomap_averaging(60.f); // merge all triangles that are facing <60° towards the camera
-    Mat merged_isomap;
+    WeightedIsomapAveraging texturemap_averaging(60.f); // merge all triangles that are facing <60° towards the camera
+    Mat merged_texturemap;
     for (unsigned i = 0; i < images.size(); ++i)
     {
         // The 3D head pose can be recovered as follows:
@@ -268,11 +268,10 @@ int main(int argc, char *argv[])
         // and similarly for pitch and roll.
 
         // Extract the texture from the image using given mesh and camera parameters:
-        Eigen::Matrix<float, 3, 4> affine_from_ortho =
-            fitting::get_3x4_affine_camera_matrix(per_frame_rendering_params[i], images[i].cols, images[i].rows);
         // Have to fiddle around with converting between core::Image and cv::Mat
-        const core::Image4u isomap =
-            render::extract_texture(per_frame_meshes[i], affine_from_ortho, core::from_mat(images[i]));
+        const core::Image4u texturemap = render::extract_texture(
+            per_frame_meshes[i], per_frame_rendering_params[i].get_modelview(),
+            per_frame_rendering_params[i].get_projection(), core::from_mat_with_alpha(images[i]));
 
         // Draw the loaded landmarks:
         Mat outimg = images[i].clone();
@@ -301,25 +300,25 @@ int main(int argc, char *argv[])
             morphable_model.get_color_model().get_triangle_list(), morphable_model.get_texture_coordinates());
         std::tie(frontal_rendering, std::ignore) = render::render(
             neutral_expression, modelview_frontal, glm::ortho(-130.0f, 130.0f, -130.0f, 130.0f), 256, 256,
-            render::create_mipmapped_texture(isomap), true, false, false);
+            render::create_mipmapped_texture(texturemap), true, false, false);
         outputfile.replace_extension(".frontal.png");
         cv::imwrite(outputfile.string(), core::to_mat(frontal_rendering));
         outputfile.replace_extension("");
 
-        cv::Mat isomap_opencv = core::to_mat(isomap);
+        cv::Mat texturemap_opencv = core::to_mat(texturemap);
 
         // And save the isomap:
         outputfile.replace_extension(".isomap.png");
-        cv::imwrite(outputfile.string(), isomap_opencv);
+        cv::imwrite(outputfile.string(), texturemap_opencv);
 
         // Merge the isomaps:
-        merged_isomap = isomap_averaging.add_and_merge(isomap_opencv);
+        merged_texturemap = texturemap_averaging.add_and_merge(texturemap_opencv);
     }
 
     // Save the merged isomap:
     fs::path outputfile = outputfilebase;
     outputfile += fs::path("merged.isomap.png");
-    cv::imwrite(outputfile.string(), merged_isomap);
+    cv::imwrite(outputfile.string(), merged_texturemap);
     outputfile.replace_extension("");
 
     // Save the frontal rendering with merged isomap:
@@ -331,7 +330,7 @@ int main(int argc, char *argv[])
         morphable_model.get_color_model().get_triangle_list(), morphable_model.get_texture_coordinates());
     std::tie(frontal_rendering, std::ignore) = render::render(
         neutral_expression, modelview_frontal, glm::ortho(-130.0f, 130.0f, -130.0f, 130.0f), 512, 512,
-        render::create_mipmapped_texture(core::from_mat_with_alpha(merged_isomap)), true, false, false);
+        render::create_mipmapped_texture(core::from_mat_with_alpha(merged_texturemap)), true, false, false);
     outputfile.replace_extension(".frontal.png");
     cv::imwrite(outputfile.string(), core::to_mat(frontal_rendering));
     outputfile.replace_extension("");

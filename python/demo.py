@@ -28,7 +28,8 @@ def main():
     # Or for example extract the texture map, like this:
     # import cv2
     # image = cv2.imread('../bin/data/image_0010.png')
-    # isomap = eos.render.extract_texture(mesh, pose, image)
+    # image = cv2.cvtColor(image, cv2.COLOR_BGR2BGRA, 4)  # extract_texture(...) expects a 4-channel image
+    # texturemap = eos.render.extract_texture(mesh, pose, image)
 
 
 def read_pts(filename):

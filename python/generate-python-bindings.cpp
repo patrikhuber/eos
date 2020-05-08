@@ -339,14 +339,15 @@ PYBIND11_MODULE(eos, eos_module)
      */
     py::module render_module = eos_module.def_submodule("render", "3D mesh and texture extraction functionality.");
 
-    render_module.def("extract_texture",
-                      [](const core::Mesh& mesh, const fitting::RenderingParameters& rendering_params,
-                         const core::Image3u& image, bool compute_view_angle, int isomap_resolution) {
-                          Eigen::Matrix<float, 3, 4> affine_from_ortho = fitting::get_3x4_affine_camera_matrix(rendering_params, image.width(), image.height());
-                          return render::extract_texture(mesh, affine_from_ortho, image, compute_view_angle, render::TextureInterpolation::NearestNeighbour, isomap_resolution);
-                      },
-                      "Extracts the texture of the face from the given image and stores it as isomap (a rectangular texture map).",
-                      py::arg("mesh"), py::arg("rendering_params"), py::arg("image"), py::arg("compute_view_angle") = false, py::arg("isomap_resolution") = 512);
+    render_module.def(
+        "extract_texture",
+        [](const core::Mesh& mesh, const fitting::RenderingParameters& rendering_params,
+                              const core::Image4u& image, int texturemap_resolution) {
+            return render::extract_texture(mesh, rendering_params.get_modelview(),
+                                           rendering_params.get_projection(), image, texturemap_resolution);
+        },
+        "Extracts the texture from the given image and returns a texture map.",
+        py::arg("mesh"), py::arg("rendering_params"), py::arg("image"), py::arg("texturemap_resolution") = 512);
 
     render_module.def(
         "draw_wireframe",
