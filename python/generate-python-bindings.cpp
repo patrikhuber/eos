@@ -108,7 +108,7 @@ PYBIND11_MODULE(eos, eos_module)
         .def_readwrite("tti", &core::Mesh::tti, "Triangle texture indices");
 
     core_module.def("write_obj", &core::write_obj, "Writes the given Mesh to an obj file.", py::arg("mesh"), py::arg("filename"));
-    core_module.def("write_textured_obj", &core::write_textured_obj, "Writes the given Mesh to an obj file, including texture coordinates, and an mtl file containing a reference to the isomap. The texture (isomap) has to be saved separately.", py::arg("mesh"), py::arg("filename"));
+    core_module.def("write_textured_obj", &core::write_textured_obj, "Writes the given Mesh to an obj file, including texture coordinates, and an mtl file containing a reference to the texture map in the form of <filename>.texture.png. That texture .png file has to be saved separately.", py::arg("mesh"), py::arg("filename"));
 
     core_module.def("read_obj", &core::read_obj, "Reads the given Wavefront .obj file into a Mesh.", py::arg("filename"));
 

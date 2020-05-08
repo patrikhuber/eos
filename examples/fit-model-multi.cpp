@@ -307,21 +307,21 @@ int main(int argc, char *argv[])
 
         cv::Mat texturemap_opencv = core::to_mat(texturemap);
 
-        // And save the isomap:
-        outputfile.replace_extension(".isomap.png");
+        // And save the texture map:
+        outputfile.replace_extension(".texture.png");
         cv::imwrite(outputfile.string(), texturemap_opencv);
 
-        // Merge the isomaps:
+        // Merge the texture maps:
         merged_texturemap = texturemap_averaging.add_and_merge(texturemap_opencv);
     }
 
-    // Save the merged isomap:
+    // Save the merged texture map:
     fs::path outputfile = outputfilebase;
-    outputfile += fs::path("merged.isomap.png");
+    outputfile += fs::path("merged.texture.png");
     cv::imwrite(outputfile.string(), merged_texturemap);
     outputfile.replace_extension("");
 
-    // Save the frontal rendering with merged isomap:
+    // Save the frontal rendering with merged texture:
     core::Image4u frontal_rendering;
     glm::mat4 modelview_frontal = glm::mat4(1.0);
     core::Mesh neutral_expression = morphablemodel::sample_to_mesh(
@@ -340,7 +340,7 @@ int main(int argc, char *argv[])
     core::write_textured_obj(morphable_model.draw_sample(pca_shape_coefficients, std::vector<float>()),
                              outputfile.string());
 
-    cout << "Finished fitting and wrote result mesh and isomap to files with basename " << outputfilebase
+    cout << "Finished fitting and wrote result mesh and texture to files with basename " << outputfilebase
          << "." << endl;
 
     return EXIT_SUCCESS;

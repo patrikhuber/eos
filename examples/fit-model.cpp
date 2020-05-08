@@ -186,11 +186,11 @@ int main(int argc, char* argv[])
     outputfile.replace_extension(".obj");
     core::write_textured_obj(mesh, outputfile.string());
 
-    // And save the isomap:
-    outputfile.replace_extension(".isomap.png");
+    // And save the texture map:
+    outputfile.replace_extension(".texture.png");
     cv::imwrite(outputfile.string(), core::to_mat(texturemap));
 
-    cout << "Finished fitting and wrote result mesh and isomap to files with basename "
+    cout << "Finished fitting and wrote result mesh and texture to files with basename "
          << outputfile.stem().stem() << "." << endl;
 
     return EXIT_SUCCESS;

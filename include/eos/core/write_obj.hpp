@@ -3,7 +3,7 @@
  *
  * File: include/eos/core/write_obj.hpp
  *
- * Copyright 2017-2019 Patrik Huber
+ * Copyright 2017-2020 Patrik Huber
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -102,12 +102,12 @@ inline void write_obj(const Mesh& mesh, std::string filename)
 }
 
 /**
- * @brief Writes an obj file of the given Mesh, including texture coordinates,
- * and an mtl file containing a reference to the isomap.
+ * @brief Writes an obj file of the given Mesh, including texture coordinates, and an mtl file containing a
+ * reference to the texture map.
  *
- * The obj will contain texture coordinates for the mesh, and the
- * mtl file will link to a file named <filename>.isomap.png.
- * Note that the texture (isomap) has to be saved separately.
+ * The obj will contain texture coordinates for the mesh, and the mtl file will link to a file named
+ * <filename>.texture.png.
+ * Note that the texture (i.e. the <filename>.texture.png file) has to be saved separately.
  *
  * @param[in] mesh The mesh to save as obj.
  * @param[in] filename Output filename, including .obj.
@@ -192,8 +192,8 @@ inline void write_textured_obj(const Mesh& mesh, std::string filename)
 
     std::ofstream mtl_file(mtl_filename);
     std::string texture_filename(filename);
-    // replace '.obj' at the end with '.isomap.png':
-    texture_filename.replace(std::end(texture_filename) - 4, std::end(texture_filename), ".isomap.png");
+    // replace '.obj' at the end with '.texture.png':
+    texture_filename.replace(std::end(texture_filename) - 4, std::end(texture_filename), ".texture.png");
 
     mtl_file << "newmtl FaceTexture" << std::endl;
     mtl_file << "map_Kd " << get_filename(texture_filename) << std::endl;
