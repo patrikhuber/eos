@@ -99,7 +99,7 @@ struct type_caster<eos::core::Image3u>
 
 		// (2048, 4, 1) is default which results in transposed image
 		// Below line works now. In numpy the strides are (2048, 4, 1) though. I think a copy gets created nevertheless?
-		std::vector<std::size_t> strides = { num_channels, num_channels * src.height(), 1 }; // might be cols or rows...? I think rows?
+		std::vector<std::size_t> strides = { num_channels * src.width(), num_channels, 1 }; // might be cols or rows...? I think rows?
 		// Note: I think with the change to the new Image class (July 2018), which is now row-major by default, the strides here might have changed. I didn't check.
 		// Also, since the new Image stores a vector of Pixels, the question is whether there's any padding added by the compiler, but probably not, since all types that we use are 1 byte or a multiple thereof.
 		// numpy: 'f' = fortran = col-major
@@ -167,7 +167,7 @@ struct type_caster<eos::core::Image4u>
 
 		// (2048, 4, 1) is default which results in transposed image
 		// Below line works now. In numpy the strides are (2048, 4, 1) though. I think a copy gets created nevertheless?
-		std::vector<size_t> strides = { num_channels, num_channels * src.height(), 1 }; // might be cols or rows...? I think rows?
+		std::vector<size_t> strides = { num_channels * src.width(), num_channels, 1 }; // might be cols or rows...? I think rows?
 		// Note: I think with the change to the new Image class (July 2018), which is now row-major by default, the strides here might have changed. I didn't check.
 		// Also, since the new Image stores a vector of Pixels, the question is whether there's any padding added by the compiler, but probably not, since all types that we use are 1 byte or a multiple thereof.
 		return array(pybind11::dtype::of<std::uint8_t>(), shape, strides, &src(0, 0).data()[0]).release();
