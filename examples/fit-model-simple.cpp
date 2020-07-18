@@ -179,7 +179,7 @@ int main(int argc, char* argv[])
     // Extract the texture from the image using given mesh and camera parameters:
     const core::Image4u texturemap =
         render::extract_texture(mesh, rendering_params.get_modelview(), rendering_params.get_projection(),
-                                core::from_mat_with_alpha(image));
+                                render::ProjectionType::Orthographic, core::from_mat_with_alpha(image));
 
     // Save the mesh as textured obj:
     fs::path outputfile = outputbasename + ".obj";

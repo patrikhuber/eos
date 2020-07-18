@@ -271,7 +271,8 @@ int main(int argc, char *argv[])
         // Have to fiddle around with converting between core::Image and cv::Mat
         const core::Image4u texturemap = render::extract_texture(
             per_frame_meshes[i], per_frame_rendering_params[i].get_modelview(),
-            per_frame_rendering_params[i].get_projection(), core::from_mat_with_alpha(images[i]));
+            per_frame_rendering_params[i].get_projection(), render::ProjectionType::Orthographic,
+            core::from_mat_with_alpha(images[i]));
 
         // Draw the loaded landmarks:
         Mat outimg = images[i].clone();

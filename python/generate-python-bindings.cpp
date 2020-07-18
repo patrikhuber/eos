@@ -342,9 +342,19 @@ PYBIND11_MODULE(eos, eos_module)
     render_module.def(
         "extract_texture",
         [](const core::Mesh& mesh, const fitting::RenderingParameters& rendering_params,
-                              const core::Image4u& image, int texturemap_resolution) {
+           const core::Image4u& image, int texturemap_resolution) {
+            const render::ProjectionType projection_type = [&rendering_params]() {
+                if (rendering_params.get_camera_type() == fitting::CameraType::Orthographic)
+                {
+                    return render::ProjectionType::Orthographic;
+                } else
+                {
+                    return render::ProjectionType::Perspective;
+                }
+            }();
             return render::extract_texture(mesh, rendering_params.get_modelview(),
-                                           rendering_params.get_projection(), image, texturemap_resolution);
+                                           rendering_params.get_projection(), projection_type, image,
+                                           texturemap_resolution);
         },
         "Extracts the texture from the given image and returns a texture map.",
         py::arg("mesh"), py::arg("rendering_params"), py::arg("image"), py::arg("texturemap_resolution") = 512);
