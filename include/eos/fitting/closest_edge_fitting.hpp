@@ -49,8 +49,8 @@ namespace fitting {
  * @brief Computes the vertices that lie on occluding boundaries, given a particular pose.
  *
  * This algorithm computes the edges that lie on occluding boundaries of the mesh.
- * It performs a visibility text of each vertex, and returns a list of the (unique)
- * vertices that make the boundary edges.
+ * It performs a visibility test of each vertex, and returns a list of the (unique)
+ * vertices that make up the boundary edges.
  * An edge is defined as the line whose two adjacent faces normals flip the sign.
  *
  * @param[in] mesh The mesh to use.
