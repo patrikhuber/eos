@@ -103,6 +103,9 @@ set(HEADERS
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/detail/plane.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/detail/render_detail.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/detail/render_detail_utils.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/ProjectionType.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/detail/RayDirection.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/vertex_visibility.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/texture_extraction.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/detail/texturing.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/SoftwareRenderer.hpp

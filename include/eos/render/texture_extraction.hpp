@@ -24,6 +24,9 @@
 
 #include "eos/core/Image.hpp"
 #include "eos/core/Mesh.hpp"
+#include "eos/render/ProjectionType.hpp"
+#include "eos/render/detail/RayDirection.hpp"
+#include "eos/render/vertex_visibility.hpp"
 #include "eos/render/transforms.hpp"
 #include "eos/render/Rasterizer.hpp"
 #include "eos/render/FragmentShader.hpp"
@@ -64,12 +67,14 @@ namespace render {
  * @param[in] mesh A mesh with texture coordinates.
  * @param[in] view_model_matrix Model-view matrix, to bring the mesh into view-space.
  * @param[in] projection_matrix Projection matrix, to bring the mesh into clip-space.
+ * @param[in] projection_type Indicates whether the projection used is orthographic or perspective.
  * @param[in] image The image to extract the texture from.
  * @param[in] texturemap_resolution The resolution of the generated texture map. Defaults to 512x512.
  * @return Texture map with the extracted texture.
  */
 inline eos::core::Image4u extract_texture(const core::Mesh& mesh, glm::mat4x4 view_model_matrix,
-                                          glm::mat4x4 projection_matrix, const eos::core::Image4u& image,
+                                          glm::mat4x4 projection_matrix, ProjectionType projection_type,
+                                          const eos::core::Image4u& image,
                                           int texturemap_resolution = 512)
 {
     // Assert that either there are texture coordinates given for each vertex (in which case the texture map
@@ -80,6 +85,7 @@ inline eos::core::Image4u extract_texture(const core::Mesh& mesh, glm::mat4x4 vi
     assert(mesh.tti.empty() || mesh.tti.size() == mesh.tvi.size());
 
     using detail::divide_by_w;
+    using detail::RayDirection;
     using glm::vec2;
     using glm::vec3;
     using glm::vec4;
@@ -90,49 +96,21 @@ inline eos::core::Image4u extract_texture(const core::Mesh& mesh, glm::mat4x4 vi
     extraction_rasterizer.enable_depth_test = false;
     extraction_rasterizer.extracting_tex = true;
 
-    vector<bool> visibility_ray;
-    vector<vec4> rotated_vertices;
-    // In perspective case... does the perspective projection matrix not change visibility? Do we not need to
-    // apply it?
-    // (If so, then we can change the two input matrices to this function to one (mvp_matrix)).
-    // Note 2019: I think it does and we need to take care of it, by changing the dot product, like we would
-    // change it for perspective contour fitting.
-    std::for_each(std::begin(mesh.vertices), std::end(mesh.vertices),
-                  [&rotated_vertices, &view_model_matrix](auto&& v) {
-                      rotated_vertices.push_back(view_model_matrix * glm::vec4(v.x(), v.y(), v.z(), 1.0));
-                  });
-    // This code is duplicated from the edge-fitting. I think I can put this into a function in the library.
-    for (const auto& vertex : rotated_vertices)
+    // For the per-vertex view angle, and the self-occlusion tests, we have to know the projection type, and
+    // then use different vector directions depending on the projection type:
+    RayDirection ray_direction_type;
+    if (projection_type == ProjectionType::Orthographic)
     {
-        bool visible = true;
-        // For every tri of the rotated mesh:
-        for (auto&& tri : mesh.tvi)
-        {
-            auto& v0 = rotated_vertices[tri[0]]; // const?
-            auto& v1 = rotated_vertices[tri[1]];
-            auto& v2 = rotated_vertices[tri[2]];
-
-            const vec3 ray_origin(vertex);
-            const vec3 ray_direction(0.0f, 0.0f, 1.0f); // we shoot the ray from the vertex towards the camera
-            const auto intersect =
-                ray_triangle_intersect(ray_origin, ray_direction, vec3(v0), vec3(v1), vec3(v2), false);
-            // first is bool intersect, second is the distance t
-            if (intersect.first == true)
-            {
-                // We've hit a triangle. Ray hit its own triangle. If it's behind the ray origin, ignore the
-                // intersection:
-                // Check if in front or behind?
-                if (intersect.second.value() <= 1e-4)
-                {
-                    continue; // the intersection is behind the vertex, we don't care about it
-                }
-                // Otherwise, we've hit a genuine triangle, and the vertex is not visible:
-                visible = false;
-                break;
-            }
-        }
-        visibility_ray.push_back(visible);
+        ray_direction_type = RayDirection::Parallel;
+    } else
+    {
+        ray_direction_type = RayDirection::TowardsOrigin;
     }
+
+    // Test for self-occlusion, i.e. whether each vertex is visible from
+    // the camera origin:
+    const vector<bool> per_vertex_visibility = compute_per_vertex_self_occlusion(
+        mesh.vertices, mesh.tvi, view_model_matrix, ray_direction_type);
 
     vector<vec4> wnd_coords; // will contain [x_wnd, y_wnd, z_ndc, 1/w_clip]
     for (auto&& vtx : mesh.vertices)
@@ -161,8 +139,8 @@ inline eos::core::Image4u extract_texture(const core::Mesh& mesh, glm::mat4x4 vi
         const auto& tti = mesh_tti[triangle_index];
 
         // Check if all three vertices of the current triangle are visible, and use the triangle if so:
-        if (visibility_ray[tvi[0]] && visibility_ray[tvi[1]] &&
-            visibility_ray[tvi[2]]) // can also try using ||, but...
+        if (per_vertex_visibility[tvi[0]] && per_vertex_visibility[tvi[1]] &&
+            per_vertex_visibility[tvi[2]]) // can also try using ||, but...
         {
             // The model's texcoords become the locations to extract to in the framebuffer (which is the
             // texture map we're extracting to). The wnd_coords are the coordinates we're extracting from (the

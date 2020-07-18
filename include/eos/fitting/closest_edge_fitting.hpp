@@ -26,7 +26,8 @@
 #include "eos/morphablemodel/EdgeTopology.hpp"
 #include "eos/fitting/RenderingParameters.hpp"
 #include "eos/render/normals.hpp"
-#include "eos/render/ray_triangle_intersect.hpp"
+#include "eos/render/vertex_visibility.hpp"
+#include "eos/render/ProjectionType.hpp"
 
 #include "nanoflann.hpp"
 
@@ -56,12 +57,14 @@ namespace fitting {
  * @param[in] mesh The mesh to use.
  * @param[in] edge_topology The edge topology of the given mesh.
  * @param[in] R The rotation (pose) under which the occluding boundaries should be computed.
+ * @param[in] projection_type Indicates whether the projection used is orthographic or perspective.
  * @param[in] perform_self_occlusion_check Check the computed boundary vertices for self-occlusion and remove these.
  * @return A vector with unique vertex id's making up the edges.
  */
 inline std::vector<int> occluding_boundary_vertices(const core::Mesh& mesh,
                                                     const morphablemodel::EdgeTopology& edge_topology,
-                                                    glm::mat4x4 R, bool perform_self_occlusion_check = true)
+                                                    glm::mat4x4 R, render::ProjectionType projection_type,
+                                                    bool perform_self_occlusion_check = true)
 {
     // Rotate the mesh:
     std::vector<glm::vec4> rotated_vertices;
@@ -117,37 +120,22 @@ inline std::vector<int> occluding_boundary_vertices(const core::Mesh& mesh,
     if (perform_self_occlusion_check)
     {
         // Perform ray-casting to find out which vertices are not visible (i.e. self-occluded):
+        // We have to know the projection type, and then use different vector directions depending on
+        // the projection type:
+        using render::detail::RayDirection;
+        RayDirection ray_direction_type;
+        if (projection_type == render::ProjectionType::Orthographic)
+        {
+            ray_direction_type = RayDirection::Parallel;
+        } else
+        {
+            ray_direction_type = RayDirection::TowardsOrigin;
+        }
         std::vector<bool> visibility;
-        const glm::vec3 ray_direction(0.0f, 0.0f,
-                                      1.0f); // we shoot rays from the vertex towards the camera
         for (auto vertex_idx : occluding_vertices)
         {
-            const glm::vec3 ray_origin(rotated_vertices[vertex_idx]);
-            bool visible = true;
-            // For every tri of the rotated mesh:
-            for (const auto& tri : mesh.tvi)
-            {
-                const auto& v0 = rotated_vertices[tri[0]];
-                const auto& v1 = rotated_vertices[tri[1]];
-                const auto& v2 = rotated_vertices[tri[2]];
-
-                const auto intersect = render::ray_triangle_intersect(
-                    ray_origin, ray_direction, glm::vec3(v0), glm::vec3(v1), glm::vec3(v2), false);
-                // first is bool intersect, second is the distance t
-                if (intersect.first == true)
-                {
-                    // We've hit a triangle. Ray hit its own triangle. If it's behind the ray origin, ignore
-                    // the intersection:
-                    // Note: Check if in front or behind?
-                    if (intersect.second.value() <= 1e-4)
-                    {
-                        continue; // the intersection is behind the vertex, we don't care about it
-                    }
-                    // Otherwise, we've hit a genuine triangle, and the vertex is not visible:
-                    visible = false;
-                    break;
-                }
-            }
+            const bool visible = render::is_vertex_visible(rotated_vertices[vertex_idx], rotated_vertices,
+                                                           mesh.tvi, ray_direction_type);
             visibility.push_back(visible);
         }
 
@@ -308,8 +296,18 @@ inline std::pair<std::vector<Eigen::Vector2f>, std::vector<int>> find_occluding_
     }
 
     // Compute vertices that lye on occluding boundaries:
-    const auto occluding_vertices = occluding_boundary_vertices(
-        mesh, edge_topology, glm::mat4x4(rendering_parameters.get_rotation()), perform_self_occlusion_check);
+    const render::ProjectionType projection_type = [&rendering_parameters]() {
+        if (rendering_parameters.get_camera_type() == CameraType::Orthographic)
+        {
+            return render::ProjectionType::Orthographic;
+        } else
+        {
+            return render::ProjectionType::Perspective;
+        }
+    }();
+    const auto occluding_vertices =
+        occluding_boundary_vertices(mesh, edge_topology, glm::mat4x4(rendering_parameters.get_rotation()),
+                                    projection_type, perform_self_occlusion_check);
 
     // Project these occluding boundary vertices from 3D to 2D:
     vector<Vector2f> model_edges_projected;
