@@ -336,6 +336,7 @@ PYBIND11_MODULE(eos, eos_module)
     /**
      * Bindings for the eos::render namespace:
      *  - extract_texture()
+     *  - draw_wireframe()
      */
     py::module render_module = eos_module.def_submodule("render", "3D mesh and texture extraction functionality.");
 
