@@ -24,6 +24,7 @@
 
 #include "eos/core/Mesh.hpp"
 #include "eos/render/Rasterizer.hpp"
+#include "eos/render/transforms.hpp"
 #include "eos/render/detail/Vertex.hpp"
 #include "eos/render/Texture.hpp"
 #include "eos/cpp17/optional.hpp"
