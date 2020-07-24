@@ -140,6 +140,21 @@ public:
         vector<Triangle<T, P>> triangles_to_raster;
         const auto& tti = mesh.tti.empty() ? mesh.tvi : mesh.tti; // If tti is not empty, we'll use it, otherwise,
                                                                   // use tvi for texturing.
+
+        // In the loop further below, we're building a list of triangles to render, and will be indexing into
+        // Mesh::colors. But that array is not available for meshes without per-vertex colouring. So we'll use
+        // the below lambda which either returns the colours for the vertex, or an empty vector.
+        const auto get_color_or_zero = [](const std::vector<Eigen::Vector3f>& mesh_colors, int vertex_index) {
+            if (mesh_colors.size() > 0)
+            {
+                return glm::tvec3<T, P>(mesh_colors[vertex_index](0), mesh_colors[vertex_index](1),
+                                        mesh_colors[vertex_index](2));
+            } else
+            {
+                return glm::tvec3<T, P>();
+            }
+        };
+
         // This builds the (one and final) triangles to render. Meaning: The triangles formed of mesh.tvi (the
         // ones that survived the clip/culling), plus possibly more that intersect one of the frustum planes
         // (i.e. this can generate new triangles with new pos/vc/texcoords).
@@ -231,22 +246,13 @@ public:
 
                 // If we're here, the triangle is CCW in screen space and the bbox is inside the viewport!
                 triangles_to_raster.push_back(Triangle<T, P>{
-                    detail::Vertex<T, P>{prospective_tri[0],
-                                         glm::tvec3<T, P>(mesh.colors[tri_indices[0]](0),
-                                                          mesh.colors[tri_indices[0]](1),
-                                                          mesh.colors[tri_indices[0]](2)),
+                    detail::Vertex<T, P>{prospective_tri[0], get_color_or_zero(mesh.colors, tri_indices[0]),
                                          glm::tvec2<T, P>(mesh.texcoords[tri_tc_indices[0]](0),
                                                           mesh.texcoords[tri_tc_indices[0]](1))},
-                    detail::Vertex<T, P>{prospective_tri[1],
-                                         glm::tvec3<T, P>(mesh.colors[tri_indices[1]](0),
-                                                          mesh.colors[tri_indices[1]](1),
-                                                          mesh.colors[tri_indices[1]](2)),
+                    detail::Vertex<T, P>{prospective_tri[1], get_color_or_zero(mesh.colors, tri_indices[1]),
                                          glm::tvec2<T, P>(mesh.texcoords[tri_tc_indices[1]](0),
                                                           mesh.texcoords[tri_tc_indices[1]](1))},
-                    detail::Vertex<T, P>{prospective_tri[2],
-                                         glm::tvec3<T, P>(mesh.colors[tri_indices[2]](0),
-                                                          mesh.colors[tri_indices[2]](1),
-                                                          mesh.colors[tri_indices[2]](2)),
+                    detail::Vertex<T, P>{prospective_tri[2], get_color_or_zero(mesh.colors, tri_indices[2]),
                                          glm::tvec2<T, P>(mesh.texcoords[tri_tc_indices[2]](0),
                                                           mesh.texcoords[tri_tc_indices[2]](1))}});
                 continue; // Triangle was either added or not added. Continue with next triangle.
@@ -257,21 +263,18 @@ public:
             // Well, 'z' of these triangles seems to be -1, so is that really the near plane?
             std::vector<detail::Vertex<T, P>> vertices;
             vertices.reserve(3);
-            vertices.push_back(detail::Vertex<T, P>{
-                clipspace_vertices[tri_indices[0]],
-                glm::tvec3<T, P>(mesh.colors[tri_indices[0]](0), mesh.colors[tri_indices[0]](1),
-                                 mesh.colors[tri_indices[0]](2)),
-                glm::tvec2<T, P>(mesh.texcoords[tri_tc_indices[0]](0), mesh.texcoords[tri_tc_indices[0]](1))});
-            vertices.push_back(detail::Vertex<T, P>{
-                clipspace_vertices[tri_indices[1]],
-                glm::tvec3<T, P>(mesh.colors[tri_indices[1]](0), mesh.colors[tri_indices[1]](1),
-                                 mesh.colors[tri_indices[1]](2)),
-                glm::tvec2<T, P>(mesh.texcoords[tri_tc_indices[1]](0), mesh.texcoords[tri_tc_indices[1]](1))});
-            vertices.push_back(detail::Vertex<T, P>{
-                clipspace_vertices[tri_indices[2]],
-                glm::tvec3<T, P>(mesh.colors[tri_indices[2]](0), mesh.colors[tri_indices[2]](1),
-                                 mesh.colors[tri_indices[2]](2)),
-                glm::tvec2<T, P>(mesh.texcoords[tri_tc_indices[2]](0), mesh.texcoords[tri_tc_indices[2]](1))});
+            vertices.push_back(detail::Vertex<T, P>{clipspace_vertices[tri_indices[0]],
+                                                    get_color_or_zero(mesh.colors, tri_indices[0]),
+                                                    glm::tvec2<T, P>(mesh.texcoords[tri_tc_indices[0]](0),
+                                                                     mesh.texcoords[tri_tc_indices[0]](1))});
+            vertices.push_back(detail::Vertex<T, P>{clipspace_vertices[tri_indices[1]],
+                                                    get_color_or_zero(mesh.colors, tri_indices[1]),
+                                                    glm::tvec2<T, P>(mesh.texcoords[tri_tc_indices[1]](0),
+                                                                     mesh.texcoords[tri_tc_indices[1]](1))});
+            vertices.push_back(detail::Vertex<T, P>{clipspace_vertices[tri_indices[2]],
+                                                    get_color_or_zero(mesh.colors, tri_indices[2]),
+                                                    glm::tvec2<T, P>(mesh.texcoords[tri_tc_indices[2]](0),
+                                                                     mesh.texcoords[tri_tc_indices[2]](1))});
             // split the triangle if it intersects the near plane:
             if (enable_near_clipping)
             {
