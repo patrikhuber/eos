@@ -25,7 +25,6 @@
 #include "eos/core/Mesh.hpp"
 #include "eos/render/Rasterizer.hpp"
 #include "eos/render/detail/Vertex.hpp"
-#include "eos/render/detail/render_detail.hpp"
 #include "eos/render/Texture.hpp"
 #include "eos/cpp17/optional.hpp"
 
@@ -43,9 +42,11 @@
  * @brief This file implements a software renderer, in the spirit of OpenGL conventions and vertex and
  * fragment shaders.
  *
- * Might be worth adding the comments from render.hpp, regarding the pipeline and
- * OpenGL conventions etc.
- */
+ * The renderer was initially based on code by Wojciech Sterna
+ * (http://maxest.gct-game.net/content/vainmoinen/index.html), however, it has since then been completely
+ * rewritten. Still I'd like to thank him for making his code available and bravely answering my questions via
+ * email.
+  */
 
 namespace eos {
 namespace render {
