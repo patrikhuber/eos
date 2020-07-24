@@ -292,14 +292,13 @@ int main(int argc, char *argv[])
         cv::imwrite(outputfile.string(), outimg);
 
         // Save frontal rendering with texture:
-        core::Image4u frontal_rendering;
         glm::mat4 modelview_frontal = glm::mat4(1.0);
         core::Mesh neutral_expression = morphablemodel::sample_to_mesh(
             morphable_model.get_shape_model().draw_sample(pca_shape_coefficients),
             morphable_model.get_color_model().get_mean(),
             morphable_model.get_shape_model().get_triangle_list(),
             morphable_model.get_color_model().get_triangle_list(), morphable_model.get_texture_coordinates());
-        std::tie(frontal_rendering, std::ignore) = render::render(
+        const core::Image4u frontal_rendering = render::render(
             neutral_expression, modelview_frontal, glm::ortho(-130.0f, 130.0f, -130.0f, 130.0f), 256, 256,
             render::create_mipmapped_texture(texturemap), true, false, false);
         outputfile.replace_extension(".frontal.png");
@@ -323,13 +322,12 @@ int main(int argc, char *argv[])
     outputfile.replace_extension("");
 
     // Save the frontal rendering with merged texture:
-    core::Image4u frontal_rendering;
     glm::mat4 modelview_frontal = glm::mat4(1.0);
     core::Mesh neutral_expression = morphablemodel::sample_to_mesh(
         morphable_model.get_shape_model().draw_sample(pca_shape_coefficients),
         morphable_model.get_color_model().get_mean(), morphable_model.get_shape_model().get_triangle_list(),
         morphable_model.get_color_model().get_triangle_list(), morphable_model.get_texture_coordinates());
-    std::tie(frontal_rendering, std::ignore) = render::render(
+    const core::Image4u frontal_rendering = render::render(
         neutral_expression, modelview_frontal, glm::ortho(-130.0f, 130.0f, -130.0f, 130.0f), 512, 512,
         render::create_mipmapped_texture(core::from_mat_with_alpha(merged_texturemap)), true, false, false);
     outputfile.replace_extension(".frontal.png");

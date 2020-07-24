@@ -106,10 +106,9 @@ int main(int argc, char* argv[])
         shape_coefficients, color_coefficients); // if one of the two vectors is empty, it uses get_mean()
 
     core::write_obj(sample_mesh, output_file);
-    core::Image4u rendering;
-    std::tie(rendering, std::ignore) =
+    const core::Image4u rendering =
         render::render(sample_mesh, glm::mat4x4(1.0f), glm::ortho(-130.0f, 130.0f, -130.0f, 130.0f), 512, 512,
-                       cpp17::nullopt, true, false, false);
+                       true, false, false);
     fs::path filename_rendering(output_file);
     filename_rendering.replace_extension(".png");
     cv::imwrite(filename_rendering.string(), core::to_mat(rendering));
