@@ -101,7 +101,7 @@ set(HEADERS
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/render.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/detail/TriangleToRasterize.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/detail/plane.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/detail/render_detail_utils.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/detail/utils.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/ProjectionType.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/detail/RayDirection.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/vertex_visibility.hpp

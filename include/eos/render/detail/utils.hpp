@@ -1,7 +1,7 @@
 /*
  * eos - A 3D Morphable Model fitting library written in modern C++11/14.
  *
- * File: include/eos/render/detail/render_detail_utils.hpp
+ * File: include/eos/render/detail/utils.hpp
  *
  * Copyright 2014-2017 Patrik Huber
  *

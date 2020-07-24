@@ -28,7 +28,7 @@
 #include "eos/render/Texture.hpp"
 #include "eos/render/detail/Vertex.hpp"
 #include "eos/render/detail/plane.hpp"
-#include "eos/render/detail/render_detail_utils.hpp"
+#include "eos/render/detail/utils.hpp"
 #include "eos/cpp17/optional.hpp"
 
 #include <limits>

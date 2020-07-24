@@ -31,7 +31,7 @@
 #include "eos/render/Rasterizer.hpp"
 #include "eos/render/FragmentShader.hpp"
 #include "eos/render/ray_triangle_intersect.hpp"
-#include "eos/render/detail/render_detail_utils.hpp" // for detail::divide_by_w()
+#include "eos/render/detail/utils.hpp" // for detail::divide_by_w()
 
 #include "glm/mat4x4.hpp"
 #include "glm/vec2.hpp"
