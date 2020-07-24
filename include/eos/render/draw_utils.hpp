@@ -23,7 +23,7 @@
 #define EOS_RENDER_DRAW_UTILS_HPP
 
 #include "eos/core/Mesh.hpp"
-#include "eos/render/detail/render_detail.hpp"
+#include "eos/render/detail/render_detail_utils.hpp"
 
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/mat4x4.hpp"
