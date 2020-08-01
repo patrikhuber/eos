@@ -93,7 +93,7 @@ inline eos::core::Image4u extract_texture(const core::Mesh& mesh, glm::mat4x4 vi
     // We only need a rasteriser to remap the texture, not the complete SoftwareRenderer:
     Rasterizer<ExtractionFragmentShader> extraction_rasterizer(texturemap_resolution, texturemap_resolution);
     Texture image_to_extract_from_as_tex = create_mipmapped_texture(image, 1);
-    extraction_rasterizer.enable_depth_test = false;
+    extraction_rasterizer.enable_depth_test = false; // We don't need to depth-test in the rendered image (which is the texture map).
     extraction_rasterizer.perspective_correct_barycentric_weights = false; // We want the uncorrected lambda be passed to our shader
 
     // For the per-vertex view angle, and the self-occlusion tests, we have to know the projection type, and
