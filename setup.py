@@ -66,7 +66,7 @@ with open(os.path.join(this_directory, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='eos-py',
-    version='1.1.2',
+    version='1.2.0',
     author='Patrik Huber',
     author_email='patrikhuber@gmail.com',
     description='Python bindings for eos - A lightweight 3D Morphable Face Model fitting library in modern C++11/14',
