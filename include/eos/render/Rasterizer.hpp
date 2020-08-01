@@ -168,7 +168,7 @@ public:
                     {
                         // perspective-correct barycentric weights
                         // Todo: Check this in the original/older implementation, i.e. if all is still
-                        // perspective-correct. I think so. Also compare 1:1 with OpenGL.
+                        //   perspective-correct. I think so. Also compare 1:1 with OpenGL.
                         if (!extracting_tex) // Pass the uncorrected lambda if we're extracting tex... hack...
                                              // do properly!
                         {
