@@ -29,8 +29,8 @@
 #include <cstddef>
 #include <vector>
 
-NAMESPACE_BEGIN(pybind11)
-NAMESPACE_BEGIN(detail)
+namespace pybind11 {
+namespace detail {
 
 /**
  * @file python/pybind11_Image.hpp
@@ -196,7 +196,7 @@ struct type_caster<eos::core::Image4u>
     PYBIND11_TYPE_CASTER(eos::core::Image4u, _("numpy.ndarray[uint8[m, n, 4]]"));
 };
 
-NAMESPACE_END(detail)
-NAMESPACE_END(pybind11)
+} // namespace detail
+} // namespace pybind11
 
 #endif /* EOS_PYBIND11_IMAGE_HPP */
