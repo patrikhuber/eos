@@ -135,7 +135,7 @@ public:
                 model_view_matrix, projection_matrix));
             // Note: if mesh.colors.empty() (in case of shape-only model!), then the vertex colour is no
             // longer set to gray. But we don't want that here, maybe we only want texturing, then we don't
-            // need vertex-colours at all! We can do it in a custom VertexShader if needed!
+            // need vertex-colours at all. We can do it in a custom VertexShader if needed.
         }
 
         // All vertices are in clip-space now. Prepare the rasterisation stage:
