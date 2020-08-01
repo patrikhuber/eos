@@ -50,11 +50,7 @@ public:
     Rasterizer(int viewport_width, int viewport_height)
         : viewport_width(viewport_width), viewport_height(viewport_height)
     {
-        colorbuffer = eos::core::image::constant(viewport_height, viewport_width,
-			eos::core::Pixel<std::uint8_t, 4>(255, 255, 255, 255));
-        depthbuffer =
-            eos::core::image::constant(
-            viewport_height, viewport_width, std::numeric_limits<double>::max());
+        clear_buffers();
     };
 
     /**
@@ -253,6 +249,23 @@ public:
                 }
             }
         }
+    };
+
+    /**
+     * @brief Resets the colour and depth buffers.
+     *
+     * Sets the colour buffer to all white with zeros for the alpha channel, and the depth buffer to
+     * std::numeric_limits<double>::max().
+     *
+     * If multiple images are rendered/rasterised, then this function can be called before rendering a new
+     * image, to clear the colour and depth buffers.
+     */
+    void clear_buffers()
+    {
+        colorbuffer = eos::core::image::constant(viewport_height, viewport_width,
+                                                 eos::core::Pixel<std::uint8_t, 4>(255, 255, 255, 255));
+        depthbuffer =
+            eos::core::image::constant(viewport_height, viewport_width, std::numeric_limits<double>::max());
     };
 
 private:

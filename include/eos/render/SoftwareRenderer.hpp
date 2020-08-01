@@ -366,6 +366,17 @@ public:
         return rasterizer.colorbuffer;
     };
 
+    /**
+     * @brief Resets the colour and depth buffers.
+     *
+     * If multiple images are rendered, then this function can be called before rendering a new image,
+     * depending on the desired behaviour.
+     */
+    void clear_buffers()
+    {
+        rasterizer.clear_buffers();
+    };
+
 public: // Todo: these should go private in the final implementation
     cpp17::optional<Texture> texture = cpp17::nullopt;
     bool enable_backface_culling = false;
