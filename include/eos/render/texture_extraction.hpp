@@ -94,7 +94,7 @@ inline eos::core::Image4u extract_texture(const core::Mesh& mesh, glm::mat4x4 vi
     Rasterizer<ExtractionFragmentShader> extraction_rasterizer(texturemap_resolution, texturemap_resolution);
     Texture image_to_extract_from_as_tex = create_mipmapped_texture(image, 1);
     extraction_rasterizer.enable_depth_test = false;
-    extraction_rasterizer.extracting_tex = true;
+    extraction_rasterizer.perspective_correct_barycentric_weights = false; // We want the uncorrected lambda be passed to our shader
 
     // For the per-vertex view angle, and the self-occlusion tests, we have to know the projection type, and
     // then use different vector directions depending on the projection type:

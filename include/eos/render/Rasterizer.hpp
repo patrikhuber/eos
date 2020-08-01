@@ -169,8 +169,10 @@ public:
                         // perspective-correct barycentric weights
                         // Todo: Check this in the original/older implementation, i.e. if all is still
                         //   perspective-correct. I think so. Also compare 1:1 with OpenGL.
-                        if (!extracting_tex) // Pass the uncorrected lambda if we're extracting tex... hack...
-                                             // do properly!
+                        // This is the default case when rendering - we perspectively correct the barycentric
+                        //   weights. However when extracting texture, it seems we don't want to do that, and
+                        //   pass the uncorrected lambda in that case. This switch allows us to do that.
+                        if (perspective_correct_barycentric_weights)
                         {
                             double d = alpha * one_over_w0 + beta * one_over_w1 + gamma * one_over_w2;
                             d = 1.0 / d;
@@ -273,7 +275,7 @@ private:
 
 public:                            // will eventually go private
     bool enable_depth_test = true; // maybe get rid of this again, it was just as a hack.
-    bool extracting_tex = false;
+    bool perspective_correct_barycentric_weights = true;
     bool enable_far_clipping = true;
 
     int viewport_width;
