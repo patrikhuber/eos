@@ -74,8 +74,7 @@ namespace render {
  */
 inline eos::core::Image4u extract_texture(const core::Mesh& mesh, glm::mat4x4 view_model_matrix,
                                           glm::mat4x4 projection_matrix, ProjectionType projection_type,
-                                          const eos::core::Image4u& image,
-                                          int texturemap_resolution = 512)
+                                          const eos::core::Image4u& image, int texturemap_resolution = 512)
 {
     // Assert that either there are texture coordinates given for each vertex (in which case the texture map
     // doesn't contain any seams), or that a separate list of texture triangle indices is given (i.e. mesh.tti
