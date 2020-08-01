@@ -263,7 +263,7 @@ public:
     void clear_buffers()
     {
         colorbuffer = eos::core::image::constant(viewport_height, viewport_width,
-                                                 eos::core::Pixel<std::uint8_t, 4>(255, 255, 255, 255));
+                                                 eos::core::Pixel<std::uint8_t, 4>(255, 255, 255, 0));
         depthbuffer =
             eos::core::image::constant(viewport_height, viewport_width, std::numeric_limits<double>::max());
     };
