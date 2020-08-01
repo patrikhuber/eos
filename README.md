@@ -14,13 +14,13 @@ eos is a lightweight 3D Morphable Face Model fitting library that provides basic
 At the moment, it mainly provides the following functionality:
 
 * MorphableModel and PcaModel classes to represent 3DMMs, with basic operations like `draw_sample()`. Supports the Surrey Face Model (SFM), 4D Face Model (4DFM), and the Basel Face Model (BFM) 2009 and 2017 out-of-the-box
-* Our low-resolution, shape-only 3D Morphable Face Model ([share/sfm_shape_3448.bin](https://github.com/patrikhuber/eos/blob/master/share/sfm_shape_3448.bin))
+* The low-resolution, shape-only Surrey Face Model ([share/sfm_shape_3448.bin](https://github.com/patrikhuber/eos/blob/master/share/sfm_shape_3448.bin))
 * Fast, linear pose, shape and expression fitting, edge and contour fitting:
   * Linear scaled orthographic projection camera pose estimation
   * Linear shape-to-landmarks fitting, implementation of O. Aldrian & W. Smith, _Inverse Rendering of Faces with a 3D Morphable Model_, PAMI 2013
-  * Expression fitting, and 6 linear expression blendshapes: anger, disgust, fear, happiness, sadness, surprise
+  * Expression fitting, with 6 linear expression blendshapes of the SFM: anger, disgust, fear, happiness, sadness, surprise
   * Edge-fitting, heavily inspired by: A. Bas et al., _Fitting a 3D Morphable Model to Edges: A Comparison Between Hard and Soft Correspondences_, ACCVW 2016
-* Isomap texture extraction to obtain a pose-invariant representation of the face texture
+* Texture extraction to obtain a pose-invariant representation of the face texture
 * **Python bindings**: Much of eos's functionality is available as a python module (try `pip install eos-py`!)
 * (_Experimental_): Non-linear fitting cost functions using Ceres for shape, camera, blendshapes and the colour model (needs Ceres to be installed separately)
 
@@ -75,7 +75,7 @@ If you are just getting started, it is recommended to have a look at `fit-model-
 
 `fit-model-simple -m ../share/sfm_shape_3448.bin -p ../share/ibug_to_sfm.txt -i data/image_0010.png -l data/image_0010.pts`
 
-The output in both cases is an `obj` file with the shape and a `png` with the extracted isomap. The estimated pose angles and shape coefficients are available in the code via the API.
+The output in both cases is an `obj` file with the shape and a `png` with the extracted texture map. The estimated pose angles and shape coefficients are available in the code via the API.
 
 See [examples/fit-model.cpp](https://github.com/patrikhuber/eos/blob/master/examples/fit-model.cpp) for the full code.
 
@@ -89,7 +89,7 @@ The full model is available at [http://www.cvssp.org/facemodel](http://www.cvssp
 
 ## 4D Face Model (4DFM)
 
-eos can be used to load, use and do basic fitting with the 4D Face Model (4DFM) from [4dface Ltd](https://www.4dface.io). The model features 36 expressions/action units, and diverse identity variation.
+eos can be used to load, use and do basic fitting with the 4D Face Model (4DFM) from [4dface Ltd](https://www.4dface.io). The model features 39 expressions/action units, and diverse identity variation.
 
 <img src="https://raw.githubusercontent.com/patrikhuber/eos/gh-pages/images/4dfm_color_sample.jpg" width=20% alt="4D Face Model colour picture"></img>
 <img src="https://raw.githubusercontent.com/patrikhuber/eos/gh-pages/images/4dfm_shape.png" width=20% alt="4D Face Model shape picture"></img>
