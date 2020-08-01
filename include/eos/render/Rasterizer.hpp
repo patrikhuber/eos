@@ -169,11 +169,11 @@ public:
                         // perspective-correct barycentric weights
                         // Todo: Check this in the original/older implementation, i.e. if all is still
                         // perspective-correct. I think so. Also compare 1:1 with OpenGL.
-                        double d = alpha * one_over_w0 + beta * one_over_w1 + gamma * one_over_w2;
-                        d = 1.0 / d;
                         if (!extracting_tex) // Pass the uncorrected lambda if we're extracting tex... hack...
                                              // do properly!
                         {
+                            double d = alpha * one_over_w0 + beta * one_over_w1 + gamma * one_over_w2;
+                            d = 1.0 / d;
                             alpha *= d * one_over_w0; // In case of affine cam matrix, everything is 1 and
                                                       // a/b/g don't get changed.
                             beta *= d * one_over_w1;
