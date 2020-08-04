@@ -3,11 +3,13 @@
 [![Linux build status of master branch](https://img.shields.io/travis/patrikhuber/eos/master.svg?style=flat-square&label=Linux/macOS%3A%20build)][travis]
 [![Windows build status of master branch](https://ci.appveyor.com/api/projects/status/gekekpn08cdgqcsk/branch/master?svg=true&passingText=Windows%3A%20build%20passing&failingText=Windows%3A%20build%20failing&pendingText=Windows%3A%20build%20pending)][appveyor]
 [![Apache License 2.0](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg?style=flat-square)][license]
+[![Sponsor eos on GitHub Sponsors](https://img.shields.io/static/v1?style=flat-square&label=Sponsor&message=%E2%9D%A4&logo=GitHub)][sponsor]
 
 [release]: https://github.com/patrikhuber/eos/releases
 [travis]: https://travis-ci.org/patrikhuber/eos
 [appveyor]: https://ci.appveyor.com/project/patrikhuber/eos/branch/master
 [license]: https://github.com/patrikhuber/eos/blob/master/LICENSE
+[sponsor]: https://github.com/sponsors/patrikhuber
 
 eos is a lightweight 3D Morphable Face Model fitting library that provides basic functionality to use face models, as well as camera and shape fitting functionality. It's written in modern C++11/14.
 
