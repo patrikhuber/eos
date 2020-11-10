@@ -15,7 +15,7 @@ eos is a lightweight 3D Morphable Face Model fitting library that provides basic
 
 At the moment, it mainly provides the following functionality:
 
-* MorphableModel and PcaModel classes to represent 3DMMs, with basic operations like `draw_sample()`. Supports the Surrey Face Model (SFM), 4D Face Model (4DFM), and the Basel Face Model (BFM) 2009 and 2017 out-of-the-box
+* MorphableModel and PcaModel classes to represent 3DMMs, with basic operations like `draw_sample()`. Supports the Surrey Face Model (SFM), 4D Face Model (4DFM), Basel Face Model (BFM) 2009 and 2017, and the Liverpool-York Head Model (LYHM) out-of-the-box
 * The low-resolution, shape-only Surrey Face Model ([share/sfm_shape_3448.bin](https://github.com/patrikhuber/eos/blob/master/share/sfm_shape_3448.bin))
 * Fast, linear pose, shape and expression fitting, edge and contour fitting:
   * Linear scaled orthographic projection camera pose estimation
