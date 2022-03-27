@@ -4,7 +4,7 @@ authors:
 - family-names: "Huber"
   given-names: "Patrik"
   orcid: "https://orcid.org/0000-0002-1474-1040"
-title: "eos: A lightweight 3D Morphable Face Model library in modern C++14"
+title: "eos: A lightweight 3D Morphable Face Model library in modern C++"
 version: 1.2.1
 date-released: 2020-08-04
 url: "https://github.com/patrikhuber/eos"
