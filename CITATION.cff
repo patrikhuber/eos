@@ -1,0 +1,44 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "Huber"
+  given-names: "Patrik"
+  orcid: "https://orcid.org/0000-0002-1474-1040"
+title: "eos: A lightweight 3D Morphable Face Model library in modern C++14"
+version: 1.2.1
+date-released: 2020-08-04
+url: "https://github.com/patrikhuber/eos"
+license: Apache-2.0
+preferred-citation:
+  type: conference-paper
+  title: "A Multiresolution 3D Morphable Face Model and Fitting Framework"
+  authors:
+  - family-names: "Huber"
+    given-names: "Patrik"
+    orcid: "https://orcid.org/0000-0002-1474-1040"
+  - family-names: "Hu"
+    given-names: "Guosheng"
+  - family-names: "Tena"
+    given-names: "Jose Rafael"
+  - family-names: "Mortazavian"
+    given-names: "Pouria"
+  - family-names: "Koppen"
+    given-names: "Willen P."
+  - family-names: "Christmas"
+    given-names: "William J."
+  - family-names: "Raetsch"
+    given-names: "Matthias"
+  - family-names: "Kittler"
+    given-names: "Josef"
+    orcid: "https://orcid.org/0000-0002-8110-9205"
+  doi: "10.5220/0005669500790086"
+  conference:
+    name: "11th Joint Conference on Computer Vision, Imaging and Computer Graphics Theory and Applications (VISIGRAPP 2016)"
+  volume-title: "Proceedings of the 11th Joint Conference on Computer Vision, Imaging and Computer Graphics Theory and Applications (VISIGRAPP 2016)"
+  start: 79 # First page number
+  end: 86 # Last page number
+  volume: 4
+  year: 2016
+  month: 2
+  publisher:
+    name: "SciTePress"
