@@ -3,7 +3,7 @@
  *
  * File: python/generate-python-bindings.cpp
  *
- * Copyright 2016-2019 Patrik Huber
+ * Copyright 2016-2022 Patrik Huber
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -85,8 +85,8 @@ PYBIND11_MODULE(eos, eos_module)
         .def_readwrite("coordinates", &core::Landmark<Eigen::Vector2f>::coordinates,
                        "The position or coordinates of the landmark")
         .def("__repr__", [](const core::Landmark<Eigen::Vector2f>& l) {
-            return "<eos.core.Landmark [name=" + l.name + ", [x=" + std::to_string(l.coordinates(0)) +
-                   ", y=" + std::to_string(l.coordinates(1)) + "]]>";
+            return "<eos.core.Landmark(name=\"" + l.name + "\", coordinates=[" + std::to_string(l.coordinates(0)) +
+                   ", " + std::to_string(l.coordinates(1)) + "])>";
         });
 
     py::class_<core::LandmarkMapper>(core_module, "LandmarkMapper", "Represents a mapping from one kind of landmarks to a different format(e.g.model vertices).")
@@ -95,7 +95,7 @@ PYBIND11_MODULE(eos, eos_module)
         .def("convert", &core::LandmarkMapper::convert, "Converts the given landmark name to the mapped name.", py::arg("landmark_name"))
         .def("get_mappings", &core::LandmarkMapper::get_mappings, "Returns the mappings held by this mapper.")
         .def("__repr__", [](const core::LandmarkMapper& m) {
-            return "<eos.core.LandmarkMapper with " + std::to_string(m.num_mappings()) + " mappings.>";
+            return "<eos.core.LandmarkMapper with " + std::to_string(m.num_mappings()) + " mappings>";
         });
 
     py::class_<core::Mesh>(core_module, "Mesh", "This class represents a 3D mesh consisting of vertices, vertex colour information and texture coordinates.")
@@ -122,8 +122,8 @@ PYBIND11_MODULE(eos, eos_module)
         .def_readwrite("width", &core::Rect<int>::width, "Width of the rectangle")
         .def_readwrite("height", &core::Rect<int>::height, "Height of the rectangle")
         .def("__repr__", [](const core::Rect<int>& r) {
-            return "<eos.core.Rect [x=" + std::to_string(r.x) + ", y=" + std::to_string(r.y) +
-                   ", width=" + std::to_string(r.width) + ", height=" + std::to_string(r.height) + "]>";
+            return "<eos.core.Rect(x=" + std::to_string(r.x) + ", y=" + std::to_string(r.y) +
+                   ", width=" + std::to_string(r.width) + ", height=" + std::to_string(r.height) + ")>";
         });
 
     /**
