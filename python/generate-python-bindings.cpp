@@ -170,7 +170,7 @@ PYBIND11_MODULE(eos, eos_module)
     py::enum_<morphablemodel::MorphableModel::ExpressionModelType>(
         morphable_model, "ExpressionModelType",
         "The type of the expression model that a MorphableModel contains.")
-        .value("None", morphablemodel::MorphableModel::ExpressionModelType::None)
+        .value("none", morphablemodel::MorphableModel::ExpressionModelType::None)
         .value("Blendshapes", morphablemodel::MorphableModel::ExpressionModelType::Blendshapes)
         .value("PcaModel", morphablemodel::MorphableModel::ExpressionModelType::PcaModel);
 
