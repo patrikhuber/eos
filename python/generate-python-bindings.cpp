@@ -3,7 +3,7 @@
  *
  * File: python/generate-python-bindings.cpp
  *
- * Copyright 2016-2019 Patrik Huber
+ * Copyright 2016-2022 Patrik Huber
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -85,8 +85,8 @@ PYBIND11_MODULE(eos, eos_module)
         .def_readwrite("coordinates", &core::Landmark<Eigen::Vector2f>::coordinates,
                        "The position or coordinates of the landmark")
         .def("__repr__", [](const core::Landmark<Eigen::Vector2f>& l) {
-            return "<eos.core.Landmark [name=" + l.name + ", [x=" + std::to_string(l.coordinates(0)) +
-                   ", y=" + std::to_string(l.coordinates(1)) + "]]>";
+            return "<eos.core.Landmark(name=\"" + l.name + "\", coordinates=[" + std::to_string(l.coordinates(0)) +
+                   ", " + std::to_string(l.coordinates(1)) + "])>";
         });
 
     py::class_<core::LandmarkMapper>(core_module, "LandmarkMapper", "Represents a mapping from one kind of landmarks to a different format(e.g.model vertices).")
@@ -95,17 +95,39 @@ PYBIND11_MODULE(eos, eos_module)
         .def("convert", &core::LandmarkMapper::convert, "Converts the given landmark name to the mapped name.", py::arg("landmark_name"))
         .def("get_mappings", &core::LandmarkMapper::get_mappings, "Returns the mappings held by this mapper.")
         .def("__repr__", [](const core::LandmarkMapper& m) {
-            return "<eos.core.LandmarkMapper with " + std::to_string(m.num_mappings()) + " mappings.>";
+            return "<eos.core.LandmarkMapper with " + std::to_string(m.num_mappings()) + " mappings>";
         });
 
-    py::class_<core::Mesh>(core_module, "Mesh", "This class represents a 3D mesh consisting of vertices, vertex colour information and texture coordinates.")
+    py::class_<core::Mesh>(core_module, "Mesh",
+                           "This class represents a 3D mesh consisting of vertices, vertex colour "
+                           "information and texture coordinates.")
         .def(py::init<>(), "Creates an empty mesh.")
+        .def(py::init([](std::vector<Eigen::Vector3f> vertices, std::vector<std::array<int, 3>> tvi,
+                         std::vector<Eigen::Vector3f> colors, std::vector<std::array<int, 3>> tci,
+                         std::vector<Eigen::Vector2f> texcoords, std::vector<std::array<int, 3>> tti) {
+                 return core::Mesh{vertices, colors, texcoords, tvi, tci, tti};
+             }),
+             "Creates a mesh from the given vertices and faces (tvi). Supports optional kwargs for "
+             "per-vertex colours and/or texture coordinates.",
+             py::arg("vertices"), py::arg("tvi"), py::kw_only(),
+             py::arg("colors") = std::vector<Eigen::Vector3f>(),
+             py::arg("tci") = std::vector<std::array<int, 3>>(),
+             py::arg("texcoords") = std::vector<Eigen::Vector2f>(),
+             py::arg("tti") = std::vector<std::array<int, 3>>())
         .def_readwrite("vertices", &core::Mesh::vertices, "3D vertex positions")
-        .def_readwrite("colors", &core::Mesh::colors, "Colour information for each vertex. Expected to be in RGB order.")
+        .def_readwrite("colors", &core::Mesh::colors,
+                       "Colour information for each vertex. Expected to be in RGB order.")
         .def_readwrite("texcoords", &core::Mesh::texcoords, "Texture coordinates")
         .def_readwrite("tvi", &core::Mesh::tvi, "Triangle vertex indices")
         .def_readwrite("tci", &core::Mesh::tci, "Triangle colour indices (usually the same as tvi)")
-        .def_readwrite("tti", &core::Mesh::tti, "Triangle texture indices");
+        .def_readwrite("tti", &core::Mesh::tti, "Triangle texture indices")
+        .def("__repr__", [](const core::Mesh& m) {
+            return "<eos.core.Mesh with " + std::to_string(m.vertices.size()) + " vertices, " +
+                   std::to_string(m.tvi.size()) + " tvi, " + std::to_string(m.colors.size()) +
+                   " colour values, " + std::to_string(m.tci.size()) + " tci, " +
+                   std::to_string(m.texcoords.size()) + " texcoords, " + std::to_string(m.tti.size()) +
+                   " tti>";
+        });
 
     core_module.def("write_obj", &core::write_obj, "Writes the given Mesh to an obj file.", py::arg("mesh"), py::arg("filename"));
     core_module.def("write_textured_obj", &core::write_textured_obj, "Writes the given Mesh to an obj file, including texture coordinates, and an mtl file containing a reference to the texture map in the form of <filename>.texture.png. That texture .png file has to be saved separately.", py::arg("mesh"), py::arg("filename"));
@@ -122,8 +144,8 @@ PYBIND11_MODULE(eos, eos_module)
         .def_readwrite("width", &core::Rect<int>::width, "Width of the rectangle")
         .def_readwrite("height", &core::Rect<int>::height, "Height of the rectangle")
         .def("__repr__", [](const core::Rect<int>& r) {
-            return "<eos.core.Rect [x=" + std::to_string(r.x) + ", y=" + std::to_string(r.y) +
-                   ", width=" + std::to_string(r.width) + ", height=" + std::to_string(r.height) + "]>";
+            return "<eos.core.Rect(x=" + std::to_string(r.x) + ", y=" + std::to_string(r.y) +
+                   ", width=" + std::to_string(r.width) + ", height=" + std::to_string(r.height) + ")>";
         });
 
     /**
@@ -170,7 +192,7 @@ PYBIND11_MODULE(eos, eos_module)
     py::enum_<morphablemodel::MorphableModel::ExpressionModelType>(
         morphable_model, "ExpressionModelType",
         "The type of the expression model that a MorphableModel contains.")
-        .value("None", morphablemodel::MorphableModel::ExpressionModelType::None)
+        .value("none", morphablemodel::MorphableModel::ExpressionModelType::None)
         .value("Blendshapes", morphablemodel::MorphableModel::ExpressionModelType::Blendshapes)
         .value("PcaModel", morphablemodel::MorphableModel::ExpressionModelType::PcaModel);
 

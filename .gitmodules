@@ -21,4 +21,4 @@
 	url = https://github.com/ToruNiina/toml11.git
 [submodule "3rdparty/eigen"]
 	path = 3rdparty/eigen
-	url = https://github.com/eigenteam/eigen-git-mirror.git
+	url = https://gitlab.com/libeigen/eigen.git
