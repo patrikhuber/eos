@@ -98,14 +98,36 @@ PYBIND11_MODULE(eos, eos_module)
             return "<eos.core.LandmarkMapper with " + std::to_string(m.num_mappings()) + " mappings>";
         });
 
-    py::class_<core::Mesh>(core_module, "Mesh", "This class represents a 3D mesh consisting of vertices, vertex colour information and texture coordinates.")
+    py::class_<core::Mesh>(core_module, "Mesh",
+                           "This class represents a 3D mesh consisting of vertices, vertex colour "
+                           "information and texture coordinates.")
         .def(py::init<>(), "Creates an empty mesh.")
+        .def(py::init([](std::vector<Eigen::Vector3f> vertices, std::vector<std::array<int, 3>> tvi,
+                         std::vector<Eigen::Vector3f> colors, std::vector<std::array<int, 3>> tci,
+                         std::vector<Eigen::Vector2f> texcoords, std::vector<std::array<int, 3>> tti) {
+                 return core::Mesh{vertices, colors, texcoords, tvi, tci, tti};
+             }),
+             "Creates a mesh from the given vertices and faces (tvi). Supports optional kwargs for "
+             "per-vertex colours and/or texture coordinates.",
+             py::arg("vertices"), py::arg("tvi"), py::kw_only(),
+             py::arg("colors") = std::vector<Eigen::Vector3f>(),
+             py::arg("tci") = std::vector<std::array<int, 3>>(),
+             py::arg("texcoords") = std::vector<Eigen::Vector2f>(),
+             py::arg("tti") = std::vector<std::array<int, 3>>())
         .def_readwrite("vertices", &core::Mesh::vertices, "3D vertex positions")
-        .def_readwrite("colors", &core::Mesh::colors, "Colour information for each vertex. Expected to be in RGB order.")
+        .def_readwrite("colors", &core::Mesh::colors,
+                       "Colour information for each vertex. Expected to be in RGB order.")
         .def_readwrite("texcoords", &core::Mesh::texcoords, "Texture coordinates")
         .def_readwrite("tvi", &core::Mesh::tvi, "Triangle vertex indices")
         .def_readwrite("tci", &core::Mesh::tci, "Triangle colour indices (usually the same as tvi)")
-        .def_readwrite("tti", &core::Mesh::tti, "Triangle texture indices");
+        .def_readwrite("tti", &core::Mesh::tti, "Triangle texture indices")
+        .def("__repr__", [](const core::Mesh& m) {
+            return "<eos.core.Mesh with " + std::to_string(m.vertices.size()) + " vertices, " +
+                   std::to_string(m.tvi.size()) + " tvi, " + std::to_string(m.colors.size()) +
+                   " colour values, " + std::to_string(m.tci.size()) + " tci, " +
+                   std::to_string(m.texcoords.size()) + " texcoords, " + std::to_string(m.tti.size()) +
+                   " tti>";
+        });
 
     core_module.def("write_obj", &core::write_obj, "Writes the given Mesh to an obj file.", py::arg("mesh"), py::arg("filename"));
     core_module.def("write_textured_obj", &core::write_textured_obj, "Writes the given Mesh to an obj file, including texture coordinates, and an mtl file containing a reference to the texture map in the form of <filename>.texture.png. That texture .png file has to be saved separately.", py::arg("mesh"), py::arg("filename"));
