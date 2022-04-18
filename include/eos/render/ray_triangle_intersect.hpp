@@ -35,7 +35,7 @@ namespace render {
 /**
  * @brief Computes the intersection of the given ray with the given triangle.
  *
- * Uses the Möller-Trumbore algorithm algorithm "Fast Minimum Storage
+ * Uses the MÃ¶ller-Trumbore algorithm algorithm "Fast Minimum Storage
  * Ray/Triangle Intersection". Independent implementation, inspired by:
  * http://www.scratchapixel.com/lessons/3d-basic-rendering/ray-tracing-rendering-a-triangle/moller-trumbore-ray-triangle-intersection
  * The default eps (1e-6f) is from the paper.

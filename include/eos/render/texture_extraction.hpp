@@ -56,8 +56,8 @@ namespace render {
  *   - The function does currently not compute a view-angle and store that in the alpha channel, like the
  *     previous function did. We have to re-add that. Documentation of the old parameter:
  *     `compute_view_angle A flag whether the view angle of each vertex should be computed and returned. If
- *     set to true, the angle will be encoded into the alpha channel (0 meaning occluded or facing away 90°,
- *     127 meaning facing a 45° angle and 255 meaning front-facing, and all values in between). If set to
+ *     set to true, the angle will be encoded into the alpha channel (0 meaning occluded or facing away 90Â°,
+ *     127 meaning facing a 45Â° angle and 255 meaning front-facing, and all values in between). If set to
  *     false, the alpha channel will only contain 0 for occluded vertices and 255 for visible vertices.`
  *   - We perhaps should add another parameter, `glm::vec4 viewport`. We could need to change
  *     `clip_to_screen_space()` to make use of that.
