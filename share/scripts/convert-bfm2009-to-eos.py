@@ -6,9 +6,8 @@ import scipy.io
 # specifically the file PublicMM1/01_MorphableModel.mat from the BFM2009 distribution.
 #
 # The script does not use or convert the segments of the BFM2009, just the global PCA.
-# The BFM2009 also does not come with texture (uv-) coordinates. If you have texture coordinates for the BFM, they can be
-# added to the eos.morphablemodel.MorphableModel(...) constructor in the third argument. Note that eos only supports one
-# uv-coordinate per vertex.
+# The BFM2009 also does not come with texture (uv-) coordinates. If you have texture coordinates for the BFM, they can
+# be added to the eos.morphablemodel.MorphableModel(...) constructor.
 #
 # [1]: A 3D Face Model for Pose and Illumination Invariant Face Recognition,
 #      P. Paysan, R. Knothe, B. Amberg, S. Romdhani, and T. Vetter,
@@ -37,7 +36,7 @@ shape_model = eos.morphablemodel.PcaModel(shape_mean, shape_orthogonal_pca_basis
 
 # PCA colour model:
 color_mean = bfm2009['texMU']
-# The BFM2009's colour data is in the range [0, 255], while the SFM is in [0, 1], so we divide by 255:
+# The BFM2009's colour data is in the range [0, 255], while eos generally expects [0, 1], so we divide by 255:
 color_mean /= 255
 color_orthogonal_pca_basis = bfm2009['texPC']
 color_pca_standard_deviations = bfm2009['texEV']  # Again, these are standard deviations, not eigenvalues
