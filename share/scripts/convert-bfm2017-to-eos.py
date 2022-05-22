@@ -6,8 +6,7 @@ import h5py
 # specifically the files model2017-1_face12_nomouth.h5 and model2017-1_bfm_nomouth.h5 from the BFM2017 download.
 #
 # The BFM2017 does not come with texture (uv-) coordinates. If you have texture coordinates for the BFM, they can be
-# added to the eos.morphablemodel.MorphableModel(...) constructor in the third argument. Note that eos only supports one
-# uv-coordinate per vertex.
+# added to the eos.morphablemodel.MorphableModel(...) constructor.
 #
 # [1]: Morphable Face Models - An Open Framework,
 #      T. Gerig, A. Morel-Forster, C. Blumer, B. Egger, M. Lüthi, S. Schönborn and T. Vetter,
