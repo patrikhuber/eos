@@ -270,6 +270,9 @@ PYBIND11_MODULE(eos, eos_module)
      *  - ContourLandmarks
      *  - ModelContour
      *  - fit_shape_and_pose()
+     *  - fit_shape_to_landmarks_linear()
+     *  - fit_expressions()
+     *  - get_3x4_affine_camera_matrix()
      */
     py::module fitting_module = eos_module.def_submodule("fitting", "Pose and shape fitting of a 3D Morphable Model.");
 
@@ -354,6 +357,58 @@ PYBIND11_MODULE(eos, eos_module)
         py::arg("model_contour"), py::arg("num_iterations") = 5,
         py::arg("num_shape_coefficients_to_fit") = py::none(), py::arg("lambda_identity") = 30.0f,
         py::arg("num_expression_coefficients_to_fit") = py::none(), py::arg("lambda_expressions") = 30.0f);
+
+    fitting_module.def(
+        "fit_shape_to_landmarks_linear",
+        [](const morphablemodel::PcaModel& shape_model, 
+           const Eigen::Matrix<float, 3, 4>& affine_camera_matrix,
+           const std::vector<Eigen::Vector2f>& landmarks, 
+           const std::vector<int>& vertex_ids,
+           const Eigen::VectorXf& base_face, 
+           float lambda_identity,
+           cpp17::optional<int> num_coefficients_to_fit,
+           cpp17::optional<float> detector_standard_deviation,
+           cpp17::optional<float> model_standard_deviation) {
+            const auto result = fitting::fit_shape_to_landmarks_linear(
+                shape_model, affine_camera_matrix, landmarks, vertex_ids, base_face, lambda_identity,
+                num_coefficients_to_fit, detector_standard_deviation, model_standard_deviation);
+            return result;
+        },
+        "Fits the shape of a Morphable Model to given 2D landmarks (i.e. estimates the maximum likelihood solution of the shape coefficients)."
+        "Returns the estimated shape coefficients (alphas)",
+        py::arg("shape_model"), py::arg("affine_camera_matrix"), py::arg("landmarks"), py::arg("vertex_ids"),
+        py::arg("base_face"), py::arg("lambda_identity") = 3.0f, py::arg("num_coefficients_to_fit") = py::none(),
+        py::arg("detector_standard_deviation") = py::none(), py::arg("model_standard_deviation") = py::none());
+
+    fitting_module.def(
+        "fit_expressions",
+        [](const morphablemodel::ExpressionModel& expression_model,
+           const Eigen::VectorXf& face_instance,
+           const Eigen::Matrix<float, 3, 4>& affine_camera_matrix,
+           const std::vector<Eigen::Vector2f>& landmarks, 
+           const std::vector<int>& vertex_ids,
+           cpp17::optional<float> lambda_expressions,
+           cpp17::optional<int> num_expression_coefficients_to_fit) {
+            const auto result = fitting::fit_expressions(
+                expression_model, face_instance, affine_camera_matrix, landmarks, vertex_ids, lambda_expressions,
+                num_expression_coefficients_to_fit);
+            return result;
+        },
+        "Fits the given expression model to landmarks."
+        "Returns a vector of fitted expression coefficients.",
+        py::arg("expression_model"), py::arg("face_instance"), py::arg("affine_camera_matrix"), py::arg("landmarks"),
+        py::arg("vertex_ids"), py::arg("lambda_expressions") = 30.0f, py::arg("num_expression_coefficients_to_fit") = py::none());
+        
+    fitting_module.def(
+        "get_3x4_affine_camera_matrix",
+        [](const fitting::RenderingParameters& rendering_params,
+           int width, int height) {
+            const auto result = fitting::get_3x4_affine_camera_matrix(rendering_params, width, height);
+            return result;
+        },
+        "Creates a 3x4 affine camera matrix from given fitting parameters."
+        "Returns a 3x4 affine camera matrix.",
+        py::arg("rendering_params"), py::arg("width"), py::arg("height"));
 
     /**
      * Bindings for the eos::render namespace:
