@@ -91,6 +91,10 @@ inline cv::Mat to_mat(const Image1u& image)
     return opencv_matrix;
 };
 
+/**
+ * Returns an Image3u from a given cv::Mat with type CV_8UC3. The channel order is not changed, i.e. if the
+ * cv::Mat is BGR, the output Image3u will have BGR channel ordering too.
+ */
 inline Image3u from_mat(const cv::Mat& image)
 {
     if (image.type() != CV_8UC3)
