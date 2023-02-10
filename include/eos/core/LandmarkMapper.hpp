@@ -74,19 +74,18 @@ public:
         // so ideally you'd want to call this c'tor within a try-catch.
         const auto data = toml::parse(filename);
 
-        const auto mappings_table = toml::get<toml::Table>(data.at("landmark_mappings"));
+        const auto& mappings_table = toml::get<toml::table>(data.at("landmark_mappings"));
         // The key in the config is always a string. The value however may be a string or an integer, so we
         // check for that and convert to a string.
         for (const auto& mapping : mappings_table)
         {
-            std::string f = mapping.first;
             std::string value;
             switch (mapping.second.type())
             {
-            case toml::value_t::Integer:
+            case toml::value_t::integer:
                 value = std::to_string(toml::get<int>(mapping.second));
                 break;
-            case toml::value_t::String:
+            case toml::value_t::string:
                 value = toml::get<std::string>(mapping.second);
                 break;
             default:

@@ -164,22 +164,22 @@ struct ContourLandmarks
 
         // Todo: Handle the case when '[contour_landmarks]' is empty - now it just throws. Use
         // std::unordered_map::count.
-        const auto contour_table = toml::get<toml::Table>(data.at("contour_landmarks"));
+        const auto& contour_table = toml::get<toml::table>(data.at("contour_landmarks"));
 
         ContourLandmarks contour;
         // There might be a vector<string> or a vector<int>, we need to check for that and convert to vector<string>.
         // Todo: Again, check whether the key exists first.
         // Read all the "right" contour landmarks:
-        const auto right_contour = toml::get<std::vector<toml::value>>(contour_table.at("right"));
+        const auto& right_contour = toml::get<std::vector<toml::value>>(contour_table.at("right"));
         for (const auto& landmark : right_contour)
         {
             std::string value;
             switch (landmark.type())
             {
-            case toml::value_t::Integer:
+            case toml::value_t::integer:
                 value = std::to_string(toml::get<int>(landmark));
                 break;
-            case toml::value_t::String:
+            case toml::value_t::string:
                 value = toml::get<std::string>(landmark);
                 break;
             default:
@@ -188,16 +188,16 @@ struct ContourLandmarks
             contour.right_contour.push_back(value);
         }
         // Now the same for all the "left" contour landmarks:
-        const auto left_contour = toml::get<std::vector<toml::value>>(contour_table.at("left"));
+        const auto& left_contour = toml::get<std::vector<toml::value>>(contour_table.at("left"));
         for (const auto& landmark : left_contour)
         {
             std::string value;
             switch (landmark.type())
             {
-            case toml::value_t::Integer:
+            case toml::value_t::integer:
                 value = std::to_string(toml::get<int>(landmark));
                 break;
-            case toml::value_t::String:
+            case toml::value_t::string:
                 value = toml::get<std::string>(landmark);
                 break;
             default:
