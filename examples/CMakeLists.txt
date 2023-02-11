@@ -16,8 +16,8 @@ endif()
 # This allows us to compile in RelWithDebInfo. It'll use the Release-version of OpenCV:
 set_target_properties(${OpenCV_LIBS} PROPERTIES MAP_IMPORTED_CONFIG_RELWITHDEBINFO RELEASE)
 
+set(Boost_NO_WARN_NEW_VERSIONS ON) # Supress "New Boost version may have incorrect dependencies or import targets" warning
 find_package(Boost 1.71.0 REQUIRED COMPONENTS filesystem program_options)
-message(STATUS "Boost found at ${Boost_INCLUDE_DIRS}")
 
 # Simple model fitting (orthographic camera & shape to landmarks) example:
 add_executable(fit-model-simple fit-model-simple.cpp)

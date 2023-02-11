@@ -1,5 +1,5 @@
+set(Boost_NO_WARN_NEW_VERSIONS ON) # Supress "New Boost version may have incorrect dependencies or import targets" warning
 find_package(Boost 1.71.0 REQUIRED COMPONENTS program_options)
-message(STATUS "Boost found at ${Boost_INCLUDE_DIRS}")
 
 # Converts a CVSSP .scm Morphable Model to a cereal binary file:
 add_executable(scm-to-cereal scm-to-cereal.cpp)
