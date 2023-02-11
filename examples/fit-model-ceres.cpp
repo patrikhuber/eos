@@ -351,21 +351,22 @@ int main(int argc, char* argv[])
                                               &camera_translation_and_intrinsics[0], &shape_coefficients[0],
                                               &blendshape_coefficients[0]);
     }
-    // Shape prior:
-    CostFunction* shape_prior_cost =
-        new AutoDiffCostFunction<fitting::PriorCost, 10 /* num residuals */, 10 /* shape-coeffs */>(
-            new fitting::PriorCost(10, 35.0));
-    fitting_costfunction.AddResidualBlock(shape_prior_cost, NULL, &shape_coefficients[0]);
+    // Shape prior and bounds, for 10 shape coefficients:
+    CostFunction* shape_prior_cost = fitting::NormCost::Create<10>();
+    ScaledLoss* shape_prior_scaled_loss =
+        new ScaledLoss(nullptr, 35.0, Ownership::TAKE_OWNERSHIP);
+    fitting_costfunction.AddResidualBlock(shape_prior_cost, shape_prior_scaled_loss, &shape_coefficients[0]);
     for (int i = 0; i < 10; ++i)
     {
         fitting_costfunction.SetParameterLowerBound(&shape_coefficients[0], i, -3.0);
         fitting_costfunction.SetParameterUpperBound(&shape_coefficients[0], i, 3.0);
     }
     // Prior and constraints on blendshapes:
-    CostFunction* blendshapes_prior_cost =
-        new AutoDiffCostFunction<fitting::PriorCost, 6 /* num residuals */, 6 /* bs-coeffs */>(
-            new fitting::PriorCost(6, 10.0));
-    fitting_costfunction.AddResidualBlock(blendshapes_prior_cost, NULL, &blendshape_coefficients[0]);
+    CostFunction* blendshapes_prior_cost = fitting::NormCost::Create<6>();
+    LossFunction* blendshapes_prior_scaled_loss =
+        new ScaledLoss(new SoftLOneLoss(1.0), 10.0, Ownership::TAKE_OWNERSHIP);
+    fitting_costfunction.AddResidualBlock(blendshapes_prior_cost, blendshapes_prior_scaled_loss,
+                                          &blendshape_coefficients[0]);
     fitting_costfunction.SetParameterLowerBound(&blendshape_coefficients[0], 0, 0.0);
     fitting_costfunction.SetParameterLowerBound(&blendshape_coefficients[0], 1, 0.0);
     fitting_costfunction.SetParameterLowerBound(&blendshape_coefficients[0], 2, 0.0);
@@ -412,11 +413,11 @@ int main(int argc, char* argv[])
                                               &camera_translation_and_intrinsics[0], &shape_coefficients[0],
                                               &blendshape_coefficients[0], &colour_coefficients[0]);
     }
-    // Prior for the colour coefficients:
-    CostFunction* colour_prior_cost =
-        new AutoDiffCostFunction<fitting::PriorCost, 10 /* num residuals */, 10 /* colour-coeffs */>(
-            new fitting::PriorCost(10, 35.0));
-    fitting_costfunction.AddResidualBlock(colour_prior_cost, NULL, &colour_coefficients[0]);
+    // Prior and bounds, for 10 colour coefficients:
+    CostFunction* color_prior_cost = fitting::NormCost::Create<10>();
+    ScaledLoss* color_prior_scaled_loss =
+        new ScaledLoss(nullptr, 35.0, Ownership::TAKE_OWNERSHIP);
+    fitting_costfunction.AddResidualBlock(color_prior_cost, color_prior_scaled_loss, &colour_coefficients[0]);
     for (int i = 0; i < 10; ++i)
     {
         fitting_costfunction.SetParameterLowerBound(&colour_coefficients[0], i, -3.0);

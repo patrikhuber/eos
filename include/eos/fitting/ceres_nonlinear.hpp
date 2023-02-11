@@ -3,7 +3,7 @@
  *
  * File: include/eos/fitting/ceres_nonlinear.hpp
  *
- * Copyright 2016 Patrik Huber
+ * Copyright 2016-2023 Patrik Huber
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@
 #include "glm/gtc/quaternion.hpp"
 #include "glm/gtx/transform.hpp"
 
+#include "ceres/ceres.h"
 #include "ceres/cubic_interpolation.h"
 
 #include "opencv2/core/core.hpp"
@@ -51,44 +52,54 @@ std::array<T, 3> get_vertex_colour(const morphablemodel::PcaModel& colour_model,
                                    const T* const colour_coeffs);
 
 /**
- * Cost function for a prior on the parameters.
+ * Cost function that consists of the parameter values themselves as residual.
  * 
- * Prior towards zero (0, 0...) for the parameters.
- * Note: The weight is inside the norm, so may not correspond to the "usual"
- * formulas. However I think it's equivalent up to a scaling factor, but it
- * should be checked.
+ * If used with a squared loss, this corresponds to an L2 norm constraint on the parameters.
+ * This class is implemented exactly like Ceres' NormalPrior.
  */
-struct PriorCost
+struct NormCost
 {
 
     /**
-     * Creates a new prior object with set number of variables and a weight.
+     * Creates a new NormCost object with set number of parameters.
      *
-     * @param[in] num_variables Number of variables that the parameter vector contains.
-     * @param[in] weight A weight that the parameters are multiplied with.
+     * @param[in] num_parameters Number of parameters that the parameter vector contains.
      */
-    PriorCost(int num_variables, double weight = 1.0) : num_variables(num_variables), weight(weight){};
+    NormCost(int num_parameters) : num_parameters(num_parameters){};
 
     /**
      * Cost function implementation.
      *
      * @param[in] x An array of parameters.
      * @param[in] residual An array of the resulting residuals.
-     * @return Returns true. The ceres documentation is not clear about that I think.
+     * @return whether the computation of the residuals was successful. Always returns true.
      */
     template <typename T>
     bool operator()(const T* const x, T* residual) const
     {
-        for (int i = 0; i < num_variables; ++i)
+        for (int i = 0; i < num_parameters; ++i)
         {
-            residual[i] = weight * x[i];
+            residual[i] = x[i];
         }
         return true;
     };
 
+    /**
+     * Factory to hide the construction of the CostFunction object from the client code.
+     *
+     * The number of parameters is given as a template argument, so that we can use Ceres' fixed-size
+     * constructor.
+     */
+    template <int num_parameters>
+    static ceres::CostFunction* Create()
+    {
+        return (new ceres::AutoDiffCostFunction<NormCost, num_parameters /* num residuals */,
+                                                num_parameters /* num parameters */>(
+            new NormCost(num_parameters)));
+    }
+
 private:
-    int num_variables;
-    double weight;
+    int num_parameters;
 };
 
 /**
