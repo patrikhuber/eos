@@ -318,7 +318,13 @@ PYBIND11_MODULE(eos, eos_module)
                     for (int row = 0; row < 4; ++row)
                         projection(row, col) = p.get_projection()[col][row];
                 return projection;
-            }, "Returns the 4x4 projection matrix.");
+            }, "Returns the 4x4 projection matrix.")
+        .def("get_translation",
+             [](const fitting::RenderingParameters& p) {
+                p.get_translation();
+                 return Eigen::Vector3f(p.get_translation().x, p.get_translation().y, p.get_translation().z);
+             },
+             "Returns the translation [x y z].");
 
     fitting_module.def("estimate_orthographic_projection_linear", &fitting::estimate_orthographic_projection_linear,
                        "This algorithm estimates the parameters of a scaled orthographic projection, given a set of corresponding 2D-3D points.",
