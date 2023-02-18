@@ -38,14 +38,14 @@ namespace fitting {
 
 // Forward declarations:
 template <typename T>
-Eigen::Vector3<T> get_shape_point(const eos::morphablemodel::PcaModel& shape_model,
-                                  const eos::morphablemodel::Blendshapes& blendshapes, int vertex_id,
-                                  Eigen::Map<const Eigen::VectorX<T>> shape_coeffs,
-                                  Eigen::Map<const Eigen::VectorX<T>> blendshape_coeffs);
+Eigen::Vector3<T> get_shape_at_point(const eos::morphablemodel::PcaModel& shape_model,
+                                     const eos::morphablemodel::Blendshapes& blendshapes, int vertex_id,
+                                     Eigen::Map<const Eigen::VectorX<T>> shape_coeffs,
+                                     Eigen::Map<const Eigen::VectorX<T>> blendshape_coeffs);
 
 template <typename T>
-Eigen::Vector3<T> get_vertex_colour(const eos::morphablemodel::PcaModel& color_model, int vertex_id,
-                                    Eigen::Map<const Eigen::VectorX<T>> color_coeffs);
+Eigen::Vector3<T> get_vertex_color_at_point(const eos::morphablemodel::PcaModel& color_model, int vertex_id,
+                                            Eigen::Map<const Eigen::VectorX<T>> color_coeffs);
 
 template <typename T>
 Eigen::Matrix4<T> perspective(T fov_y, T aspect, T z_near, T z_far);
