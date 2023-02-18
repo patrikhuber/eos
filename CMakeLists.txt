@@ -71,6 +71,7 @@ set(HEADERS
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/core/read_obj.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/core/write_obj.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/core/Rect.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/core/math.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/morphablemodel/PcaModel.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/morphablemodel/MorphableModel.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/morphablemodel/Blendshape.hpp

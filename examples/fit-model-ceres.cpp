@@ -3,7 +3,7 @@
  *
  * File: examples/fit-model-ceres.cpp
  *
- * Copyright 2016 Patrik Huber
+ * Copyright 2016-2023 Patrik Huber
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,24 +17,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#define GLM_FORCE_UNRESTRICTED_GENTYPE
 #include "eos/core/Landmark.hpp"
 #include "eos/core/LandmarkMapper.hpp"
 #include "eos/core/read_pts_landmarks.hpp"
+#include "eos/core/Image.hpp"
+#include "eos/core/image/opencv_interop.hpp"
 #include "eos/core/write_obj.hpp"
+#include "eos/core/math.hpp"
+#include "eos/morphablemodel/MorphableModel.hpp"
+#include "eos/morphablemodel/Blendshape.hpp"
 #include "eos/fitting/ceres_nonlinear.hpp"
 #include "eos/fitting/contour_correspondence.hpp"
-#include "eos/fitting/fitting.hpp"
-#include "eos/morphablemodel/Blendshape.hpp"
 
 #include "Eigen/Core"
 
-#include "glm/ext.hpp"
-#include "glm/glm.hpp"
-
 #include "ceres/ceres.h"
-#include "ceres/cubic_interpolation.h"
-#include "ceres/rotation.h"
 
 #include "opencv2/core/core.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
@@ -48,7 +45,6 @@
 #include <vector>
 
 using namespace eos;
-using namespace glm;
 using namespace ceres;
 namespace po = boost::program_options;
 namespace fs = boost::filesystem;
@@ -168,7 +164,7 @@ int main(int argc, char* argv[])
     std::vector<eos::morphablemodel::Blendshape> blendshapes =
         eos::morphablemodel::load_blendshapes(blendshapesfile.string());
 
-    // Draw the loaded landmarks:
+    // Draw the loaded landmarks (blue):
     Mat outimg = image.clone();
     for (const auto& lm : landmarks)
     {
@@ -176,21 +172,19 @@ int main(int argc, char* argv[])
                       cv::Point2f(lm.coordinates[0] + 2.0f, lm.coordinates[1] + 2.0f), {255, 0, 0});
     }
 
-    constexpr bool use_perspective = false;
-
     // These will be the 2D image points and their corresponding 3D vertex id's used for the fitting:
     vector<Vector2f> image_points; // the 2D landmark points
-    vector<int> vertex_indices; // their corresponding vertex indices
+    vector<int> vertex_indices;    // their corresponding vertex indices
 
     // Sub-select all the landmarks which we have a mapping for (i.e. that are defined in the 3DMM):
     for (int i = 0; i < landmarks.size(); ++i)
     {
-        auto converted_name = landmark_mapper.convert(landmarks[i].name);
+        const auto converted_name = landmark_mapper.convert(landmarks[i].name);
         if (!converted_name)
         { // no mapping defined for the current landmark
             continue;
         }
-        int vertex_idx = std::stoi(converted_name.value());
+        const int vertex_idx = std::stoi(converted_name.value());
         vertex_indices.emplace_back(vertex_idx);
         image_points.emplace_back(landmarks[i].coordinates);
     }
@@ -199,66 +193,70 @@ int main(int argc, char* argv[])
     std::stringstream fitting_log;
     auto start = std::chrono::steady_clock::now();
 
-    std::vector<double> camera_rotation; // Quaternion, [w x y z]. Todo: Actually, use std::array for all of these.
-    camera_rotation.resize(4); // initialises with zeros
-    camera_rotation[0] = 1.0;
-    std::vector<double> camera_translation_and_intrinsics;
-    constexpr int num_cam_trans_intr_params = use_perspective ? 4 : 3;
-    // Parameters for the orthographic projection: [t_x, t_y, frustum_scale]
-    // And perspective projection: [t_x, t_y, t_z, fov].
-    // Origin is assumed at center of image, and no lens distortions.
+    // The following have to be constexpr because they're used in template parameters in this implementation:
+    constexpr int num_shape_coeffs = 50;
+    constexpr int num_blendshape_coeffs = 6;
+    constexpr int num_color_coeffs = 50;
+
+    // Weights for the different cost function terms:
+    // Note: To find good weights, ceres::ResidualBlockId can be used to store the IDs to each added residual
+    // blocks. Then, one can use ceres::Problem::EvaluateOptions and ceres::Problem::Evaluate(...) to retrieve
+    // the values of each individual term. We don't do that here for simplicity reasons. See the Ceres
+    // documentation for details, and https://github.com/patrikhuber/eos/issues/348.
+    const double landmark_cost_weight = 100.0;
+    const double shape_prior_cost_weight = 500000.0;
+    const double blendshapes_prior_cost_weight = 25.0;
+    const double color_prior_cost_weight = 500000.0;
+    const double vertex_color_cost_weight = 1.0;
+
+    // The model parameters that we're estimating:
+    using ModelCoefficients = vector<double>;
+    ModelCoefficients shape_coefficients(num_shape_coeffs, 0.0);
+    ModelCoefficients blendshape_coefficients(num_blendshape_coeffs, 0.0);
+    ModelCoefficients color_coefficients(num_color_coeffs, 0.0);
+
+    // Parameters for the perspective projection: A rotation quaternion, [t_x, t_y, t_z], and fov_y (field of
+    // view).
+    // The origin is assumed at center of image, and no lens distortions.
     // Note: Actually, we estimate the model-view matrix and not the camera position. But one defines the
     // other.
-    camera_translation_and_intrinsics.resize(num_cam_trans_intr_params); // initialises with zeros
-    if (use_perspective)
-    {
-        camera_translation_and_intrinsics[2] = -400.0;              // Move the model back (along the -z axis)
-        camera_translation_and_intrinsics[3] = glm::radians(45.0f); // fov
-    } else
-    {
-        camera_translation_and_intrinsics[2] = 110.0; // frustum_scale
-    }
+    Eigen::Quaterniond camera_rotation(1.0, 0.0, 0.0, 0.0); // The c'tor takes wxyz. Storage is xyzw.
+    Eigen::Vector3d camera_translation(0.0, 0.0, -400.0);   // Move the model back (along the -z axis)
+    double fov_y = core::radians(45.0);
 
-    std::vector<double> shape_coefficients;
-    shape_coefficients.resize(10); // Todo: Currently, the value '10' is hard-coded everywhere. Make it dynamic.
-    std::vector<double> blendshape_coefficients;
-    blendshape_coefficients.resize(6);
-
+    // Set up just a landmark cost and optimise for rotation and translation, with fov_y and the 3DMM
+    // parameters fixed (i.e. using the mean face):
     Problem camera_costfunction;
     for (int i = 0; i < image_points.size(); ++i)
     {
-        CostFunction* cost_function =
-            new AutoDiffCostFunction<fitting::LandmarkCost, 2 /* num residuals */,
-                                     4 /* camera rotation (quaternion) */,
-                                     num_cam_trans_intr_params /* camera translation & fov/frustum_scale */,
-                                     10 /* shape-coeffs */, 6 /* bs-coeffs */>(
-                new fitting::LandmarkCost(morphable_model.get_shape_model(), blendshapes, image_points[i],
-                                          vertex_indices[i], image.cols, image.rows, use_perspective));
-
-        camera_costfunction.AddResidualBlock(cost_function, NULL, &camera_rotation[0],
-                                             &camera_translation_and_intrinsics[0], &shape_coefficients[0],
-                                             &blendshape_coefficients[0]);
+        auto landmark_cost =
+            fitting::PerspectiveProjectionLandmarkCost::Create<num_shape_coeffs, num_blendshape_coeffs>(
+                morphable_model.get_shape_model(), blendshapes, image_points[i], vertex_indices[i],
+                image.cols, image.rows);
+        ScaledLoss* landmark_cost_scaled_loss =
+            new ScaledLoss(nullptr, landmark_cost_weight, ceres::TAKE_OWNERSHIP);
+        camera_costfunction.AddResidualBlock(landmark_cost, landmark_cost_scaled_loss,
+                                             &camera_rotation.coeffs()[0], &camera_translation.data()[0],
+                                             &fov_y, &shape_coefficients[0], &blendshape_coefficients[0]);
     }
-    camera_costfunction.SetParameterBlockConstant(&shape_coefficients[0]); // keep the shape constant
+    // Keep the model coeffs constant (i.e. all at zero):
+    camera_costfunction.SetParameterBlockConstant(&shape_coefficients[0]);
     camera_costfunction.SetParameterBlockConstant(&blendshape_coefficients[0]);
-    if (use_perspective)
-    {
-        camera_costfunction.SetParameterUpperBound(
-            &camera_translation_and_intrinsics[0], 2,
-            -std::numeric_limits<double>::epsilon()); // t_z has to be negative
-        camera_costfunction.SetParameterLowerBound(&camera_translation_and_intrinsics[0], 3,
-                                                   0.01); // fov in radians, must be > 0
-    } else
-    {
-        camera_costfunction.SetParameterLowerBound(&camera_translation_and_intrinsics[0], 2,
-                                                   1.0); // frustum_scale must be > 0
-    }
-    QuaternionParameterization* camera_fit_quaternion_parameterisation = new QuaternionParameterization;
-    camera_costfunction.SetParameterization(&camera_rotation[0], camera_fit_quaternion_parameterisation);
+    // Keep the fov_y constant too:
+    camera_costfunction.SetParameterBlockConstant(&fov_y);
+    // Keep t_z negative (i.e. we want to look at the model from the front):
+    camera_costfunction.SetParameterUpperBound(&camera_translation[0], 2,
+                                               -std::numeric_limits<double>::epsilon());
+    // Keep the fov_y (in radians) > 0 (but we're not optimising for it now):
+    // camera_costfunction.SetParameterLowerBound(&fov_y, 0, 0.01);
 
+    EigenQuaternionManifold* quaternion_manifold = new EigenQuaternionManifold;
+    camera_costfunction.SetManifold(&camera_rotation.coeffs()[0], quaternion_manifold);
+
+    // Set up the solver, and optimise:
     Solver::Options solver_options;
-    solver_options.linear_solver_type = ITERATIVE_SCHUR;
-    solver_options.num_threads = 8;
+    // solver_options.linear_solver_type = ITERATIVE_SCHUR;
+    // solver_options.num_threads = 8;
     solver_options.minimizer_progress_to_stdout = true;
     // solver_options.max_num_iterations = 100;
     Solver::Summary solver_summary;
@@ -268,63 +266,41 @@ int main(int argc, char* argv[])
 
     // Draw the mean-face landmarks projected using the estimated camera:
     // Construct the rotation & translation (model-view) matrices, projection matrix, and viewport:
-    glm::dquat estimated_rotation(camera_rotation[0], camera_rotation[1], camera_rotation[2],
-                                  camera_rotation[3]);
-    auto rot_mtx = glm::mat4_cast(estimated_rotation);
+    Eigen::Matrix4d model_view_mtx = Eigen::Matrix4d::Identity();
+    model_view_mtx.block<3, 3>(0, 0) = camera_rotation.toRotationMatrix();
+    model_view_mtx.col(3).head<3>() = camera_translation;
     const double aspect = static_cast<double>(image.cols) / image.rows;
-    auto get_translation_matrix = [](auto&& camera_translation_and_intrinsics, auto&& use_perspective) {
-        if (use_perspective)
-        {
-            return glm::translate(glm::dvec3(camera_translation_and_intrinsics[0],
-                                             camera_translation_and_intrinsics[1],
-                                             camera_translation_and_intrinsics[2]));
-        } else
-        {
-            return glm::translate(
-                glm::dvec3(camera_translation_and_intrinsics[0], camera_translation_and_intrinsics[1], 0.0));
-        }
-    };
-    auto get_projection_matrix = [](auto&& camera_translation_and_intrinsics, auto&& aspect,
-                                    auto&& use_perspective) {
-        if (use_perspective)
-        {
-            const auto& focal = camera_translation_and_intrinsics[3];
-            return glm::perspective(focal, aspect, 0.1, 1000.0);
-        } else
-        {
-            const auto& frustum_scale = camera_translation_and_intrinsics[2];
-            return glm::ortho(-1.0 * aspect * frustum_scale, 1.0 * aspect * frustum_scale,
-                              -1.0 * frustum_scale, 1.0 * frustum_scale);
-        }
-    };
-    auto t_mtx = get_translation_matrix(camera_translation_and_intrinsics, use_perspective);
-    auto projection_mtx = get_projection_matrix(camera_translation_and_intrinsics, aspect, use_perspective);
-    const glm::dvec4 viewport(0, image.rows, image.cols, -image.rows); // OpenCV convention
+    auto projection_mtx = fitting::perspective(fov_y, aspect, 0.1, 1000.0);
+    // Todo: use get_opencv_viewport() from nonlin_cam_esti.hpp.
+    const Eigen::Vector4d viewport(0, image.rows, image.cols, -image.rows); // OpenCV convention
 
-    auto mean_mesh = morphable_model.get_mean();
+    const auto& mean_mesh = morphable_model.get_mean();
     for (auto idx : vertex_indices)
     {
-        glm::dvec3 point_3d(mean_mesh.vertices[idx][0], mean_mesh.vertices[idx][1],
-                            mean_mesh.vertices[idx][2]); // The 3D model point
-        glm::dvec3 projected_point = glm::project(point_3d, t_mtx * rot_mtx, projection_mtx, viewport);
-        cv::circle(outimg, cv::Point2f(projected_point.x, projected_point.y), 3, {0.0f, 0.0f, 255.0f}); // red
+        const auto& point_3d = mean_mesh.vertices[idx];
+        const auto projected_point =
+            fitting::project<double>(point_3d.cast<double>(), model_view_mtx, projection_mtx, viewport);
+        cv::circle(outimg, cv::Point2f(projected_point.x(), projected_point.y()), 3,
+                   {0.0f, 0.0f, 255.0f}); // red
     }
+    // Draw the subset of the detected landmarks that we use in the fitting (yellow):
     for (const auto& lm : image_points)
     {
-        cv::circle(outimg, cv::Point2f(lm(0), lm(1)), 3,
-                   {0.0f, 255.0f, 255.0f}); // yellow: subset of the detected LMs that we use
+        cv::circle(outimg, cv::Point2f(lm(0), lm(1)), 3, {0.0f, 255.0f, 255.0f});
     }
-    auto euler_angles = glm::eulerAngles(estimated_rotation); // returns [P, Y, R]
-    fitting_log << "Pose fit with mean shape:\tYaw " << glm::degrees(euler_angles[1]) << ", Pitch "
-                << glm::degrees(euler_angles[0]) << ", Roll " << glm::degrees(euler_angles[2])
-                << "; t & f: " << camera_translation_and_intrinsics << '\n';
-    fitting_log << "Ceres took: "
+
+    fitting_log << "Pose-only fitting took: "
                 << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << "ms.\n";
 
-    // Contour fitting:
+    // Now add contour fitting:
     // These are the additional contour-correspondences we're going to find and then use:
+    // Note: This needs extracting the yaw angle from the rotation quaternion, which Eigen currently doesn't
+    // have a function for. Not using contour fitting for now.
+    // euler_angles = glm::eulerAngles(estimated_rotation); // returns [P, Y, R]; where estimated_rotation is
+    // a glm::quat.
+    /*
     vector<Vector2f> image_points_contour; // the 2D landmark points
-    vector<int> vertex_indices_contour; // their corresponding 3D vertex indices
+    vector<int> vertex_indices_contour;    // their corresponding 3D vertex indices
     // For each 2D contour landmark, get the corresponding 3D vertex point and vertex id:
     std::tie(image_points_contour, std::ignore, vertex_indices_contour) =
         fitting::get_contour_correspondences(landmarks, ibug_contour, model_contour,
@@ -333,64 +309,59 @@ int main(int argc, char* argv[])
     using eos::fitting::concat;
     vertex_indices = concat(vertex_indices, vertex_indices_contour);
     image_points = concat(image_points, image_points_contour);
+    */
 
     // Full fitting - Estimate shape and pose, given the previous pose estimate:
     start = std::chrono::steady_clock::now();
     Problem fitting_costfunction;
-    // Landmark constraint:
+    // Landmark cost:
     for (int i = 0; i < image_points.size(); ++i)
     {
-        CostFunction* cost_function =
-            new AutoDiffCostFunction<fitting::LandmarkCost, 2 /* num residuals */,
-                                     4 /* camera rotation (quaternion) */,
-                                     num_cam_trans_intr_params /* camera translation & focal length */,
-                                     10 /* shape-coeffs */, 6 /* bs-coeffs */>(
-                new fitting::LandmarkCost(morphable_model.get_shape_model(), blendshapes, image_points[i],
-                                          vertex_indices[i], image.cols, image.rows, use_perspective));
-        fitting_costfunction.AddResidualBlock(cost_function, NULL, &camera_rotation[0],
-                                              &camera_translation_and_intrinsics[0], &shape_coefficients[0],
-                                              &blendshape_coefficients[0]);
+        auto landmark_cost =
+            fitting::PerspectiveProjectionLandmarkCost::Create<num_shape_coeffs, num_blendshape_coeffs>(
+                morphable_model.get_shape_model(), blendshapes, image_points[i], vertex_indices[i],
+                image.cols, image.rows);
+        ScaledLoss* landmark_cost_scaled_loss =
+            new ScaledLoss(nullptr, landmark_cost_weight, ceres::TAKE_OWNERSHIP);
+        fitting_costfunction.AddResidualBlock(landmark_cost, landmark_cost_scaled_loss,
+                                              &camera_rotation.coeffs()[0], &camera_translation.data()[0],
+                                              &fov_y, &shape_coefficients[0], &blendshape_coefficients[0]);
     }
-    // Shape prior and bounds, for 10 shape coefficients:
-    CostFunction* shape_prior_cost = fitting::NormCost::Create<10>();
+    // Prior and bounds for the shape coefficients:
+    CostFunction* shape_prior_cost = fitting::NormCost::Create<num_shape_coeffs>();
     ScaledLoss* shape_prior_scaled_loss =
-        new ScaledLoss(nullptr, 35.0, Ownership::TAKE_OWNERSHIP);
+        new ScaledLoss(nullptr, shape_prior_cost_weight,
+                       Ownership::TAKE_OWNERSHIP); // weight was 35.0 previously, but it was inside the
+                                                   // residual, now it's outside
     fitting_costfunction.AddResidualBlock(shape_prior_cost, shape_prior_scaled_loss, &shape_coefficients[0]);
-    for (int i = 0; i < 10; ++i)
+    for (int i = 0; i < num_shape_coeffs; ++i)
     {
         fitting_costfunction.SetParameterLowerBound(&shape_coefficients[0], i, -3.0);
         fitting_costfunction.SetParameterUpperBound(&shape_coefficients[0], i, 3.0);
     }
     // Prior and constraints on blendshapes:
-    CostFunction* blendshapes_prior_cost = fitting::NormCost::Create<6>();
+    CostFunction* blendshapes_prior_cost = fitting::NormCost::Create<num_blendshape_coeffs>();
     LossFunction* blendshapes_prior_scaled_loss =
-        new ScaledLoss(new SoftLOneLoss(1.0), 10.0, Ownership::TAKE_OWNERSHIP);
+        new ScaledLoss(new SoftLOneLoss(1.0), blendshapes_prior_cost_weight,
+                       Ownership::TAKE_OWNERSHIP); // weight was 10.0 previously
     fitting_costfunction.AddResidualBlock(blendshapes_prior_cost, blendshapes_prior_scaled_loss,
                                           &blendshape_coefficients[0]);
-    fitting_costfunction.SetParameterLowerBound(&blendshape_coefficients[0], 0, 0.0);
-    fitting_costfunction.SetParameterLowerBound(&blendshape_coefficients[0], 1, 0.0);
-    fitting_costfunction.SetParameterLowerBound(&blendshape_coefficients[0], 2, 0.0);
-    fitting_costfunction.SetParameterLowerBound(&blendshape_coefficients[0], 3, 0.0);
-    fitting_costfunction.SetParameterLowerBound(&blendshape_coefficients[0], 4, 0.0);
-    fitting_costfunction.SetParameterLowerBound(&blendshape_coefficients[0], 5, 0.0);
-    // Some constraints on the camera translation and fov/scale:
-    if (use_perspective)
+    for (int i = 0; i < num_blendshape_coeffs; ++i)
     {
-        fitting_costfunction.SetParameterUpperBound(
-            &camera_translation_and_intrinsics[0], 2,
-            -std::numeric_limits<double>::epsilon()); // t_z has to be negative
-        fitting_costfunction.SetParameterLowerBound(&camera_translation_and_intrinsics[0], 3,
-                                                    0.01); // fov in radians, must be > 0
-    } else
-    {
-        fitting_costfunction.SetParameterLowerBound(&camera_translation_and_intrinsics[0], 2,
-                                                    1.0); // frustum_scale must be > 0
+        fitting_costfunction.SetParameterLowerBound(&blendshape_coefficients[0], i, 0.0);
+        fitting_costfunction.SetParameterUpperBound(&blendshape_coefficients[0], i, 1.0);
     }
+    // Keep t_z negative (i.e. we want to look at the model from the front):
+    fitting_costfunction.SetParameterUpperBound(&camera_translation[0], 2,
+                                                -std::numeric_limits<double>::epsilon());
+    // Keep the fov_y (in radians) > 0:
+    fitting_costfunction.SetParameterLowerBound(&fov_y, 0, 0.01);
+    // Note: We create a new manifold object, since camera_costfunction took ownership of the previous one,
+    // and will delete it upon destruction.
+    EigenQuaternionManifold* quaternion_manifold_full_fitting = new EigenQuaternionManifold;
+    fitting_costfunction.SetManifold(&camera_rotation.coeffs()[0], quaternion_manifold_full_fitting);
 
-    QuaternionParameterization* full_fit_quaternion_parameterisation = new QuaternionParameterization;
-    fitting_costfunction.SetParameterization(&camera_rotation[0], full_fit_quaternion_parameterisation);
-
-    // Colour model fitting (this needs a Morphable Model with colour (albedo) model, see note above main()):
+    // Colour model cost (this needs a Morphable Model with colour (albedo) model, see note above main()):
     if (!morphable_model.has_color_model())
     {
         cout << "Error: The MorphableModel used does not contain a colour (albedo) model. ImageCost requires "
@@ -398,89 +369,81 @@ int main(int argc, char* argv[])
                 "different morphable model, or remove this section.";
         return EXIT_FAILURE;
     }
-    std::vector<double> colour_coefficients;
-    colour_coefficients.resize(10);
-    // Add a residual for each vertex:
+    // Add a colour residual for each vertex:
+    cv::cvtColor(image, image, cv::COLOR_BGR2RGB);
+    const core::Image3u image_eos_rgb = eos::core::from_mat(image);
+    cv::cvtColor(image, image, cv::COLOR_RGB2BGR);
     for (int i = 0; i < morphable_model.get_shape_model().get_data_dimension() / 3; ++i)
     {
-        CostFunction* cost_function =
-            new AutoDiffCostFunction<fitting::ImageCost, 3 /* Residuals: [R, G, B] */,
-                                     4 /* camera rotation (quaternion) */,
-                                     num_cam_trans_intr_params /* camera translation & focal length */,
-                                     10 /* shape-coeffs */, 6 /* bs-coeffs */, 10 /* colour coeffs */>(
-                new fitting::ImageCost(morphable_model, blendshapes, image, i, use_perspective));
-        fitting_costfunction.AddResidualBlock(cost_function, NULL, &camera_rotation[0],
-                                              &camera_translation_and_intrinsics[0], &shape_coefficients[0],
-                                              &blendshape_coefficients[0], &colour_coefficients[0]);
+        auto vertex_color_cost =
+            fitting::VertexColorCost::Create<num_shape_coeffs, num_blendshape_coeffs, num_color_coeffs>(
+                morphable_model.get_shape_model(), blendshapes, morphable_model.get_color_model(), i,
+                image_eos_rgb);
+        ScaledLoss* vertex_color_cost_scaled_loss =
+            new ScaledLoss(nullptr, vertex_color_cost_weight, ceres::TAKE_OWNERSHIP);
+        fitting_costfunction.AddResidualBlock(vertex_color_cost, vertex_color_cost_scaled_loss,
+                                              &camera_rotation.coeffs()[0], &camera_translation.data()[0],
+                                              &fov_y, &shape_coefficients[0], &blendshape_coefficients[0],
+                                              &color_coefficients[0]);
     }
-    // Prior and bounds, for 10 colour coefficients:
-    CostFunction* color_prior_cost = fitting::NormCost::Create<10>();
-    ScaledLoss* color_prior_scaled_loss =
-        new ScaledLoss(nullptr, 35.0, Ownership::TAKE_OWNERSHIP);
-    fitting_costfunction.AddResidualBlock(color_prior_cost, color_prior_scaled_loss, &colour_coefficients[0]);
-    for (int i = 0; i < 10; ++i)
+    // Prior and bounds, for the colour coefficients:
+    CostFunction* color_prior_cost = fitting::NormCost::Create<num_color_coeffs>();
+    ScaledLoss* color_prior_scaled_loss = new ScaledLoss(
+        nullptr, color_prior_cost_weight, Ownership::TAKE_OWNERSHIP); // weight was previously 35.0
+    fitting_costfunction.AddResidualBlock(color_prior_cost, color_prior_scaled_loss, &color_coefficients[0]);
+    for (int i = 0; i < num_color_coeffs; ++i)
     {
-        fitting_costfunction.SetParameterLowerBound(&colour_coefficients[0], i, -3.0);
-        fitting_costfunction.SetParameterUpperBound(&colour_coefficients[0], i, 3.0);
+        fitting_costfunction.SetParameterLowerBound(&color_coefficients[0], i, -3.0);
+        fitting_costfunction.SetParameterUpperBound(&color_coefficients[0], i, 3.0);
     }
 
     // Set different options for the full fitting:
-    /*	solver_options.linear_solver_type = ceres::ITERATIVE_SCHUR;
-            //solver_options.linear_solver_type = ceres::DENSE_QR;
-            //solver_options.minimizer_type = ceres::TRUST_REGION; // default I think
-            //solver_options.minimizer_type = ceres::LINE_SEARCH;
-            solver_options.num_threads = 8;
-            solver_options.num_linear_solver_threads = 8; // only SPARSE_SCHUR can use this
-            solver_options.minimizer_progress_to_stdout = true;
-            solver_options.max_num_iterations = 100;
-            */
+    // solver_options.linear_solver_type = ceres::ITERATIVE_SCHUR;
+    // solver_options.linear_solver_type = ceres::DENSE_QR;
+    // solver_options.minimizer_type = ceres::TRUST_REGION; // default I think
+    // solver_options.minimizer_type = ceres::LINE_SEARCH;
+    solver_options.num_threads = 16; // Make sure to adjust this, if you have fewer (or more) CPU cores.
+    // solver_options.minimizer_progress_to_stdout = true;
+    // solver_options.max_num_iterations = 100;
     Solve(solver_options, &fitting_costfunction, &solver_summary);
     std::cout << solver_summary.BriefReport() << "\n";
     end = std::chrono::steady_clock::now();
 
     // Draw the landmarks projected using all estimated parameters:
     // Construct the rotation & translation (model-view) matrices, projection matrix, and viewport:
-    estimated_rotation =
-        glm::dquat(camera_rotation[0], camera_rotation[1], camera_rotation[2], camera_rotation[3]);
-    rot_mtx = glm::mat4_cast(estimated_rotation);
-    t_mtx = get_translation_matrix(camera_translation_and_intrinsics, use_perspective);
-    projection_mtx = get_projection_matrix(camera_translation_and_intrinsics, aspect, use_perspective);
+    model_view_mtx = Eigen::Matrix4d::Identity();
+    model_view_mtx.block<3, 3>(0, 0) = camera_rotation.toRotationMatrix();
+    model_view_mtx.col(3).head<3>() = camera_translation;
+    projection_mtx = fitting::perspective(fov_y, aspect, 0.1, 1000.0);
 
     auto vectord_to_vectorf = [](const std::vector<double>& vec) {
         return std::vector<float>(std::begin(vec), std::end(vec));
     };
-    auto blendshape_coeffs_float = vectord_to_vectorf(blendshape_coefficients);
-    Eigen::VectorXf shape_ceres =
-        morphable_model.get_shape_model().draw_sample(shape_coefficients) +
-        to_matrix(blendshapes) *
-            Eigen::Map<const Eigen::VectorXf>(blendshape_coeffs_float.data(), blendshape_coeffs_float.size());
-    core::Mesh mesh = morphablemodel::sample_to_mesh(
-        shape_ceres, morphable_model.get_color_model().draw_sample(colour_coefficients),
-        morphable_model.get_shape_model().get_triangle_list(),
-        morphable_model.get_color_model().get_triangle_list(), morphable_model.get_texture_coordinates());
+    const auto shape_coeffs_float = vectord_to_vectorf(shape_coefficients);
+    const auto blendshape_coeffs_float = vectord_to_vectorf(blendshape_coefficients);
+    const auto color_coeffs_float = vectord_to_vectorf(color_coefficients);
+
+    morphablemodel::MorphableModel morphable_model_with_expressions(
+        morphable_model.get_shape_model(), blendshapes, morphable_model.get_color_model(),
+        morphable_model.get_landmark_definitions(), morphable_model.get_texture_coordinates(),
+        morphable_model.get_texture_triangle_indices());
+    const core::Mesh mesh = morphable_model_with_expressions.draw_sample(
+        shape_coeffs_float, blendshape_coeffs_float, color_coeffs_float);
+
     for (auto idx : vertex_indices)
     {
-        glm::dvec3 point_3d(mesh.vertices[idx][0], mesh.vertices[idx][1],
-                            mesh.vertices[idx][2]); // The 3D model point
-        glm::dvec3 projected_point = glm::project(point_3d, t_mtx * rot_mtx, projection_mtx, viewport);
-        cv::circle(outimg, cv::Point2f(projected_point.x, projected_point.y), 3,
+        const auto& point_3d = mesh.vertices[idx];
+        const auto projected_point =
+            fitting::project<double>(point_3d.cast<double>(), model_view_mtx, projection_mtx, viewport);
+        cv::circle(outimg, cv::Point2f(projected_point.x(), projected_point.y()), 3,
                    {0.0f, 76.0f, 255.0f}); // orange
     }
-    for (const auto& lm : image_points)
-    {
-        cv::circle(outimg, cv::Point2f(lm(0), lm(1)), 3,
-                   {0.0f, 255.0f,
-                    255.0f}); // yellow: subset of the detected LMs that we use (including contour landmarks)
-    }
 
-    estimated_rotation =
-        glm::dquat(camera_rotation[0], camera_rotation[1], camera_rotation[2], camera_rotation[3]);
-    euler_angles = glm::eulerAngles(estimated_rotation); // returns [P, Y, R]
-    fitting_log << "Final fit:\t\t\tYaw " << glm::degrees(euler_angles[1]) << ", Pitch "
-                << glm::degrees(euler_angles[0]) << ", Roll " << glm::degrees(euler_angles[2])
-                << "; t & f: " << camera_translation_and_intrinsics << '\n';
-    fitting_log << "Ceres took: "
-                << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << "ms.\n";
+    // Note: We previously used contour landmarks and plotted image_points again here (in yellow), which then
+    // included the contour landmarks.
+
+    fitting_log << "Full fitting took: "
+                << std::chrono::duration_cast<std::chrono::seconds>(end - start).count() << "s.\n";
 
     cout << fitting_log.str();
 
