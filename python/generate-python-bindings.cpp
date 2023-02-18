@@ -320,11 +320,10 @@ PYBIND11_MODULE(eos, eos_module)
                 return projection;
             }, "Returns the 4x4 projection matrix.")
         .def("get_translation",
-             [](const fitting::RenderingParameters& p) {
-                p.get_translation();
-                 return Eigen::Vector3f(p.get_translation().x, p.get_translation().y, p.get_translation().z);
-             },
-             "Returns the translation [x y z].");
+            [](const fitting::RenderingParameters& p) {
+                return Eigen::Vector3f(p.get_translation().x, p.get_translation().y, p.get_translation().z);
+            },
+            "Returns the translation [x y z]. The z-coordinate is 0.0 in case of orthographic projection.");
 
     fitting_module.def("estimate_orthographic_projection_linear", &fitting::estimate_orthographic_projection_linear,
                        "This algorithm estimates the parameters of a scaled orthographic projection, given a set of corresponding 2D-3D points.",
@@ -366,55 +365,47 @@ PYBIND11_MODULE(eos, eos_module)
 
     fitting_module.def(
         "fit_shape_to_landmarks_linear",
-        [](const morphablemodel::PcaModel& shape_model, 
+        [](const morphablemodel::PcaModel& shape_model,
            const Eigen::Matrix<float, 3, 4>& affine_camera_matrix,
-           const std::vector<Eigen::Vector2f>& landmarks, 
-           const std::vector<int>& vertex_ids,
-           const Eigen::VectorXf& base_face, 
-           float lambda_identity,
-           cpp17::optional<int> num_coefficients_to_fit,
+           const std::vector<Eigen::Vector2f>& landmarks, const std::vector<int>& vertex_ids,
+           const Eigen::VectorXf& base_face, float lambda, cpp17::optional<int> num_coefficients_to_fit,
            cpp17::optional<float> detector_standard_deviation,
            cpp17::optional<float> model_standard_deviation) {
             const auto result = fitting::fit_shape_to_landmarks_linear(
-                shape_model, affine_camera_matrix, landmarks, vertex_ids, base_face, lambda_identity,
+                shape_model, affine_camera_matrix, landmarks, vertex_ids, base_face, lambda,
                 num_coefficients_to_fit, detector_standard_deviation, model_standard_deviation);
             return result;
         },
-        "Fits the shape of a Morphable Model to given 2D landmarks (i.e. estimates the maximum likelihood solution of the shape coefficients)."
-        "Returns the estimated shape coefficients (alphas)",
+        "Fits the shape of a Morphable Model to given 2D landmarks (i.e. estimates the maximum likelihood "
+        "solution of the shape coefficients). "
+        "Returns the estimated shape coefficients (alphas).",
         py::arg("shape_model"), py::arg("affine_camera_matrix"), py::arg("landmarks"), py::arg("vertex_ids"),
-        py::arg("base_face"), py::arg("lambda_identity") = 3.0f, py::arg("num_coefficients_to_fit") = py::none(),
-        py::arg("detector_standard_deviation") = py::none(), py::arg("model_standard_deviation") = py::none());
+        py::arg("base_face") = Eigen::VectorXf(), py::arg("lambda") = 3.0f,
+        py::arg("num_coefficients_to_fit") = py::none(), py::arg("detector_standard_deviation") = py::none(),
+        py::arg("model_standard_deviation") = py::none());
 
     fitting_module.def(
         "fit_expressions",
-        [](const morphablemodel::ExpressionModel& expression_model,
-           const Eigen::VectorXf& face_instance,
+        [](const morphablemodel::ExpressionModel& expression_model, const Eigen::VectorXf& face_instance,
            const Eigen::Matrix<float, 3, 4>& affine_camera_matrix,
-           const std::vector<Eigen::Vector2f>& landmarks, 
-           const std::vector<int>& vertex_ids,
+           const std::vector<Eigen::Vector2f>& landmarks, const std::vector<int>& vertex_ids,
            cpp17::optional<float> lambda_expressions,
            cpp17::optional<int> num_expression_coefficients_to_fit) {
-            const auto result = fitting::fit_expressions(
-                expression_model, face_instance, affine_camera_matrix, landmarks, vertex_ids, lambda_expressions,
-                num_expression_coefficients_to_fit);
+            const auto result =
+                fitting::fit_expressions(expression_model, face_instance, affine_camera_matrix, landmarks,
+                                         vertex_ids, lambda_expressions, num_expression_coefficients_to_fit);
             return result;
         },
-        "Fits the given expression model to landmarks."
+        "Fits the given expression model to landmarks. "
         "Returns a vector of fitted expression coefficients.",
-        py::arg("expression_model"), py::arg("face_instance"), py::arg("affine_camera_matrix"), py::arg("landmarks"),
-        py::arg("vertex_ids"), py::arg("lambda_expressions") = 30.0f, py::arg("num_expression_coefficients_to_fit") = py::none());
+        py::arg("expression_model"), py::arg("face_instance"), py::arg("affine_camera_matrix"),
+        py::arg("landmarks"), py::arg("vertex_ids"), py::arg("lambda_expressions") = py::none(),
+        py::arg("num_expression_coefficients_to_fit") = py::none());
         
-    fitting_module.def(
-        "get_3x4_affine_camera_matrix",
-        [](const fitting::RenderingParameters& rendering_params,
-           int width, int height) {
-            const auto result = fitting::get_3x4_affine_camera_matrix(rendering_params, width, height);
-            return result;
-        },
-        "Creates a 3x4 affine camera matrix from given fitting parameters."
-        "Returns a 3x4 affine camera matrix.",
-        py::arg("rendering_params"), py::arg("width"), py::arg("height"));
+    fitting_module.def("get_3x4_affine_camera_matrix", &fitting::get_3x4_affine_camera_matrix,
+                       "Creates a 3x4 affine camera matrix from given fitting parameters. The matrix "
+                       "transforms points directly from model-space to screen-space.",
+                       py::arg("rendering_params"), py::arg("width"), py::arg("height"));
 
     /**
      * Bindings for the eos::render namespace:
