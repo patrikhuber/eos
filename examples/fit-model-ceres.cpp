@@ -71,15 +71,15 @@ std::ostream& operator<<(std::ostream& out, const std::vector<T>& v)
 };
 
 /**
- * Single and multi-image non-linear model fitting with Ceres example.
+ * Single image non-linear model fitting with Ceres example.
  *
- * NOTE: The ImageCost cost function requires a 3DMM with per-vertex albedo (or colour) model. You could, for
- * example, acquire:
+ * NOTE: The VertexColorCost cost function requires a 3DMM with per-vertex albedo (or colour) model. You
+ * could, for example, acquire:
  * - the full Surrey Face Model (see "The Surrey Face Model" in the eos README.md)
  * - the 4D Face Model (4DFM) from www.4dface.io
  * - the Basel Face Model (BFM).
- * If you don't currently have a full 3DMM, and still want to try the Ceres fitting, the ImageCost can just be
- * removed from the main() function below.
+ * If you don't currently have a full 3DMM, and still want to try the Ceres fitting, the VertexColorCost can
+ * just be removed from the main() function below.
  */
 int main(int argc, char* argv[])
 {
