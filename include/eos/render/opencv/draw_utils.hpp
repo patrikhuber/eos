@@ -3,7 +3,7 @@
  *
  * File: include/eos/render/opencv/draw_utils.hpp
  *
- * Copyright 2017-2019 Patrik Huber
+ * Copyright 2017-2019, 2023 Patrik Huber
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,11 +23,10 @@
 #define EOS_RENDER_OPENCV_DRAW_UTILS_HPP
 
 #include "eos/core/Mesh.hpp"
+#include "eos/render/matrix_projection.hpp"
 #include "eos/render/detail/utils.hpp"
 
-#include "glm/gtc/matrix_transform.hpp"
-#include "glm/mat4x4.hpp"
-#include "glm/vec4.hpp"
+#include "Eigen/Core"
 
 #include "opencv2/core/core.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
@@ -50,26 +49,20 @@ namespace render {
  * @param[in] viewport Viewport to draw the mesh.
  * @param[in] color Colour of the mesh to be drawn.
  */
-inline void draw_wireframe(cv::Mat image, const core::Mesh& mesh, glm::mat4x4 modelview,
-                           glm::mat4x4 projection, glm::vec4 viewport,
+inline void draw_wireframe(cv::Mat image, const core::Mesh& mesh, Eigen::Matrix4f modelview,
+                           Eigen::Matrix4f projection, Eigen::Vector4f viewport,
                            cv::Scalar color = cv::Scalar(0, 255, 0, 255))
 {
     for (const auto& triangle : mesh.tvi)
     {
-        const auto p1 = glm::project(
-            {mesh.vertices[triangle[0]][0], mesh.vertices[triangle[0]][1], mesh.vertices[triangle[0]][2]},
-            modelview, projection, viewport);
-        const auto p2 = glm::project(
-            {mesh.vertices[triangle[1]][0], mesh.vertices[triangle[1]][1], mesh.vertices[triangle[1]][2]},
-            modelview, projection, viewport);
-        const auto p3 = glm::project(
-            {mesh.vertices[triangle[2]][0], mesh.vertices[triangle[2]][1], mesh.vertices[triangle[2]][2]},
-            modelview, projection, viewport);
-        if (render::detail::are_vertices_ccw_in_screen_space(glm::vec2(p1), glm::vec2(p2), glm::vec2(p3)))
+        const auto p1 = project(mesh.vertices[triangle[0]], modelview, projection, viewport);
+        const auto p2 = project(mesh.vertices[triangle[1]], modelview, projection, viewport);
+        const auto p3 = project(mesh.vertices[triangle[2]], modelview, projection, viewport);
+        if (render::detail::are_vertices_ccw_in_screen_space<float>(p1.head<2>(), p2.head<2>(), p3.head<2>()))
         {
-            cv::line(image, cv::Point(p1.x, p1.y), cv::Point(p2.x, p2.y), color);
-            cv::line(image, cv::Point(p2.x, p2.y), cv::Point(p3.x, p3.y), color);
-            cv::line(image, cv::Point(p3.x, p3.y), cv::Point(p1.x, p1.y), color);
+            cv::line(image, cv::Point(p1.x(), p1.y()), cv::Point(p2.x(), p2.y()), color);
+            cv::line(image, cv::Point(p2.x(), p2.y()), cv::Point(p3.x(), p3.y()), color);
+            cv::line(image, cv::Point(p3.x(), p3.y()), cv::Point(p1.x(), p1.y()), color);
         }
     }
 };

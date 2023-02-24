@@ -3,7 +3,7 @@
  *
  * File: include/eos/fitting/closest_edge_fitting.hpp
  *
- * Copyright 2016 Patrik Huber
+ * Copyright 2016, 2023 Patrik Huber
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@
 #include "eos/render/normals.hpp"
 #include "eos/render/vertex_visibility.hpp"
 #include "eos/render/ProjectionType.hpp"
+#include "eos/render/matrix_projection.hpp"
 
 #include "nanoflann.hpp"
 
@@ -313,12 +314,11 @@ inline std::pair<std::vector<Eigen::Vector2f>, std::vector<int>> find_occluding_
     vector<Vector2f> model_edges_projected;
     for (const auto& v : occluding_vertices)
     {
-        const auto p =
-            glm::project({mesh.vertices[v][0], mesh.vertices[v][1], mesh.vertices[v][2]},
-                         rendering_parameters.get_modelview(), rendering_parameters.get_projection(),
-                         fitting::get_opencv_viewport(rendering_parameters.get_screen_width(),
-                                                      rendering_parameters.get_screen_height()));
-        model_edges_projected.push_back({p.x, p.y});
+        const auto p = render::project(
+            mesh.vertices[v], rendering_parameters.get_modelview(), rendering_parameters.get_projection(),
+            fitting::get_opencv_viewport(rendering_parameters.get_screen_width(),
+                                         rendering_parameters.get_screen_height()));
+        model_edges_projected.push_back({p.x(), p.y()});
     }
 
     // Find edge correspondences:

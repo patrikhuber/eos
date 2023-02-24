@@ -3,7 +3,7 @@
  *
  * File: include/eos/render/FragmentShader.hpp
  *
- * Copyright 2017 Patrik Huber
+ * Copyright 2017, 2023 Patrik Huber
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,8 +26,7 @@
 #include "eos/render/detail/texturing.hpp"
 #include "eos/cpp17/optional.hpp"
 
-#include "glm/vec3.hpp"
-#include "glm/vec4.hpp"
+#include "Eigen/Core"
 
 // Fragment shaders are a more accurate name for the same functionality as Pixel shaders. They aren't pixels
 // yet, since the output still has to past several tests (depth, alpha, stencil) as well as the fact that one
@@ -62,17 +61,17 @@ public:
      * @param[in] x X.
      * @return RGBA colour in the range [0, 1].
      */
-    template <typename T, glm::precision P = glm::defaultp>
-    glm::tvec4<T, P> shade_triangle_pixel(int x, int y, const detail::Vertex<T, P>& point_a,
-                                          const detail::Vertex<T, P>& point_b,
-                                          const detail::Vertex<T, P>& point_c, const glm::tvec3<T, P>& lambda,
-                                          const cpp17::optional<Texture>& texture, float dudx, float dudy,
-                                          float dvdx, float dvdy)
+    template <typename T>
+    Eigen::Vector4<T> shade_triangle_pixel(int x, int y, const detail::Vertex<T>& point_a,
+                                           const detail::Vertex<T>& point_b, const detail::Vertex<T>& point_c,
+                                           const Eigen::Vector3<T>& lambda,
+                                           const cpp17::optional<Texture>& texture, float dudx, float dudy,
+                                           float dvdx, float dvdy)
     {
         // attributes interpolation
-        glm::tvec3<T, P> color_persp =
+        const Eigen::Vector3<T> color_persp =
             lambda[0] * point_a.color + lambda[1] * point_b.color + lambda[2] * point_c.color;
-        return glm::tvec4<T, P>(color_persp, T(1));
+        return Eigen::Vector4<T>(color_persp[0], color_persp[1], color_persp[2], T(1));
     };
 };
 
@@ -97,24 +96,25 @@ public:
      * @param[in] x X.
      * @return RGBA colour in the range [0, 1].
      */
-    template <typename T, glm::precision P = glm::defaultp>
-    glm::tvec4<T, P> shade_triangle_pixel(int x, int y, const detail::Vertex<T, P>& point_a,
-                                          const detail::Vertex<T, P>& point_b,
-                                          const detail::Vertex<T, P>& point_c, const glm::tvec3<T, P>& lambda,
-                                          const cpp17::optional<Texture>& texture, float dudx,
-                                          float dudy, float dvdx, float dvdy)
+    template <typename T>
+    Eigen::Vector4<T> shade_triangle_pixel(int x, int y, const detail::Vertex<T>& point_a,
+                                           const detail::Vertex<T>& point_b, const detail::Vertex<T>& point_c,
+                                           const Eigen::Vector3<T>& lambda,
+                                           const cpp17::optional<Texture>& texture, float dudx, float dudy,
+                                           float dvdx, float dvdy)
     {
-        glm::tvec2<T, P> texcoords_persp =
+        Eigen::Vector2<T> texcoords_persp =
             lambda[0] * point_a.texcoords + lambda[1] * point_b.texcoords + lambda[2] * point_c.texcoords;
 
         // The Texture is in BGR, thus tex2D returns BGR
         // Todo: Think about changing that.
         // tex2d divides the colour values by 255, so that the return value we get here is in the range [0, 1].
-        glm::tvec3<T, P> texture_color =
+        const Eigen::Vector3<T> texture_color =
             detail::tex2d(texcoords_persp, texture.value(), dudx, dudy, dvdx, dvdy); // uses the current texture
-        glm::tvec3<T, P> pixel_color = glm::tvec3<T, P>(texture_color[2], texture_color[1], texture_color[0]);
+        const Eigen::Vector3<T> pixel_color =
+            Eigen::Vector3<T>(texture_color[2], texture_color[1], texture_color[0]);
         // other: color.mul(tex2D(texture, texCoord));
-        return glm::tvec4<T, P>(pixel_color, T(1));
+        return Eigen::Vector4<T>(pixel_color[0], pixel_color[1], pixel_color[2], T(1));
     };
 };
 
@@ -129,25 +129,25 @@ public:
  * @param[in] X X.
  * @return X.
  */
-template <typename T, glm::precision P = glm::defaultp>
-glm::tvec3<T, P> compute_inverse_perspectively_correct_lambda(const glm::tvec3<T, P>& lambda_world,
-                                                              const T& one_over_w0, const T& one_over_w1,
-                                                              const T& one_over_w2)
+template <typename T>
+Eigen::Vector3<T> compute_inverse_perspectively_correct_lambda(const Eigen::Vector3<T>& lambda_world,
+                                                               const T& one_over_w0, const T& one_over_w1,
+                                                               const T& one_over_w2)
 {
     const float w0 = 1 / one_over_w0;
     const float w1 = 1 / one_over_w1;
     const float w2 = 1 / one_over_w2;
 
-    const float d = w0 - (w0 - w1) * lambda_world.y - (w0 - w2) * lambda_world.z;
+    const float d = w0 - (w0 - w1) * lambda_world.y() - (w0 - w2) * lambda_world.z();
     if (d == 0)
         return lambda_world;
 
-    glm::tvec3<T, P> lambda;
+    Eigen::Vector3<T> lambda;
 
-    lambda.z = lambda_world.z * w2 / d;
-    lambda.y = lambda_world.y * w1 / d;
+    lambda.z() = lambda_world.z() * w2 / d;
+    lambda.y() = lambda_world.y() * w1 / d;
 
-    lambda.x = 1 - lambda.y - lambda.z;
+    lambda.x() = 1 - lambda.y() - lambda.z();
     return lambda;
 };
 
@@ -167,26 +167,28 @@ public:
      * @param[in] X X.
      * @return X.
      */
-    template <typename T, glm::precision P = glm::defaultp>
-    glm::tvec4<T, P> shade_triangle_pixel(int x, int y, const detail::Vertex<T, P>& point_a,
-                                          const detail::Vertex<T, P>& point_b,
-                                          const detail::Vertex<T, P>& point_c, const glm::tvec3<T, P>& lambda,
-                                          const cpp17::optional<Texture>& texture, float dudx, float dudy,
-                                          float dvdx, float dvdy)
+    template <typename T>
+    Eigen::Vector4<T> shade_triangle_pixel(int x, int y, const detail::Vertex<T>& point_a,
+                                           const detail::Vertex<T>& point_b, const detail::Vertex<T>& point_c,
+                                           const Eigen::Vector3<T>& lambda,
+                                           const cpp17::optional<Texture>& texture, float dudx, float dudy,
+                                           float dvdx, float dvdy)
     {
-        auto corrected_lambda = compute_inverse_perspectively_correct_lambda(
-            lambda, point_a.position.w, point_b.position.w, point_c.position.w);
-        glm::tvec2<T, P> texcoords_persp = corrected_lambda[0] * point_a.texcoords +
-                                           corrected_lambda[1] * point_b.texcoords +
-                                           corrected_lambda[2] * point_c.texcoords;
+        const auto corrected_lambda = compute_inverse_perspectively_correct_lambda(
+            lambda, point_a.position.w(), point_b.position.w(), point_c.position.w());
+        const Eigen::Vector2<T> texcoords_persp = corrected_lambda[0] * point_a.texcoords +
+                                                  corrected_lambda[1] * point_b.texcoords +
+                                                  corrected_lambda[2] * point_c.texcoords;
 
         // Texturing, no mipmapping:
-        glm::vec2 image_tex_coords = detail::texcoord_wrap(texcoords_persp);
+        Eigen::Vector2<T> image_tex_coords = detail::texcoord_wrap(texcoords_persp);
         image_tex_coords[0] *= texture->mipmaps[0].width();
         image_tex_coords[1] *= texture->mipmaps[0].height();
-        glm::vec3 texture_color = detail::tex2d_linear(image_tex_coords, 0, texture.value()) / 255.0f;
-        glm::tvec3<T, P> pixel_color = glm::tvec3<T, P>(texture_color[2], texture_color[1], texture_color[0]);
-        return glm::tvec4<T, P>(pixel_color, T(1));
+        const Eigen::Vector3<T> texture_color =
+            detail::tex2d_linear(image_tex_coords, 0, texture.value()) / 255.0f;
+        const Eigen::Vector3<T> pixel_color =
+            Eigen::Vector3<T>(texture_color[2], texture_color[1], texture_color[0]);
+        return Eigen::Vector4<T>(pixel_color[0], pixel_color[1], pixel_color[2], T(1));
     };
 };
 

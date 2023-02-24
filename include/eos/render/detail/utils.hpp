@@ -3,7 +3,7 @@
  *
  * File: include/eos/render/detail/utils.hpp
  *
- * Copyright 2014-2017 Patrik Huber
+ * Copyright 2014-2017, 2023 Patrik Huber
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,15 +19,13 @@
  */
 #pragma once
 
-#ifndef RENDER_DETAIL_UTILS_HPP_
-#define RENDER_DETAIL_UTILS_HPP_
+#ifndef EOS_RENDER_DETAIL_UTILS_HPP
+#define EOS_RENDER_DETAIL_UTILS_HPP
 
 #include "eos/core/Rect.hpp"
 #include "eos/render/detail/Vertex.hpp"
 
-#include "glm/vec2.hpp"
-#include "glm/vec4.hpp"
-#include "glm/geometric.hpp"
+#include "Eigen/Core"
 
 #include <algorithm>
 #include <cmath>
@@ -53,9 +51,9 @@ namespace detail {
  * @param[in] viewport_height Screen height.
  * @return A bounding box rectangle.
  */
-template <typename T, glm::precision P = glm::defaultp>
-core::Rect<int> calculate_clipped_bounding_box(const glm::tvec2<T, P>& v0, const glm::tvec2<T, P>& v1,
-                                               const glm::tvec2<T, P>& v2, int viewport_width,
+template <typename T>
+core::Rect<int> calculate_clipped_bounding_box(const Eigen::Vector2<T>& v0, const Eigen::Vector2<T>& v1,
+                                               const Eigen::Vector2<T>& v2, int viewport_width,
                                                int viewport_height)
 {
     /* Old, producing artifacts:
@@ -87,11 +85,11 @@ core::Rect<int> calculate_clipped_bounding_box(const glm::tvec2<T, P>& v0, const
  * @param[in] v2 Third vertex.
  * @return Whether the vertices are CCW in screen space.
  */
-template <typename T, glm::precision P = glm::defaultp>
-bool are_vertices_ccw_in_screen_space(const glm::tvec2<T, P>& v0, const glm::tvec2<T, P>& v1,
-                                      const glm::tvec2<T, P>& v2)
+template <typename T>
+bool are_vertices_ccw_in_screen_space(const Eigen::Vector2<T>& v0, const Eigen::Vector2<T>& v1,
+                                      const Eigen::Vector2<T>& v2)
 {
-    const auto dx01 = v1[0] - v0[0]; // todo: replace with x/y (GLM)
+    const auto dx01 = v1[0] - v0[0]; // Note: Could replace with .x() and .y()
     const auto dy01 = v1[1] - v0[1];
     const auto dx02 = v2[0] - v0[0];
     const auto dy02 = v2[1] - v0[1];
@@ -99,15 +97,15 @@ bool are_vertices_ccw_in_screen_space(const glm::tvec2<T, P>& v0, const glm::tve
     return (dx01 * dy02 - dy01 * dx02 < T(0)); // Original: (dx01*dy02 - dy01*dx02 > 0.0f). But: OpenCV has origin top-left, y goes down
 };
 
-template <typename T, glm::precision P = glm::defaultp>
-double implicit_line(float x, float y, const glm::tvec4<T, P>& v1, const glm::tvec4<T, P>& v2)
+template <typename T>
+double implicit_line(float x, float y, const Eigen::Vector4<T>& v1, const Eigen::Vector4<T>& v2)
 {
     return ((double)v1[1] - (double)v2[1]) * (double)x + ((double)v2[0] - (double)v1[0]) * (double)y +
            (double)v1[0] * (double)v2[1] - (double)v2[0] * (double)v1[1];
 };
 
 inline std::vector<Vertex<float>> clip_polygon_to_plane_in_4d(const std::vector<Vertex<float>>& vertices,
-                                                              const glm::tvec4<float>& plane_normal)
+                                                              const Eigen::Vector4<float>& plane_normal)
 {
     std::vector<Vertex<float>> clippedVertices;
 
@@ -124,17 +122,16 @@ inline std::vector<Vertex<float>> clip_polygon_to_plane_in_4d(const std::vector<
         const int a = i;                         // the current vertex
         const int b = (i + 1) % vertices.size(); // the following vertex (wraps around 0)
 
-        const float fa = glm::dot(vertices[a].position, plane_normal); // Note: Shouldn't they be unit length?
-        const float fb = glm::dot(vertices[b].position,
-                            plane_normal); // < 0 means on visible side, > 0 means on invisible side?
+        const float fa = vertices[a].position.dot(plane_normal); // Note: Shouldn't they be unit length?
+        const float fb = vertices[b].position.dot(plane_normal); // < 0 means on visible side, > 0 means on invisible side?
 
         if ((fa < 0 && fb > 0) || (fa > 0 && fb < 0)) // one vertex is on the visible side of the plane, one
                                                       // on the invisible? so we need to split?
         {
             const auto direction = vertices[b].position - vertices[a].position;
-            const float t = -(glm::dot(plane_normal, vertices[a].position)) /
-                      (glm::dot(plane_normal, direction)); // the parametric value on the line, where the line
-                                                           // to draw intersects the plane?
+            const float t = -(plane_normal.dot(vertices[a].position)) /
+                            plane_normal.dot(direction); // the parametric value on the line, where the line
+                                                         // to draw intersects the plane?
 
             // generate a new vertex at the line-plane intersection point
             const auto position = vertices[a].position + t * direction;
@@ -173,14 +170,14 @@ inline std::vector<Vertex<float>> clip_polygon_to_plane_in_4d(const std::vector<
  * @param[in] vertex X.
  * @ return X.
  */
-template <typename T, glm::precision P = glm::defaultp>
-glm::tvec4<T, P> divide_by_w(const glm::tvec4<T, P>& vertex)
+template <typename T>
+Eigen::Vector4<T> divide_by_w(const Eigen::Vector4<T>& vertex)
 {
-    const auto one_over_w = 1.0 / vertex.w;
+    const auto one_over_w = 1.0 / vertex.w();
     // divide by w: (if ortho, w will just be 1)
-    glm::tvec4<T, P> v_ndc(vertex / vertex.w);
+    Eigen::Vector4<T> v_ndc = vertex / vertex.w();
     // Set the w coord to 1/w (i.e. 1/w_clip). This is what OpenGL passes to the FragmentShader.
-    v_ndc.w = one_over_w;
+    v_ndc.w() = one_over_w;
     return v_ndc;
 };
 
@@ -188,4 +185,4 @@ glm::tvec4<T, P> divide_by_w(const glm::tvec4<T, P>& vertex)
 } /* namespace render */
 } /* namespace eos */
 
-#endif /* RENDER_DETAIL_UTILS_HPP_ */
+#endif /* EOS_RENDER_DETAIL_UTILS_HPP */

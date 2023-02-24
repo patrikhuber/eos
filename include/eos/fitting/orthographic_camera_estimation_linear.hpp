@@ -3,7 +3,7 @@
  *
  * File: include/eos/fitting/orthographic_camera_estimation_linear.hpp
  *
- * Copyright 2016 Patrik Huber
+ * Copyright 2016, 2023 Patrik Huber
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,6 +43,7 @@ namespace fitting {
 struct ScaledOrthoProjectionParameters
 {
     glm::mat3x3 R; ///< 3x3 rotation matrix
+    Eigen::Matrix3f R_; ///< 3x3 rotation matrix
     float tx, ty; ///< x and y translation
     float s;      ///< Scaling
 };
@@ -150,7 +151,7 @@ inline ScaledOrthoProjectionParameters estimate_orthographic_projection_linear(
             R_glm[c][r] = R_ortho(r, c);
         }
     }
-    return ScaledOrthoProjectionParameters{R_glm, t1, t2, s};
+    return ScaledOrthoProjectionParameters{R_glm, R_ortho, t1, t2, s};
 };
 
 } /* namespace fitting */

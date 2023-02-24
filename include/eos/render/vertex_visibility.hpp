@@ -3,7 +3,7 @@
  *
  * File: include/eos/render/vertex_visibility.hpp
  *
- * Copyright 2019, 2020 Patrik Huber
+ * Copyright 2019, 2020, 2023 Patrik Huber
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -164,16 +164,12 @@ compute_per_vertex_self_occlusion(const std::vector<Eigen::Vector3f>& vertices,
 inline std::vector<bool>
 compute_per_vertex_self_occlusion(const std::vector<Eigen::Vector3f>& vertices,
                                   const std::vector<std::array<int, 3>>& triangle_vertex_indices,
-                                  const glm::mat4x4& modelview, detail::RayDirection ray_direction_type)
+                                  const Eigen::Matrix4f& modelview, detail::RayDirection ray_direction_type)
 {
-    using glm::vec4;
-
     std::vector<Eigen::Vector3f> viewspace_vertices;
     std::for_each(std::begin(vertices), std::end(vertices), [&viewspace_vertices, &modelview](const auto& v) {
-        // Note: Ideally, we'd just use Eigen everywhere.
-        const vec4 transformed_vertex = modelview * vec4(v.x(), v.y(), v.z(), 1.0);
-        viewspace_vertices.push_back(
-            Eigen::Vector3f(transformed_vertex.x, transformed_vertex.y, transformed_vertex.z));
+        const Eigen::Vector4f transformed_vertex = modelview * v.homogeneous();
+        viewspace_vertices.push_back(transformed_vertex.head<3>());
     });
 
     return compute_per_vertex_self_occlusion(viewspace_vertices, triangle_vertex_indices, ray_direction_type);

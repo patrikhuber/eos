@@ -3,7 +3,7 @@
  *
  * File: include/eos/render/detail/plane.hpp
  *
- * Copyright 2017 Patrik Huber
+ * Copyright 2017, 2023 Patrik Huber
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@
 #ifndef EOS_RENDER_DETAIL_PLANE_HPP
 #define EOS_RENDER_DETAIL_PLANE_HPP
 
-#include "glm/glm.hpp"
+#include "Eigen/Core"
 
 #include <cmath>
 
@@ -47,7 +47,7 @@ public:
         this->d = d;
     }
 
-    plane(const glm::vec3& normal, float d = 0.0f)
+    plane(const Eigen::Vector3f& normal, float d = 0.0f)
     {
         this->a = normal[0];
         this->b = normal[1];
@@ -55,26 +55,27 @@ public:
         this->d = d;
     }
 
-    plane(const glm::vec3& point, const glm::vec3& normal)
+    plane(const Eigen::Vector3f& point, const Eigen::Vector3f& normal)
     {
         a = normal[0];
         b = normal[1];
         c = normal[2];
-        d = -glm::dot(point, normal);
+        d = -point.dot(normal);
     }
 
-    template <typename T, glm::precision P = glm::defaultp>
-    plane(const glm::tvec3<T, P>& point1, const glm::tvec3<T, P>& point2, const glm::tvec3<T, P>& point3)
+    template <typename T>
+    plane(const Eigen::Vector3<T>& point1, const Eigen::Vector3<T>& point2, const Eigen::Vector3<T>& point3)
     {
-        const glm::tvec3<T, P> v1 = point2 - point1;
-        const glm::tvec3<T, P> v2 = point3 - point1;
-        glm::tvec3<T, P> normal = glm::cross(v1, v2);
-        normal = glm::normalize(normal);
+        const Eigen::Vector3<T> v1 = point2 - point1;
+        const Eigen::Vector3<T> v2 = point3 - point1;
+        Eigen::Vector3<T> normal = v1.cross(v2);
+
+        normal = normal.normalized();
 
         a = normal[0];
         b = normal[1];
         c = normal[2];
-        d = -glm::dot(point1, normal);
+        d = -point1.dot(normal);
     }
 
     void normalize()
@@ -86,12 +87,12 @@ public:
         c /= length;
     }
 
-    float getSignedDistanceFromPoint(const glm::vec3& point) const
+    float getSignedDistanceFromPoint(const Eigen::Vector3f& point) const
     {
         return a * point[0] + b * point[1] + c * point[2] + d;
     }
 
-    float getSignedDistanceFromPoint(const glm::vec4& point) const
+    float getSignedDistanceFromPoint(const Eigen::Vector4f& point) const
     {
         return a * point[0] + b * point[1] + c * point[2] + d;
     }

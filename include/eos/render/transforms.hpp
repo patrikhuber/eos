@@ -3,7 +3,7 @@
  *
  * File: include/eos/render/transforms.hpp
  *
- * Copyright 2014, 2015 Patrik Huber
+ * Copyright 2014, 2015, 2023 Patrik Huber
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@
 #ifndef EOS_RENDER_TRANSFORMS_HPP
 #define EOS_RENDER_TRANSFORMS_HPP
 
-#include "glm/vec2.hpp"
+#include "Eigen/Core"
 
 namespace eos {
 namespace render {
@@ -44,14 +44,15 @@ namespace render {
  * @param[in] screen_height Height of the screen or window.
  * @return A vector with x and y coordinates transformed to screen space.
  */
-inline glm::vec2 clip_to_screen_space(const glm::vec2& clip_coordinates, int screen_width, int screen_height)
+inline Eigen::Vector2f clip_to_screen_space(const Eigen::Vector2f& clip_coordinates, int screen_width,
+                                            int screen_height)
 {
     // Window transform:
     const float x_ss = (clip_coordinates[0] + 1.0f) * (screen_width / 2.0f);
     const float y_ss =
         screen_height - (clip_coordinates[1] + 1.0f) *
                             (screen_height / 2.0f); // also flip y; Qt: Origin top-left. OpenGL: bottom-left.
-    return glm::vec2(x_ss, y_ss);
+    return Eigen::Vector2f(x_ss, y_ss);
     /* Note: What we do here is equivalent to
        x_w = (x *  vW/2) + vW/2;
        However, Shirley says we should do:
@@ -59,6 +60,20 @@ inline glm::vec2 clip_to_screen_space(const glm::vec2& clip_coordinates, int scr
        (analogous for y)
        Todo: Check the consequences.
     */
+};
+
+// Equivalent to the above, but templated, and taking clip_coord_x and _y separately.
+// Todo: Can merge this back into one function I think?
+template <typename T>
+Eigen::Vector2<T> clip_to_screen_space(const T clip_coord_x, const T clip_coord_y, int screen_width,
+                                       int screen_height)
+{
+    // Window transform:
+    const T x_ss = (clip_coord_x + T(1)) * (screen_width / 2.0);
+    const T y_ss =
+        screen_height - (clip_coord_y + T(1)) *
+                            (screen_height / 2.0); // also flip y; Qt: Origin top-left. OpenGL: bottom-left.
+    return Eigen::Vector2<T>(x_ss, y_ss);
 };
 
 /**
@@ -79,18 +94,6 @@ inline glm::vec2 clip_to_screen_space(const glm::vec2& clip_coordinates, int scr
     y_cs *= -1.0f;
     return cv::Vec2f(x_cs, y_cs);
 };*/
-
-template <typename T, glm::precision P = glm::defaultp>
-glm::tvec2<T, P> clip_to_screen_space(const T clip_coord_x, const T clip_coord_y, int screen_width,
-                                      int screen_height)
-{
-    // Todo: See/copy notes from utils.hpp/clip_to_screen_space.
-    const T x_ss = (clip_coord_x + T(1)) * (screen_width / 2.0);
-    const T y_ss =
-        screen_height - (clip_coord_y + T(1)) *
-                            (screen_height / 2.0); // also flip y; Qt: Origin top-left. OpenGL: bottom-left.
-    return glm::tvec2<T, P>(x_ss, y_ss);
-};
 
 } /* namespace render */
 } /* namespace eos */

@@ -3,7 +3,7 @@
  *
  * File: include/eos/render/detail/Vertex.hpp
  *
- * Copyright 2017 Patrik Huber
+ * Copyright 2017, 2023 Patrik Huber
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,12 +19,10 @@
  */
 #pragma once
 
-#ifndef VERTEX_HPP_
-#define VERTEX_HPP_
+#ifndef EOS_VERTEX_HPP
+#define EOS_VERTEX_HPP
 
-#include "glm/vec2.hpp"
-#include "glm/vec3.hpp"
-#include "glm/vec4.hpp"
+#include "Eigen/Core"
 
 /**
  * The detail namespace contains implementations of internal functions, not part of the API we expose and not
@@ -47,16 +45,16 @@ namespace detail {
  * This is the same as the one in the current render_detail.hpp, except that this is fully templated.
  *
  */
-template <typename T, glm::precision P = glm::defaultp>
+template <typename T>
 struct Vertex
 {
-    glm::tvec4<T, P> position;  // XYZW
-    glm::tvec3<T, P> color;     // RGB order
-    glm::tvec2<T, P> texcoords; // UV
+    Eigen::Vector4<T> position;  // XYZW
+    Eigen::Vector3<T> color;     // RGB order
+    Eigen::Vector2<T> texcoords; // UV
 };
 
 } /* namespace detail */
 } /* namespace render */
 } /* namespace eos */
 
-#endif /* VERTEX_HPP_ */
+#endif /* EOS_VERTEX_HPP */

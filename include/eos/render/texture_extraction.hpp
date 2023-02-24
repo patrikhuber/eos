@@ -3,7 +3,7 @@
  *
  * File: include/eos/render/texture_extraction.hpp
  *
- * Copyright 2014-2020 Patrik Huber
+ * Copyright 2014-2020, 2023 Patrik Huber
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -72,8 +72,8 @@ namespace render {
  * @param[in] texturemap_resolution The resolution of the generated texture map. Defaults to 512x512.
  * @return Texture map with the extracted texture.
  */
-inline eos::core::Image4u extract_texture(const core::Mesh& mesh, glm::mat4x4 view_model_matrix,
-                                          glm::mat4x4 projection_matrix, ProjectionType projection_type,
+inline eos::core::Image4u extract_texture(const core::Mesh& mesh, Eigen::Matrix4f view_model_matrix,
+                                          Eigen::Matrix4f projection_matrix, ProjectionType projection_type,
                                           const eos::core::Image4u& image, int texturemap_resolution = 512)
 {
     // Assert that either there are texture coordinates given for each vertex (in which case the texture map
@@ -85,9 +85,12 @@ inline eos::core::Image4u extract_texture(const core::Mesh& mesh, glm::mat4x4 vi
 
     using detail::divide_by_w;
     using detail::RayDirection;
-    using glm::vec2;
-    using glm::vec3;
-    using glm::vec4;
+    using Eigen::Vector2f;
+    using Eigen::Vector2d;
+    using Eigen::Vector3f;
+    using Eigen::Vector3d;
+    using Eigen::Vector4f;
+    using Eigen::Vector4d;
     using std::vector;
     // We only need a rasteriser to remap the texture, not the complete SoftwareRenderer:
     Rasterizer<ExtractionFragmentShader> extraction_rasterizer(texturemap_resolution, texturemap_resolution);
@@ -111,15 +114,16 @@ inline eos::core::Image4u extract_texture(const core::Mesh& mesh, glm::mat4x4 vi
     const vector<bool> per_vertex_visibility = compute_per_vertex_self_occlusion(
         mesh.vertices, mesh.tvi, view_model_matrix, ray_direction_type);
 
-    vector<vec4> wnd_coords; // will contain [x_wnd, y_wnd, z_ndc, 1/w_clip]
+    vector<Vector4f> wnd_coords; // will contain [x_wnd, y_wnd, z_ndc, 1/w_clip]
     for (auto&& vtx : mesh.vertices)
     {
-        auto clip_coords = projection_matrix * view_model_matrix * vec4(vtx.x(), vtx.y(), vtx.z(), 1.0f);
+        Vector4f clip_coords = projection_matrix * view_model_matrix * vtx.homogeneous();
         clip_coords = divide_by_w(clip_coords);
         // Note: We could make use of a new `viewport` parameter here, to allow any viewport transformations.
-        const vec2 screen_coords = clip_to_screen_space(clip_coords.x, clip_coords.y, image.width(), image.height());
-        clip_coords.x = screen_coords.x;
-        clip_coords.y = screen_coords.y;
+        const Vector2f screen_coords =
+            clip_to_screen_space(clip_coords.x(), clip_coords.y(), image.width(), image.height());
+        clip_coords.x() = screen_coords.x(); // Todo: Can simplify this...?
+        clip_coords.y() = screen_coords.y();
         wnd_coords.push_back(clip_coords);
     }
 
@@ -150,40 +154,43 @@ inline eos::core::Image4u extract_texture(const core::Mesh& mesh, glm::mat4x4 vi
             //  definitely need to correct this. Probably here. It looks like it is 1-2 pixels off. Definitely
             //  a bit more than 1.)
             detail::Vertex<double> pa{
-                vec4(mesh.texcoords[tti[0]][0] * tex_width,
+                Vector4d(mesh.texcoords[tti[0]][0] * tex_width,
 					 mesh.texcoords[tti[0]][1] * tex_height,
-                     wnd_coords[tvi[0]].z, // z_ndc
-					 wnd_coords[tvi[0]].w), // 1/w_clip
-                vec3(), // empty
-                vec2(
-                    wnd_coords[tvi[0]].x / image.width(),
-                    wnd_coords[tvi[0]].y / image.height() // (maybe '1 - wndcoords...'?) wndcoords of the projected/rendered model triangle (in the input img). Normalised to 0,1.
+                     wnd_coords[tvi[0]].z(), // z_ndc
+                     wnd_coords[tvi[0]].w()), // 1/w_clip
+                Vector3d(),                       // empty
+                Vector2d(wnd_coords[tvi[0]].x() / image.width(),
+                     wnd_coords[tvi[0]].y() /
+                         image.height() // (maybe '1 - wndcoords...'?) wndcoords of the projected/rendered
+                                        // model triangle (in the input img). Normalised to 0,1.
 					)};
             detail::Vertex<double> pb{
-                vec4(mesh.texcoords[tti[1]][0] * tex_width,
+                Vector4d(mesh.texcoords[tti[1]][0] * tex_width,
 				mesh.texcoords[tti[1]][1] * tex_height,
-                wnd_coords[tvi[1]].z, // z_ndc
-				wnd_coords[tvi[1]].w), // 1/w_clip
-                vec3(), // empty
-                vec2(
-                    wnd_coords[tvi[1]].x / image.width(),
-                    wnd_coords[tvi[1]].y / image.height() // (maybe '1 - wndcoords...'?) wndcoords of the projected/rendered model triangle (in the input img). Normalised to 0,1.
+                     wnd_coords[tvi[1]].z(), // z_ndc
+                     wnd_coords[tvi[1]].w()), // 1/w_clip
+                Vector3d(),                       // empty
+                Vector2d(wnd_coords[tvi[1]].x() / image.width(),
+                     wnd_coords[tvi[1]].y() /
+                         image.height() // (maybe '1 - wndcoords...'?) wndcoords of the projected/rendered
+                                        // model triangle (in the input img). Normalised to 0,1.
 					)};
             detail::Vertex<double> pc{
-                vec4(mesh.texcoords[tti[2]][0] * tex_width,
+                Vector4d(mesh.texcoords[tti[2]][0] * tex_width,
 				mesh.texcoords[tti[2]][1] * tex_height,
-                wnd_coords[tvi[2]].z, // z_ndc 
-				wnd_coords[tvi[2]].w), // 1/w_clip
-                vec3(), // empty
-                vec2(
-                    wnd_coords[tvi[2]].x / image.width(),
-                    wnd_coords[tvi[2]].y / image.height() // (maybe '1 - wndcoords...'?) wndcoords of the projected/rendered model triangle (in the input img). Normalised to 0,1.
+                     wnd_coords[tvi[2]].z(), // z_ndc
+				wnd_coords[tvi[2]].w()), // 1/w_clip
+                Vector3d(),                       // empty
+                Vector2d(wnd_coords[tvi[2]].x() / image.width(),
+                     wnd_coords[tvi[2]].y() /
+                         image.height() // (maybe '1 - wndcoords...'?) wndcoords of the projected/rendered
+                                        // model triangle (in the input img). Normalised to 0,1.
 					)};
             // The wnd_coords (now p[a|b|c].texcoords) can actually be outside the image, if the head is
             // outside the image. Just skip the whole triangle if that is the case:
-            if (pa.texcoords.x < 0 || pa.texcoords.x > 1 || pa.texcoords.y < 0 || pa.texcoords.y > 1 ||
-                pb.texcoords.x < 0 || pb.texcoords.x > 1 || pb.texcoords.y < 0 || pb.texcoords.y > 1 ||
-                pc.texcoords.x < 0 || pc.texcoords.x > 1 || pc.texcoords.y < 0 || pc.texcoords.y > 1)
+            if (pa.texcoords.x() < 0 || pa.texcoords.x() > 1 || pa.texcoords.y() < 0 || pa.texcoords.y() > 1 ||
+                pb.texcoords.x() < 0 || pb.texcoords.x() > 1 || pb.texcoords.y() < 0 || pb.texcoords.y() > 1 ||
+                pc.texcoords.x() < 0 || pc.texcoords.x() > 1 || pc.texcoords.y() < 0 || pc.texcoords.y() > 1)
             {
                 continue;
             }

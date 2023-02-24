@@ -3,7 +3,7 @@
  *
  * File: include/eos/render/detail/texturing.hpp
  *
- * Copyright 2014-2017 Patrik Huber
+ * Copyright 2014-2017, 2023 Patrik Huber
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,8 +24,7 @@
 
 #include "eos/render/Texture.hpp"
 
-#include "glm/vec2.hpp"
-#include "glm/vec3.hpp"
+#include "Eigen/Core"
 
 #include <algorithm>
 #include <cmath>
@@ -39,23 +38,24 @@ namespace render {
 namespace detail {
 
 // used only in tex2D_linear_mipmap_linear
-// template?
+// template? or we could use std::clamp(), with C++17.
 inline float clamp(float x, float a, float b)
 {
     return std::max(std::min(x, b), a);
 };
 
-inline glm::vec2 texcoord_wrap(const glm::vec2& texcoords)
+template <typename T>
+inline Eigen::Vector2<T> texcoord_wrap(const Eigen::Vector2<T>& texcoords)
 {
-    return glm::vec2(texcoords[0] - (int)texcoords[0], texcoords[1] - (int)texcoords[1]);
+    return Eigen::Vector2<T>(texcoords[0] - (int)texcoords[0], texcoords[1] - (int)texcoords[1]);
 };
 
 // forward decls
-glm::vec3 tex2d_linear_mipmap_linear(const glm::vec2& texcoords, const Texture& texture, float dudx,
+Eigen::Vector3f tex2d_linear_mipmap_linear(const Eigen::Vector2f& texcoords, const Texture& texture, float dudx,
                                      float dudy, float dvdx, float dvdy);
-glm::vec3 tex2d_linear(const glm::vec2& imageTexCoord, unsigned char mipmapIndex, const Texture& texture);
+Eigen::Vector3f tex2d_linear(const Eigen::Vector2f& imageTexCoord, unsigned char mipmapIndex, const Texture& texture);
 
-inline glm::vec3 tex2d(const glm::vec2& texcoords, const Texture& texture, float dudx, float dudy, float dvdx,
+inline Eigen::Vector3f tex2d(const Eigen::Vector2f& texcoords, const Texture& texture, float dudx, float dudy, float dvdx,
                        float dvdy)
 {
     return (1.0f / 255.0f) * tex2d_linear_mipmap_linear(texcoords, texture, dudx, dudy, dvdx, dvdy);
@@ -65,15 +65,15 @@ template <typename T, glm::precision P = glm::defaultp>
 glm::tvec3<T, P> tex2d(const glm::tvec2<T, P>& texcoords, const Texture& texture, float dudx, float dudy,
                        float dvdx, float dvdy)
 {
-    glm::vec3 ret = (1.0f / 255.0f) * tex2d_linear_mipmap_linear(glm::vec2(texcoords[0], texcoords[1]),
+    Eigen::Vector3f ret = (1.0f / 255.0f) * tex2d_linear_mipmap_linear(Eigen::Vector2f(texcoords[0], texcoords[1]),
                                                                  texture, dudx, dudy, dvdx, dvdy);
     return glm::tvec3<T, P>(ret[0], ret[1], ret[2]);
 };
 
-inline glm::vec3 tex2d_linear_mipmap_linear(const glm::vec2& texcoords, const Texture& texture, float dudx,
+inline Eigen::Vector3f tex2d_linear_mipmap_linear(const Eigen::Vector2f& texcoords, const Texture& texture, float dudx,
                                             float dudy, float dvdx, float dvdy)
 {
-    using glm::vec2;
+    using Eigen::Vector2f;
     const float px = std::sqrt(std::pow(dudx, 2) + std::pow(dvdx, 2));
     const float py = std::sqrt(std::pow(dudy, 2) + std::pow(dvdy, 2));
     constexpr double ln2 = 0.69314718056;
@@ -82,15 +82,15 @@ inline glm::vec3 tex2d_linear_mipmap_linear(const glm::vec2& texcoords, const Te
         detail::clamp((int)lambda, 0.0f, std::max(texture.widthLog, texture.heightLog) - 1);
     const unsigned char mipmapIndex2 = mipmapIndex1 + 1;
 
-    const vec2 imageTexCoord = detail::texcoord_wrap(texcoords);
-    vec2 imageTexCoord1 = imageTexCoord;
+    const Vector2f imageTexCoord = detail::texcoord_wrap(texcoords);
+    Vector2f imageTexCoord1 = imageTexCoord;
     imageTexCoord1[0] *= texture.mipmaps[mipmapIndex1].width();
     imageTexCoord1[1] *= texture.mipmaps[mipmapIndex1].height();
-    vec2 imageTexCoord2 = imageTexCoord;
+    Vector2f imageTexCoord2 = imageTexCoord;
     imageTexCoord2[0] *= texture.mipmaps[mipmapIndex2].width();
     imageTexCoord2[1] *= texture.mipmaps[mipmapIndex2].height();
 
-    glm::vec3 color, color1, color2;
+    Eigen::Vector3f color, color1, color2;
     color1 = tex2d_linear(imageTexCoord1, mipmapIndex1, texture);
     color2 = tex2d_linear(imageTexCoord2, mipmapIndex2, texture);
     float lambdaFrac = std::max(lambda, 0.0f);
@@ -100,8 +100,9 @@ inline glm::vec3 tex2d_linear_mipmap_linear(const glm::vec2& texcoords, const Te
     return color;
 };
 
-inline glm::vec3 tex2d_linear(const glm::vec2& imageTexCoord, unsigned char mipmap_index,
-                              const Texture& texture)
+template <typename T>
+inline Eigen::Vector3<T> tex2d_linear(const Eigen::Vector2<T>& imageTexCoord, unsigned char mipmap_index,
+                                      const Texture& texture)
 {
     const int x = (int)imageTexCoord[0];
     const int y = (int)imageTexCoord[1];
@@ -113,7 +114,7 @@ inline glm::vec3 tex2d_linear(const glm::vec2& imageTexCoord, unsigned char mipm
     const float b = alpha * oneMinusBeta;
     const float c = oneMinusAlpha * beta;
     const float d = alpha * beta;
-    glm::vec3 color;
+    Eigen::Vector3<T> color;
 
     // int pixelIndex;
     // pixelIndex = getPixelIndex_wrap(x, y, texture->mipmaps[mipmapIndex].cols,

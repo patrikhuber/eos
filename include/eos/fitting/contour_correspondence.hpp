@@ -3,7 +3,7 @@
  *
  * File: include/eos/fitting/contour_correspondence.hpp
  *
- * Copyright 2015, 2016 Patrik Huber
+ * Copyright 2015, 2016, 2023 Patrik Huber
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,13 +24,12 @@
 
 #include "eos/core/Landmark.hpp"
 #include "eos/core/Mesh.hpp"
+#include "eos/render/matrix_projection.hpp"
 
 #include "cereal/types/vector.hpp"
 #include "cereal/archives/json.hpp"
 
 #include "toml.hpp"
-
-#include "glm/gtc/matrix_transform.hpp"
 
 #include "Eigen/Core"
 
@@ -53,8 +52,8 @@ std::tuple<std::vector<Eigen::Vector2f>, std::vector<Eigen::Vector4f>, std::vect
 get_nearest_contour_correspondences(const core::LandmarkCollection<Eigen::Vector2f>& landmarks,
                                     const std::vector<std::string>& landmark_contour_identifiers,
                                     const std::vector<int>& model_contour_indices, const core::Mesh& mesh,
-                                    const glm::mat4x4& view_model, const glm::mat4x4& ortho_projection,
-                                    const glm::vec4& viewport);
+                                    const Eigen::Matrix4f& view_model,
+                                    const Eigen::Matrix4f& ortho_projection, const Eigen::Vector4f& viewport);
 
 /**
  * @brief Definition of the vertex indices that define the right and left model contour.
@@ -237,8 +236,8 @@ struct ContourLandmarks
 inline std::tuple<std::vector<Eigen::Vector2f>, std::vector<Eigen::Vector4f>, std::vector<int>>
 get_contour_correspondences(const core::LandmarkCollection<Eigen::Vector2f>& landmarks,
                             const ContourLandmarks& contour_landmarks, const ModelContour& model_contour,
-                            float yaw_angle, const core::Mesh& mesh, const glm::mat4x4& view_model,
-                            const glm::mat4x4& ortho_projection, const glm::vec4& viewport,
+                            float yaw_angle, const core::Mesh& mesh, const Eigen::Matrix4f& view_model,
+                            const Eigen::Matrix4f& ortho_projection, const Eigen::Vector4f& viewport,
                             float frontal_range_threshold = 7.5f)
 {
     // Select which side of the contour we'll use:
@@ -323,8 +322,8 @@ inline std::tuple<std::vector<Eigen::Vector2f>, std::vector<Eigen::Vector4f>, st
 get_nearest_contour_correspondences(const core::LandmarkCollection<Eigen::Vector2f>& landmarks,
                                     const std::vector<std::string>& landmark_contour_identifiers,
                                     const std::vector<int>& model_contour_indices, const core::Mesh& mesh,
-                                    const glm::mat4x4& view_model, const glm::mat4x4& ortho_projection,
-                                    const glm::vec4& viewport)
+                                    const Eigen::Matrix4f& view_model,
+                                    const Eigen::Matrix4f& ortho_projection, const Eigen::Vector4f& viewport)
 {
     // These are the additional contour-correspondences we're going to find and then use!
     std::vector<Eigen::Vector4f> model_points_cnt; // the points in the 3D shape model
@@ -355,13 +354,10 @@ get_nearest_contour_correspondences(const core::LandmarkCollection<Eigen::Vector
                                                                     // i.e. only project them once, not for
                                                                     // each landmark newly...
         {
-            const glm::vec3 vertex(mesh.vertices[model_contour_vertex_idx][0],
-                                   mesh.vertices[model_contour_vertex_idx][1],
-                                   mesh.vertices[model_contour_vertex_idx][2]);
-            const glm::vec3 proj = glm::project(vertex, view_model, ortho_projection, viewport);
-            const Eigen::Vector2f screen_point_model_contour(proj.x, proj.y);
-
-            const double dist = (screen_point_model_contour - screen_point_2d_contour_landmark).norm();
+            const Eigen::Vector3f screen_point_model_contour = render::project(
+                mesh.vertices[model_contour_vertex_idx], view_model, ortho_projection, viewport);
+            const double dist =
+                (screen_point_model_contour.head<2>() - screen_point_2d_contour_landmark).norm();
             distances_2d.emplace_back(dist);
         }
         const auto min_ele = std::min_element(begin(distances_2d), end(distances_2d));
@@ -369,10 +365,7 @@ get_nearest_contour_correspondences(const core::LandmarkCollection<Eigen::Vector
         const auto min_ele_idx = std::distance(begin(distances_2d), min_ele);
         const auto the_3dmm_vertex_id_that_is_closest = model_contour_indices[min_ele_idx];
 
-        const Eigen::Vector4f vertex(mesh.vertices[the_3dmm_vertex_id_that_is_closest][0],
-                                     mesh.vertices[the_3dmm_vertex_id_that_is_closest][1],
-                                     mesh.vertices[the_3dmm_vertex_id_that_is_closest][2], 1.0f);
-        model_points_cnt.emplace_back(vertex);
+        model_points_cnt.emplace_back(mesh.vertices[the_3dmm_vertex_id_that_is_closest].homogeneous());
         vertex_indices_cnt.emplace_back(the_3dmm_vertex_id_that_is_closest);
         image_points_cnt.emplace_back(screen_point_2d_contour_landmark);
     }

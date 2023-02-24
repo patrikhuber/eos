@@ -3,7 +3,7 @@
  *
  * File: include/eos/render/Rasterizer.hpp
  *
- * Copyright 2017 Patrik Huber
+ * Copyright 2017, 2023 Patrik Huber
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,8 @@
 #include "eos/render/detail/plane.hpp"
 #include "eos/render/detail/utils.hpp"
 #include "eos/cpp17/optional.hpp"
+
+#include "Eigen/Core"
 
 #include <limits>
 
@@ -61,15 +63,15 @@ public:
      * @param[in] vertex X.
      * @ return X.
      */
-    template <typename T, glm::precision P = glm::defaultp>
-    void raster_triangle(const detail::Vertex<T, P>& point_a, const detail::Vertex<T, P>& point_b,
-                         const detail::Vertex<T, P>& point_c, const cpp17::optional<Texture>& texture)
+    template <typename T>
+    void raster_triangle(const detail::Vertex<T>& point_a, const detail::Vertex<T>& point_b,
+                         const detail::Vertex<T>& point_c, const cpp17::optional<Texture>& texture)
     {
         // We already calculated this in the culling/clipping stage. Maybe we should save/cache it after all.
         const auto boundingBox = detail::calculate_clipped_bounding_box(
-            glm::tvec2<T, P>(point_a.position.x, point_a.position.y),
-            glm::tvec2<T, P>(point_b.position.x, point_b.position.y),
-            glm::tvec2<T, P>(point_c.position.x, point_c.position.y), viewport_width, viewport_height);
+            Eigen::Vector2<T>(point_a.position.x(), point_a.position.y()),
+            Eigen::Vector2<T>(point_b.position.x(), point_b.position.y()),
+            Eigen::Vector2<T>(point_c.position.x(), point_c.position.y()), viewport_width, viewport_height);
         const auto min_x = boundingBox.x;
         const auto max_x = boundingBox.x + boundingBox.width;
         const auto min_y = boundingBox.y;
@@ -85,17 +87,17 @@ public:
         // For partial derivatives computation (for mipmapping, texturing) (they work on screen-space coords):
         using eos::render::detail::plane;
         const auto alpha_plane = plane(
-            glm::tvec3<T, P>(point_a.position[0], point_a.position[1], point_a.texcoords[0] * one_over_w0),
-            glm::tvec3<T, P>(point_b.position[0], point_b.position[1], point_b.texcoords[0] * one_over_w1),
-            glm::tvec3<T, P>(point_c.position[0], point_c.position[1], point_c.texcoords[0] * one_over_w2));
+            Eigen::Vector3<T>(point_a.position[0], point_a.position[1], point_a.texcoords[0] * one_over_w0),
+            Eigen::Vector3<T>(point_b.position[0], point_b.position[1], point_b.texcoords[0] * one_over_w1),
+            Eigen::Vector3<T>(point_c.position[0], point_c.position[1], point_c.texcoords[0] * one_over_w2));
         const auto beta_plane = plane(
-            glm::tvec3<T, P>(point_a.position[0], point_a.position[1], point_a.texcoords[1] * one_over_w0),
-            glm::tvec3<T, P>(point_b.position[0], point_b.position[1], point_b.texcoords[1] * one_over_w1),
-            glm::tvec3<T, P>(point_c.position[0], point_c.position[1], point_c.texcoords[1] * one_over_w2));
+            Eigen::Vector3<T>(point_a.position[0], point_a.position[1], point_a.texcoords[1] * one_over_w0),
+            Eigen::Vector3<T>(point_b.position[0], point_b.position[1], point_b.texcoords[1] * one_over_w1),
+            Eigen::Vector3<T>(point_c.position[0], point_c.position[1], point_c.texcoords[1] * one_over_w2));
         const auto gamma_plane =
-            plane(glm::tvec3<T, P>(point_a.position[0], point_a.position[1], one_over_w0),
-                  glm::tvec3<T, P>(point_b.position[0], point_b.position[1], one_over_w1),
-                  glm::tvec3<T, P>(point_c.position[0], point_c.position[1], one_over_w2));
+            plane(Eigen::Vector3<T>(point_a.position[0], point_a.position[1], one_over_w0),
+                  Eigen::Vector3<T>(point_b.position[0], point_b.position[1], one_over_w1),
+                  Eigen::Vector3<T>(point_c.position[0], point_c.position[1], one_over_w2));
         const auto one_over_alpha_c = 1.0f / alpha_plane.c;
         const auto one_over_beta_c = 1.0f / beta_plane.c;
         const auto one_over_gamma_c = 1.0f / gamma_plane.c;
@@ -181,9 +183,9 @@ public:
                             beta *= d * one_over_w1;
                             gamma *= d * one_over_w2;
                         }
-                        glm::tvec3<T, P> lambda(alpha, beta, gamma);
+                        Eigen::Vector3<T> lambda(alpha, beta, gamma);
 
-                        glm::tvec4<T, P> pixel_color;
+                        Eigen::Vector4<T> pixel_color;
                         if (texture)
                         {
                             // check if texture != NULL?

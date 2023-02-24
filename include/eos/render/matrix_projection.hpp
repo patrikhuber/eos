@@ -65,6 +65,18 @@ Eigen::Matrix4<T> perspective(T fov_y, T aspect, T z_near, T z_far)
     return result;
 }
 
+template <typename T>
+Eigen::Matrix4<T> ortho(T left, T right, T bottom, T top)
+{
+    Eigen::Matrix4<T> result = Eigen::Matrix4<T>::Identity();
+    result(0, 0) = static_cast<T>(2) / (right - left);
+    result(1, 1) = static_cast<T>(2) / (top - bottom);
+    result(2, 2) = -static_cast<T>(1);
+    result(0, 3) = -(right + left) / (right - left);
+    result(1, 3) = -(top + bottom) / (top - bottom);
+    return result;
+}
+
 /**
  * Project the given point_3d (from object coordinates) into window coordinates.
  *

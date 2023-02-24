@@ -3,7 +3,7 @@
  *
  * File: include/eos/fitting/RenderingParameters.hpp
  *
- * Copyright 2016 Patrik Huber
+ * Copyright 2016, 2023 Patrik Huber
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@
 #define EOS_RENDERING_PARAMETERS_HPP
 
 #include "eos/fitting/orthographic_camera_estimation_linear.hpp"
+#include "eos/render/matrix_projection.hpp"
 #include "eos/cpp17/optional.hpp"
 #include "eos/cpp17/optional_serialization.hpp"
 
@@ -137,6 +138,9 @@ public:
           screen_width(screen_width), screen_height(screen_height)
     {
         rotation = glm::quat(ortho_params.R);
+        rotation_ = ortho_params.R_; // converts the rotation matrix to a quaternion
+        // Checked: Same result.
+
         const float l = 0.0f;
         const float r = screen_width / ortho_params.s;
         const float b = 0.0f; // The b and t values are not tested for what happens if the SOP parameters
@@ -170,7 +174,7 @@ public:
     };
 
     // Third coord is 0.0 for ortho (==no t_z).
-    glm::vec3 get_translation() const
+    Eigen::Vector3f get_translation() const
     {
         return {t_x, t_y, t_z.value_or(0.0f)};
     };
@@ -180,34 +184,48 @@ public:
         return fov_y;
     };
 
-    glm::mat4x4 get_modelview() const
+    Eigen::Matrix4f get_modelview() const
     {
         if (camera_type == CameraType::Orthographic)
         {
+            Eigen::Matrix4f modelview_ = Eigen::Matrix4f::Identity();
+            modelview_.block<3, 3>(0, 0) = rotation_.normalized().toRotationMatrix();
+            modelview_(0, 3) = t_x;
+            modelview_(1, 3) = t_y;
             glm::mat4x4 modelview = glm::mat4_cast(rotation);
             modelview[3][0] = t_x;
             modelview[3][1] = t_y;
-            return modelview;
+            // Checked, identical!
+            return modelview_;
         } else
         {
             assert(t_z.has_value()); // Might be worth throwing an exception instead.
+            Eigen::Matrix4f modelview_ = Eigen::Matrix4f::Identity();
+            modelview_.block<3, 3>(0, 0) = rotation_.normalized().toRotationMatrix();
+            modelview_(3, 0) = t_x;
+            modelview_(3, 1) = t_y;
+            modelview_(3, 2) = t_z.value();
             const glm::mat4x4 rot_mtx = glm::mat4_cast(rotation);
             const auto t_mtx = glm::translate(glm::vec3(t_x, t_y, t_z.value()));
             const glm::mat4x4 modelview = t_mtx * rot_mtx;
-            return modelview;
+            return modelview_;
         }
     };
 
-    glm::mat4x4 get_projection() const
+    Eigen::Matrix4f get_projection() const
     {
         if (camera_type == CameraType::Orthographic)
         {
-            return glm::ortho<float>(frustum.l, frustum.r, frustum.b, frustum.t);
+            glm::mat4x4 ortho_ = glm::ortho<float>(frustum.l, frustum.r, frustum.b, frustum.t);
+            const auto ortho = render::ortho(frustum.l, frustum.r, frustum.b, frustum.t);
+            // Checked, identical!
+            return ortho;
         } else
         {
             assert(fov_y.has_value()); // Might be worth throwing an exception instead.
             const float aspect_ratio = static_cast<double>(screen_width) / screen_height;
-            const auto persp_mtx = glm::perspective(fov_y.value(), aspect_ratio, 0.1f, 1000.0f);
+            const auto persp_mtx = render::perspective(fov_y.value(), aspect_ratio, 0.1f, 1000.0f);
+            const auto persp_mtx_ = glm::perspective(fov_y.value(), aspect_ratio, 0.1f, 1000.0f);
             return persp_mtx;
         }
     };
@@ -229,6 +247,7 @@ private:
     Frustum frustum; // Can construct a glm::ortho or glm::perspective matrix from this.
 
     glm::quat rotation;
+    Eigen::Quaternionf rotation_;
 
     float t_x;
     float t_y;
@@ -277,9 +296,9 @@ inline void save_rendering_parameters(RenderingParameters rendering_parameters, 
  * @brief Returns a glm/OpenGL compatible viewport vector that flips y and
  * has the origin on the top-left, like in OpenCV.
  */
-inline glm::vec4 get_opencv_viewport(int width, int height)
+inline Eigen::Vector4f get_opencv_viewport(int width, int height)
 {
-    return glm::vec4(0, height, width, -height);
+    return Eigen::Vector4f(0, height, width, -height);
 };
 
 /**
@@ -314,11 +333,12 @@ inline Eigen::Matrix<float, 4, 4> to_eigen(const glm::mat4x4& glm_matrix)
 inline Eigen::Matrix<float, 3, 4> get_3x4_affine_camera_matrix(RenderingParameters params, int width,
                                                                int height)
 {
-    const auto view_model = to_eigen(params.get_modelview());
-    const auto ortho_projection = to_eigen(params.get_projection());
+    // Note: We should perhaps throw instead?
+    assert(params.get_camera_type() == CameraType::Orthographic);
+
     using MatrixXf3x4 = Eigen::Matrix<float, 3, 4>;
     using Eigen::Matrix4f;
-    const Matrix4f mvp = ortho_projection * view_model;
+    const Matrix4f mvp = params.get_projection() * params.get_modelview();
 
     glm::vec4 viewport(0, height, width, -height); // flips y, origin top-left, like in OpenCV
     // equivalent to what glm::project's viewport does, but we don't change z and w:
