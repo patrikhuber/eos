@@ -28,6 +28,7 @@
 #include "eos/morphablemodel/Blendshape.hpp"
 #include "eos/fitting/ceres_nonlinear.hpp"
 #include "eos/fitting/contour_correspondence.hpp"
+#include "eos/render/matrix_projection.hpp"
 
 #include "Eigen/Core"
 
@@ -270,7 +271,7 @@ int main(int argc, char* argv[])
     model_view_mtx.block<3, 3>(0, 0) = camera_rotation.toRotationMatrix();
     model_view_mtx.col(3).head<3>() = camera_translation;
     const double aspect = static_cast<double>(image.cols) / image.rows;
-    auto projection_mtx = fitting::perspective(fov_y, aspect, 0.1, 1000.0);
+    auto projection_mtx = render::perspective(fov_y, aspect, 0.1, 1000.0);
     // Todo: use get_opencv_viewport() from nonlin_cam_esti.hpp.
     const Eigen::Vector4d viewport(0, image.rows, image.cols, -image.rows); // OpenCV convention
 
@@ -279,7 +280,7 @@ int main(int argc, char* argv[])
     {
         const auto& point_3d = mean_mesh.vertices[idx];
         const auto projected_point =
-            fitting::project<double>(point_3d.cast<double>(), model_view_mtx, projection_mtx, viewport);
+            render::project<double>(point_3d.cast<double>(), model_view_mtx, projection_mtx, viewport);
         cv::circle(outimg, cv::Point2f(projected_point.x(), projected_point.y()), 3,
                    {0.0f, 0.0f, 255.0f}); // red
     }
@@ -414,7 +415,7 @@ int main(int argc, char* argv[])
     model_view_mtx = Eigen::Matrix4d::Identity();
     model_view_mtx.block<3, 3>(0, 0) = camera_rotation.toRotationMatrix();
     model_view_mtx.col(3).head<3>() = camera_translation;
-    projection_mtx = fitting::perspective(fov_y, aspect, 0.1, 1000.0);
+    projection_mtx = render::perspective(fov_y, aspect, 0.1, 1000.0);
 
     auto vectord_to_vectorf = [](const std::vector<double>& vec) {
         return std::vector<float>(std::begin(vec), std::end(vec));
@@ -434,7 +435,7 @@ int main(int argc, char* argv[])
     {
         const auto& point_3d = mesh.vertices[idx];
         const auto projected_point =
-            fitting::project<double>(point_3d.cast<double>(), model_view_mtx, projection_mtx, viewport);
+            render::project<double>(point_3d.cast<double>(), model_view_mtx, projection_mtx, viewport);
         cv::circle(outimg, cv::Point2f(projected_point.x(), projected_point.y()), 3,
                    {0.0f, 76.0f, 255.0f}); // orange
     }
