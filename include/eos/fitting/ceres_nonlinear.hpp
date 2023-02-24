@@ -22,9 +22,10 @@
 #ifndef EOS_CERES_NONLINEAR_HPP
 #define EOS_CERES_NONLINEAR_HPP
 
+#include "eos/core/Image.hpp"
 #include "eos/morphablemodel/MorphableModel.hpp"
 #include "eos/morphablemodel/Blendshape.hpp"
-#include "eos/core/Image.hpp"
+#include "eos/render/matrix_projection.hpp"
 
 #include "Eigen/Core"
 
@@ -46,13 +47,6 @@ Eigen::Vector3<T> get_shape_at_point(const eos::morphablemodel::PcaModel& shape_
 template <typename T>
 Eigen::Vector3<T> get_vertex_color_at_point(const eos::morphablemodel::PcaModel& color_model, int vertex_id,
                                             Eigen::Map<const Eigen::VectorX<T>> color_coeffs);
-
-template <typename T>
-Eigen::Matrix4<T> perspective(T fov_y, T aspect, T z_near, T z_far);
-
-template <typename T>
-Eigen::Vector3<T> project(const Eigen::Vector3<T>& obj, const Eigen::Matrix4<T>& model,
-                          const Eigen::Matrix4<T>& proj, const Eigen::Vector4<T>& viewport);
 
 /**
  * Cost function that consists of the parameter values themselves as residual.
@@ -182,9 +176,10 @@ struct PerspectiveProjectionLandmarkCost
                                          T(-image_height)); // OpenCV convention
 
         const T& fov = camera_intrinsics[0];
-        const auto projection_mtx = perspective(fov, T(aspect_ratio), T(0.1), T(1000.0));
+        const auto projection_mtx = render::perspective(fov, T(aspect_ratio), T(0.1), T(1000.0));
 
-        Eigen::Vector3<T> projected_point = project(point_3d, model_view_mtx, projection_mtx, viewport);
+        Eigen::Vector3<T> projected_point =
+            render::project(point_3d, model_view_mtx, projection_mtx, viewport);
 
         // Residual: Projected point minus the observed 2D landmark point
         residual[0] = projected_point.x() - T(observed_landmark[0]);
@@ -310,9 +305,10 @@ struct VertexColorCost
 
         const T& fov = camera_intrinsics[0];
         const double aspect_ratio = static_cast<double>(image.width()) / image.height();
-        const auto projection_mtx = perspective(fov, T(aspect_ratio), T(0.1), T(1000.0));
+        const auto projection_mtx = render::perspective(fov, T(aspect_ratio), T(0.1), T(1000.0));
 
-        Eigen::Vector3<T> projected_point = project(point_3d, model_view_mtx, projection_mtx, viewport);
+        Eigen::Vector3<T> projected_point =
+            render::project(point_3d, model_view_mtx, projection_mtx, viewport);
         // End of identical block with PerspectiveProjectionLandmarkCost.
 
         // Access the image colour value at the projected pixel location, if inside the image - otherwise
@@ -422,76 +418,6 @@ Eigen::Vector3<T> get_vertex_color_at_point(const eos::morphablemodel::PcaModel&
 
     return Eigen::Vector3<T>(mean.cast<T>() + color_vector);
 };
-
-/**
- * Creates a matrix for a right-handed, symmetric perspective-view frustrum.
- *
- * The function follows the OpenGL clip volume definition, which is also the GLM default. The near and far
- * clip planes correspond to z normalized device coordinates of -1 and +1 respectively.
- *
- * This function is equivalent to glm::perspectiveRH_NO(...).
- *
- * More details can be found on the gluPerspective man page:
- * https://www.khronos.org/registry/OpenGL-Refpages/gl2.1/xhtml/gluPerspective.xml.
- *
- * @param[in] fov_y Specifies the field of view angle in the y direction. Expressed in radians.
- * @param[in] aspect Specifies the aspect ratio that determines the field of view in the x direction. The
- * aspect ratio is the ratio of x (width) to y (height).
- * @param[in] z_near Specifies the distance from the viewer to the near clipping plane (always positive).
- * @param[in] z_far Specifies the distance from the viewer to the far clipping plane (always positive).
- * @tparam T A floating-point scalar type, ceres::Jet, or similar compatible type.
- * @return The corresponding perspective projection matrix.
- */
-template <typename T>
-Eigen::Matrix4<T> perspective(T fov_y, T aspect, T z_near, T z_far)
-{
-    // Will this assert work? std::abs probably won't work on T?
-    // assert(abs(aspect - std::numeric_limits<T>::epsilon()) > static_cast<T>(0));
-
-    const T tan_half_fov_y = tan(fov_y / static_cast<T>(2)); // ceres::tan?
-
-    // Maybe construct with static_cast<T>(0)? => No, doesn't have c'tor.
-    // Could do Eigen::Matrix4<T> result = {{1, 2, 3, 4}, {1, 2, 3, 4}...} I think.
-    Eigen::Matrix4<T> result = Eigen::Matrix4<T>::Zero();
-    result(0, 0) = static_cast<T>(1) / (aspect * tan_half_fov_y);
-    result(1, 1) = static_cast<T>(1) / (tan_half_fov_y);
-    result(2, 2) = -(z_far + z_near) / (z_far - z_near);
-    result(2, 3) = -static_cast<T>(1);
-    result(3, 2) = -(static_cast<T>(2) * z_far * z_near) / (z_far - z_near);
-    return result;
-}
-
-/**
- * Project the given point_3d (from object coordinates) into window coordinates.
- *
- * The function follows the OpenGL clip volume definition. The near and far clip planes correspond to
- * z normalized device coordinates of -1 and +1 respectively.
- * This function is equivalent to glm::projectNO(...).
- *
- * More details can be found on the gluProject man page:
- * https://www.khronos.org/registry/OpenGL-Refpages/gl2.1/xhtml/gluProject.xml.
- *
- * @param[in] point_3d A 3D point in object coordinates.
- * @param[in] modelview_matrix A model-view matrix, transforming the point into view (camera) space.
- * @param[in] projection_matrix The projection matrix to be used.
- * @param[in] viewport The viewport transformation to be used.
- * @tparam T A floating-point scalar type, ceres::Jet, or similar compatible type.
- * @return Return the computed window coordinates.
- */
-template <typename T>
-Eigen::Vector3<T> project(const Eigen::Vector3<T>& point_3d, const Eigen::Matrix4<T>& modelview_matrix,
-                          const Eigen::Matrix4<T>& projection_matrix, const Eigen::Vector4<T>& viewport)
-{
-    Eigen::Vector4<T> projected_point = projection_matrix * modelview_matrix * point_3d.homogeneous();
-    projected_point /= projected_point.w();
-    projected_point =
-        projected_point * static_cast<T>(0.5) +
-        Eigen::Vector4<T>(static_cast<T>(0.5), static_cast<T>(0.5), static_cast<T>(0.5), static_cast<T>(0.5));
-    projected_point.x() = projected_point.x() * T(viewport(2)) + T(viewport(0));
-    projected_point.y() = projected_point.y() * T(viewport(3)) + T(viewport(1));
-
-    return projected_point.head<3>();
-}
 
 } /* namespace fitting */
 } /* namespace eos */
