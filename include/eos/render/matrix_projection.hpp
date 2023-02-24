@@ -56,12 +56,12 @@ Eigen::Matrix4<T> perspective(T fov_y, T aspect, T z_near, T z_far)
 
     // Maybe construct with static_cast<T>(0)? => No, doesn't have c'tor.
     // Could do Eigen::Matrix4<T> result = {{1, 2, 3, 4}, {1, 2, 3, 4}...} I think.
-    Eigen::Matrix4<T> result = Eigen::Matrix4<T>::Zero();
+    Eigen::Matrix4<T> result = Eigen::Matrix4<T>::Zero(); // Note: Zero() is correct.
     result(0, 0) = static_cast<T>(1) / (aspect * tan_half_fov_y);
     result(1, 1) = static_cast<T>(1) / (tan_half_fov_y);
     result(2, 2) = -(z_far + z_near) / (z_far - z_near);
-    result(2, 3) = -static_cast<T>(1);
-    result(3, 2) = -(static_cast<T>(2) * z_far * z_near) / (z_far - z_near);
+    result(3, 2) = -static_cast<T>(1);
+    result(2, 3) = -(static_cast<T>(2) * z_far * z_near) / (z_far - z_near);
     return result;
 }
 
