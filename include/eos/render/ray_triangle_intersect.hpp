@@ -55,18 +55,20 @@ namespace render {
  * @return Whether the ray intersects the triangle, and if yes, including the distance.
  */
 inline std::pair<bool, cpp17::optional<float>>
-ray_triangle_intersect(const glm::vec3& ray_origin, const glm::vec3& ray_direction, const glm::vec3& v0,
-                       const glm::vec3& v1, const glm::vec3& v2, bool enable_backculling)
+ray_triangle_intersect(const Eigen::Vector3f& ray_origin, const Eigen::Vector3f& ray_direction,
+                       const Eigen::Vector3f& v0, const Eigen::Vector3f& v1, const Eigen::Vector3f& v2,
+                       bool enable_backculling)
 {
-    using glm::vec3;
+    using Eigen::Vector3f;
     const float epsilon = 1e-6f;
 
-    const vec3 v0v1 = v1 - v0;
-    const vec3 v0v2 = v2 - v0;
+    const Vector3f v0v1 = v1 - v0;
+    const Vector3f v0v2 = v2 - v0;
 
-    const vec3 pvec = glm::cross(ray_direction, v0v2);
+    const Vector3f pvec = ray_direction.cross(v0v2);
 
-    const float det = glm::dot(v0v1, pvec);
+    const float det = v0v1.dot(pvec);
+
     if (enable_backculling)
     {
         // If det is negative, the triangle is back-facing.
@@ -81,17 +83,17 @@ ray_triangle_intersect(const glm::vec3& ray_origin, const glm::vec3& ray_directi
     }
     const float inv_det = 1 / det;
 
-    const vec3 tvec = ray_origin - v0;
-    const auto u = glm::dot(tvec, pvec) * inv_det;
+    const Vector3f tvec = ray_origin - v0;
+    const auto u = tvec.dot(pvec) * inv_det;
     if (u < 0 || u > 1)
         return {false, cpp17::nullopt};
 
-    const vec3 qvec = glm::cross(tvec, v0v1);
-    const auto v = glm::dot(ray_direction, qvec) * inv_det;
+    const Vector3f qvec = tvec.cross(v0v1);
+    const auto v = ray_direction.dot(qvec) * inv_det;
     if (v < 0 || u + v > 1)
         return {false, cpp17::nullopt};
 
-    const auto t = glm::dot(v0v2, qvec) * inv_det;
+    const auto t = v0v2.dot(qvec) * inv_det;
 
     return {true, t};
 };

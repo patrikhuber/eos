@@ -57,24 +57,25 @@ namespace render {
  * @param[in] ray_direction_type Whether the occlusion should be computed under orthographic or perspective projection.
  * @return Returns whether the given vertex is visible (true if the vertex is visible, false if it is self-occluded).
  */
-inline bool is_vertex_visible(const glm::vec4 probe_vertex, const std::vector<glm::vec4>& mesh_vertices,
+inline bool is_vertex_visible(const Eigen::Vector3f& probe_vertex,
+                              const std::vector<Eigen::Vector3f>& mesh_vertices,
                               const std::vector<std::array<int, 3>>& mesh_triangle_vertex_indices,
                               detail::RayDirection ray_direction_type)
 {
-    using glm::vec3;
+    using Eigen::Vector3f;
 
     bool visible = true;
-    const vec3 ray_origin(probe_vertex);
-    const vec3 ray_direction = [&ray_direction_type, &probe_vertex]() {
+    const Vector3f ray_origin = probe_vertex;
+    const Vector3f ray_direction = [&ray_direction_type, &probe_vertex]() {
         if (ray_direction_type == detail::RayDirection::Parallel)
         {
             // For orthographic cameras, shoot towards the user with a parallel ray:
-            return vec3(0, 0, 1);
+            return Vector3f(0, 0, 1);
         } else
         {
             // For perspective cameras, we shoot the ray from the vertex towards the camera origin (which
             // is at (0, 0, 0)):
-            return vec3(-probe_vertex);
+            return Vector3f(-probe_vertex);
         }
     }();
 
@@ -89,7 +90,7 @@ inline bool is_vertex_visible(const glm::vec4 probe_vertex, const std::vector<gl
         const auto& v2 = mesh_vertices[tri[2]];
 
         const auto intersect =
-            ray_triangle_intersect(ray_origin, ray_direction, vec3(v0), vec3(v1), vec3(v2), false);
+            ray_triangle_intersect(ray_origin, ray_direction, v0, v1, v2, false);
         // first is bool intersect, second is the distance t
         if (intersect.first == true)
         {
@@ -117,28 +118,18 @@ inline bool is_vertex_visible(const glm::vec4 probe_vertex, const std::vector<gl
  * Depending on \p ray_direction_type, the rays are either casted from each vertex along the positive z axis,
  * or towards the origin (0, 0, 0).
  *
- * @param[in] vertices A set of vertices that form a mesh.
+ * @param[in] viewspace_vertices A set of vertices that form a mesh, in view-space coordinates.
  * @param[in] triangle_vertex_indices Triangle indices corresponding to the given mesh.
  * @param[in] ray_direction_type Whether the occlusion should be computed under orthographic or perspective projection.
  * @return Returns the per-vertex visibility (true if the vertex is visible, false if it is self-occluded).
  */
 inline std::vector<bool>
-compute_per_vertex_self_occlusion(const std::vector<Eigen::Vector3f>& vertices,
+compute_per_vertex_self_occlusion(const std::vector<Eigen::Vector3f>& viewspace_vertices,
                                   const std::vector<std::array<int, 3>>& triangle_vertex_indices,
                                   detail::RayDirection ray_direction_type)
 {
-    using glm::vec3;
-    using glm::vec4;
-    using std::vector;
-
-    // We are already given vertices in view space (or we should not transform them). We just need to do a bit
-    // of a back-and-forth between Eigen and GLM here.
-    vector<vec4> viewspace_vertices;
-    std::for_each(std::begin(vertices), std::end(vertices), [&viewspace_vertices](const auto& v) {
-        viewspace_vertices.push_back(vec4(v.x(), v.y(), v.z(), 1.0));
-    });
-
-    vector<bool> per_vertex_visibility;
+    // We are already given vertices in view space (or we should not transform them).
+    std::vector<bool> per_vertex_visibility;
     for (const auto& vertex : viewspace_vertices)
     {
         const bool visible =

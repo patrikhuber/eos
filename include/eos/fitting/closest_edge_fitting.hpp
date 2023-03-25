@@ -64,22 +64,21 @@ namespace fitting {
  */
 inline std::vector<int> occluding_boundary_vertices(const core::Mesh& mesh,
                                                     const morphablemodel::EdgeTopology& edge_topology,
-                                                    glm::mat4x4 R, render::ProjectionType projection_type,
+                                                    Eigen::Matrix3f R, render::ProjectionType projection_type,
                                                     bool perform_self_occlusion_check = true)
 {
     // Rotate the mesh:
-    std::vector<glm::vec4> rotated_vertices;
+    std::vector<Eigen::Vector3f> rotated_vertices;
     std::for_each(begin(mesh.vertices), end(mesh.vertices), [&rotated_vertices, &R](const auto& v) {
-        rotated_vertices.push_back(R * glm::vec4(v[0], v[1], v[2], 1.0f));
+        rotated_vertices.push_back(R * v);
     });
 
     // Compute the face normals of the rotated mesh:
-    std::vector<glm::vec3> facenormals;
+    std::vector<Eigen::Vector3f> facenormals;
     for (const auto& f : mesh.tvi)
     { // for each face (triangle):
-        const auto n =
-            render::compute_face_normal(glm::vec3(rotated_vertices[f[0]]), glm::vec3(rotated_vertices[f[1]]),
-                                        glm::vec3(rotated_vertices[f[2]]));
+        const auto n = render::compute_face_normal(rotated_vertices[f[0]], rotated_vertices[f[1]],
+                                                   rotated_vertices[f[2]]);
         facenormals.push_back(n);
     }
 
@@ -98,7 +97,7 @@ inline std::vector<int> occluding_boundary_vertices(const core::Mesh& mesh,
         // Compute the occluding edges as those where the two adjacent face normals
         // differ in the sign of their z-component:
         // Changing from 1-based indexing to 0-based!
-        if (glm::sign(facenormals[edge[0] - 1].z) != glm::sign(facenormals[edge[1] - 1].z))
+        if (core::sign(facenormals[edge[0] - 1].z()) != core::sign(facenormals[edge[1] - 1].z()))
         {
             // It's an occluding edge, store the index:
             occluding_edges_indices.push_back(edge_idx);
@@ -306,9 +305,9 @@ inline std::pair<std::vector<Eigen::Vector2f>, std::vector<int>> find_occluding_
             return render::ProjectionType::Perspective;
         }
     }();
-    const auto occluding_vertices =
-        occluding_boundary_vertices(mesh, edge_topology, glm::mat4x4(rendering_parameters.get_rotation()),
-                                    projection_type, perform_self_occlusion_check);
+    const auto occluding_vertices = occluding_boundary_vertices(
+        mesh, edge_topology, rendering_parameters.get_rotation().normalized().toRotationMatrix(),
+        projection_type, perform_self_occlusion_check);
 
     // Project these occluding boundary vertices from 3D to 2D:
     vector<Vector2f> model_edges_projected;
