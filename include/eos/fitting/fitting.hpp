@@ -203,26 +203,6 @@ inline auto get_corresponding_pointset(const T& landmarks, const core::LandmarkM
 };
 
 /**
- * @brief Concatenates two std::vector's of the same type and returns the concatenated
- * vector. The elements of the second vector are appended after the first one.
- *
- * Note: Move to detail namespace? It's used for the contour fitting, but doesn't really belong here.
- *
- * @param[in] vec_a First vector.
- * @param[in] vec_b Second vector.
- * @return The concatenated vector.
- */
-template <class T>
-inline auto concat(const std::vector<T>& vec_a, const std::vector<T>& vec_b)
-{
-    std::vector<T> concatenated_vec;
-    concatenated_vec.reserve(vec_a.size() + vec_b.size());
-    concatenated_vec.insert(std::end(concatenated_vec), std::begin(vec_a), std::end(vec_a));
-    concatenated_vec.insert(std::end(concatenated_vec), std::begin(vec_b), std::end(vec_b));
-    return concatenated_vec;
-};
-
-/**
  * @brief Fits the given expression model to landmarks.
  *
  * The function uses fit_blendshapes_to_landmarks_nnls(...) if the given expression model consists of
