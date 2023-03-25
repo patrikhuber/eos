@@ -28,6 +28,7 @@
 #include "eos/morphablemodel/Blendshape.hpp"
 #include "eos/fitting/ceres_nonlinear.hpp"
 #include "eos/fitting/contour_correspondence.hpp"
+#include "eos/fitting/rotation_angles.hpp"
 #include "eos/render/matrix_projection.hpp"
 
 #include "Eigen/Core"
@@ -294,23 +295,23 @@ int main(int argc, char* argv[])
                 << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << "ms.\n";
 
     // Now add contour fitting:
-    // These are the additional contour-correspondences we're going to find and then use:
-    // Note: This needs extracting the yaw angle from the rotation quaternion, which Eigen currently doesn't
-    // have a function for. Not using contour fitting for now.
-    // euler_angles = glm::eulerAngles(estimated_rotation); // returns [P, Y, R]; where estimated_rotation is
-    // a glm::quat.
-    /*
+    // Given the current pose, find 2D-3D contour correspondences of the front-facing face contour:
+    // Note: It would be a good idea to re-compute correspondences during the fitting, as opposed to only
+    // computing them once at the start using the mean face.
+    const float yaw_angle = core::degrees(
+        fitting::tait_bryan_angles(camera_rotation.normalized().toRotationMatrix(), 1, 0, 2)[0]);
     vector<Vector2f> image_points_contour; // the 2D landmark points
     vector<int> vertex_indices_contour;    // their corresponding 3D vertex indices
     // For each 2D contour landmark, get the corresponding 3D vertex point and vertex id:
     std::tie(image_points_contour, std::ignore, vertex_indices_contour) =
-        fitting::get_contour_correspondences(landmarks, ibug_contour, model_contour,
-                                             glm::degrees(euler_angles[1]), morphable_model.get_mean(),
-                                             t_mtx * rot_mtx, projection_mtx, viewport);
+        fitting::get_contour_correspondences(landmarks, ibug_contour, model_contour, yaw_angle,
+                                             morphable_model.get_mean(), model_view_mtx.cast<float>(),
+                                             projection_mtx.cast<float>(), viewport.cast<float>());
     using eos::fitting::concat;
     vertex_indices = concat(vertex_indices, vertex_indices_contour);
     image_points = concat(image_points, image_points_contour);
-    */
+    // Note: We could also fit the occluding ("away-facing") contour, like in fit_shape_and_pose() (see
+    // fitting.hpp), but we don't do that here for simplicity reasons.
 
     // Full fitting - Estimate shape and pose, given the previous pose estimate:
     start = std::chrono::steady_clock::now();
@@ -431,6 +432,7 @@ int main(int argc, char* argv[])
     const core::Mesh mesh = morphable_model_with_expressions.draw_sample(
         shape_coeffs_float, blendshape_coeffs_float, color_coeffs_float);
 
+    // Draw the vertices that we used in the fitting (orange):
     for (auto idx : vertex_indices)
     {
         const auto& point_3d = mesh.vertices[idx];
@@ -439,9 +441,12 @@ int main(int argc, char* argv[])
         cv::circle(outimg, cv::Point2f(projected_point.x(), projected_point.y()), 3,
                    {0.0f, 76.0f, 255.0f}); // orange
     }
-
-    // Note: We previously used contour landmarks and plotted image_points again here (in yellow), which then
-    // included the contour landmarks.
+    // Draw the corresponding 2D landmarks (now including contour landmarks):
+    for (const auto& lm : image_points)
+    {
+        cv::circle(outimg, cv::Point2f(lm(0), lm(1)), 3, {0.0f, 255.0f, 255.0f}); // yellow
+    }
+    // Note: Save outimg for debug purposes, or inspect it in e.g. ImageWatch.
 
     fitting_log << "Full fitting took: "
                 << std::chrono::duration_cast<std::chrono::seconds>(end - start).count() << "s.\n";
