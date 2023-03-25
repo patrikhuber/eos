@@ -163,9 +163,9 @@ int main(int argc, char* argv[])
         fitting::estimate_orthographic_projection_linear(image_points, model_points, true, image.rows);
     fitting::RenderingParameters rendering_params(pose, image.cols, image.rows);
 
-    // The 3D head pose can be recovered as follows:
-    const float yaw_angle = glm::degrees(glm::yaw(rendering_params.get_rotation()));
-    // and similarly for pitch and roll.
+    // The 3D head pose can be recovered as follows - the function returns an Eigen::Vector3f with yaw, pitch,
+    // and roll angles:
+    const float yaw_angle = rendering_params.get_yaw_pitch_roll()[0];
 
     // Estimate the shape coefficients by fitting the shape to the landmarks:
     const Eigen::Matrix<float, 3, 4> affine_from_ortho =

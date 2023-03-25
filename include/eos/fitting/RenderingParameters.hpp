@@ -23,6 +23,7 @@
 #define EOS_RENDERING_PARAMETERS_HPP
 
 #include "eos/fitting/orthographic_camera_estimation_linear.hpp"
+#include "eos/fitting/rotation_angles.hpp"
 #include "eos/render/matrix_projection.hpp"
 #include "eos/cpp17/optional.hpp"
 #include "eos/cpp17/optional_serialization.hpp"
@@ -85,28 +86,21 @@ enum class CameraType
  * camera parameters (viewing frustum).
  *
  * The estimated rotation and translation transform the model from model-space to camera-space,
- * and, if one wishes to use OpenGL, can be used to build the model-view matrix.
+ * and, if one wishes to use OpenGL, can be used to build the model-view matrix, i.e. the parameter
+ * representation is OpenGL compliant.
+ *
  * The parameters are the inverse of the camera position in 3D space.
  *
  * The camera frustum describes the size of the viewing plane of the camera, and
  * can be used to build an OpenGL-conformant orthographic projection matrix.
  *
- * Together, these parameters fully describe the imaging process of a given model instance
- * (under an orthographic projection).
+ * Together, these parameters fully describe the imaging process of a given model instance.
  *
- * The rotation values are given in radians and estimated using the RPY convention.
- * Yaw is applied first to the model, then pitch, then roll (R * P * Y * vertex).
- * In general, the convention is as follows:
- * 	 r_x = Pitch
- *	 r_y = Yaw. Positive means subject is looking left (we see her right cheek).
- *	 r_z = Roll. Positive means the subject's right eye is further down than the other one (he
- *tilts his head to the right). However, we're using a quaternion now to represent the rotation, and
- *glm::eulerAngles() will give slightly different angles (according to a different (undocumented))
- *convention. However, the rotation is exactly the same! (i.e. they are represented by the same
- *quaternion / rotation matrix).
- *
- * This should always represent all parameters necessary to render the model to an image, and be
- *completely OpenGL compliant.
+ * The rotation is represented using a quaternion. However, the quaternion can be converted to a rotation
+ * matrix, and subsequently Euler angles can be extracted. In our coordinate system, the x axis points to the
+ * right, y points upwards, and z into/out of the screen. When extracting Euler angles (or Tait-Bryan angles,
+ * to be more precise), we assume rotation around the y axis first (yaw), then around x axis (pitch), then
+ * around z (roll).
  */
 class RenderingParameters
 {
@@ -159,9 +153,41 @@ public:
         return camera_type;
     };
 
-    glm::quat get_rotation() const { return rotation; };
+    glm::quat get_rotation_() const { return rotation; };
+    Eigen::Quaternionf get_rotation() const
+    {
+        return rotation_;
+    };
 
     void set_rotation(glm::quat rotation_quaternion) { rotation = rotation_quaternion; };
+
+    /**
+     * @brief Returns the intrinsic rotation angles, also called Tait-Bryan angles, in degrees. The returned
+     * Vector3f contains [yaw, pitch, roll].
+     *
+     * The order of rotations is yaw, pitch, roll (in our coordinate system, y, x, z).
+     *
+     * - Positive pitch means the head is looking down
+     * - Positive yaw means the head is looking to the left (from the subject's perspective, i.e. we see their
+     *   right cheek)
+     * - Positive roll means the head's right eye is further down than the other one (the head is tilted to
+     *   the right, from the subject's perspective).
+     */
+    Eigen::Vector3f get_yaw_pitch_roll()
+    {
+        // We use Eigen's Matrix3::eulerAngles() function with axes (1, 0, 2). In our coordinate system, the x
+        // axis is to the right, y up, and z into/out of the screen. So to get yaw first, our first axis is y
+        // ('1'), then our x axis ('0') to get pitch, then our z axis ('2') to get roll.
+        // We are guessing that the function returns intrinsic angles (the unsupported EulerAngles() module
+        // does, but it's an unrelated module).
+        // Because eulerAngles() constrains the angles in a different way to what we want, we correct for
+        // that in tait_bryan_angles() (which calls eulerAngles() and then modifies the solution accordingly).
+        Eigen::Vector3f ea = fitting::tait_bryan_angles(rotation_.normalized().toRotationMatrix(), 1, 0, 2);
+        ea(0) = core::degrees(ea(0));
+        ea(1) = core::degrees(ea(1));
+        ea(2) = core::degrees(ea(2));
+        return ea;
+    };
 
     void set_translation(float t_x, float t_y, cpp17::optional<float> t_z = cpp17::nullopt)
     {
@@ -184,48 +210,46 @@ public:
         return fov_y;
     };
 
+    /**
+     * @brief Construct a model-view matrix from the RenderingParameters' rotation and translation, and return
+     * it.
+     */
     Eigen::Matrix4f get_modelview() const
     {
         if (camera_type == CameraType::Orthographic)
         {
-            Eigen::Matrix4f modelview_ = Eigen::Matrix4f::Identity();
-            modelview_.block<3, 3>(0, 0) = rotation_.normalized().toRotationMatrix();
-            modelview_(0, 3) = t_x;
-            modelview_(1, 3) = t_y;
-            glm::mat4x4 modelview = glm::mat4_cast(rotation);
-            modelview[3][0] = t_x;
-            modelview[3][1] = t_y;
-            // Checked, identical!
-            return modelview_;
+            Eigen::Matrix4f modelview = Eigen::Matrix4f::Identity();
+            modelview.block<3, 3>(0, 0) = rotation_.normalized().toRotationMatrix();
+            modelview(0, 3) = t_x;
+            modelview(1, 3) = t_y;
+            return modelview;
         } else
         {
             assert(t_z.has_value()); // Might be worth throwing an exception instead.
-            Eigen::Matrix4f modelview_ = Eigen::Matrix4f::Identity();
-            modelview_.block<3, 3>(0, 0) = rotation_.normalized().toRotationMatrix();
-            modelview_(3, 0) = t_x;
-            modelview_(3, 1) = t_y;
-            modelview_(3, 2) = t_z.value();
-            const glm::mat4x4 rot_mtx = glm::mat4_cast(rotation);
-            const auto t_mtx = glm::translate(glm::vec3(t_x, t_y, t_z.value()));
-            const glm::mat4x4 modelview = t_mtx * rot_mtx;
-            return modelview_;
+            Eigen::Matrix4f modelview = Eigen::Matrix4f::Identity();
+            modelview.block<3, 3>(0, 0) = rotation_.normalized().toRotationMatrix();
+            modelview(0, 3) = t_x;
+            modelview(1, 3) = t_y;
+            modelview(2, 3) = t_z.value();
+            return modelview;
         }
     };
 
+    /**
+     * @brief Construct an orthographic or perspective projection matrix from the RenderingParameters' frustum
+     * (orthographic) or fov_y and aspect ration (perspective), and return it.
+     */
     Eigen::Matrix4f get_projection() const
     {
         if (camera_type == CameraType::Orthographic)
         {
-            glm::mat4x4 ortho_ = glm::ortho<float>(frustum.l, frustum.r, frustum.b, frustum.t);
             const auto ortho = render::ortho(frustum.l, frustum.r, frustum.b, frustum.t);
-            // Checked, identical!
             return ortho;
         } else
         {
             assert(fov_y.has_value()); // Might be worth throwing an exception instead.
             const float aspect_ratio = static_cast<double>(screen_width) / screen_height;
             const auto persp_mtx = render::perspective(fov_y.value(), aspect_ratio, 0.1f, 1000.0f);
-            const auto persp_mtx_ = glm::perspective(fov_y.value(), aspect_ratio, 0.1f, 1000.0f);
             return persp_mtx;
         }
     };

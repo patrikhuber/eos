@@ -167,9 +167,9 @@ int main(int argc, char* argv[])
         morphable_model_with_expressions, landmarks, landmark_mapper, image.cols, image.rows, edge_topology,
         ibug_contour, model_contour, 5, cpp17::nullopt, 30.0f);
 
-    // The 3D head pose can be recovered as follows:
-    float yaw_angle = glm::degrees(glm::yaw(rendering_params.get_rotation()));
-    // and similarly for pitch and roll.
+    // The 3D head pose can be recovered as follows - the function returns an Eigen::Vector3f with yaw, pitch,
+    // and roll angles:
+    const float yaw_angle = rendering_params.get_yaw_pitch_roll()[0];
 
     // Extract the texture from the image using given mesh and camera parameters:
     const core::Image4u texturemap =
