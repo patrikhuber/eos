@@ -50,9 +50,9 @@ inline Eigen::Vector2<T> texcoord_wrap(const Eigen::Vector2<T>& texcoords)
     return Eigen::Vector2<T>(texcoords[0] - (int)texcoords[0], texcoords[1] - (int)texcoords[1]);
 };
 
-// forward decls
-Eigen::Vector3f tex2d_linear_mipmap_linear(const Eigen::Vector2f& texcoords, const Texture& texture, float dudx,
-                                     float dudy, float dvdx, float dvdy);
+// forward declarations:
+Eigen::Vector3f tex2d_linear_mipmap_linear(const Eigen::Vector2f& texcoords, const Texture& texture,
+                                           float dudx, float dudy, float dvdx, float dvdy);
 template <typename T>
 inline Eigen::Vector3<T> tex2d_linear(const Eigen::Vector2<T>& imageTexCoord, unsigned char mipmap_index,
                                       const Texture& texture);
@@ -72,8 +72,8 @@ glm::tvec3<T, P> tex2d(const glm::tvec2<T, P>& texcoords, const Texture& texture
     return glm::tvec3<T, P>(ret[0], ret[1], ret[2]);
 };
 
-inline Eigen::Vector3f tex2d_linear_mipmap_linear(const Eigen::Vector2f& texcoords, const Texture& texture, float dudx,
-                                            float dudy, float dvdx, float dvdy)
+inline Eigen::Vector3f tex2d_linear_mipmap_linear(const Eigen::Vector2f& texcoords, const Texture& texture,
+                                                  float dudx, float dudy, float dvdx, float dvdy)
 {
     using Eigen::Vector2f;
     const float px = std::sqrt(std::pow(dudx, 2) + std::pow(dvdx, 2));
