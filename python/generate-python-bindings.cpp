@@ -291,39 +291,20 @@ PYBIND11_MODULE(eos, eos_module)
 
     py::class_<fitting::RenderingParameters>(fitting_module, "RenderingParameters", "Represents a set of estimated model parameters (rotation, translation) and camera parameters (viewing frustum).")
         .def(py::init<fitting::ScaledOrthoProjectionParameters, int, int>(), "Create a RenderingParameters object from an instance of estimated ScaledOrthoProjectionParameters.")
-        .def("get_rotation",
-             [](const fitting::RenderingParameters& p) {
-                 return Eigen::Vector4f(p.get_rotation().x, p.get_rotation().y, p.get_rotation().z, p.get_rotation().w);
-             },
-             "Returns the rotation quaternion [x y z w].")
-        .def("get_rotation_euler_angles",
-             [](const fitting::RenderingParameters& p) {
-                 const glm::vec3 euler_angles = glm::eulerAngles(p.get_rotation());
-                 return Eigen::Vector3f(euler_angles[0], euler_angles[1], euler_angles[2]);
-            },
-             "Returns the rotation's Euler angles (in radians) as [pitch, yaw, roll].")
-        .def("get_modelview",
+        .def(
+            "get_rotation",
             [](const fitting::RenderingParameters& p) {
-                Eigen::Matrix4f model_view; // we could probably use Eigen::Map
-                for (int col = 0; col < 4; ++col)
-                    for (int row = 0; row < 4; ++row)
-                        model_view(row, col) = p.get_modelview()[col][row];
-                return model_view;
+                return Eigen::Vector4f(p.get_rotation().x(), p.get_rotation().y(), p.get_rotation().z(),
+                                       p.get_rotation().w());
             },
-            "Returns the 4x4 model-view matrix.")
-        .def("get_projection",
-            [](const fitting::RenderingParameters& p) {
-                Eigen::Matrix4f projection; // we could probably use Eigen::Map
-                for (int col = 0; col < 4; ++col)
-                    for (int row = 0; row < 4; ++row)
-                        projection(row, col) = p.get_projection()[col][row];
-                return projection;
-            }, "Returns the 4x4 projection matrix.")
-        .def("get_translation",
-            [](const fitting::RenderingParameters& p) {
-                return Eigen::Vector3f(p.get_translation().x, p.get_translation().y, p.get_translation().z);
-            },
-            "Returns the translation [x y z]. The z-coordinate is 0.0 in case of orthographic projection.");
+            "Returns the rotation quaternion [x y z w].")
+        .def("get_yaw_pitch_roll", &fitting::RenderingParameters::get_yaw_pitch_roll, "Returns the intrinsic rotation angles, also called Tait-Bryan angles, in degrees. The returned array contains [yaw, pitch, roll].")
+        .def("get_modelview", &fitting::RenderingParameters::get_modelview,
+             "Returns the 4x4 model-view matrix.")
+        .def("get_projection", &fitting::RenderingParameters::get_projection,
+             "Returns the 4x4 projection matrix.")
+        .def("get_translation", &fitting::RenderingParameters::get_translation,
+             "Returns the translation [x y z]. The z-coordinate is 0.0 in case of orthographic projection.");
 
     fitting_module.def("estimate_orthographic_projection_linear", &fitting::estimate_orthographic_projection_linear,
                        "This algorithm estimates the parameters of a scaled orthographic projection, given a set of corresponding 2D-3D points.",
