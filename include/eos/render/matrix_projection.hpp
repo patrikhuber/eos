@@ -24,11 +24,13 @@
 
 #include "Eigen/Core"
 
+#include <cmath>
+
 namespace eos {
 namespace render {
 
 /**
- * Creates a matrix for a right-handed, symmetric perspective-view frustrum.
+ * Creates a matrix for a right-handed, symmetric perspective-view frustum.
  *
  * The function follows the OpenGL clip volume definition, which is also the GLM default. The near and far
  * clip planes correspond to z normalized device coordinates of -1 and +1 respectively.
@@ -52,10 +54,12 @@ Eigen::Matrix4<T> perspective(T fov_y, T aspect, T z_near, T z_far)
     // Will this assert work? std::abs probably won't work on T?
     // assert(abs(aspect - std::numeric_limits<T>::epsilon()) > static_cast<T>(0));
 
-    const T tan_half_fov_y = tan(fov_y / static_cast<T>(2)); // ceres::tan?
+    // Note: We want to use std::tan() for floating point types, and for users not using Ceres. However when
+    // using the function with Ceres's auto-diff, we need to use ceres::tan(). We might need an extra "using
+    // ceres::tan" here.
+    using std::tan;
+    const T tan_half_fov_y = tan(fov_y / static_cast<T>(2));
 
-    // Maybe construct with static_cast<T>(0)? => No, doesn't have c'tor.
-    // Could do Eigen::Matrix4<T> result = {{1, 2, 3, 4}, {1, 2, 3, 4}...} I think.
     Eigen::Matrix4<T> result = Eigen::Matrix4<T>::Zero(); // Note: Zero() is correct.
     result(0, 0) = static_cast<T>(1) / (aspect * tan_half_fov_y);
     result(1, 1) = static_cast<T>(1) / (tan_half_fov_y);
@@ -65,6 +69,22 @@ Eigen::Matrix4<T> perspective(T fov_y, T aspect, T z_near, T z_far)
     return result;
 }
 
+/**
+ * @brief Creates a 2D orthographic projection matrix.
+ *
+ * This function sets up a two-dimensional orthographic viewing region. This is equivalent to calling glOrtho
+ * with near=-1 and far=1. The function is equivalent to glm::orthoRH_NO(), but with near=-1 and far=1.
+ *
+ * More details can be found on the gluOrtho2D man page:
+ * https://registry.khronos.org/OpenGL-Refpages/gl2.1/xhtml/gluOrtho2D.xml.
+ *
+ * @param[in] left Specifies the coordinates for the left vertical clipping plane.
+ * @param[in] right Specifies the coordinates for the right vertical clipping plane.
+ * @param[in] bottom Specifies the coordinates for the bottom horizontal clipping plane.
+ * @param[in] top Specifies the coordinates for the top horizontal clipping plane.
+ * @tparam T A floating-point scalar type, ceres::Jet, or similar compatible type.
+ * @return The corresponding orthographic projection matrix.
+ */
 template <typename T>
 Eigen::Matrix4<T> ortho(T left, T right, T bottom, T top)
 {
