@@ -53,11 +53,10 @@ install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/data DESTINATION bin)
 if(EOS_BUILD_CERES_EXAMPLE)
   # Find Ceres, for the fit-model-ceres app:
   find_package(Ceres REQUIRED)
-  message(STATUS "Ceres locations: Headers: ${CERES_INCLUDE_DIRS} Library: ${CERES_LIBRARIES}")
 
   # Single and multi-image non-linear model fitting with Ceres example:
   add_executable(fit-model-ceres fit-model-ceres.cpp)
-  target_link_libraries(fit-model-ceres PRIVATE eos ${CERES_LIBRARIES} ${OpenCV_LIBS} Boost::filesystem Boost::program_options)
-  target_include_directories(fit-model-ceres PRIVATE ${CERES_INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS})
+  target_link_libraries(fit-model-ceres PRIVATE eos Ceres::ceres ${OpenCV_LIBS} Boost::filesystem Boost::program_options)
+  target_include_directories(fit-model-ceres PRIVATE ${OpenCV_INCLUDE_DIRS})
   install(TARGETS fit-model-ceres DESTINATION bin)
 endif()
