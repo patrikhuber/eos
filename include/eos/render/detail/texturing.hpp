@@ -53,7 +53,9 @@ inline Eigen::Vector2<T> texcoord_wrap(const Eigen::Vector2<T>& texcoords)
 // forward decls
 Eigen::Vector3f tex2d_linear_mipmap_linear(const Eigen::Vector2f& texcoords, const Texture& texture, float dudx,
                                      float dudy, float dvdx, float dvdy);
-Eigen::Vector3f tex2d_linear(const Eigen::Vector2f& imageTexCoord, unsigned char mipmapIndex, const Texture& texture);
+template <typename T>
+inline Eigen::Vector3<T> tex2d_linear(const Eigen::Vector2<T>& imageTexCoord, unsigned char mipmap_index,
+                                      const Texture& texture);
 
 inline Eigen::Vector3f tex2d(const Eigen::Vector2f& texcoords, const Texture& texture, float dudx, float dudy, float dvdx,
                        float dvdy)
