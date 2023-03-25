@@ -93,6 +93,7 @@ set(HEADERS
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/multi_image_fitting.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/ceres_nonlinear.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/RenderingParameters.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/rotation_angles.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/FittingResult.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/normals.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/transforms.hpp
