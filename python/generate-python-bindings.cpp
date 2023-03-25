@@ -418,31 +418,12 @@ PYBIND11_MODULE(eos, eos_module)
     render_module.def(
         "draw_wireframe",
         [](core::Image3u& image, const core::Mesh& mesh, Eigen::Matrix4f modelview,
-           Eigen::Matrix4f projection, Eigen::Vector4f viewport, Eigen::Vector3f color) {
-            glm::mat4x4 modelview_glm;
-            glm::mat4x4 projection_glm;
-            glm::vec4 viewport_glm;
-            glm::vec3 color_glm;
-            for (int col = 0; col < 4; ++col)
-            {
-                for (int row = 0; row < 4; ++row)
-                {
-                    modelview_glm[col][row] = modelview(row, col);
-                    projection_glm[col][row] = projection(row, col);
-                }
-            }
-            for (int i = 0; i < 4; ++i)
-            {
-                viewport_glm[i] = viewport(i);
-            }
-            for (int i = 0; i < 3; ++i)
-            {
-                color_glm[i] = color(i);
-            }
-            render::draw_wireframe(image, mesh, modelview_glm, projection_glm, viewport_glm, color_glm);
+           Eigen::Matrix4f projection, Eigen::Vector4f viewport,
+           Eigen::Vector3f color) {
+            render::draw_wireframe(image, mesh, modelview, projection, viewport, color);
             return image;
         },
         "Draws the given mesh as wireframe into the image.", py::arg("image"), py::arg("mesh"),
         py::arg("modelview"), py::arg("projection"), py::arg("viewport"),
-        py::arg("color") /* = (0, 255, 0)*/);
+        py::arg("color") = Eigen::Vector3f(0, 255, 0));
 };
