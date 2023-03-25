@@ -268,7 +268,7 @@ int main(int argc, char* argv[])
     // Draw the mean-face landmarks projected using the estimated camera:
     // Construct the rotation & translation (model-view) matrices, projection matrix, and viewport:
     Eigen::Matrix4d model_view_mtx = Eigen::Matrix4d::Identity();
-    model_view_mtx.block<3, 3>(0, 0) = camera_rotation.toRotationMatrix();
+    model_view_mtx.block<3, 3>(0, 0) = camera_rotation.normalized().toRotationMatrix();
     model_view_mtx.col(3).head<3>() = camera_translation;
     const double aspect = static_cast<double>(image.cols) / image.rows;
     auto projection_mtx = render::perspective(fov_y, aspect, 0.1, 1000.0);
@@ -413,7 +413,7 @@ int main(int argc, char* argv[])
     // Draw the landmarks projected using all estimated parameters:
     // Construct the rotation & translation (model-view) matrices, projection matrix, and viewport:
     model_view_mtx = Eigen::Matrix4d::Identity();
-    model_view_mtx.block<3, 3>(0, 0) = camera_rotation.toRotationMatrix();
+    model_view_mtx.block<3, 3>(0, 0) = camera_rotation.normalized().toRotationMatrix();
     model_view_mtx.col(3).head<3>() = camera_translation;
     projection_mtx = render::perspective(fov_y, aspect, 0.1, 1000.0);
 
