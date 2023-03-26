@@ -24,8 +24,6 @@
 
 #include "eos/cpp17/optional.hpp"
 
-#include "glm/mat3x3.hpp"
-
 #include "Eigen/Core"
 #include "Eigen/Dense"
 #include "Eigen/SVD"
@@ -42,8 +40,7 @@ namespace fitting {
  */
 struct ScaledOrthoProjectionParameters
 {
-    glm::mat3x3 R; ///< 3x3 rotation matrix
-    Eigen::Matrix3f R_; ///< 3x3 rotation matrix
+    Eigen::Matrix3f R; ///< 3x3 rotation matrix
     float tx, ty; ///< x and y translation
     float s;      ///< Scaling
 };
@@ -142,16 +139,7 @@ inline ScaledOrthoProjectionParameters estimate_orthographic_projection_linear(
     const auto t1 = sTx / s;
     const auto t2 = sTy / s;
 
-    // Convert to a glm::mat4x4:
-    glm::mat3x3 R_glm; // identity
-    for (int r = 0; r < 3; ++r)
-    {
-        for (int c = 0; c < 3; ++c)
-        {
-            R_glm[c][r] = R_ortho(r, c);
-        }
-    }
-    return ScaledOrthoProjectionParameters{R_glm, R_ortho, t1, t2, s};
+    return ScaledOrthoProjectionParameters{R_ortho, t1, t2, s};
 };
 
 } /* namespace fitting */

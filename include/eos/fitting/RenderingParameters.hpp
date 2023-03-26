@@ -123,7 +123,9 @@ public:
         const auto rot_mtx_y = glm::rotate(glm::mat4(1.0f), r_y, glm::vec3{0.0f, 1.0f, 0.0f});
         const auto rot_mtx_z = glm::rotate(glm::mat4(1.0f), r_z, glm::vec3{0.0f, 0.0f, 1.0f});
         const auto zxy_rotation_matrix = rot_mtx_z * rot_mtx_x * rot_mtx_y;
-        rotation = glm::quat(zxy_rotation_matrix);
+        glm::quat glm_rotation_quat = glm::quat(zxy_rotation_matrix);
+        rotation = Eigen::Quaternionf(glm_rotation_quat.w, glm_rotation_quat.x, glm_rotation_quat.y,
+                                      glm_rotation_quat.z);
     };
 
     // This assumes estimate_sop was run on points with OpenCV viewport! I.e. y flipped.
@@ -131,9 +133,7 @@ public:
         : camera_type(CameraType::Orthographic), t_x(ortho_params.tx), t_y(ortho_params.ty),
           screen_width(screen_width), screen_height(screen_height)
     {
-        rotation = glm::quat(ortho_params.R);
-        rotation_ = ortho_params.R_; // converts the rotation matrix to a quaternion
-        // Checked: Same result.
+        rotation = ortho_params.R; // converts the rotation matrix to a quaternion
 
         const float l = 0.0f;
         const float r = screen_width / ortho_params.s;
@@ -143,23 +143,25 @@ public:
     };
 
     // Note: Doesn't set up the Frustum currently. Need to re-think this design a bit anyway.
-    RenderingParameters(glm::quat rotation, glm::vec3 translation, float fov_y, int image_width,
+    RenderingParameters(Eigen::Quaternionf rotation, Eigen::Vector3f translation, float fov_y, int image_width,
                         int image_height)
-        : camera_type(CameraType::Perspective), rotation(rotation), t_x(translation.x), t_y(translation.y),
-          t_z(translation.z), fov_y(fov_y), screen_width(image_width), screen_height(image_height){};
+        : camera_type(CameraType::Perspective), rotation(rotation), t_x(translation.x()), t_y(translation.y()),
+          t_z(translation.z()), fov_y(fov_y), screen_width(image_width), screen_height(image_height){};
 
     auto get_camera_type() const
     {
         return camera_type;
     };
 
-    glm::quat get_rotation_() const { return rotation; };
     Eigen::Quaternionf get_rotation() const
     {
-        return rotation_;
+        return rotation;
     };
 
-    void set_rotation(glm::quat rotation_quaternion) { rotation = rotation_quaternion; };
+    void set_rotation(Eigen::Quaternionf rotation_quaternion)
+    {
+        rotation = rotation_quaternion;
+    };
 
     /**
      * @brief Returns the intrinsic rotation angles, also called Tait-Bryan angles, in degrees. The returned
@@ -182,7 +184,7 @@ public:
         // does, but it's an unrelated module).
         // Because eulerAngles() constrains the angles in a different way to what we want, we correct for
         // that in tait_bryan_angles() (which calls eulerAngles() and then modifies the solution accordingly).
-        Eigen::Vector3f ea = fitting::tait_bryan_angles(rotation_.normalized().toRotationMatrix(), 1, 0, 2);
+        Eigen::Vector3f ea = fitting::tait_bryan_angles(rotation.normalized().toRotationMatrix(), 1, 0, 2);
         ea(0) = core::degrees(ea(0));
         ea(1) = core::degrees(ea(1));
         ea(2) = core::degrees(ea(2));
@@ -219,7 +221,7 @@ public:
         if (camera_type == CameraType::Orthographic)
         {
             Eigen::Matrix4f modelview = Eigen::Matrix4f::Identity();
-            modelview.block<3, 3>(0, 0) = rotation_.normalized().toRotationMatrix();
+            modelview.block<3, 3>(0, 0) = rotation.normalized().toRotationMatrix();
             modelview(0, 3) = t_x;
             modelview(1, 3) = t_y;
             return modelview;
@@ -227,7 +229,7 @@ public:
         {
             assert(t_z.has_value()); // Might be worth throwing an exception instead.
             Eigen::Matrix4f modelview = Eigen::Matrix4f::Identity();
-            modelview.block<3, 3>(0, 0) = rotation_.normalized().toRotationMatrix();
+            modelview.block<3, 3>(0, 0) = rotation.normalized().toRotationMatrix();
             modelview(0, 3) = t_x;
             modelview(1, 3) = t_y;
             modelview(2, 3) = t_z.value();
@@ -270,8 +272,7 @@ private:
     CameraType camera_type = CameraType::Orthographic;
     Frustum frustum; // Can construct a glm::ortho or glm::perspective matrix from this.
 
-    glm::quat rotation;
-    Eigen::Quaternionf rotation_;
+    Eigen::Quaternionf rotation;
 
     float t_x;
     float t_y;
@@ -326,28 +327,6 @@ inline Eigen::Vector4f get_opencv_viewport(int width, int height)
 };
 
 /**
- * @brief Converts a glm::mat4x4 to an Eigen::Matrix<float, 4, 4>.
- *
- * Note: I think the last use of this function is below in
- * get_3x4_affine_camera_matrix().
- */
-inline Eigen::Matrix<float, 4, 4> to_eigen(const glm::mat4x4& glm_matrix)
-{
-    // glm stores its matrices in col-major order in memory, Eigen too.
-    // using MatrixXf4x4 = Eigen::Matrix<float, 4, 4>;
-    // Eigen::Map<MatrixXf4x4> eigen_map(&glm_matrix[0][0]); // doesn't work, why do we get a const*?
-    Eigen::Matrix<float, 4, 4> eigen_matrix;
-    for (int r = 0; r < 4; ++r)
-    {
-        for (int c = 0; c < 4; ++c)
-        {
-            eigen_matrix(r, c) = glm_matrix[c][r]; // Not checked, but should be correct?
-        }
-    }
-    return eigen_matrix;
-};
-
-/**
  * @brief Creates a 3x4 affine camera matrix from given fitting parameters. The
  * matrix transforms points directly from model-space to screen-space.
  *
@@ -364,12 +343,13 @@ inline Eigen::Matrix<float, 3, 4> get_3x4_affine_camera_matrix(RenderingParamete
     using Eigen::Matrix4f;
     const Matrix4f mvp = params.get_projection() * params.get_modelview();
 
-    glm::vec4 viewport(0, height, width, -height); // flips y, origin top-left, like in OpenCV
-    // equivalent to what glm::project's viewport does, but we don't change z and w:
+    const Eigen::Vector4f viewport =
+        get_opencv_viewport(width, height); // flips y, origin top-left, like in OpenCV
+    // Equivalent to what glm::project's viewport does, but we don't change z and w:
     Eigen::Matrix4f viewport_mat;
     // clang-format off
-    viewport_mat << viewport[2] / 2.0f, 0.0f, 0.0f, viewport[2] / 2.0f + viewport[0],
-                    0.0f,               viewport[3] / 2.0f, 0.0f, viewport[3] / 2.0f + viewport[1], 
+    viewport_mat << viewport(2) / 2.0f, 0.0f,               0.0f, viewport(2) / 2.0f + viewport(0),
+                    0.0f,               viewport(3) / 2.0f, 0.0f, viewport(3) / 2.0f + viewport(1),
                     0.0f,               0.0f,               1.0f, 0.0f,
                     0.0f,               0.0f,               0.0f, 1.0f;
     // clang-format on
