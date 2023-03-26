@@ -98,6 +98,36 @@ Eigen::Matrix4<T> ortho(T left, T right, T bottom, T top)
 }
 
 /**
+ * @brief Creates a matrix for an orthographic parallel viewing volume, using right-handed coordinates.
+ *
+ * The function follows the OpenGL clip volume definition, which is also the GLM default. The near and far
+ * clip planes correspond to z normalized device coordinates of -1 and +1 respectively.
+ *
+ * The function is equivalent to glm::orthoRH_NO(...).
+ *
+ * @param[in] left Specifies the coordinates for the left vertical clipping plane.
+ * @param[in] right Specifies the coordinates for the right vertical clipping plane.
+ * @param[in] bottom Specifies the coordinates for the bottom horizontal clipping plane.
+ * @param[in] top Specifies the coordinates for the top horizontal clipping plane.
+ * @param[in] z_near Specifies the distance from the viewer to the near clipping plane (always positive).
+ * @param[in] z_far Specifies the distance from the viewer to the far clipping plane (always positive).
+ * @tparam T A floating-point scalar type, ceres::Jet, or similar compatible type.
+ * @return The corresponding orthographic projection matrix.
+ */
+template <typename T>
+Eigen::Matrix4<T> ortho(T left, T right, T bottom, T top, T z_near, T z_far)
+{
+    Eigen::Matrix4<T> result = Eigen::Matrix4<T>::Identity();
+    result(0, 0) = static_cast<T>(2) / (right - left);
+    result(1, 1) = static_cast<T>(2) / (top - bottom);
+    result(2, 2) = -static_cast<T>(2) / (z_far - z_near);
+    result(0, 3) = -(right + left) / (right - left);
+    result(1, 3) = -(top + bottom) / (top - bottom);
+    result(2, 3) = -(z_far + z_near) / (z_far - z_near);
+    return result;
+};
+
+/**
  * Project the given point_3d (from object coordinates) into window coordinates.
  *
  * The function follows the OpenGL clip volume definition. The near and far clip planes correspond to
