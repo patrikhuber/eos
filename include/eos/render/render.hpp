@@ -3,7 +3,7 @@
  *
  * File: include/eos/render/render.hpp
  *
- * Copyright 2014-2020 Patrik Huber
+ * Copyright 2014-2020, 2023 Patrik Huber
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@
 #include "eos/render/VertexShader.hpp"
 #include "eos/render/FragmentShader.hpp"
 
-#include "glm/mat4x4.hpp"
+#include "Eigen/Core"
 
 namespace eos {
 namespace render {
@@ -49,8 +49,8 @@ namespace render {
  * @param[in] enable_far_clipping Whether vertices should be clipped against the far plane.
  * @return Framebuffer (colourbuffer) with the rendered image.
  */
-core::Image4u render(const core::Mesh& mesh, glm::tmat4x4<float> model_view_matrix,
-                     glm::tmat4x4<float> projection_matrix, int viewport_width, int viewport_height,
+core::Image4u render(const core::Mesh& mesh, const Eigen::Matrix4f& model_view_matrix,
+                     const Eigen::Matrix4f& projection_matrix, int viewport_width, int viewport_height,
                      bool enable_backface_culling = false, bool enable_near_clipping = true,
                      bool enable_far_clipping = true)
 {
@@ -81,8 +81,8 @@ core::Image4u render(const core::Mesh& mesh, glm::tmat4x4<float> model_view_matr
  * @param[in] enable_far_clipping Whether vertices should be clipped against the far plane.
  * @return Framebuffer (colourbuffer) with the rendered image.
  */
-core::Image4u render(const core::Mesh& mesh, glm::tmat4x4<float> model_view_matrix,
-                     glm::tmat4x4<float> projection_matrix, int viewport_width, int viewport_height,
+core::Image4u render(const core::Mesh& mesh, const Eigen::Matrix4f& model_view_matrix,
+                     const Eigen::Matrix4f& projection_matrix, int viewport_width, int viewport_height,
                      Texture texture, bool enable_backface_culling = false, bool enable_near_clipping = true,
                      bool enable_far_clipping = true)
 {

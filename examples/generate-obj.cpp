@@ -3,7 +3,7 @@
  *
  * File: examples/generate-obj.cpp
  *
- * Copyright 2016 Patrik Huber
+ * Copyright 2016, 2023 Patrik Huber
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,11 +20,11 @@
 #include "eos/core/Image.hpp"
 #include "eos/core/image/opencv_interop.hpp"
 #include "eos/core/write_obj.hpp"
+#include "eos/core/math.hpp"
 #include "eos/morphablemodel/MorphableModel.hpp"
 #include "eos/render/render.hpp"
+#include "eos/render/matrix_projection.hpp"
 #include "eos/cpp17/optional.hpp"
-
-#include "glm/gtc/matrix_transform.hpp"
 
 #include "boost/filesystem.hpp"
 #include "boost/program_options.hpp"
@@ -39,8 +39,8 @@ namespace po = boost::program_options;
 namespace fs = boost::filesystem;
 using std::cout;
 using std::endl;
-using std::vector;
 using std::string;
+using std::vector;
 
 /**
  * This app generates random samples from the model and stores them as obj file
@@ -106,9 +106,17 @@ int main(int argc, char* argv[])
         shape_coefficients, color_coefficients); // if one of the two vectors is empty, it uses get_mean()
 
     core::write_obj(sample_mesh, output_file);
+
+    const auto perspective = render::perspective(core::radians(60.0f), 512.0f / 512.0f, 0.1f, 500.0f);
+    // Could use orthographic projection accordingly:
+    // const auto ortho = render::ortho(-130.0f, 130.0f, -130.0f, 130.0f);
+    // (and set enable_near_clipping and enable_far_clipping to false, or use the ortho() overload with
+    // appropriate near/far values.)
+    Eigen::Matrix4f model_view = Eigen::Matrix4f::Identity();
+    model_view(2, 3) = -200.0f; // move the model 200 units back along the z-axis
+
     const core::Image4u rendering =
-        render::render(sample_mesh, glm::mat4x4(1.0f), glm::ortho(-130.0f, 130.0f, -130.0f, 130.0f), 512, 512,
-                       true, false, false);
+        render::render(sample_mesh, model_view, perspective, 512, 512, true, true, true);
     fs::path filename_rendering(output_file);
     filename_rendering.replace_extension(".png");
     cv::imwrite(filename_rendering.string(), core::to_mat(rendering));

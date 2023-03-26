@@ -3,7 +3,7 @@
  *
  * File: include/eos/render/SoftwareRenderer.hpp
  *
- * Copyright 2017 Patrik Huber
+ * Copyright 2017, 2023 Patrik Huber
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,9 +29,7 @@
 #include "eos/render/Texture.hpp"
 #include "eos/cpp17/optional.hpp"
 
-#include "glm/mat4x4.hpp"
-#include "glm/vec2.hpp"
-#include "glm/vec4.hpp"
+#include "Eigen/Core"
 
 #include <array>
 #include <cassert>
@@ -63,8 +61,8 @@ clip_polygon_to_plane_in_4d(const std::vector<detail::Vertex<T, P>>& vertices,
  *
  * Can this go into the SoftwareRenderer class or something? No, I think FragShader needs it? Where to put it?
  */
-template <typename T, glm::precision P = glm::defaultp>
-using Triangle = std::array<detail::Vertex<T, P>, 3>;
+template <typename T>
+using Triangle = std::array<detail::Vertex<T>, 3>;
 
 /**
  * @brief X.
@@ -102,9 +100,9 @@ public:
      * @param[in] texture The mesh to render.
      * @ return The framebuffer (colourbuffer) with the rendered object.
      */
-    template <typename T, glm::precision P = glm::defaultp>
-    core::Image4u render(const core::Mesh& mesh, const glm::tmat4x4<T, P>& model_view_matrix,
-                         const glm::tmat4x4<T, P>& projection_matrix,
+    template <typename T>
+    core::Image4u render(const core::Mesh& mesh, const Eigen::Matrix4<T>& model_view_matrix,
+                         const Eigen::Matrix4<T>& projection_matrix,
                          const cpp17::optional<Texture>& texture = cpp17::nullopt)
     {
         // The number of vertices has to be equal for both shape and colour, or, alternatively, it has to be a
@@ -127,19 +125,22 @@ public:
         using detail::divide_by_w;
         using std::vector;
 
-        vector<glm::tvec4<T, P>> clipspace_vertices;
+        vector<Eigen::Vector4<T>> clipspace_vertices;
         for (const auto& vertex_position : mesh.vertices)
         {
-            clipspace_vertices.push_back(vertex_shader(
-                glm::tvec4<T, P>(vertex_position.x(), vertex_position.y(), vertex_position.z(), T(1.0)),
-                model_view_matrix, projection_matrix));
+            // Note: We make an unnecessary copy of the vertex_position here. We could perhaps improve this by
+            // using vertex_shader.operator()<vertex_type, T>(...). We're also making vertex_position the same
+            // type as the matrix here, which we wouldn't necessarily need to, as VertexShader supports a
+            // VertexType and MatrixType.
+            clipspace_vertices.push_back(
+                vertex_shader(Eigen::Vector4<T>(vertex_position.homogeneous()), model_view_matrix, projection_matrix));
             // Note: if mesh.colors.empty() (in case of shape-only model!), then the vertex colour is no
             // longer set to gray. But we don't want that here, maybe we only want texturing, then we don't
             // need vertex-colours at all. We can do it in a custom VertexShader if needed.
         }
 
         // All vertices are in clip-space now. Prepare the rasterisation stage:
-        vector<Triangle<T, P>> triangles_to_raster;
+        vector<Triangle<T>> triangles_to_raster;
         const auto& tti = mesh.tti.empty() ? mesh.tvi : mesh.tti; // If tti is not empty, we'll use it, otherwise,
                                                                   // use tvi for texturing.
 
@@ -149,11 +150,10 @@ public:
         const auto get_color_or_zero = [](const std::vector<Eigen::Vector3f>& mesh_colors, int vertex_index) {
             if (mesh_colors.size() > 0)
             {
-                return glm::tvec3<T, P>(mesh_colors[vertex_index](0), mesh_colors[vertex_index](1),
-                                        mesh_colors[vertex_index](2));
+                return mesh_colors[vertex_index];
             } else
             {
-                return glm::tvec3<T, P>();
+                return Eigen::Vector3f(0.0f, 0.0f, 0.0f);
             }
         };
 
@@ -168,10 +168,10 @@ public:
             for (unsigned char k = 0; k < 3; k++)
             {
                 visibility_bits[k] = 0;
-                const auto x_cc = clipspace_vertices[tri_indices[k]].x;
-                const auto y_cc = clipspace_vertices[tri_indices[k]].y;
-                const auto z_cc = clipspace_vertices[tri_indices[k]].z;
-                const auto w_cc = clipspace_vertices[tri_indices[k]].w;
+                const auto x_cc = clipspace_vertices[tri_indices[k]].x();
+                const auto y_cc = clipspace_vertices[tri_indices[k]].y();
+                const auto z_cc = clipspace_vertices[tri_indices[k]].z();
+                const auto w_cc = clipspace_vertices[tri_indices[k]].w();
                 if (x_cc < -w_cc) // true if outside of view frustum. False if on or inside the plane.
                     visibility_bits[k] |= 1; // set bit if outside of frustum
                 if (x_cc > w_cc)
@@ -195,7 +195,7 @@ public:
             if ((visibility_bits[0] | visibility_bits[1] | visibility_bits[2]) == 0)
             {
                 // relevant part of process_prospective_tri:
-                std::array<glm::tvec4<T, P>, 3> prospective_tri{
+                std::array<Eigen::Vector4<T>, 3> prospective_tri{
                     divide_by_w(clipspace_vertices[tri_indices[0]]),
                     divide_by_w(clipspace_vertices[tri_indices[1]]),
                     divide_by_w(clipspace_vertices[tri_indices[2]])};
@@ -203,39 +203,41 @@ public:
                 // z_ndc, 1/w_clip].
 
                 // Replaces x and y of the NDC coords with the screen coords. Keep z and w the same.
-                const glm::tvec2<T, P> v0_screen =
-                    clip_to_screen_space(prospective_tri[0].x, prospective_tri[0].y,
+                const Eigen::Vector2<T> v0_screen =
+                    clip_to_screen_space(prospective_tri[0].x(), prospective_tri[0].y(),
                                          rasterizer.viewport_width, rasterizer.viewport_height);
-                prospective_tri[0].x = v0_screen.x;
-                prospective_tri[0].y = v0_screen.y;
-                const glm::tvec2<T, P> v1_screen =
-                    clip_to_screen_space(prospective_tri[1].x, prospective_tri[1].y,
+                prospective_tri[0].x() = v0_screen.x();
+                prospective_tri[0].y() = v0_screen.y();
+                const Eigen::Vector2<T> v1_screen =
+                    clip_to_screen_space(prospective_tri[1].x(), prospective_tri[1].y(),
                                          rasterizer.viewport_width, rasterizer.viewport_height);
-                prospective_tri[1].x = v1_screen.x;
-                prospective_tri[1].y = v1_screen.y;
-                const glm::tvec2<T, P> v2_screen =
-                    clip_to_screen_space(prospective_tri[2].x, prospective_tri[2].y,
+                prospective_tri[1].x() = v1_screen.x();
+                prospective_tri[1].y() = v1_screen.y();
+                const Eigen::Vector2<T> v2_screen =
+                    clip_to_screen_space(prospective_tri[2].x(), prospective_tri[2].y(),
                                          rasterizer.viewport_width, rasterizer.viewport_height);
-                prospective_tri[2].x = v2_screen.x;
-                prospective_tri[2].y = v2_screen.y;
+                prospective_tri[2].x() = v2_screen.x();
+                prospective_tri[2].y() = v2_screen.y();
 
                 // Culling (front/back/none - or what are OpenGL's modes?). Do we do any culling
                 // elsewhere? No?
                 if (enable_backface_culling)
                 {
+                    // Note/Todo: Isn't this just v0_screen, etc.? Let's assume for now it is. So before, we had here:
+                    // prospective_tri[0], [1], [2], but we only need their x and y coords.
                     if (!detail::are_vertices_ccw_in_screen_space(
-                            glm::tvec2<T, P>(prospective_tri[0].x, prospective_tri[0].y),
-                            glm::tvec2<T, P>(prospective_tri[1].x, prospective_tri[1].y),
-                            glm::tvec2<T, P>(prospective_tri[2].x, prospective_tri[2].y)))
+                            Eigen::Vector2<T>(prospective_tri[0].x(), prospective_tri[0].y()),
+                            Eigen::Vector2<T>(prospective_tri[1].x(), prospective_tri[1].y()),
+                            Eigen::Vector2<T>(prospective_tri[2].x(), prospective_tri[2].y())))
                         continue;
                 }
 
                 // Get the bounding box of the triangle:
                 const auto boundingBox = detail::calculate_clipped_bounding_box(
-                    glm::tvec2<T, P>(prospective_tri[0].x, prospective_tri[0].y),
-                    glm::tvec2<T, P>(prospective_tri[1].x, prospective_tri[1].y),
-                    glm::tvec2<T, P>(prospective_tri[2].x, prospective_tri[2].y), rasterizer.viewport_width,
-                    rasterizer.viewport_height);
+                    Eigen::Vector2<T>(prospective_tri[0].x(), prospective_tri[0].y()),
+                    Eigen::Vector2<T>(prospective_tri[1].x(), prospective_tri[1].y()),
+                    Eigen::Vector2<T>(prospective_tri[2].x(), prospective_tri[2].y()),
+                    rasterizer.viewport_width, rasterizer.viewport_height);
                 const auto min_x = boundingBox.x;
                 const auto max_x = boundingBox.x + boundingBox.width;
                 const auto min_y = boundingBox.y;
@@ -247,15 +249,15 @@ public:
                 }
 
                 // If we're here, the triangle is CCW in screen space and the bbox is inside the viewport!
-                triangles_to_raster.push_back(Triangle<T, P>{
-                    detail::Vertex<T, P>{prospective_tri[0], get_color_or_zero(mesh.colors, tri_indices[0]),
-                                         glm::tvec2<T, P>(mesh.texcoords[tri_tc_indices[0]](0),
+                triangles_to_raster.push_back(Triangle<T>{
+                    detail::Vertex<T>{prospective_tri[0], get_color_or_zero(mesh.colors, tri_indices[0]),
+                                         Eigen::Vector2<T>(mesh.texcoords[tri_tc_indices[0]](0),
                                                           mesh.texcoords[tri_tc_indices[0]](1))},
-                    detail::Vertex<T, P>{prospective_tri[1], get_color_or_zero(mesh.colors, tri_indices[1]),
-                                         glm::tvec2<T, P>(mesh.texcoords[tri_tc_indices[1]](0),
+                    detail::Vertex<T>{prospective_tri[1], get_color_or_zero(mesh.colors, tri_indices[1]),
+                                         Eigen::Vector2<T>(mesh.texcoords[tri_tc_indices[1]](0),
                                                           mesh.texcoords[tri_tc_indices[1]](1))},
-                    detail::Vertex<T, P>{prospective_tri[2], get_color_or_zero(mesh.colors, tri_indices[2]),
-                                         glm::tvec2<T, P>(mesh.texcoords[tri_tc_indices[2]](0),
+                    detail::Vertex<T>{prospective_tri[2], get_color_or_zero(mesh.colors, tri_indices[2]),
+                                         Eigen::Vector2<T>(mesh.texcoords[tri_tc_indices[2]](0),
                                                           mesh.texcoords[tri_tc_indices[2]](1))}});
                 continue; // Triangle was either added or not added. Continue with next triangle.
             }
@@ -263,25 +265,25 @@ public:
             // Note: It seems that this is only w.r.t. the near-plane. If a triangle is partially outside the
             // tlbr viewport, it'll get rejected.
             // Well, 'z' of these triangles seems to be -1, so is that really the near plane?
-            std::vector<detail::Vertex<T, P>> vertices;
+            std::vector<detail::Vertex<T>> vertices;
             vertices.reserve(3);
-            vertices.push_back(detail::Vertex<T, P>{clipspace_vertices[tri_indices[0]],
+            vertices.push_back(detail::Vertex<T>{clipspace_vertices[tri_indices[0]],
                                                     get_color_or_zero(mesh.colors, tri_indices[0]),
-                                                    glm::tvec2<T, P>(mesh.texcoords[tri_tc_indices[0]](0),
+                                                 Eigen::Vector2<T>(mesh.texcoords[tri_tc_indices[0]](0),
                                                                      mesh.texcoords[tri_tc_indices[0]](1))});
-            vertices.push_back(detail::Vertex<T, P>{clipspace_vertices[tri_indices[1]],
+            vertices.push_back(detail::Vertex<T>{clipspace_vertices[tri_indices[1]],
                                                     get_color_or_zero(mesh.colors, tri_indices[1]),
-                                                    glm::tvec2<T, P>(mesh.texcoords[tri_tc_indices[1]](0),
+                                                 Eigen::Vector2<T>(mesh.texcoords[tri_tc_indices[1]](0),
                                                                      mesh.texcoords[tri_tc_indices[1]](1))});
-            vertices.push_back(detail::Vertex<T, P>{clipspace_vertices[tri_indices[2]],
+            vertices.push_back(detail::Vertex<T>{clipspace_vertices[tri_indices[2]],
                                                     get_color_or_zero(mesh.colors, tri_indices[2]),
-                                                    glm::tvec2<T, P>(mesh.texcoords[tri_tc_indices[2]](0),
+                                                 Eigen::Vector2<T>(mesh.texcoords[tri_tc_indices[2]](0),
                                                                      mesh.texcoords[tri_tc_indices[2]](1))});
             // split the triangle if it intersects the near plane:
             if (enable_near_clipping)
             {
                 vertices = clip_polygon_to_plane_in_4d(
-                    vertices, glm::tvec4<T, P>(T(0.0), T(0.0), T(-1.0),
+                    vertices, Eigen::Vector4<T>(T(0.0), T(0.0), T(-1.0),
                                                T(-1.0))); // "Normal" (or "4D hyperplane") of the near-plane.
                                                           // I tested it and it works like this but I'm a
                                                           // little bit unsure because Songho says the normal
@@ -298,39 +300,39 @@ public:
                     // Add to triangles_to_raster if it passed culling etc.
                     // TODO: This does the same as above - the code is copied 1:1. Avoid!
                     // COPY START (but init of prospective_tri is changed, as well as init of 't'.)
-                    std::array<glm::tvec4<T, P>, 3> prospective_tri{divide_by_w(vertices[0].position),
+                    std::array<Eigen::Vector4<T>, 3> prospective_tri{divide_by_w(vertices[0].position),
                                                                     divide_by_w(vertices[1 + k].position),
                                                                     divide_by_w(vertices[2 + k].position)};
 
-                    const glm::tvec2<T, P> v0_screen =
-                        clip_to_screen_space(prospective_tri[0].x, prospective_tri[0].y,
+                    const Eigen::Vector2<T> v0_screen =
+                        clip_to_screen_space(prospective_tri[0].x(), prospective_tri[0].y(),
                                              rasterizer.viewport_width, rasterizer.viewport_height);
-                    prospective_tri[0].x = v0_screen.x;
-                    prospective_tri[0].y = v0_screen.y;
-                    const glm::tvec2<T, P> v1_screen =
-                        clip_to_screen_space(prospective_tri[1].x, prospective_tri[1].y,
+                    prospective_tri[0].x() = v0_screen.x();
+                    prospective_tri[0].y() = v0_screen.y();
+                    const Eigen::Vector2<T> v1_screen =
+                        clip_to_screen_space(prospective_tri[1].x(), prospective_tri[1].y(),
                                              rasterizer.viewport_width, rasterizer.viewport_height);
-                    prospective_tri[1].x = v1_screen.x;
-                    prospective_tri[1].y = v1_screen.y;
-                    const glm::tvec2<T, P> v2_screen =
-                        clip_to_screen_space(prospective_tri[2].x, prospective_tri[2].y,
+                    prospective_tri[1].x() = v1_screen.x();
+                    prospective_tri[1].y() = v1_screen.y();
+                    const Eigen::Vector2<T> v2_screen =
+                        clip_to_screen_space(prospective_tri[2].x(), prospective_tri[2].y(),
                                              rasterizer.viewport_width, rasterizer.viewport_height);
-                    prospective_tri[2].x = v2_screen.x;
-                    prospective_tri[2].y = v2_screen.y;
+                    prospective_tri[2].x() = v2_screen.x();
+                    prospective_tri[2].y() = v2_screen.y();
 
                     if (enable_backface_culling)
                     {
                         if (!detail::are_vertices_ccw_in_screen_space(
-                                glm::tvec2<T, P>(prospective_tri[0].x, prospective_tri[0].y),
-                                glm::tvec2<T, P>(prospective_tri[1].x, prospective_tri[1].y),
-                                glm::tvec2<T, P>(prospective_tri[2].x, prospective_tri[2].y)))
+                                Eigen::Vector2<T>(prospective_tri[0].x(), prospective_tri[0].y()),
+                                Eigen::Vector2<T>(prospective_tri[1].x(), prospective_tri[1].y()),
+                                Eigen::Vector2<T>(prospective_tri[2].x(), prospective_tri[2].y())))
                             continue;
                     }
 
                     const auto boundingBox = detail::calculate_clipped_bounding_box(
-                        glm::tvec2<T, P>(prospective_tri[0].x, prospective_tri[0].y),
-                        glm::tvec2<T, P>(prospective_tri[1].x, prospective_tri[1].y),
-                        glm::tvec2<T, P>(prospective_tri[2].x, prospective_tri[2].y),
+                        Eigen::Vector2<T>(prospective_tri[0].x(), prospective_tri[0].y()),
+                        Eigen::Vector2<T>(prospective_tri[1].x(), prospective_tri[1].y()),
+                        Eigen::Vector2<T>(prospective_tri[2].x(), prospective_tri[2].y()),
                         rasterizer.viewport_width, rasterizer.viewport_height);
                     const auto min_x = boundingBox.x;
                     const auto max_x = boundingBox.x + boundingBox.width;
@@ -342,11 +344,11 @@ public:
                     }
 
                     // If we're here, the triangle is CCW in screen space and the bbox is inside the viewport!
-                    triangles_to_raster.push_back(Triangle<T, P>{
-                        detail::Vertex<T, P>{prospective_tri[0], vertices[0].color, vertices[0].texcoords},
-                        detail::Vertex<T, P>{prospective_tri[1], vertices[1 + k].color,
+                    triangles_to_raster.push_back(Triangle<T>{
+                        detail::Vertex<T>{prospective_tri[0], vertices[0].color, vertices[0].texcoords},
+                        detail::Vertex<T>{prospective_tri[1], vertices[1 + k].color,
                                              vertices[1 + k].texcoords},
-                        detail::Vertex<T, P>{prospective_tri[2], vertices[2 + k].color,
+                        detail::Vertex<T>{prospective_tri[2], vertices[2 + k].color,
                                              vertices[2 + k].texcoords}});
                     // continue; // triangle was either added or not added. Continue with next triangle.
                     // COPY END
