@@ -67,7 +67,7 @@ Eigen::Matrix4<T> perspective(T fov_y, T aspect, T z_near, T z_far)
     result(3, 2) = -static_cast<T>(1);
     result(2, 3) = -(static_cast<T>(2) * z_far * z_near) / (z_far - z_near);
     return result;
-}
+};
 
 /**
  * @brief Creates a 2D orthographic projection matrix.
@@ -95,7 +95,7 @@ Eigen::Matrix4<T> ortho(T left, T right, T bottom, T top)
     result(0, 3) = -(right + left) / (right - left);
     result(1, 3) = -(top + bottom) / (top - bottom);
     return result;
-}
+};
 
 /**
  * @brief Creates a matrix for an orthographic parallel viewing volume, using right-handed coordinates.
@@ -157,7 +157,7 @@ Eigen::Vector3<T> project(const Eigen::Vector3<T>& point_3d, const Eigen::Matrix
     projected_point.y() = projected_point.y() * T(viewport(3)) + T(viewport(1));
 
     return projected_point.head<3>();
-}
+};
 
 } /* namespace render */
 } /* namespace eos */
