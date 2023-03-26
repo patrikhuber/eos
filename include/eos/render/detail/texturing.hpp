@@ -63,15 +63,6 @@ inline Eigen::Vector3f tex2d(const Eigen::Vector2f& texcoords, const Texture& te
     return (1.0f / 255.0f) * tex2d_linear_mipmap_linear(texcoords, texture, dudx, dudy, dvdx, dvdy);
 };
 
-template <typename T, glm::precision P = glm::defaultp>
-glm::tvec3<T, P> tex2d(const glm::tvec2<T, P>& texcoords, const Texture& texture, float dudx, float dudy,
-                       float dvdx, float dvdy)
-{
-    Eigen::Vector3f ret = (1.0f / 255.0f) * tex2d_linear_mipmap_linear(Eigen::Vector2f(texcoords[0], texcoords[1]),
-                                                                 texture, dudx, dudy, dvdx, dvdy);
-    return glm::tvec3<T, P>(ret[0], ret[1], ret[2]);
-};
-
 inline Eigen::Vector3f tex2d_linear_mipmap_linear(const Eigen::Vector2f& texcoords, const Texture& texture,
                                                   float dudx, float dudy, float dvdx, float dvdy)
 {
