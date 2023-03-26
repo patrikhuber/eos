@@ -3,7 +3,7 @@
  *
  * File: include/eos/fitting/nonlinear_camera_estimation.hpp
  *
- * Copyright 2015 Patrik Huber
+ * Copyright 2015, 2023 Patrik Huber
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,16 +19,14 @@
  */
 #pragma once
 
-#ifndef NONLINEARCAMERAESTIMATION_HPP_
-#define NONLINEARCAMERAESTIMATION_HPP_
+#ifndef EOS_NONLINEAR_CAMERA_ESTIMATION_HPP
+#define EOS_NONLINEAR_CAMERA_ESTIMATION_HPP
 
 #include "eos/fitting/detail/nonlinear_camera_estimation_detail.hpp"
 #include "eos/fitting/RenderingParameters.hpp"
 
 #include "Eigen/Geometry"
 #include "unsupported/Eigen/NonLinearOptimization"
-
-#include "opencv2/core/core.hpp"
 
 #include <vector>
 #include <cassert>
@@ -62,11 +60,10 @@ namespace fitting {
  * @param[in] height Height of the image (or viewport).
  * @return The estimated model and camera parameters.
  */
-inline RenderingParameters estimate_orthographic_camera(std::vector<cv::Vec2f> image_points,
-                                                        std::vector<cv::Vec4f> model_points, int width,
+inline RenderingParameters estimate_orthographic_camera(std::vector<Eigen::Vector2f> image_points,
+                                                        std::vector<Eigen::Vector4f> model_points, int width,
                                                         int height)
 {
-    using cv::Mat;
     assert(image_points.size() == model_points.size());
     assert(image_points.size() >= 6); // Number of correspondence points given needs to be equal to or larger than 6
 
@@ -87,7 +84,7 @@ inline RenderingParameters estimate_orthographic_camera(std::vector<cv::Vec2f> i
 
     Eigen::LevenbergMarquardt<Eigen::NumericalDiff<detail::OrthographicParameterProjection>> lm(
         cost_function_with_derivative);
-    auto info = lm.minimize(parameters); // we could or should use the return value
+    const auto info = lm.minimize(parameters); // we could or should use the return value
     // 'parameters' contains the solution now.
 
     Frustum camera_frustum{
@@ -102,4 +99,4 @@ inline RenderingParameters estimate_orthographic_camera(std::vector<cv::Vec2f> i
 } /* namespace fitting */
 } /* namespace eos */
 
-#endif /* NONLINEARCAMERAESTIMATION_HPP_ */
+#endif /* EOS_NONLINEAR_CAMERA_ESTIMATION_HPP */
