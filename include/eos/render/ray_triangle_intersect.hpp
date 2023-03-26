@@ -24,8 +24,7 @@
 
 #include "eos/cpp17/optional.hpp"
 
-#include "glm/vec3.hpp"
-#include "glm/geometric.hpp"
+#include "Eigen/Core"
 
 #include <utility>
 

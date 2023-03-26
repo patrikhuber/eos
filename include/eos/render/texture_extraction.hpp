@@ -33,11 +33,6 @@
 #include "eos/render/ray_triangle_intersect.hpp"
 #include "eos/render/detail/utils.hpp" // for detail::divide_by_w()
 
-#include "glm/mat4x4.hpp"
-#include "glm/vec2.hpp"
-#include "glm/vec3.hpp"
-#include "glm/vec4.hpp"
-
 #include <cassert>
 #include <cstddef>
 #include <vector>
@@ -59,7 +54,7 @@ namespace render {
  *     set to true, the angle will be encoded into the alpha channel (0 meaning occluded or facing away 90°,
  *     127 meaning facing a 45° angle and 255 meaning front-facing, and all values in between). If set to
  *     false, the alpha channel will only contain 0 for occluded vertices and 255 for visible vertices.`
- *   - We perhaps should add another parameter, `glm::vec4 viewport`. We could need to change
+ *   - We perhaps should add another parameter, `Eigen::Vector4 viewport`. We could need to change
  *     `clip_to_screen_space()` to make use of that.
  *   - Perhaps add an overload that takes a `vector<bool> visible vertices`, for the case when we already
  *     computed the visibility? (e.g. from the edge-fitting)

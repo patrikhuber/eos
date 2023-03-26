@@ -27,10 +27,6 @@
 
 #include "Eigen/Core"
 
-#include "glm/vec3.hpp"
-#include "glm/vec4.hpp"
-#include "glm/mat4x4.hpp"
-
 #include <array>
 #include <vector>
 #include <algorithm>
@@ -46,10 +42,6 @@ namespace render {
  * Thus, the algorithm can become quite slow for larger meshes.
  * Depending on \p ray_direction_type, the rays are either casted from each vertex along the positive z axis,
  * or towards the origin (0, 0, 0).
- *
- * Note/Todo: We have a bit of an unnecessary conversion between GLM and Eigen going on. Ideally, ...:
- *   - probe_vertex should rather be an Eigen::Vector3f
- *   - mesh_vertices should rather be std::vector<Eigen::Vector3f>.
  *
  * @param[in] probe_vertex A single vertex to compute the visibility for.
  * @param[in] mesh_vertices A set of vertices that form a mesh.

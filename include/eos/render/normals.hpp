@@ -22,9 +22,6 @@
 #ifndef EOS_RENDER_NORMALS_HPP
 #define EOS_RENDER_NORMALS_HPP
 
-#include "glm/vec3.hpp"
-#include "glm/geometric.hpp"
-
 #include "Eigen/Core"
 
 #include <vector>
@@ -66,24 +63,6 @@ inline Eigen::Vector3f compute_face_normal(const Eigen::Vector4f& v0, const Eige
 {
     Eigen::Vector4f n = (v1 - v0).cross3(v2 - v0); // v0-to-v1 x v0-to-v2
     return n.head<3>().normalized();
-};
-
-/**
- * Computes the normal of a face (triangle), i.e. the per-face normal. Returned normal will be unit length.
- *
- * Assumes the triangle is given in CCW order, i.e. vertices in counterclockwise order on the screen are
- * front-facing.
- *
- * @param[in] v0 First vertex.
- * @param[in] v1 Second vertex.
- * @param[in] v2 Third vertex.
- * @return The unit-length normal of the given triangle.
- */
-inline glm::vec3 compute_face_normal(const glm::vec3& v0, const glm::vec3& v1, const glm::vec3& v2)
-{
-    glm::vec3 n = glm::cross(v1 - v0, v2 - v0); // v0-to-v1 x v0-to-v2
-    n = glm::normalize(n);
-    return n;
 };
 
 /**
