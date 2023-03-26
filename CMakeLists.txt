@@ -51,7 +51,6 @@ message(STATUS "Eigen3 include dir found at ${EIGEN3_INCLUDE_DIR}")
 
 # Set the include directories of the 3rd-party submodules that we use:
 set(CEREAL_INCLUDE_DIR "${eos_3RDPARTY_DIR}/cereal/include")
-set(glm_INCLUDE_DIR "${eos_3RDPARTY_DIR}/glm")
 set(nanoflann_INCLUDE_DIR "${eos_3RDPARTY_DIR}/nanoflann/include")
 set(eigen3_nnls_INCLUDE_DIR "${eos_3RDPARTY_DIR}/eigen3-nnls/src")
 set(toml11_INCLUDE_DIR "${eos_3RDPARTY_DIR}/toml11")
@@ -136,7 +135,6 @@ target_compile_features(eos INTERFACE ${EOS_CXX_COMPILE_FEATURES})
 target_include_directories(eos INTERFACE "include")
 target_include_directories(eos INTERFACE ${CEREAL_INCLUDE_DIR})
 target_include_directories(eos INTERFACE ${EIGEN3_INCLUDE_DIR})
-target_include_directories(eos INTERFACE ${glm_INCLUDE_DIR})
 target_include_directories(eos INTERFACE ${nanoflann_INCLUDE_DIR})
 target_include_directories(eos INTERFACE ${eigen3_nnls_INCLUDE_DIR})
 target_include_directories(eos INTERFACE ${toml11_INCLUDE_DIR})
@@ -162,8 +160,6 @@ install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/ DESTINATION include) # ou
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/share/ DESTINATION share) # the model and metadata
 # For 3rd party headers, we only copy the headers and licence files:
 install(DIRECTORY ${eos_3RDPARTY_DIR}/cereal/ DESTINATION 3rdparty/cereal) # cereal headers
-install(DIRECTORY ${eos_3RDPARTY_DIR}/glm/glm/ DESTINATION 3rdparty/glm/glm) # glm headers
-install(FILES ${eos_3RDPARTY_DIR}/glm/copying.txt DESTINATION 3rdparty/glm/) # glm licence
 install(DIRECTORY ${eos_3RDPARTY_DIR}/nanoflann/include/ DESTINATION 3rdparty/nanoflann/include) # nanoflann header
 install(FILES ${eos_3RDPARTY_DIR}/nanoflann/COPYING DESTINATION 3rdparty/nanoflann/) # nanoflann licence
 install(DIRECTORY ${eos_3RDPARTY_DIR}/eigen3-nnls/src/ DESTINATION 3rdparty/eigen3-nnls/src) # eigen3-nnls header
