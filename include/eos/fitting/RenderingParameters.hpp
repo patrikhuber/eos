@@ -28,7 +28,7 @@
 #include "eos/cpp17/optional.hpp"
 #include "eos/cpp17/optional_serialization.hpp"
 
-#include "eos/fitting/detail/glm_cerealisation.hpp"
+#include "eos/fitting/detail/eigen_quaternion_cerealisation.hpp"
 #include "cereal/cereal.hpp"
 #include "cereal/archives/json.hpp"
 
