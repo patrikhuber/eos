@@ -3,7 +3,7 @@
  *
  * File: examples/fit-model.cpp
  *
- * Copyright 2016 Patrik Huber
+ * Copyright 2016, 2023 Patrik Huber
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -263,9 +263,9 @@ int main(int argc, char *argv[])
     Mat merged_texturemap;
     for (unsigned i = 0; i < images.size(); ++i)
     {
-        // The 3D head pose can be recovered as follows:
-        float yaw_angle = glm::degrees(glm::yaw(per_frame_rendering_params[i].get_rotation()));
-        // and similarly for pitch and roll.
+        // The 3D head pose can be recovered as follows - the function returns an Eigen::Vector3f with yaw,
+        // pitch, and roll angles:
+        const float yaw_angle = per_frame_rendering_params[i].get_yaw_pitch_roll()[0];
 
         // Extract the texture from the image using given mesh and camera parameters:
         // Have to fiddle around with converting between core::Image and cv::Mat
@@ -292,14 +292,14 @@ int main(int argc, char *argv[])
         cv::imwrite(outputfile.string(), outimg);
 
         // Save frontal rendering with texture:
-        glm::mat4 modelview_frontal = glm::mat4(1.0);
+        Eigen::Matrix4f modelview_frontal = Eigen::Matrix4f::Identity();
         core::Mesh neutral_expression = morphablemodel::sample_to_mesh(
             morphable_model.get_shape_model().draw_sample(pca_shape_coefficients),
             morphable_model.get_color_model().get_mean(),
             morphable_model.get_shape_model().get_triangle_list(),
             morphable_model.get_color_model().get_triangle_list(), morphable_model.get_texture_coordinates());
         const core::Image4u frontal_rendering = render::render(
-            neutral_expression, modelview_frontal, glm::ortho(-130.0f, 130.0f, -130.0f, 130.0f), 256, 256,
+            neutral_expression, modelview_frontal, render::ortho(-130.0f, 130.0f, -130.0f, 130.0f), 256, 256,
             render::create_mipmapped_texture(texturemap), true, false, false);
         outputfile.replace_extension(".frontal.png");
         cv::imwrite(outputfile.string(), core::to_mat(frontal_rendering));
@@ -322,13 +322,13 @@ int main(int argc, char *argv[])
     outputfile.replace_extension("");
 
     // Save the frontal rendering with merged texture:
-    glm::mat4 modelview_frontal = glm::mat4(1.0);
+    Eigen::Matrix4f modelview_frontal = Eigen::Matrix4f::Identity();
     core::Mesh neutral_expression = morphablemodel::sample_to_mesh(
         morphable_model.get_shape_model().draw_sample(pca_shape_coefficients),
         morphable_model.get_color_model().get_mean(), morphable_model.get_shape_model().get_triangle_list(),
         morphable_model.get_color_model().get_triangle_list(), morphable_model.get_texture_coordinates());
     const core::Image4u frontal_rendering = render::render(
-        neutral_expression, modelview_frontal, glm::ortho(-130.0f, 130.0f, -130.0f, 130.0f), 512, 512,
+        neutral_expression, modelview_frontal, render::ortho(-130.0f, 130.0f, -130.0f, 130.0f), 512, 512,
         render::create_mipmapped_texture(core::from_mat_with_alpha(merged_texturemap)), true, false, false);
     outputfile.replace_extension(".frontal.png");
     cv::imwrite(outputfile.string(), core::to_mat(frontal_rendering));
