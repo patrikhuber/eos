@@ -19,8 +19,8 @@
  */
 #pragma once
 
-#ifndef EIGENCEREALISATION_HPP_
-#define EIGENCEREALISATION_HPP_
+#ifndef EOS_EIGEN_MATRIX_BINARY_CEREALISATION_HPP
+#define EOS_EIGEN_MATRIX_BINARY_CEREALISATION_HPP
 
 #include "cereal/cereal.hpp"
 
@@ -86,4 +86,4 @@ load(Archive& ar, Eigen::Matrix<_Scalar, _Rows, _Cols, _Options, _MaxRows, _MaxC
 
 } /* namespace cereal */
 
-#endif /* EIGENCEREALISATION_HPP_ */
+#endif /* EOS_EIGEN_MATRIX_BINARY_CEREALISATION_HPP */
