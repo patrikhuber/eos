@@ -107,7 +107,7 @@ double implicit_line(float x, float y, const Eigen::Vector4<T>& v1, const Eigen:
 inline std::vector<Vertex<float>> clip_polygon_to_plane_in_4d(const std::vector<Vertex<float>>& vertices,
                                                               const Eigen::Vector4<float>& plane_normal)
 {
-    std::vector<Vertex<float>> clippedVertices;
+    std::vector<Vertex<float>> clipped_vertices;
 
     // We can have 2 cases:
     //  * 1 vertex visible: we make 1 new triangle out of the visible vertex plus the 2 intersection points
@@ -136,28 +136,28 @@ inline std::vector<Vertex<float>> clip_polygon_to_plane_in_4d(const std::vector<
             // generate a new vertex at the line-plane intersection point
             const auto position = vertices[a].position + t * direction;
             const auto color = vertices[a].color + t * (vertices[b].color - vertices[a].color);
-            const auto texCoord =
+            const auto texcoords =
                 vertices[a].texcoords +
                 t * (vertices[b].texcoords -
                      vertices[a].texcoords); // We could omit that if we don't render with texture.
 
             if (fa < 0) // we keep the original vertex plus the new one
             {
-                clippedVertices.push_back(vertices[a]);
-                clippedVertices.push_back(Vertex<float>{position, color, texCoord});
+                clipped_vertices.push_back(vertices[a]);
+                clipped_vertices.push_back(Vertex<float>{position, color, texcoords});
             } else if (fb < 0) // we use only the new vertex
             {
-                clippedVertices.push_back(Vertex<float>{position, color, texCoord});
+                clipped_vertices.push_back(Vertex<float>{position, color, texcoords});
             }
         } else if (fa < 0 && fb < 0) // both are visible (on the "good" side of the plane), no splitting
                                      // required, use the current vertex
         {
-            clippedVertices.push_back(vertices[a]);
+            clipped_vertices.push_back(vertices[a]);
         }
         // else, both vertices are not visible, nothing to add and draw
     }
 
-    return clippedVertices;
+    return clipped_vertices;
 };
 
 /**

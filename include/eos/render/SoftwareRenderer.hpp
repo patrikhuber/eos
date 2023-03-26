@@ -50,12 +50,6 @@
 namespace eos {
 namespace render {
 
-// Forward declarations (these functions should probably be moved into detail/):
-template <typename T, glm::precision P = glm::defaultp>
-std::vector<detail::Vertex<T, P>>
-clip_polygon_to_plane_in_4d(const std::vector<detail::Vertex<T, P>>& vertices,
-                            const glm::tvec4<T, P>& plane_normal);
-
 /**
  * @brief X.
  *
@@ -387,76 +381,6 @@ public: // Todo: these should go private in the final implementation
     Rasterizer<FragmentShaderType> rasterizer;
 private:
     VertexShaderType vertex_shader;
-};
-
-/**
- * @brief Todo.
- *
- * This function copied from render_detail.hpp and adjusted for v2:: stuff.
- * I think it should go back to render_details eventually.
- *
- * @param[in] vertices X.
- * @param[in] plane_normal X.
- * @ return X.
- */
-template <typename T, glm::precision P = glm::defaultp>
-std::vector<detail::Vertex<T, P>>
-clip_polygon_to_plane_in_4d(const std::vector<detail::Vertex<T, P>>& vertices,
-                            const glm::tvec4<T, P>& plane_normal)
-{
-    std::vector<detail::Vertex<T, P>> clipped_vertices;
-
-    // We can have 2 cases:
-    //	* 1 vertex visible: we make 1 new triangle out of the visible vertex plus the 2 intersection points
-    // with the near-plane
-    //  * 2 vertices visible: we have a quad, so we have to make 2 new triangles out of it.
-
-    // See here for more info?
-    // http://math.stackexchange.com/questions/400268/equation-for-a-line-through-a-plane-in-homogeneous-coordinates
-
-    for (unsigned int i = 0; i < vertices.size(); i++)
-    {
-        int a = i;                         // the current vertex
-        int b = (i + 1) % vertices.size(); // the following vertex (wraps around 0)
-
-        using glm::dot;
-        const T fa = dot(vertices[a].position, plane_normal); // Note: Shouldn't they be unit length?
-        const T fb = dot(vertices[b].position,
-                         plane_normal); // < 0 means on visible side, > 0 means on invisible side?
-
-        if ((fa < 0 && fb > 0) || (fa > 0 && fb < 0)) // one vertex is on the visible side of the plane, one
-                                                      // on the invisible? so we need to split?
-        {
-            const glm::tvec4<T, P> direction = vertices[b].position - vertices[a].position;
-            const T t = -(dot(plane_normal, vertices[a].position)) /
-                        (dot(plane_normal, direction)); // the parametric value on the line, where the line to
-                                                        // draw intersects the plane?
-
-            // generate a new vertex at the line-plane intersection point
-            const glm::tvec4<T, P> position = vertices[a].position + t * direction;
-            const glm::tvec3<T, P> color = vertices[a].color + t * (vertices[b].color - vertices[a].color);
-            const glm::tvec2<T, P> texcoords =
-                vertices[a].texcoords +
-                t * (vertices[b].texcoords -
-                     vertices[a].texcoords); // We could omit that if we don't render with texture.
-
-            if (fa < 0) // we keep the original vertex plus the new one
-            {
-                clipped_vertices.push_back(vertices[a]);
-                clipped_vertices.push_back(detail::Vertex<T, P>{position, color, texcoords});
-            } else if (fb < 0) // we use only the new vertex
-            {
-                clipped_vertices.push_back(detail::Vertex<T, P>{position, color, texcoords});
-            }
-        } else if (fa < 0 && fb < 0) // both are visible (on the "good" side of the plane), no splitting
-                                     // required, use the current vertex
-        {
-            clipped_vertices.push_back(vertices[a]);
-        }
-        // else, both vertices are not visible, nothing to add and draw
-    }
-
-    return clipped_vertices;
 };
 
 } // namespace render
