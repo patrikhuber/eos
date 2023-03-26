@@ -177,16 +177,13 @@ inline std::pair<std::vector<core::Mesh>, std::vector<fitting::RenderingParamete
         // otherwise):
         for (int i = 0; i < landmarks[j].size(); ++i)
         {
-            auto converted_name = landmark_mapper.convert(landmarks[j][i].name);
+            const auto converted_name = landmark_mapper.convert(landmarks[j][i].name);
             if (!converted_name)
             { // no mapping defined for the current landmark
                 continue;
             }
-            int vertex_idx = std::stoi(converted_name.value());
-            Vector4f vertex(current_meshes[j].vertices[vertex_idx][0],
-                            current_meshes[j].vertices[vertex_idx][1],
-                            current_meshes[j].vertices[vertex_idx][2], 1.0f);
-            current_model_points.emplace_back(vertex);
+            const int vertex_idx = std::stoi(converted_name.value());
+            current_model_points.emplace_back(current_meshes[j].vertices[vertex_idx].homogeneous());
             current_vertex_indices.emplace_back(vertex_idx);
             current_image_points.emplace_back(landmarks[j][i].coordinates);
         }

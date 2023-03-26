@@ -188,14 +188,14 @@ inline auto get_corresponding_pointset(const T& landmarks, const core::LandmarkM
     // Sub-select all the landmarks which we have a mapping for (i.e. that are defined in the 3DMM):
     for (int i = 0; i < landmarks.size(); ++i)
     {
-        auto converted_name = landmark_mapper.convert(landmarks[i].name);
+        const auto converted_name = landmark_mapper.convert(landmarks[i].name);
         if (!converted_name)
         { // no mapping defined for the current landmark
             continue;
         }
-        int vertex_idx = std::stoi(converted_name.get());
-        auto vertex = morphable_model.get_shape_model().get_mean_at_point(vertex_idx);
-        model_points.emplace_back(Vector4f(vertex.x(), vertex.y(), vertex.z(), 1.0f));
+        const int vertex_idx = std::stoi(converted_name.get());
+        const auto vertex = morphable_model.get_shape_model().get_mean_at_point(vertex_idx);
+        model_points.emplace_back(vertex.homogeneous());
         vertex_indices.emplace_back(vertex_idx);
         image_points.emplace_back(landmarks[i].coordinates);
     }
@@ -372,7 +372,7 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
     // and get the corresponding model points (mean if given no initial coeffs, from the computed shape otherwise):
     for (int i = 0; i < landmarks.size(); ++i)
     {
-        auto converted_name = landmark_mapper.convert(landmarks[i].name);
+        const auto converted_name = landmark_mapper.convert(landmarks[i].name);
         if (!converted_name)
         { // no mapping defined for the current landmark
             continue;
@@ -398,9 +398,7 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
         {
             vertex_idx = std::stoi(converted_name.value());
         }
-        Vector4f vertex(current_mesh.vertices[vertex_idx][0], current_mesh.vertices[vertex_idx][1],
-                        current_mesh.vertices[vertex_idx][2], 1.0f);
-        model_points.emplace_back(vertex);
+        model_points.emplace_back(current_mesh.vertices[vertex_idx].homogeneous());
         vertex_indices.emplace_back(vertex_idx);
         image_points.emplace_back(landmarks[i].coordinates);
     }

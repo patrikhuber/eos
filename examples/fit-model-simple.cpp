@@ -146,14 +146,14 @@ int main(int argc, char* argv[])
     // Sub-select all the landmarks which we have a mapping for (i.e. that are defined in the 3DMM):
     for (int i = 0; i < landmarks.size(); ++i)
     {
-        auto converted_name = landmark_mapper.convert(landmarks[i].name);
+        const auto converted_name = landmark_mapper.convert(landmarks[i].name);
         if (!converted_name)
         { // no mapping defined for the current landmark
             continue;
         }
-        int vertex_idx = std::stoi(converted_name.value());
-        auto vertex = morphable_model.get_shape_model().get_mean_at_point(vertex_idx);
-        model_points.emplace_back(Vector4f(vertex.x(), vertex.y(), vertex.z(), 1.0f));
+        const int vertex_idx = std::stoi(converted_name.value());
+        const auto vertex = morphable_model.get_shape_model().get_mean_at_point(vertex_idx);
+        model_points.emplace_back(vertex.homogeneous());
         vertex_indices.emplace_back(vertex_idx);
         image_points.emplace_back(landmarks[i].coordinates);
     }
