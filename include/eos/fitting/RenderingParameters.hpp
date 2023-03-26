@@ -28,10 +28,6 @@
 #include "eos/cpp17/optional.hpp"
 #include "eos/cpp17/optional_serialization.hpp"
 
-#include "glm/gtc/matrix_transform.hpp"
-#include "glm/gtc/quaternion.hpp"
-#include "glm/gtx/transform.hpp"
-
 #include "eos/fitting/detail/glm_cerealisation.hpp"
 #include "cereal/cereal.hpp"
 #include "cereal/archives/json.hpp"
@@ -108,24 +104,29 @@ public:
     // Creates with default frustum...
     RenderingParameters() = default;
 
-    // Initialisation for Eigen::LevMarq
-    // This creates the correct rotation quaternion in the case the angles were estimated/given by
-    // R*P*Y*v. Angles given in radian. Note: If you subsequently use RP::get_rotation() and
-    // glm::eulerAngles() on it, the angles you get out will be slightly different from the ones you
-    // put in here. But they will describe the same rotation! Just in a different order. (i.e. the
-    // rotation matrix or quaternion for both of these two sets of angles is identical.)
+    /**
+     * @brief Create a RenderingParameters object from the parameters of estimate_orthographic_camera().
+     *
+     * estimate_orthographic_camera() uses Eigen::LevenbergMarquardt to estimate pose, using Euler angles.
+     * Here, we create a quaternion from these Euler angles, using the same convention / order as they're used
+     * during that optimisation, i.e. P_2d = R * P * Y * P_3d. This creates the correct rotation quaternion in
+     * the case the angles were estimated/given by R*P*Y*v.
+     * The angles should be given in radians.
+     *
+     * (Old note, which may be obsolete now - to be checked: If you subsequently use RP::get_rotation() and
+     * glm::eulerAngles() on it, the angles you get out will be slightly different from the ones you put in
+     * here. But they will describe the same rotation! Just in a different order. (i.e. the  rotation matrix
+     * or quaternion for both of these two sets of angles is identical.))
+     */
     RenderingParameters(CameraType camera_type, Frustum camera_frustum, float r_x, float r_y, float r_z,
                         float tx, float ty, int screen_width, int screen_height)
         : camera_type(camera_type), frustum(camera_frustum), t_x(tx), t_y(ty), screen_width(screen_width),
           screen_height(screen_height)
     {
-        const auto rot_mtx_x = glm::rotate(glm::mat4(1.0f), r_x, glm::vec3{1.0f, 0.0f, 0.0f});
-        const auto rot_mtx_y = glm::rotate(glm::mat4(1.0f), r_y, glm::vec3{0.0f, 1.0f, 0.0f});
-        const auto rot_mtx_z = glm::rotate(glm::mat4(1.0f), r_z, glm::vec3{0.0f, 0.0f, 1.0f});
-        const auto zxy_rotation_matrix = rot_mtx_z * rot_mtx_x * rot_mtx_y;
-        glm::quat glm_rotation_quat = glm::quat(zxy_rotation_matrix);
-        rotation = Eigen::Quaternionf(glm_rotation_quat.w, glm_rotation_quat.x, glm_rotation_quat.y,
-                                      glm_rotation_quat.z);
+        const Eigen::Matrix3f rot_mtx_x = Eigen::AngleAxisf(r_x, Eigen::Vector3f::UnitX()).toRotationMatrix();
+        const Eigen::Matrix3f rot_mtx_y = Eigen::AngleAxisf(r_y, Eigen::Vector3f::UnitY()).toRotationMatrix();
+        const Eigen::Matrix3f rot_mtx_z = Eigen::AngleAxisf(r_z, Eigen::Vector3f::UnitZ()).toRotationMatrix();
+        rotation = rot_mtx_z * rot_mtx_x * rot_mtx_y;
     };
 
     // This assumes estimate_sop was run on points with OpenCV viewport! I.e. y flipped.
