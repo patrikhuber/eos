@@ -168,8 +168,8 @@ struct PerspectiveProjectionLandmarkCost
         Eigen::Map<const Eigen::Vector3<T>> translation(camera_translation);
 
         Eigen::Matrix4<T> model_view_mtx = Eigen::Matrix4<T>::Identity();
-        model_view_mtx.block<3, 3>(0, 0) = rotation.toRotationMatrix();
-        model_view_mtx.col(3).head<3>() = translation;
+        model_view_mtx.template block<3, 3>(0, 0) = rotation.toRotationMatrix(); // dependent name
+        model_view_mtx.col(3).template head<3>() = translation;                  // dependent name
 
         // Todo: use get_opencv_viewport() from nonlin_cam_esti.hpp.
         const Eigen::Vector4<T> viewport(T(0), T(image_height), T(image_width),
@@ -296,8 +296,8 @@ struct VertexColorCost
         Eigen::Map<const Eigen::Vector3<T>> translation(camera_translation);
 
         Eigen::Matrix4<T> model_view_mtx = Eigen::Matrix4<T>::Identity();
-        model_view_mtx.block<3, 3>(0, 0) = rotation.toRotationMatrix();
-        model_view_mtx.col(3).head<3>() = translation;
+        model_view_mtx.template block<3, 3>(0, 0) = rotation.toRotationMatrix(); // dependent name
+        model_view_mtx.col(3).template head<3>() = translation;                  // dependent name
 
         // Todo: use get_opencv_viewport() from nonlin_cam_esti.hpp.
         const Eigen::Vector4<T> viewport(T(0), T(image.height()), T(image.width()),
@@ -385,9 +385,12 @@ Eigen::Vector3<T> get_shape_at_point(const eos::morphablemodel::PcaModel& shape_
 {
     // Computing Shape = mean + shape_basis*shape_coeffs + blendshapes*blendshape_coeffs:
     const Eigen::Vector3f mean = shape_model.get_mean_at_point(vertex_id);
-    const Eigen::Vector3<T> shape_vector =
-        shape_model.get_rescaled_pca_basis_at_point(vertex_id).leftCols(shape_coeffs.size()).cast<T>() *
-        shape_coeffs;
+    // Note: We seem to have a dependent name here, so we need 'template', to help the compiler that 'cast<T>'
+    // is a template.
+    const Eigen::Vector3<T> shape_vector = shape_model.get_rescaled_pca_basis_at_point(vertex_id)
+                                               .leftCols(shape_coeffs.size())
+                                               .template cast<T>() *
+                                           shape_coeffs;
     Eigen::Vector3<T> expression_vector(T(0.0), T(0.0), T(0.0));
     for (std::size_t i = 0; i < blendshape_coeffs.size(); i++)
     {
@@ -412,9 +415,12 @@ Eigen::Vector3<T> get_vertex_color_at_point(const eos::morphablemodel::PcaModel&
                                             Eigen::Map<const Eigen::VectorX<T>> color_coeffs)
 {
     const Eigen::Vector3f mean = color_model.get_mean_at_point(vertex_id);
-    const Eigen::Vector3<T> color_vector =
-        color_model.get_rescaled_pca_basis_at_point(vertex_id).leftCols(color_coeffs.size()).cast<T>() *
-        color_coeffs;
+    // Note: We seem to have a dependent name here, so we need 'template', to help the compiler that 'cast<T>'
+    // is a template.
+    const Eigen::Vector3<T> color_vector = color_model.get_rescaled_pca_basis_at_point(vertex_id)
+                                               .leftCols(color_coeffs.size())
+                                               .template cast<T>() *
+                                           color_coeffs;
 
     return Eigen::Vector3<T>(mean.cast<T>() + color_vector);
 };

@@ -156,7 +156,11 @@ Eigen::Vector3<T> project(const Eigen::Vector3<T>& point_3d, const Eigen::Matrix
     projected_point.x() = projected_point.x() * T(viewport(2)) + T(viewport(0));
     projected_point.y() = projected_point.y() * T(viewport(3)) + T(viewport(1));
 
-    return projected_point.head<3>();
+    // Note: We need the 'template' keyword, as we have a dependent name - 'T' is unknown when the compiler
+    // parses this expression, so we need to tell it that 'head<3>()' is a template function (and not e.g. an
+    // 'operator<' or something like that). We could alternatively rewrite this as:
+    // 'return Eigen::Vector3<T>(projected_point.x(), projected_point.y(), projected_point.z());'
+    return projected_point.template head<3>();
 };
 
 } /* namespace render */
