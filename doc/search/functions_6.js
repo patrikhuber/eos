@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['imagecost',['ImageCost',['../structeos_1_1fitting_1_1_image_cost.html#aade8766ff8ea6518bf19e6b80c73c845',1,'eos::fitting::ImageCost']]]
+  ['is_5fvertex_5fvisible_0',['is_vertex_visible',['../namespaceeos_1_1render.html#a6937bd32bc52fcc61b40fa1587fb9307',1,'eos::render']]]
 ];
