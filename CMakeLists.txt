@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.8.2)
 if(MSVC)
   cmake_minimum_required(VERSION 3.10.0) # needed for CMAKE_CXX_STANDARD 17 on >=VS2017.3
 endif()
-project(eos VERSION 1.3.0 LANGUAGES CXX)
+project(eos VERSION 1.4.0 LANGUAGES CXX)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
