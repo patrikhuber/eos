@@ -28,6 +28,9 @@
 namespace eos {
 namespace core {
 
+/**
+ * @brief Compile-time constant for pi (19 digits).
+ */
 template <class T>
 constexpr T pi = T(3.1415926535897932385L);
 

@@ -76,9 +76,7 @@ public:
 };
 
 /**
- * @brief A fragment shader that textures...
- *
- * X.
+ * @brief A fragment shader that textures.
  */
 class TexturingFragmentShader
 {
@@ -119,7 +117,7 @@ public:
 };
 
 /**
- * @brief X.
+ * @brief Computes inverse perspectively correct lambda.
  *
  * X.
  * Inverts the perspective texture mapping. Can be derived using some tedious algebra.
@@ -151,13 +149,17 @@ Eigen::Vector3<T> compute_inverse_perspectively_correct_lambda(const Eigen::Vect
     return lambda;
 };
 
+/**
+ * @brief A fragment shader that is used to extract, or remap, texture from an image to a UV map (i.e. the
+ * reverse process of texturing).
+ */
 class ExtractionFragmentShader
 {
 public:
     /**
-     * @brief X.
+     * @brief Todo.
      *
-     * X.
+     * Todo.
      * Inverts the perspective texture mapping. Can be derived using some tedious algebra.
      * NOTE: This one actually takes/needs the perspectively corrected lambda I think!
      *

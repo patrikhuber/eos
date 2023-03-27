@@ -241,7 +241,7 @@ struct VertexColorCost
      *
      * @param[in] shape_model A PCA 3D shape model. Do not use a temporary.
      * @param[in] blendshapes A set of 3D blendshapes. Do not use a temporary.
-     * @param[in] shape_model A PCA 3D color model. Do not use a temporary.
+     * @param[in] color_model A PCA 3D color model. Do not use a temporary.
      * @param[in] num_shape_coeffs Number of shape coefficients that are being optimised for.
      * @param[in] num_blendshape_coeffs Number of blendshape coefficients that are being optimised for.
      * @param[in] num_color_coeffs Number of colour coefficients that are being optimised for.
