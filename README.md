@@ -31,13 +31,12 @@ An experimental model viewer to visualise 3D Morphable Models and blendshapes is
 ## Usage
 
 * Tested with the following compilers: >=gcc-6, >=clang-5, >=Visual Studio 2017 15.5, >=Xcode 9.2.
-* The library and python bindings **do not require any external dependencies**. The example applications require Boost (>=1.50.0) and OpenCV (>=2.4.3).
+* The library and python bindings **do not require any external dependencies**. The example applications require Boost (>=1.71.0) and OpenCV (>=2.4.3).
 
 To use the library in your own project, just add the following directories to your include path:
 
 * `eos/include`
 * `eos/3rdparty/cereal/include`
-* `eos/3rdparty/glm`
 * `eos/3rdparty/nanoflann/include`
 * `eos/3rdparty/eigen/Eigen`
 * `eos/3rdparty/eigen3-nnls/src`
@@ -47,7 +46,7 @@ To use the library in your own project, just add the following directories to yo
 
 ### Build the examples and tests
 
-* Needed dependencies for the example app: CMake (>=3.8.2, or >=3.10.0 for MSVC), Boost system, filesystem, program_options (>=1.50.0), OpenCV core, imgproc, highgui (>=2.4.3).
+* Needed dependencies for the example app: CMake (>=3.8.2, or >=3.10.0 for MSVC), Boost system, filesystem, program_options (>=1.71.0), OpenCV core, imgproc, highgui (>=2.4.3).
 
 To build:
 
