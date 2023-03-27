@@ -44,7 +44,7 @@ class CMakeBuild(build_ext):
         build_args = ['--config', cfg]
 
         if platform.system() == "Windows":
-            cmake_args += ['-G', 'Visual Studio 16 2019']
+            cmake_args += ['-G', 'Visual Studio 17 2022']
             cmake_args += ['-DCMAKE_LIBRARY_OUTPUT_DIRECTORY_{}={}'.format(cfg.upper(), extdir)]
             build_args += ['--', '/m']
         else:
@@ -66,7 +66,7 @@ with open(os.path.join(this_directory, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='eos-py',
-    version='1.4.0',
+    version='1.4.0.post0',
     author='Patrik Huber',
     author_email='patrikhuber@gmail.com',
     description='Python bindings for eos - A lightweight 3D Morphable Face Model fitting library in modern C++11/14',
