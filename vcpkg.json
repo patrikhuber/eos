@@ -4,7 +4,11 @@
   "dependencies": [
     "boost-filesystem",
     "boost-program-options",
-    { "name": "opencv4", "features": ["jpeg", "png"] }
+    {
+      "name": "opencv4",
+      "features": [ "jpeg", "png" ],
+      "default-features": false
+    }
   ],
   "features": {
     "ceres": {
