@@ -189,7 +189,7 @@ int main(int argc, char* argv[])
     outputfile.replace_extension(".texture.png");
     cv::imwrite(outputfile.string(), core::to_mat(texturemap));
 
-    cout << "Finished fitting and wrote result mesh and texture to files with basename TEST"
+    cout << "Finished fitting and wrote result mesh and texture to files with basename TEST2"
          << outputfile.stem().stem() << "." << endl;
 
     return EXIT_SUCCESS;
