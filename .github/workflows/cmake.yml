@@ -2,9 +2,9 @@ name: CMake
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "master", "test-github-actions-vcpkg-cache" ]
   pull_request:
-    branches: [ "master" ]
+    branches: [ "master", "test-github-actions-vcpkg-cache" ]
 
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
