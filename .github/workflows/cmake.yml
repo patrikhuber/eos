@@ -1,0 +1,56 @@
+name: CMake
+
+on:
+  push:
+    branches: [ "master", "devel" ]
+  pull_request:
+    branches: [ "master", "devel" ]
+
+env:
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    # The CMake configure and build commands are platform agnostic and should work equally well on Windows or Mac.
+    # You can convert this to a matrix build if you need cross-platform coverage.
+    # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        submodules: true
+
+    - name: "Set VCPKG_ROOT environment variable"
+      shell: bash
+      run: |
+        echo "VCPKG_ROOT=$VCPKG_INSTALLATION_ROOT" >> $GITHUB_ENV
+
+    - name: Cache/restore vcpkg dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/vcpkg/archives/
+        key: ${{runner.OS}}-vcpkg-cache-${{ hashFiles('vcpkg.json', '.github/workflows/cmake.yml') }}
+        restore-keys: |
+          ${{runner.OS}}-vcpkg-cache-
+
+    - name: Configure CMake
+      # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
+      # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
+      run: >
+        cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+        -DCMAKE_TOOLCHAIN_FILE=${{env.VCPKG_ROOT}}/scripts/buildsystems/vcpkg.cmake
+        -DVCPKG_MANIFEST_FEATURES="ceres"
+        -DEOS_BUILD_CERES_EXAMPLES=ON -DEOS_BUILD_UTILS=ON -DEOS_GENERATE_PYTHON_BINDINGS=ON
+
+    - name: Build
+      # Build your program with the given configuration
+      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+
+    - name: Test
+      working-directory: ${{github.workspace}}/build
+      # Execute tests defined by the CMake configuration.
+      # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
+      run: ctest -C ${{env.BUILD_TYPE}}
+
