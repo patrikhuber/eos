@@ -19,6 +19,7 @@ on:
 env:
   # Path to the CMake build directory.
   build: '${{ github.workspace }}/build'
+  BUILD_TYPE: Debug
 
 permissions:
   contents: read
@@ -55,23 +56,26 @@ jobs:
         # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
         # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
         run: >
-          cmake -B ${{env.build}}
+          cmake -B ${{env.build}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
           -DCMAKE_TOOLCHAIN_FILE=${{env.VCPKG_ROOT}}/scripts/buildsystems/vcpkg.cmake
-          -DVCPKG_MANIFEST_FEATURES="ceres"
-          -DEOS_BUILD_CERES_EXAMPLE=ON -DEOS_BUILD_UTILS=ON -DEOS_GENERATE_PYTHON_BINDINGS=ON
+          -DVCPKG_MANIFEST_FEATURES=""
+          -DEOS_BUILD_CERES_EXAMPLE=OFF -DEOS_BUILD_UTILS=ON -DEOS_GENERATE_PYTHON_BINDINGS=OFF -DEOS_BUILD_EXAMPLES=OFF
 
       # Build is not required unless generated source files are used
       # - name: Build CMake
       #   run: cmake --build ${{ env.build }}
 
-      - name: Initialize MSVC Code Analysis
+      - name: Run MSVC Code Analysis
         uses: microsoft/msvc-code-analysis-action@96315324a485db21449515180214ecb78c16a1c5
         # Provide a unique ID to access the sarif output path
         id: run-analysis
         with:
           cmakeBuildDirectory: ${{ env.build }}
+          buildConfiguration: ${{ env.BUILD_TYPE }}
           # Ruleset file that will determine what checks will be run
           ruleset: NativeRecommendedRules.ruleset
+          # Paths to ignore analysis of CMake targets and includes
+          # ignoredPaths: ${{ github.workspace }}/dependencies;${{ github.workspace }}/test
 
       # Upload SARIF file to GitHub Code Scanning Alerts
       - name: Upload SARIF to GitHub
@@ -80,8 +84,8 @@ jobs:
           sarif_file: ${{ steps.run-analysis.outputs.sarif }}
 
       # Upload SARIF file as an Artifact to download and view
-      # - name: Upload SARIF as an Artifact
-      #   uses: actions/upload-artifact@v3
-      #   with:
-      #     name: sarif-file
-      #     path: ${{ steps.run-analysis.outputs.sarif }}
+      - name: Upload SARIF as an Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: sarif-file
+          path: ${{ steps.run-analysis.outputs.sarif }}
