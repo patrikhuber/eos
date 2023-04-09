@@ -42,7 +42,7 @@ jobs:
         cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
         -DCMAKE_TOOLCHAIN_FILE=${{env.VCPKG_ROOT}}/scripts/buildsystems/vcpkg.cmake
         -DVCPKG_MANIFEST_FEATURES="ceres"
-        -DEOS_BUILD_CERES_EXAMPLES=ON -DEOS_BUILD_UTILS=ON -DEOS_GENERATE_PYTHON_BINDINGS=ON
+        -DEOS_BUILD_CERES_EXAMPLE=ON -DEOS_BUILD_UTILS=ON -DEOS_GENERATE_PYTHON_BINDINGS=ON
 
     - name: Build
       # Build your program with the given configuration
