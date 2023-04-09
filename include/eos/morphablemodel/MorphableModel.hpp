@@ -406,6 +406,18 @@ public:
     };
 
     /**
+     * Sets the landmark definitions for this Morphable Model.
+     *
+     * The landmark definitions are define mappings from a set of global landmark identifiers, like for
+     * example "eye.right.outer_corner", to the model's respective vertex indices.
+     *
+     */
+    const void set_landmark_definitions(cpp17::optional<std::unordered_map<std::string, int>> updated_landmark_definitions)
+    {
+        landmark_definitions = updated_landmark_definitions;
+    };
+
+    /**
      * Returns the texture coordinates for all the vertices in the model.
      *
      * @return The texture coordinates for the model vertices.
