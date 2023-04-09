@@ -1,0 +1,19 @@
+{
+  "name": "eos",
+  "version": "1.4.0",
+  "dependencies": [
+    "boost-filesystem",
+    "boost-program-options",
+    {
+      "name": "opencv4",
+      "features": [ "jpeg", "png" ],
+      "default-features": false
+    }
+  ],
+  "features": {
+    "ceres": {
+      "description": "Required for non-linear fitting",
+      "dependencies": [ "ceres" ]
+    }
+  }
+}
