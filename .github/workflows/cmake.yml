@@ -25,6 +25,7 @@ jobs:
     runs-on: ${{matrix.config.os}}
 
     env:
+      # Set cache_path to the vcpkg default Windows directory if the OS is Windows, otherwise set it to the default Linux / macOS directory:
       cache_path: ${{ startsWith(matrix.config.os, 'windows') && 'C:/Users/runneradmin/AppData/Local/vcpkg/archives/' || '~/.cache/vcpkg/archives/' }}
 
     steps:
