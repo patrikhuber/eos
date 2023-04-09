@@ -20,12 +20,12 @@ jobs:
       matrix:
         config:
         - os: windows-latest
-          cache_path: "C:/Users/runneradmin/AppData/Local/vcpkg/archives/"
         - os: ubuntu-latest
-          cache_path: "~/.cache/vcpkg/archives/"
         - os: macos-latest
-          cache_path: "~/.cache/vcpkg/archives/"
     runs-on: ${{matrix.config.os}}
+
+    env:
+      cache_path: ${{ startsWith(matrix.config.os, 'windows') && 'C:/Users/runneradmin/AppData/Local/vcpkg/archives/' || '~/.cache/vcpkg/archives/' }}
 
     steps:
     - uses: actions/checkout@v3
@@ -40,7 +40,7 @@ jobs:
     - name: Cache/restore vcpkg dependencies
       uses: actions/cache@v3
       with:
-        path: ${{matrix.config.cache_path}}
+        path: ${{env.cache_path}}
         key: ${{runner.OS}}-vcpkg-cache-${{ hashFiles('vcpkg.json', '.github/workflows/cmake.yml') }}
         restore-keys: |
           ${{runner.OS}}-vcpkg-cache-
