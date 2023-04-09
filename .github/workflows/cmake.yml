@@ -22,7 +22,7 @@ jobs:
       with:
         submodules: true
 
-    - name: "Set VCPKG_ROOT environmental variable"
+    - name: "Set VCPKG_ROOT environment variable"
       shell: bash
       run: |
         echo "VCPKG_ROOT=$VCPKG_INSTALLATION_ROOT" >> $GITHUB_ENV
@@ -31,6 +31,12 @@ jobs:
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
       run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_TOOLCHAIN_FILE=${{env.VCPKG_ROOT}}/scripts/buildsystems/vcpkg.cmake -DVCPKG_MANIFEST_FEATURES="ceres"
+
+    - name: Cache vcpkg dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/vcpkg/archives/
+        key: ${{ runner.OS }}-vcpkg-cache
 
     - name: Build
       # Build your program with the given configuration
