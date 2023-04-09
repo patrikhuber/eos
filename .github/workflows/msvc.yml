@@ -10,7 +10,7 @@ name: Microsoft C++ Code Analysis
 
 on:
   push:
-    branches: [ "master", devel ]
+    branches: [ "master", devel, github-actions-msvc-code-analysis-playground ]
   pull_request:
     branches: [ "master" ]
   schedule:
