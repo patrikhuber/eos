@@ -1,0 +1,90 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+#
+# Find more information at:
+# https://github.com/microsoft/msvc-code-analysis-action
+
+name: Microsoft C++ Code Analysis
+
+on:
+  push:
+    branches: [ "master", devel ]
+  pull_request:
+    branches: [ "master" ]
+  schedule:
+    - cron: '38 1 * * 0'
+
+env:
+  # Path to the CMake build directory.
+  build: '${{ github.workspace }}/build'
+  BUILD_TYPE: Debug
+
+permissions:
+  contents: read
+
+jobs:
+  analyze:
+    permissions:
+      contents: read # for actions/checkout to fetch code
+      security-events: write # for github/codeql-action/upload-sarif to upload SARIF results
+      actions: read # only required for a private repository by github/codeql-action/upload-sarif to get the Action run status
+    name: Analyze
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+
+      - name: "Set VCPKG_ROOT environment variable"
+        shell: bash
+        run: |
+          echo "VCPKG_ROOT=$VCPKG_INSTALLATION_ROOT" >> $GITHUB_ENV
+
+      - name: Cache/restore vcpkg dependencies
+        uses: actions/cache@v3
+        with:
+          path: C:/Users/runneradmin/AppData/Local/vcpkg/archives/
+          key: ${{runner.OS}}-vcpkg-cache-${{ hashFiles('vcpkg.json', '.github/workflows/cmake.yml') }}
+          restore-keys: |
+            ${{runner.OS}}-vcpkg-cache-
+
+      - name: Configure CMake
+        # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
+        # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
+        run: >
+          cmake -B ${{env.build}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+          -DCMAKE_TOOLCHAIN_FILE=${{env.VCPKG_ROOT}}/scripts/buildsystems/vcpkg.cmake
+          -DVCPKG_MANIFEST_FEATURES="ceres"
+          -DEOS_BUILD_CERES_EXAMPLE=ON -DEOS_BUILD_UTILS=ON -DEOS_GENERATE_PYTHON_BINDINGS=ON
+      # Build is not required unless generated source files are used
+      # - name: Build CMake
+      #   run: cmake --build ${{ env.build }}
+
+      - name: Run MSVC Code Analysis
+        uses: microsoft/msvc-code-analysis-action@96315324a485db21449515180214ecb78c16a1c5
+        # Provide a unique ID to access the sarif output path
+        id: run-analysis
+        with:
+          cmakeBuildDirectory: ${{ env.build }}
+          buildConfiguration: ${{ env.BUILD_TYPE }}
+          # Ruleset file that will determine what checks will be run
+          ruleset: NativeRecommendedRules.ruleset
+          # Paths to ignore analysis of CMake targets and includes
+          # ignoredPaths: ${{ github.workspace }}/dependencies;${{ github.workspace }}/test
+
+      # Upload SARIF file to GitHub Code Scanning Alerts
+      - name: Upload SARIF to GitHub
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: ${{ steps.run-analysis.outputs.sarif }}
+
+      # Upload SARIF file as an Artifact to download and view
+      - name: Upload SARIF as an Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: sarif-file
+          path: ${{ steps.run-analysis.outputs.sarif }}
