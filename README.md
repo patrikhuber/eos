@@ -1,13 +1,11 @@
 # eos: A lightweight header-only 3D Morphable Face Model fitting library in modern C++11/14.
 [![Latest release](http://img.shields.io/github/release/patrikhuber/eos.svg?style=flat-square)][release]
-[![Linux build status of master branch](https://img.shields.io/travis/patrikhuber/eos/master.svg?style=flat-square&label=Linux/macOS%3A%20build)][travis]
-[![Windows build status of master branch](https://ci.appveyor.com/api/projects/status/gekekpn08cdgqcsk/branch/master?svg=true&passingText=Windows%3A%20build%20passing&failingText=Windows%3A%20build%20failing&pendingText=Windows%3A%20build%20pending)][appveyor]
+[![Build status of master branch](https://github.com/patrikhuber/eos/actions/workflows/cmake.yml/badge.svg)][github-actions-build]
 [![Apache License 2.0](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg?style=flat-square)][license]
 [![Sponsor eos on GitHub Sponsors](https://img.shields.io/static/v1?style=flat-square&label=Sponsor&message=%E2%9D%A4&logo=GitHub)][sponsor]
 
 [release]: https://github.com/patrikhuber/eos/releases
-[travis]: https://travis-ci.org/patrikhuber/eos
-[appveyor]: https://ci.appveyor.com/project/patrikhuber/eos/branch/master
+[github-actions-build]: https://github.com/patrikhuber/eos/actions
 [license]: https://github.com/patrikhuber/eos/blob/master/LICENSE
 [sponsor]: https://github.com/sponsors/patrikhuber
 
