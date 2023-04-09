@@ -612,20 +612,28 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
  * @return The fitted model shape instance and the final pose.
  */
 inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
-    const morphablemodel::MorphableModel& morphable_model, const std::vector<Eigen::Vector2f>& image_points,
-    const std::vector<int>& vertex_indices, int image_width, int image_height, int num_iterations,
+    const morphablemodel::MorphableModel& morphable_model,
+    const core::LandmarkCollection<Eigen::Vector2f>& landmarks, const core::LandmarkMapper& landmark_mapper,
+    int image_width, int image_height, int num_iterations,
     cpp17::optional<int> num_shape_coefficients_to_fit, float lambda_identity,
     cpp17::optional<int> num_expression_coefficients_to_fit, cpp17::optional<float> lambda_expressions,
     std::vector<float>& pca_shape_coefficients, std::vector<float>& expression_coefficients,
     std::vector<Eigen::Vector2f>& fitted_image_points)
 {
-    // assert(blendshapes.size() > 0);
-    assert(image_points.size() >= 4);
-    assert(image_points.size() == vertex_indices.size());
+    assert(landmarks.size() >= 4);
     assert(image_width > 0 && image_height > 0);
     assert(num_iterations > 0); // Can we allow 0, for only the initial pose-fit?
     assert(pca_shape_coefficients.size() <= morphable_model.get_shape_model().get_num_principal_components());
     // More asserts I forgot?
+    if (num_shape_coefficients_to_fit)
+    {
+        if (num_shape_coefficients_to_fit.value() >
+            morphable_model.get_shape_model().get_num_principal_components())
+        {
+            throw std::runtime_error(
+                "Specified more shape coefficients to fit than the given shape model contains.");
+        }
+    }
 
     using Eigen::MatrixXf;
     using Eigen::Vector2f;
@@ -667,13 +675,42 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
 
     // The 2D and 3D point correspondences used for the fitting:
     vector<Vector4f> model_points; // the points in the 3D shape model
-    // Get the model points corresponding to the given image points (mean if given no initial coeffs, from the computed shape otherwise):
-    for (int i = 0; i < image_points.size(); ++i)
+    vector<int> vertex_indices; // their vertex indices
+    vector<Vector2f> image_points; // the corresponding 2D landmark points
+
+    // Sub-select all the landmarks which we have a mapping for (i.e. that are defined in the 3DMM),
+    // and get the corresponding model points (mean if given no initial coeffs, from the computed shape otherwise):
+    for (int i = 0; i < landmarks.size(); ++i)
     {
-        const int vertex_idx = vertex_indices[i];
-        Vector4f vertex(current_mesh.vertices[vertex_idx][0], current_mesh.vertices[vertex_idx][1],
-                        current_mesh.vertices[vertex_idx][2], 1.0f);
-        model_points.emplace_back(vertex);
+        const auto converted_name = landmark_mapper.convert(landmarks[i].name);
+        if (!converted_name)
+        { // no mapping defined for the current landmark
+            continue;
+        }
+        // If the MorphableModel does not contain landmark definitions, we expect the user to have given us
+        // direct mappings (e.g. directly from ibug identifiers to vertex ids). If the model does contain
+        // landmark definitions, we expect the user to use mappings from their landmark identifiers (e.g.
+        // ibug) to the landmark definitions, and not to vertex indices.
+        // Todo: This might be worth mentioning in the function documentation of fit_shape_and_pose.
+        int vertex_idx;
+        if (morphable_model.get_landmark_definitions())
+        {
+            const auto found_vertex_idx =
+                morphable_model.get_landmark_definitions().value().find(converted_name.value());
+            if (found_vertex_idx != std::end(morphable_model.get_landmark_definitions().value()))
+            {
+                vertex_idx = found_vertex_idx->second;
+            } else
+            {
+                continue;
+            }
+        } else
+        {
+            vertex_idx = std::stoi(converted_name.value());
+        }
+        model_points.emplace_back(current_mesh.vertices[vertex_idx].homogeneous());
+        vertex_indices.emplace_back(vertex_idx);
+        image_points.emplace_back(landmarks[i].coordinates);
     }
 
     // Need to do an initial pose fit to do the contour fitting inside the loop.
@@ -764,15 +801,15 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
  * @return The fitted model shape instance and the final pose.
  */
 inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
-    const morphablemodel::MorphableModel& morphable_model, const std::vector<Eigen::Vector2f>& image_points,
-    const std::vector<int>& vertex_indices, int image_width, int image_height, int num_iterations,
+    const morphablemodel::MorphableModel& morphable_model, const core::LandmarkCollection<Eigen::Vector2f>& landmarks,
+    const core::LandmarkMapper& landmark_mapper, int image_width, int image_height, int num_iterations,
     cpp17::optional<int> num_shape_coefficients_to_fit, float lambda_identity,
     cpp17::optional<int> num_expression_coefficients_to_fit, cpp17::optional<float> lambda_expressions)
 {
     std::vector<float> pca_coeffs;
     std::vector<float> blendshape_coeffs;
     std::vector<Eigen::Vector2f> fitted_image_points;
-    return fit_shape_and_pose(morphable_model, image_points, vertex_indices, image_width, image_height,
+    return fit_shape_and_pose(morphable_model, landmarks, landmark_mapper, image_width, image_height,
                               num_iterations, num_shape_coefficients_to_fit, lambda_identity,
                               num_expression_coefficients_to_fit, lambda_expressions, pca_coeffs,
                               blendshape_coeffs, fitted_image_points);
