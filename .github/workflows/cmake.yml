@@ -27,6 +27,14 @@ jobs:
       run: |
         echo "VCPKG_ROOT=$VCPKG_INSTALLATION_ROOT" >> $GITHUB_ENV
 
+    - name: Cache/restore vcpkg dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/vcpkg/archives/
+        key: ${{runner.OS}}-vcpkg-cache-${{ hashFiles('vcpkg.json', '.github/workflows/cmake.yml') }}
+        restore-keys: |
+          ${{runner.OS}}-vcpkg-cache-
+
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
