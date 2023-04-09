@@ -31,7 +31,7 @@ jobs:
       uses: actions/cache@v3
       with:
         path: ~/.cache/vcpkg/archives/
-        key: ${{runner.OS}}-vcpkg-cache-${{ hashFiles('vcpkg.json') }}
+        key: ${{runner.OS}}-vcpkg-cache-${{ hashFiles('vcpkg.json', '.github/workflows/cmake.yml') }}
         restore-keys: |
           ${{runner.OS}}-vcpkg-cache-
 
