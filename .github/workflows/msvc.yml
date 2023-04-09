@@ -58,7 +58,7 @@ jobs:
           cmake -B ${{env.build}}
           -DCMAKE_TOOLCHAIN_FILE=${{env.VCPKG_ROOT}}/scripts/buildsystems/vcpkg.cmake
           -DVCPKG_MANIFEST_FEATURES="ceres"
-          -DEOS_BUILD_CERES_EXAMPLES=ON -DEOS_BUILD_UTILS=ON -DEOS_GENERATE_PYTHON_BINDINGS=ON
+          -DEOS_BUILD_CERES_EXAMPLE=ON -DEOS_BUILD_UTILS=ON -DEOS_GENERATE_PYTHON_BINDINGS=ON
 
       # Build is not required unless generated source files are used
       # - name: Build CMake
