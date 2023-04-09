@@ -31,7 +31,9 @@ jobs:
       uses: actions/cache@v3
       with:
         path: ~/.cache/vcpkg/archives/
-        key: ${{ runner.OS }}-vcpkg-cache
+        key: ${{runner.OS}}-vcpkg-cache-${{ hashFiles('vcpkg.json') }}
+        restore-keys: |
+          ${{runner.OS}}-vcpkg-cache-
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
