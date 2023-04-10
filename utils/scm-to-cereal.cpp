@@ -89,6 +89,6 @@ int main(int argc, char* argv[])
         morphablemodel::save_model(morphable_model, outputfile);
     }
 
-    cout << "Saved converted model as " << outputfile << "." << endl;
+    cout << "Saved converted model as TEST " << outputfile << "." << endl;
     return EXIT_SUCCESS;
 }
