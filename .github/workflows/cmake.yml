@@ -18,14 +18,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        config:
-        - os: windows-latest
-          cache_path: "C:/Users/runneradmin/AppData/Local/vcpkg/archives/"
-        - os: ubuntu-latest
-          cache_path: "~/.cache/vcpkg/archives/"
-        - os: macos-latest
-          cache_path: "~/.cache/vcpkg/archives/"
-    runs-on: ${{matrix.config.os}}
+        os: [windows-latest, windows-2019, ubuntu-latest, ubuntu-20.04, macos-latest, macos-11]
+    
+    runs-on: ${{matrix.os}}
+
+    env:
+      # Set cache_path to the vcpkg default Windows directory if the OS is Windows, otherwise set it to the default Linux / macOS directory:
+      cache_path: ${{ startsWith(matrix.os, 'windows') && 'C:/Users/runneradmin/AppData/Local/vcpkg/archives/' || '~/.cache/vcpkg/archives/' }}
 
     steps:
     - uses: actions/checkout@v3
@@ -40,10 +39,10 @@ jobs:
     - name: Cache/restore vcpkg dependencies
       uses: actions/cache@v3
       with:
-        path: ${{matrix.config.cache_path}}
-        key: ${{runner.OS}}-vcpkg-cache-${{ hashFiles('vcpkg.json', '.github/workflows/cmake.yml') }}
+        path: ${{env.cache_path}}
+        key: ${{matrix.os}}-vcpkg-cache-${{ hashFiles('vcpkg.json', '.github/workflows/cmake.yml') }}
         restore-keys: |
-          ${{runner.OS}}-vcpkg-cache-
+          ${{matrix.os}}-vcpkg-cache-
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
