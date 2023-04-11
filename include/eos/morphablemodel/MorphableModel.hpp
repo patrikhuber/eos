@@ -63,11 +63,12 @@ core::Mesh sample_to_mesh(
     const std::vector<std::array<int, 3>>& texture_triangle_indices = std::vector<std::array<int, 3>>());
 
 /**
- * @brief A class representing a 3D Morphable Model, consisting
- * of a shape- and colour (albedo) PCA model.
+ * @brief A class representing a 3D Morphable Model, consisting of a shape- and colour (albedo) PCA model. It
+ * can additionally contain an optional expression model, which can be a PCA model or consist of linear
+ * expression blendshapes.
  *
- * For the general idea of 3DMMs see T. Vetter, V. Blanz,
- * 'A Morphable Model for the Synthesis of 3D Faces', SIGGRAPH 1999.
+ * For the general idea of 3DMMs see T. Vetter, V. Blanz, 'A Morphable Model for the Synthesis of 3D Faces',
+ * SIGGRAPH 1999.
  */
 class MorphableModel
 {
