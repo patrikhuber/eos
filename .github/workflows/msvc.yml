@@ -12,7 +12,7 @@ on:
   push:
     branches: [ "master", devel ]
   pull_request:
-    branches: [ "master" ]
+    branches: [ "master", devel ]
   schedule:
     - cron: '38 1 * * 0'
 
