@@ -394,7 +394,7 @@ public:
      * Returns the landmark definitions for this Morphable Model, which might be an empty optional, if the
      * model doesn't contain any.
      *
-     * The landmark definitions are define mappings from a set of global landmark identifiers, like for
+     * The landmark definitions define mappings from a set of global landmark identifiers, like for
      * example "eye.right.outer_corner", to the model's respective vertex indices.
      * A MorphableModel may or may not contain these landmark definitions, depending on how it was created.
      *
@@ -408,13 +408,12 @@ public:
     /**
      * Sets the landmark definitions for this Morphable Model.
      *
-     * The landmark definitions are define mappings from a set of global landmark identifiers, like for
+     * The landmark definitions define mappings from a set of global landmark identifiers, like for
      * example "eye.right.outer_corner", to the model's respective vertex indices.
-     *
      */
-    const void set_landmark_definitions(cpp17::optional<std::unordered_map<std::string, int>> updated_landmark_definitions)
+    void set_landmark_definitions(std::unordered_map<std::string, int> landmark_definitions)
     {
-        landmark_definitions = updated_landmark_definitions;
+        landmark_definitions = landmark_definitions;
     };
 
     /**

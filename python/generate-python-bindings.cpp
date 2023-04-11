@@ -208,7 +208,7 @@ PYBIND11_MODULE(eos, eos_module)
         .def("has_color_model", &morphablemodel::MorphableModel::has_color_model, "Returns true if this Morphable Model contains a colour model, and false if it is a shape-only model.")
         .def("has_separate_expression_model", &morphablemodel::MorphableModel::has_separate_expression_model, "Returns true if this Morphable Model contains a separate PCA or Blendshapes expression model.")
         .def("get_landmark_definitions", &morphablemodel::MorphableModel::get_landmark_definitions, "Returns the landmark definitions for this Morphable Model, which might be an empty optional, if the model doesn't contain any.")
-        .def("set_landmark_definitions", &morphablemodel::MorphableModel::set_landmark_definitions, "Sets the landmark definitions for this Morphable Model.", py::arg("updated_landmark_definitions"))
+        .def("set_landmark_definitions", &morphablemodel::MorphableModel::set_landmark_definitions, "Sets the landmark definitions for this Morphable Model.", py::arg("landmark_definitions"))
         .def("get_texture_coordinates", &morphablemodel::MorphableModel::get_texture_coordinates, "Returns the texture coordinates for all the vertices in the model.")
         .def("get_texture_triangle_indices", &morphablemodel::MorphableModel::get_texture_triangle_indices, "Returns the triangulation (the triangles that make up the uv mapping) for the texture coordinates.")
         .def("get_expression_model_type", &morphablemodel::MorphableModel::get_expression_model_type, "Returns the type of the expression model: None, Blendshapes or PcaModel.");
