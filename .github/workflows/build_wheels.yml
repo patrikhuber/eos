@@ -1,0 +1,63 @@
+name: Build Python wheels
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  build_wheels:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest, ubuntu-20.04, macos-latest, macos-11]
+        python-version: ['3.8', '3.9', '3.10', '3.11']
+
+    name: ${{matrix.os}}, python-${{matrix.python-version}}
+
+    runs-on: ${{matrix.os}}
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        submodules: true
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install setuptools wheel
+    - name: Build Wheel
+      run: |
+        python setup.py bdist_wheel
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ matrix.os }}-python${{ matrix.python-version }}-whl
+        path: dist/*.whl
+
+  build_sdist:
+    name: sdist
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        submodules: true
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install setuptools wheel
+    - name: Build sdist
+      run: |
+        python setup.py sdist
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: Source distribution (sdist)
+        path: dist/*.*
