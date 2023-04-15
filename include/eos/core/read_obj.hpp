@@ -274,22 +274,25 @@ inline Mesh read_obj(std::string filename)
         if (starts_with(line, "f "))
         {
             const auto face_data = detail::parse_face(line.substr(2));
-            if (std::get<0>(face_data).size() == 3) // 3 triangle indices, nothing to do:
-            {
-                mesh.tvi.push_back(
-                    {std::get<0>(face_data)[0], std::get<0>(face_data)[1], std::get<0>(face_data)[2]});
-            }
-            // If their sizes are 4, we convert the quad to two triangles:
-            // Note: I think MeshLab does the same, it shows the number of "Faces" as twice the "f" entries
-            // in the obj.
-            else if (std::get<0>(face_data).size() == 4)
-            {
-                // Just create two faces with (quad[0], quad[1], quad[2]) and (quad[0], quad[2], quad[3]).
-                mesh.tvi.push_back(
-                    {std::get<0>(face_data)[0], std::get<0>(face_data)[1], std::get<0>(face_data)[2]});
-                mesh.tvi.push_back(
-                    {std::get<0>(face_data)[0], std::get<0>(face_data)[2], std::get<0>(face_data)[3]});
-            }
+        	auto process_face = [](auto data, auto & vec)
+        	{
+        		// 3 triangle indices, nothing to do:
+				if (data.size() == 3)
+				{
+					vec.push_back({data[0], data[1], data[2]});
+				}
+				// If their sizes are 4, we convert the quad to two triangles:
+				// Note: I think MeshLab does the same, it shows the number of "Faces" as twice the "f" entries
+				// in the obj.
+				else if (data.size() == 4)
+				{
+					// Just create two faces with (quad[0], quad[1], quad[2]) and (quad[0], quad[2], quad[3]).
+					vec.push_back({data[0], data[1], data[2]});
+					vec.push_back({data[0], data[2], data[3]});
+				}
+        	};
+        	process_face(std::get<0>(face_data), mesh.tvi);
+        	process_face(std::get<1>(face_data), mesh.tti);
             // We don't handle normal_indices for now.
         }
         // There can be other stuff in obj's like materials, named objects, etc., which are not handled here.
