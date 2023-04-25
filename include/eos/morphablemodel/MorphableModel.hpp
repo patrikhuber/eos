@@ -412,9 +412,9 @@ public:
      * The landmark definitions define mappings from a set of global landmark identifiers, like for
      * example "eye.right.outer_corner", to the model's respective vertex indices.
      */
-    void set_landmark_definitions(std::unordered_map<std::string, int> landmark_definitions)
+    void set_landmark_definitions(cpp17::optional<std::unordered_map<std::string, int>> landmark_definitions)
     {
-        landmark_definitions = landmark_definitions;
+        this->landmark_definitions = landmark_definitions;
     };
 
     /**
