@@ -612,6 +612,214 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
  * @return The fitted model shape instance and the final pose.
  */
 inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
+    const morphablemodel::MorphableModel& morphable_model, const std::vector<Eigen::Vector2f>& image_points,
+    const std::vector<int>& vertex_indices, int image_width, int image_height, int num_iterations,
+    cpp17::optional<int> num_shape_coefficients_to_fit, float lambda_identity,
+    cpp17::optional<int> num_expression_coefficients_to_fit, cpp17::optional<float> lambda_expressions,
+    std::vector<float>& pca_shape_coefficients, std::vector<float>& expression_coefficients,
+    std::vector<Eigen::Vector2f>& fitted_image_points)
+{
+    // assert(blendshapes.size() > 0);
+    assert(image_points.size() >= 4);
+    assert(image_points.size() == vertex_indices.size());
+    assert(image_width > 0 && image_height > 0);
+    assert(num_iterations > 0); // Can we allow 0, for only the initial pose-fit?
+    assert(pca_shape_coefficients.size() <= morphable_model.get_shape_model().get_num_principal_components());
+    // More asserts I forgot?
+
+    using Eigen::MatrixXf;
+    using Eigen::Vector2f;
+    using Eigen::Vector4f;
+    using Eigen::VectorXf;
+    using std::vector;
+
+    if (!num_shape_coefficients_to_fit)
+    {
+        num_shape_coefficients_to_fit = morphable_model.get_shape_model().get_num_principal_components();
+    }
+
+    if (pca_shape_coefficients.empty())
+    {
+        pca_shape_coefficients.resize(num_shape_coefficients_to_fit.value());
+    }
+    // Todo: This leaves the following case open: num_coeffs given is empty or defined, but the
+    // pca_shape_coefficients given is != num_coeffs or the model's max-coeffs. What to do then? Handle & document!
+
+    /*if (expression_coefficients.empty())
+    {
+        expression_coefficients.resize(blendshapes.size());
+    }*/
+
+    // Current mesh - either from the given coefficients, or the mean:
+    VectorXf current_pca_shape = morphable_model.get_shape_model().draw_sample(pca_shape_coefficients);
+    assert(morphable_model.has_separate_expression_model()); // Note: We could also just skip the expression fitting in this case.
+    // Note we don't check whether the shape and expression model dimensions match.
+    // Note: We're calling this in a loop, and morphablemodel::to_matrix(expression_blendshapes) now gets
+    // called again in every fitting iteration.
+    VectorXf current_combined_shape =
+        current_pca_shape +
+        draw_sample(morphable_model.get_expression_model().value(), expression_coefficients);
+    auto current_mesh = morphablemodel::sample_to_mesh(
+        current_combined_shape, morphable_model.get_color_model().get_mean(),
+        morphable_model.get_shape_model().get_triangle_list(),
+        morphable_model.get_color_model().get_triangle_list(), morphable_model.get_texture_coordinates(),
+        morphable_model.get_texture_triangle_indices());
+
+    // The 2D and 3D point correspondences used for the fitting:
+    vector<Vector4f> model_points; // the points in the 3D shape model
+    // Get the model points corresponding to the given image points (mean if given no initial coeffs, from the computed shape otherwise):
+    for (int i = 0; i < image_points.size(); ++i)
+    {
+        const int vertex_idx = vertex_indices[i];
+        Vector4f vertex(current_mesh.vertices[vertex_idx][0], current_mesh.vertices[vertex_idx][1],
+                        current_mesh.vertices[vertex_idx][2], 1.0f);
+        model_points.emplace_back(vertex);
+    }
+
+    // Need to do an initial pose fit to do the contour fitting inside the loop.
+    // We'll do an expression fit too, since face shapes vary quite a lot, depending on expressions.
+    fitting::ScaledOrthoProjectionParameters current_pose =
+        fitting::estimate_orthographic_projection_linear(image_points, model_points, true, image_height);
+    fitting::RenderingParameters rendering_params(current_pose, image_width, image_height);
+
+    const Eigen::Matrix<float, 3, 4> affine_from_ortho =
+        fitting::get_3x4_affine_camera_matrix(rendering_params, image_width, image_height);
+    expression_coefficients =
+        fit_expressions(morphable_model.get_expression_model().value(), current_pca_shape, affine_from_ortho,
+                        image_points, vertex_indices, lambda_expressions, num_expression_coefficients_to_fit);
+
+    // Mesh with same PCA coeffs as before, but new expression fit (this is relevant if no initial blendshape coeffs have been given):
+    current_combined_shape = current_pca_shape + draw_sample(morphable_model.get_expression_model().value(),
+                                                             expression_coefficients);
+    current_mesh = morphablemodel::sample_to_mesh(
+        current_combined_shape, morphable_model.get_color_model().get_mean(),
+        morphable_model.get_shape_model().get_triangle_list(),
+        morphable_model.get_color_model().get_triangle_list(), morphable_model.get_texture_coordinates(),
+        morphable_model.get_texture_triangle_indices());
+
+    for (int i = 0; i < num_iterations; ++i)
+    {
+        // Get the model points of the current mesh, for all correspondences that we've got:
+        model_points.clear();
+        for (auto v : vertex_indices)
+        {
+            model_points.push_back({current_mesh.vertices[v][0], current_mesh.vertices[v][1],
+                                    current_mesh.vertices[v][2], 1.0f});
+        }
+
+        // Re-estimate the pose, using all correspondences:
+        current_pose =
+            fitting::estimate_orthographic_projection_linear(image_points, model_points, true, image_height);
+        rendering_params = fitting::RenderingParameters(current_pose, image_width, image_height);
+
+        const Eigen::Matrix<float, 3, 4> affine_from_ortho =
+            fitting::get_3x4_affine_camera_matrix(rendering_params, image_width, image_height);
+
+        // Estimate the PCA shape coefficients with the current blendshape coefficients:
+        const VectorXf mean_plus_expressions =
+            morphable_model.get_shape_model().get_mean() +
+            draw_sample(morphable_model.get_expression_model().value(), expression_coefficients);
+        pca_shape_coefficients = fitting::fit_shape_to_landmarks_linear(
+            morphable_model.get_shape_model(), affine_from_ortho, image_points, vertex_indices,
+            mean_plus_expressions, lambda_identity, num_shape_coefficients_to_fit);
+
+        // Estimate the blendshape coefficients with the current PCA model estimate:
+        current_pca_shape = morphable_model.get_shape_model().draw_sample(pca_shape_coefficients);
+        expression_coefficients = fit_expressions(
+            morphable_model.get_expression_model().value(), current_pca_shape, affine_from_ortho,
+            image_points, vertex_indices, lambda_expressions, num_expression_coefficients_to_fit);
+
+        current_combined_shape =
+            current_pca_shape +
+            draw_sample(morphable_model.get_expression_model().value(), expression_coefficients);
+        current_mesh = morphablemodel::sample_to_mesh(
+            current_combined_shape, morphable_model.get_color_model().get_mean(),
+            morphable_model.get_shape_model().get_triangle_list(),
+            morphable_model.get_color_model().get_triangle_list(), morphable_model.get_texture_coordinates(),
+            morphable_model.get_texture_triangle_indices());
+    }
+
+    fitted_image_points = image_points;
+    return {current_mesh, rendering_params}; // I think we could also work with a VectorXf face_instance in
+                                             // this function instead of a Mesh, but it would convolute the
+                                             // code more (i.e. more complicated to access vertices).
+};
+
+/**
+ * @brief Fit the pose (camera), shape model, and expression blendshapes to landmarks,
+ * in an iterative way, given fixed landmarks-to-vertex correspondences.
+ *
+ * This is a convenience overload without the last 3 in/out parameters of above function.
+ *
+ * @param[in] morphable_model The 3D Morphable Model used for the shape fitting.
+ * @param[in] image_points 2D image points to fit the model to.
+ * @param[in] vertex_indices The 3D vertex indices corresponding to the given image_points.
+ * @param[in] image_width Width of the input image (needed for the camera model).
+ * @param[in] image_height Height of the input image (needed for the camera model).
+ * @param[in] num_iterations Number of iterations that the different fitting parts will be alternated for.
+ * @param[in] num_shape_coefficients_to_fit How many shape-coefficients to fit (all others will stay 0). Should be bigger than zero, or std::nullopt to fit all coefficients.
+ * @param[in] lambda_identity Regularisation parameter of the PCA shape fitting.
+ * @param[in] num_expression_coefficients_to_fit How many shape-coefficients to fit (all others will stay 0). Should be bigger than zero, or std::nullopt to fit all coefficients. Only used for expression-PCA fitting.
+ * @param[in] lambda_expressions Regularisation parameter of the expression fitting. Only used for expression-PCA fitting.
+ * @return The fitted model shape instance and the final pose.
+ */
+inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
+    const morphablemodel::MorphableModel& morphable_model, const std::vector<Eigen::Vector2f>& image_points,
+    const std::vector<int>& vertex_indices, int image_width, int image_height, int num_iterations,
+    cpp17::optional<int> num_shape_coefficients_to_fit, float lambda_identity,
+    cpp17::optional<int> num_expression_coefficients_to_fit, cpp17::optional<float> lambda_expressions)
+{
+    std::vector<float> pca_coeffs;
+    std::vector<float> blendshape_coeffs;
+    std::vector<Eigen::Vector2f> fitted_image_points;
+    return fit_shape_and_pose(morphable_model, image_points, vertex_indices, image_width, image_height,
+                              num_iterations, num_shape_coefficients_to_fit, lambda_identity,
+                              num_expression_coefficients_to_fit, lambda_expressions, pca_coeffs,
+                              blendshape_coeffs, fitted_image_points);
+};
+
+/**
+ * @brief Fit the pose (camera), shape model, and expression blendshapes to landmarks,
+ * in an iterative way.
+ *
+ * Convenience function that fits pose (camera), the shape model, and expression blendshapes
+ * to landmarks, in an iterative (alternating) way. It uses the given, fixed landmarks-to-vertex
+ * correspondences, and does not use any dynamic contour fitting.
+ *
+ * If \p pca_shape_coefficients and/or \p blendshape_coefficients are given, they are used as
+ * starting values in the fitting. When the function returns, they contain the coefficients from
+ * the last iteration.
+ *
+ * \p num_iterations: Results are good for even a single iteration. For single-image fitting and
+ * for full convergence of all parameters, it can take up to 300 iterations. In tracking,
+ * particularly if initialising with the previous frame, it works well with as low as 1 to 5
+ * iterations.
+ * \p edge_topology is used for the occluding-edge face contour fitting.
+ * \p contour_landmarks and \p model_contour are used to fit the front-facing contour.
+ *
+ * Note: If the given \p morphable_model contains a PCA expression model, alternating the shape identity and
+ * expression fitting is theoretically not needed - the basis matrices could be stacked, and then both
+ * coefficients could be solved for in one go. The two bases are most likely not orthogonal though.
+ * In any case, alternating hopefully doesn't do any harm.
+ *
+ * Todo: Add a convergence criterion.
+ *
+ * @param[in] morphable_model The 3D Morphable Model used for the shape fitting.
+ * @param[in] landmarks A LandmarkCollection of 2D landmarks.
+ * @param[in] landmark_mapper A mapper which maps the 2D landmark identifiers to 3D model vertex indices.
+ * @param[in] image_width Width of the input image (needed for the camera model).
+ * @param[in] image_height Height of the input image (needed for the camera model).
+ * @param[in] num_iterations Number of iterations that the different fitting parts will be alternated for.
+ * @param[in] num_shape_coefficients_to_fit How many shape-coefficients to fit (all others will stay 0). Should be bigger than zero, or std::nullopt to fit all coefficients.
+ * @param[in] lambda_identity Regularisation parameter of the PCA shape fitting.
+ * @param[in] num_expression_coefficients_to_fit How many shape-coefficients to fit (all others will stay 0). Should be bigger than zero, or std::nullopt to fit all coefficients. Only used for expression-PCA fitting.
+ * @param[in] lambda_expressions Regularisation parameter of the expression fitting. Only used for expression-PCA fitting.
+ * @param[in,out] pca_shape_coefficients If given, will be used as initial PCA shape coefficients to start the fitting. Will contain the final estimated coefficients.
+ * @param[in,out] expression_coefficients If given, will be used as initial expression blendshape coefficients to start the fitting. Will contain the final estimated coefficients.
+ * @param[out] fitted_image_points Debug parameter: Returns all the 2D points that have been used for the fitting.
+ * @return The fitted model shape instance and the final pose.
+ */
+inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
     const morphablemodel::MorphableModel& morphable_model,
     const core::LandmarkCollection<Eigen::Vector2f>& landmarks, const core::LandmarkMapper& landmark_mapper,
     int image_width, int image_height, int num_iterations,
@@ -789,8 +997,8 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
  * This is a convenience overload without the last 3 in/out parameters of above function.
  *
  * @param[in] morphable_model The 3D Morphable Model used for the shape fitting.
- * @param[in] image_points 2D image points to fit the model to.
- * @param[in] vertex_indices The 3D vertex indices corresponding to the given image_points.
+ * @param[in] landmarks A LandmarkCollection of 2D landmarks.
+ * @param[in] landmark_mapper A mapper which maps the 2D landmark identifiers to 3D model vertex indices.
  * @param[in] image_width Width of the input image (needed for the camera model).
  * @param[in] image_height Height of the input image (needed for the camera model).
  * @param[in] num_iterations Number of iterations that the different fitting parts will be alternated for.
