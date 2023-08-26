@@ -849,40 +849,7 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
     using Eigen::VectorXf;
     using std::vector;
 
-    if (!num_shape_coefficients_to_fit)
-    {
-        num_shape_coefficients_to_fit = morphable_model.get_shape_model().get_num_principal_components();
-    }
-
-    if (pca_shape_coefficients.empty())
-    {
-        pca_shape_coefficients.resize(num_shape_coefficients_to_fit.value());
-    }
-    // Todo: This leaves the following case open: num_coeffs given is empty or defined, but the
-    // pca_shape_coefficients given is != num_coeffs or the model's max-coeffs. What to do then? Handle & document!
-
-    /*if (expression_coefficients.empty())
-    {
-        expression_coefficients.resize(blendshapes.size());
-    }*/
-
-    // Current mesh - either from the given coefficients, or the mean:
-    VectorXf current_pca_shape = morphable_model.get_shape_model().draw_sample(pca_shape_coefficients);
-    assert(morphable_model.has_separate_expression_model()); // Note: We could also just skip the expression fitting in this case.
-    // Note we don't check whether the shape and expression model dimensions match.
-    // Note: We're calling this in a loop, and morphablemodel::to_matrix(expression_blendshapes) now gets
-    // called again in every fitting iteration.
-    VectorXf current_combined_shape =
-        current_pca_shape +
-        draw_sample(morphable_model.get_expression_model().value(), expression_coefficients);
-    auto current_mesh = morphablemodel::sample_to_mesh(
-        current_combined_shape, morphable_model.get_color_model().get_mean(),
-        morphable_model.get_shape_model().get_triangle_list(),
-        morphable_model.get_color_model().get_triangle_list(), morphable_model.get_texture_coordinates(),
-        morphable_model.get_texture_triangle_indices());
-
     // The 2D and 3D point correspondences used for the fitting:
-    vector<Vector4f> model_points; // the points in the 3D shape model
     vector<int> vertex_indices; // their vertex indices
     vector<Vector2f> image_points; // the corresponding 2D landmark points
 
@@ -916,78 +883,15 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
         {
             vertex_idx = std::stoi(converted_name.value());
         }
-        model_points.emplace_back(current_mesh.vertices[vertex_idx].homogeneous());
+        // model_points.emplace_back(current_mesh.vertices[vertex_idx].homogeneous());
         vertex_indices.emplace_back(vertex_idx);
         image_points.emplace_back(landmarks[i].coordinates);
     }
 
-    // Need to do an initial pose fit to do the contour fitting inside the loop.
-    // We'll do an expression fit too, since face shapes vary quite a lot, depending on expressions.
-    fitting::ScaledOrthoProjectionParameters current_pose =
-        fitting::estimate_orthographic_projection_linear(image_points, model_points, true, image_height);
-    fitting::RenderingParameters rendering_params(current_pose, image_width, image_height);
-
-    const Eigen::Matrix<float, 3, 4> affine_from_ortho =
-        fitting::get_3x4_affine_camera_matrix(rendering_params, image_width, image_height);
-    expression_coefficients =
-        fit_expressions(morphable_model.get_expression_model().value(), current_pca_shape, affine_from_ortho,
-                        image_points, vertex_indices, lambda_expressions, num_expression_coefficients_to_fit);
-
-    // Mesh with same PCA coeffs as before, but new expression fit (this is relevant if no initial blendshape coeffs have been given):
-    current_combined_shape = current_pca_shape + draw_sample(morphable_model.get_expression_model().value(),
-                                                             expression_coefficients);
-    current_mesh = morphablemodel::sample_to_mesh(
-        current_combined_shape, morphable_model.get_color_model().get_mean(),
-        morphable_model.get_shape_model().get_triangle_list(),
-        morphable_model.get_color_model().get_triangle_list(), morphable_model.get_texture_coordinates(),
-        morphable_model.get_texture_triangle_indices());
-
-    for (int i = 0; i < num_iterations; ++i)
-    {
-        // Get the model points of the current mesh, for all correspondences that we've got:
-        model_points.clear();
-        for (auto v : vertex_indices)
-        {
-            model_points.push_back({current_mesh.vertices[v][0], current_mesh.vertices[v][1],
-                                    current_mesh.vertices[v][2], 1.0f});
-        }
-
-        // Re-estimate the pose, using all correspondences:
-        current_pose =
-            fitting::estimate_orthographic_projection_linear(image_points, model_points, true, image_height);
-        rendering_params = fitting::RenderingParameters(current_pose, image_width, image_height);
-
-        const Eigen::Matrix<float, 3, 4> affine_from_ortho =
-            fitting::get_3x4_affine_camera_matrix(rendering_params, image_width, image_height);
-
-        // Estimate the PCA shape coefficients with the current blendshape coefficients:
-        const VectorXf mean_plus_expressions =
-            morphable_model.get_shape_model().get_mean() +
-            draw_sample(morphable_model.get_expression_model().value(), expression_coefficients);
-        pca_shape_coefficients = fitting::fit_shape_to_landmarks_linear(
-            morphable_model.get_shape_model(), affine_from_ortho, image_points, vertex_indices,
-            mean_plus_expressions, lambda_identity, num_shape_coefficients_to_fit);
-
-        // Estimate the blendshape coefficients with the current PCA model estimate:
-        current_pca_shape = morphable_model.get_shape_model().draw_sample(pca_shape_coefficients);
-        expression_coefficients = fit_expressions(
-            morphable_model.get_expression_model().value(), current_pca_shape, affine_from_ortho,
-            image_points, vertex_indices, lambda_expressions, num_expression_coefficients_to_fit);
-
-        current_combined_shape =
-            current_pca_shape +
-            draw_sample(morphable_model.get_expression_model().value(), expression_coefficients);
-        current_mesh = morphablemodel::sample_to_mesh(
-            current_combined_shape, morphable_model.get_color_model().get_mean(),
-            morphable_model.get_shape_model().get_triangle_list(),
-            morphable_model.get_color_model().get_triangle_list(), morphable_model.get_texture_coordinates(),
-            morphable_model.get_texture_triangle_indices());
-    }
-
-    fitted_image_points = image_points;
-    return {current_mesh, rendering_params}; // I think we could also work with a VectorXf face_instance in
-                                             // this function instead of a Mesh, but it would convolute the
-                                             // code more (i.e. more complicated to access vertices).
+    return fit_shape_and_pose(morphable_model, image_points, vertex_indices, image_width, image_height,
+                              num_iterations, num_shape_coefficients_to_fit, lambda_identity,
+                              num_expression_coefficients_to_fit, lambda_expressions, pca_shape_coefficients,
+                              expression_coefficients, fitted_image_points);
 };
 
 /**
