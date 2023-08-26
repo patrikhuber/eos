@@ -63,11 +63,12 @@ core::Mesh sample_to_mesh(
     const std::vector<std::array<int, 3>>& texture_triangle_indices = std::vector<std::array<int, 3>>());
 
 /**
- * @brief A class representing a 3D Morphable Model, consisting
- * of a shape- and colour (albedo) PCA model.
+ * @brief A class representing a 3D Morphable Model, consisting of a shape- and colour (albedo) PCA model. It
+ * can additionally contain an optional expression model, which can be a PCA model or consist of linear
+ * expression blendshapes.
  *
- * For the general idea of 3DMMs see T. Vetter, V. Blanz,
- * 'A Morphable Model for the Synthesis of 3D Faces', SIGGRAPH 1999.
+ * For the general idea of 3DMMs see T. Vetter, V. Blanz, 'A Morphable Model for the Synthesis of 3D Faces',
+ * SIGGRAPH 1999.
  */
 class MorphableModel
 {
@@ -394,7 +395,7 @@ public:
      * Returns the landmark definitions for this Morphable Model, which might be an empty optional, if the
      * model doesn't contain any.
      *
-     * The landmark definitions are define mappings from a set of global landmark identifiers, like for
+     * The landmark definitions define mappings from a set of global landmark identifiers, like for
      * example "eye.right.outer_corner", to the model's respective vertex indices.
      * A MorphableModel may or may not contain these landmark definitions, depending on how it was created.
      *
@@ -403,6 +404,17 @@ public:
     const auto& get_landmark_definitions() const
     {
         return landmark_definitions;
+    };
+
+    /**
+     * Sets the landmark definitions for this Morphable Model.
+     *
+     * The landmark definitions define mappings from a set of global landmark identifiers, like for
+     * example "eye.right.outer_corner", to the model's respective vertex indices.
+     */
+    void set_landmark_definitions(cpp17::optional<std::unordered_map<std::string, int>> landmark_definitions)
+    {
+        this->landmark_definitions = landmark_definitions;
     };
 
     /**
