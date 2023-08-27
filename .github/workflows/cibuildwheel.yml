@@ -26,6 +26,9 @@ jobs:
       - name: actions-setup-cmake
         uses: jwlawson/actions-setup-cmake@v1.14.1
 
+      - name: Use cmake
+        run: cmake --version
+
       - name: Install cibuildwheel
         run: python -m pip install cibuildwheel==2.15.0
 
