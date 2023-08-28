@@ -35,8 +35,7 @@ jobs:
         env:
           MACOSX_DEPLOYMENT_TARGET: 10.15
           CIBW_ARCHS_MACOS: "x86_64 universal2 arm64"
-          CIBW_BEFORE_BUILD: 'if [ "$(python -c "import sys; exit(0 if sys.maxsize < 2**32 else 1)")" = "0" ]; then echo "cmake -A Win32"; fi'
-
+          CIBW_BEFORE_BUILD: 'python -c "import sys; sys.exit(0 if sys.maxsize < 2**32 else 1)" && echo "cmake -A Win32"'
 
       - uses: actions/upload-artifact@v3
         with:
