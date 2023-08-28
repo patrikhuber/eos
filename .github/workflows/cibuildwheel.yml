@@ -26,6 +26,10 @@ jobs:
       - name: Use cmake
         run: cmake --version
 
+      - name: Use cmake
+        if: matrix.cibw_archs == 'win32'
+        run: cmake -A Win32
+
       - name: Install cibuildwheel
         run: python -m pip install cibuildwheel==2.15.0
 
@@ -35,7 +39,6 @@ jobs:
         env:
           MACOSX_DEPLOYMENT_TARGET: 10.15
           CIBW_ARCHS_MACOS: "x86_64 universal2 arm64"
-          CIBW_ARCHS_WINDOWS: auto64
 
       - uses: actions/upload-artifact@v3
         with:
