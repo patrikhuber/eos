@@ -36,7 +36,7 @@ jobs:
           MACOSX_DEPLOYMENT_TARGET: 10.15
           CIBW_ARCHS_MACOS: "x86_64 universal2 arm64"
           CIBW_BEFORE_BUILD: |
-            if [ "$(python -c 'import sys; print(sys.maxsize < 2**32)')" = "True" ]; then
+            if python -c "import sys; exit(0 if sys.maxsize < 2**32 else 1)"; then
               echo "cmake -A Win32"
             fi
 
