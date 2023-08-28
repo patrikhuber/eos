@@ -32,6 +32,7 @@
 #include "toml.hpp"
 
 #include "Eigen/Core"
+#include "Eigen/Geometry" // for homogeneous()
 
 #include <vector>
 #include <string>

@@ -208,6 +208,7 @@ PYBIND11_MODULE(eos, eos_module)
         .def("has_color_model", &morphablemodel::MorphableModel::has_color_model, "Returns true if this Morphable Model contains a colour model, and false if it is a shape-only model.")
         .def("has_separate_expression_model", &morphablemodel::MorphableModel::has_separate_expression_model, "Returns true if this Morphable Model contains a separate PCA or Blendshapes expression model.")
         .def("get_landmark_definitions", &morphablemodel::MorphableModel::get_landmark_definitions, "Returns the landmark definitions for this Morphable Model, which might be an empty optional, if the model doesn't contain any.")
+        .def("set_landmark_definitions", &morphablemodel::MorphableModel::set_landmark_definitions, "Sets the landmark definitions for this Morphable Model.", py::arg("landmark_definitions"))
         .def("get_texture_coordinates", &morphablemodel::MorphableModel::get_texture_coordinates, "Returns the texture coordinates for all the vertices in the model.")
         .def("get_texture_triangle_indices", &morphablemodel::MorphableModel::get_texture_triangle_indices, "Returns the triangulation (the triangles that make up the uv mapping) for the texture coordinates.")
         .def("get_expression_model_type", &morphablemodel::MorphableModel::get_expression_model_type, "Returns the type of the expression model: None, Blendshapes or PcaModel.");
@@ -336,6 +337,33 @@ PYBIND11_MODULE(eos, eos_module)
         py::arg("model_contour"), py::arg("num_iterations") = 5,
         py::arg("num_shape_coefficients_to_fit") = py::none(), py::arg("lambda_identity") = 30.0f,
         py::arg("num_expression_coefficients_to_fit") = py::none(), py::arg("lambda_expressions") = 30.0f);
+
+    fitting_module.def(
+        "fit_shape_and_pose",
+        [](const morphablemodel::MorphableModel& morphable_model,
+           const core::LandmarkCollection<Eigen::Vector2f>& landmarks,
+           const core::LandmarkMapper& landmark_mapper, int image_width, int image_height,
+           int num_iterations, cpp17::optional<int> num_shape_coefficients_to_fit, float lambda_identity,
+           cpp17::optional<int> num_expression_coefficients_to_fit,
+           cpp17::optional<float> lambda_expressions,
+           std::vector<float> pca_coeffs,
+           std::vector<float> blendshape_coeffs,
+           std::vector<Eigen::Vector2f> fitted_image_points) {
+            const auto result = fitting::fit_shape_and_pose(
+                morphable_model, landmarks, landmark_mapper, image_width, image_height,
+                num_iterations, num_shape_coefficients_to_fit,
+                lambda_identity, num_expression_coefficients_to_fit, lambda_expressions, pca_coeffs,
+                blendshape_coeffs, fitted_image_points);
+            return std::make_tuple(result.first, result.second, pca_coeffs, blendshape_coeffs);
+        },
+        "Fit the pose (camera), shape model, and expression blendshapes to landmarks, in an iterative way. "
+        "Returns a tuple (mesh, rendering_parameters, shape_coefficients, blendshape_coefficients).",
+        py::arg("morphable_model"), py::arg("landmarks"), py::arg("landmark_mapper"), py::arg("image_width"),
+        py::arg("image_height"), py::arg("num_iterations") = 5,
+        py::arg("num_shape_coefficients_to_fit") = py::none(), py::arg("lambda_identity") = 30.0f,
+        py::arg("num_expression_coefficients_to_fit") = py::none(), py::arg("lambda_expressions") = 30.0f,
+        py::arg("pca_coeffs") = std::vector<float>(), py::arg("blendshape_coeffs") = std::vector<float>(),
+        py::arg("fitted_image_points") = std::vector<Eigen::Vector2f>());
 
     fitting_module.def(
         "fit_shape_to_landmarks_linear",

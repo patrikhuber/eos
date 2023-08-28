@@ -23,6 +23,7 @@
 #define EOS_CLOSEST_EDGE_FITTING_HPP
 
 #include "eos/core/Mesh.hpp"
+#include "eos/core/math.hpp" // for sign()
 #include "eos/morphablemodel/EdgeTopology.hpp"
 #include "eos/fitting/RenderingParameters.hpp"
 #include "eos/render/normals.hpp"
@@ -280,6 +281,7 @@ inline std::pair<std::vector<Eigen::Vector2f>, std::vector<int>> find_occluding_
     const fitting::RenderingParameters& rendering_parameters, const std::vector<Eigen::Vector2f>& image_edges,
     float distance_threshold = 64.0f, bool perform_self_occlusion_check = true)
 {
+    // Note: I think we can potentially remove this assert. We check for different CameraTypes further below.
     assert(rendering_parameters.get_camera_type() == fitting::CameraType::Orthographic);
     using Eigen::Vector2f;
     using std::vector;
