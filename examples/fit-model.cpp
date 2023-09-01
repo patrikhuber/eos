@@ -221,7 +221,7 @@ int main(int argc, char* argv[])
         render::extract_texture(mesh, rendering_params.get_modelview(), rendering_params.get_projection(),
                                 render::ProjectionType::Orthographic, core::from_mat_with_alpha(image));
 
-    // Draw the fitted mesh as wireframe, and save the image:
+    // Draw the fitted mesh as dots,which are nearest to the 98 landmark index and save the image:
     render::draw_points_with_colored_indices(outimg, mesh, rendering_params.get_modelview(), rendering_params.get_projection(),
                            fitting::get_opencv_viewport(image.cols, image.rows));
 
