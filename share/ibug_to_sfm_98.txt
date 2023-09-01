@@ -1,0 +1,78 @@
+# Mapping from the 98-point ibug annotations to the Surrey Face Model (SFM) mesh vertex indices.
+# Mappings from input landmarks (ibug, lhs) to output landmarks (SFM, rhs):
+[landmark_mappings]
+            # 1 to 16 are the right contour landmarks
+ 17 =   33  # chin bottom
+            # 18 to 33 are the left contour landmarks
+34 =   225  # right eyebrow outer-corner (18)
+35 =   229  # right eyebrow between middle and outer corner
+36 =   233  # right eyebrow middle, vertical middle (20)
+37 =   241  # right eyebrow between middle and inner corner
+38 =   157  # right eyebrow inner-corner (19)
+39 =   156
+40 =   160
+41 =   232
+42 =   228
+43 =   590  # left eyebrow inner-corner (23)
+44 =   668  # left eyebrow between inner corner and middle
+45 =   664  # left eyebrow middle (24)
+46 =   660  # left eyebrow between middle and outer corner
+47 =   658  # left eyebrow outer-corner (22)
+48 =   659
+49 =   663
+50 =   667
+51 =   589
+52 =   438  # bridge of the nose (parallel to upper eye lids)
+53 =   379  # middle of the nose, a bit below the lower eye lids
+54 =   272  # above nose-tip (1cm or so)
+55 =   114  # nose-tip (3)
+56 =   100  # right nostril, below nose, nose-lip junction
+57 =    88  # nose-lip junction
+58 =   436  # nose-lip junction (28)
+59 =   525  # nose-lip junction
+60 =   537  # left nostril, below nose, nose-lip junction
+61 =   177  # right eye outer-corner (1)
+62 =   175  # right eye pupil top right (from subject's perspective)
+63 =   172
+64 =   170  # right eye pupil top left
+65 =   181  # right eye inner-corner (5)
+66 =   173  # right eye pupil bottom left
+67 =   174
+68 =   176  # right eye pupil bottom right
+69 =   614  # left eye inner-corner (8)
+70 =   624  # left eye pupil top right
+71 =   603
+72 =   605  # left eye pupil top left
+73 =   610  # left eye outer-corner (2)
+74 =   607  # left eye pupil bottom left
+75 =   606  # left eye pupil bottom right
+76 =   611
+77 =   398  # right mouth corner (12)
+78 =   315  # upper lip right top outer
+79 =   413  # upper lip middle top right
+80 =   329  # upper lip middle top (14)
+81 =   825  # upper lip middle top left
+82 =   736  # upper lip left top outer
+83 =   812  # left mouth corner (13)
+84 =   508  # lower lip left bottom outer
+85 =   693  # lower lip middle bottom left
+86 =   411  # lower lip middle bottom (17)
+87 =   264  # lower lip middle bottom right
+88 =    71  # lower lip right bottom outer
+            
+89 =   408
+90 =   418  # upper lip right bottom outer
+91 =   423  # upper lip middle bottom
+92 =   830  # upper lip left bottom outer
+
+93 =   821
+94 =   815  # lower lip left top outer
+95 =   442  # lower lip middle top
+96 =   406  # lower lip right top outer
+97 =   171
+98 =   604
+
+# Definitions of which 2D landmarks make up the right and left face contours:
+[contour_landmarks]
+right = [ 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]
+left  = [ 33,32,31,30,29,28,27,26,25,24,23,22,21,20,19,18] 

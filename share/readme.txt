@@ -3,9 +3,13 @@ eos: A lightweight header-only 3D Morphable Model fitting library in modern C++1
 
 Files in this directory:
 
+- ibug_to_sfm_98.txt:
+	Mappings from the popular ibug 98-point 2D facial landmarks markup to
+	Surrey Face Model indices.
 - ibug_to_sfm.txt:
 	Mappings from the popular ibug 68-point 2D facial landmarks markup to
 	Surrey Face Model indices.
+
 
 - sfm_shape_3448.bin:
 	The public shape-only Surrey 3D Morphable Face Model.

@@ -63,6 +63,11 @@ using std::vector;
  * 68 ibug landmarks are loaded from the .pts file and converted
  * to vertex indices using the LandmarkMapper.
  */
+
+
+
+
+
 int main(int argc, char* argv[])
 {
     string modelfile, imagefile, landmarksfile, mappingsfile, contourfile, edgetopologyfile, blendshapesfile,
@@ -154,10 +159,16 @@ int main(int argc, char* argv[])
 
     // Draw the loaded landmarks:
     Mat outimg = image.clone();
+    int count = 0;
     for (auto&& lm : landmarks)
     {
-        cv::rectangle(outimg, cv::Point2f(lm.coordinates[0] - 2.0f, lm.coordinates[1] - 2.0f),
-                      cv::Point2f(lm.coordinates[0] + 2.0f, lm.coordinates[1] + 2.0f), {255, 0, 0});
+
+        // cv::rectangle(outimg, cv::Point2f(lm.coordinates[0] - 2.0f, lm.coordinates[1] - 2.0f),
+        //               cv::Point2f(lm.coordinates[0] + 2.0f, lm.coordinates[1] + 2.0f), {255, 0, 0});
+        count = count +  1;
+        cv::circle(outimg, cv::Point(lm.coordinates[0], lm.coordinates[1]), 1, {255, 0, 0}); // Draw a larger circle
+        cv::putText(outimg, std::to_string(count), cv::Point(lm.coordinates[0] + 3, lm.coordinates[1] - 3),
+                    cv::FONT_HERSHEY_SIMPLEX, 0.3, {255, 0, 0}, 1, cv::LINE_AA);
     }
 
     // Fit the model, get back a mesh and the pose:
@@ -167,9 +178,43 @@ int main(int argc, char* argv[])
         morphable_model_with_expressions, landmarks, landmark_mapper, image.cols, image.rows, edge_topology,
         ibug_contour, model_contour, 5, cpp17::nullopt, 30.0f);
 
+
+    /*   code */
+    // std::cout << "Vertices:" << std::endl;
+    // for (size_t i = 0; i < mesh.vertices.size(); ++i) {
+    //     const Eigen::Vector3f& vertex = mesh.vertices[i];
+    //     std::cout << "Vertex " << i << ": " << vertex.x() << " " << vertex.y() << " " << vertex.z() << std::endl;
+    // }
+
+    // // Print colors
+    // std::cout << "Colors:" << std::endl;
+    // for (const auto& color : mesh.colors) {
+    //     std::cout << color.x() << " " << color.y() << " " << color.z() << std::endl;
+    // }
+
+    // // Print texcoords
+    // std::cout << "Texture Coordinates:" << std::endl;
+    // for (const auto& texcoord : mesh.texcoords) {
+    //     std::cout << texcoord.x() << " " << texcoord.y() << std::endl;
+    // }
+
+    // // Print triangles
+    // std::cout << "Triangles:" << std::endl;
+    // for (const auto& triangle : mesh.tvi) {
+    //     std::cout << triangle[0] << " " << triangle[1] << " " << triangle[2] << std::endl;
+    // }
+
+
+
+
     // The 3D head pose can be recovered as follows - the function returns an Eigen::Vector3f with yaw, pitch,
     // and roll angles:
     const float yaw_angle = rendering_params.get_yaw_pitch_roll()[0];
+    const float pitch_angle = rendering_params.get_yaw_pitch_roll()[1];
+    const float roll_angle = rendering_params.get_yaw_pitch_roll()[2];
+    cout<<"yaw_angle :"<<yaw_angle<<endl;
+    cout<<"pitch_angle :"<<pitch_angle<<endl;
+    cout<<"roll_angle :"<<roll_angle<<endl;
 
     // Extract the texture from the image using given mesh and camera parameters:
     const core::Image4u texturemap =
@@ -177,8 +222,13 @@ int main(int argc, char* argv[])
                                 render::ProjectionType::Orthographic, core::from_mat_with_alpha(image));
 
     // Draw the fitted mesh as wireframe, and save the image:
-    render::draw_wireframe(outimg, mesh, rendering_params.get_modelview(), rendering_params.get_projection(),
+    render::draw_points_with_colored_indices(outimg, mesh, rendering_params.get_modelview(), rendering_params.get_projection(),
                            fitting::get_opencv_viewport(image.cols, image.rows));
+
+    // render::draw_nearest_to_landmarks(outimg, mesh,landmarks ,rendering_params.get_modelview(), rendering_params.get_projection(),
+    //                        fitting::get_opencv_viewport(image.cols, image.rows));
+    
+
     fs::path outputfile = outputbasename + ".png";
     cv::imwrite(outputfile.string(), outimg);
 
