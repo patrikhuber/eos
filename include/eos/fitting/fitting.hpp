@@ -159,8 +159,8 @@ inline Eigen::VectorXf fit_shape(Eigen::Matrix<float, 3, 4> affine_camera_matrix
  * @param[in] landmark_definitions A set of landmark definitions for the model, mapping from identifiers to vertex indices.
  * @return An optional int with the vertex index.
  */
-inline std::optional<int> get_vertex_index(const std::string landmark_name, const core::LandmarkMapper& landmark_mapper, 
-                            cpp17::optional<std::unordered_map<std::string, int>> landmark_definitions)
+inline cpp17::optional<int> get_vertex_index(const std::string landmark_name, const core::LandmarkMapper& landmark_mapper, 
+                            const cpp17::optional<std::unordered_map<std::string, int>>& landmark_definitions)
 {
     const auto converted_name = landmark_mapper.convert(landmark_name);
     if (!converted_name)
@@ -186,11 +186,11 @@ inline std::optional<int> get_vertex_index(const std::string landmark_name, cons
                 vertex_idx = found_vertex_idx->second;
             } else
             {
-                return std::nullopt;
+                return cpp17::nullopt;
             }
         } else
         {
-            return std::nullopt;
+            return cpp17::nullopt;
         }
     }
     return vertex_idx;
