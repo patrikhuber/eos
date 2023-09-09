@@ -366,7 +366,7 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
     // and get the corresponding model points (mean if given no initial coeffs, from the computed shape otherwise):
     for (int i = 0; i < landmarks.size(); ++i)
     {
-        std::optional<int> vertex_idx = get_vertex_index(landmarks[i].name, landmark_mapper, morphable_model.get_landmark_definitions());
+        const cpp17::optional<int> vertex_idx = get_vertex_index(landmarks[i].name, landmark_mapper, morphable_model.get_landmark_definitions());
         if (!vertex_idx) // vertex index not defined for the current landmark
         {
             continue;
@@ -830,7 +830,7 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
     // and get the corresponding model points (mean if given no initial coeffs, from the computed shape otherwise):
     for (int i = 0; i < landmarks.size(); ++i)
     {
-        std::optional<int> vertex_idx = get_vertex_index(landmarks[i].name, landmark_mapper, morphable_model.get_landmark_definitions());
+        const cpp17::optional<int> vertex_idx = get_vertex_index(landmarks[i].name, landmark_mapper, morphable_model.get_landmark_definitions());
         if (!vertex_idx) // vertex index not defined for the current landmark
         {
             continue;
