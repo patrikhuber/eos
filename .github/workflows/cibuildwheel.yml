@@ -5,6 +5,9 @@ on:
   push:
     branches:
       - cibuildwheel
+  # release:
+  #   types:
+  #     - published
 
 jobs:
   make_sdist:
