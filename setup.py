@@ -44,6 +44,10 @@ class CMakeBuild(build_ext):
         build_args = ['--config', cfg]
 
         if platform.system() == "Windows":
+            if platform.architecture()[0] == '32bit':
+                cmake_args += ['-A', 'Win32']
+            else:
+                cmake_args += ['-A', 'x64']
             cmake_args += ['-G', 'Visual Studio 17 2022']
             cmake_args += ['-DCMAKE_LIBRARY_OUTPUT_DIRECTORY_{}={}'.format(cfg.upper(), extdir)]
             build_args += ['--', '/m']
