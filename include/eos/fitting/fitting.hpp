@@ -150,57 +150,51 @@ inline Eigen::VectorXf fit_shape(Eigen::Matrix<float, 3, 4> affine_camera_matrix
 };
 
 /**
- * @brief Takes a LandmarkCollection of 2D landmarks and, using the landmark_mapper, finds the
- * corresponding 3D vertex indices and returns them, along with the coordinates of the 3D points.
+ * @brief Gets the vertex index from the given landmark name using the landmark mapper and if provided the landmark definitions.
  *
- * The function only returns points which the landmark mapper was able to convert, and skips all
- * points for which there is no mapping. Thus, the number of returned points might be smaller than
- * the number of input points.
- * All three output vectors have the same size and contain the points in the same order.
- * \c landmarks can be an eos::core::LandmarkCollection<cv::Vec2f> or an rcr::LandmarkCollection<cv::Vec2f>.
+ * The function only returns the vertex index if the landmark mapper was able to convert the name.
  *
- * Notes:
- * - Split into two functions, one which maps from 2D LMs to vtx_idx and returns a reduced vec of 2D LMs.
- *   And then the other one to go from vtx_idx to a vector<Vec4f>.
- * - Place in a potentially more appropriate header (shape-fitting?).
- * - Could move to detail namespace or forward-declare.
- * - \c landmarks has to be a collection of LMs, with size(), [] and Vec2f ::coordinates.
- * - Probably model_points would better be a Vector3f and not in homogeneous coordinates?
- *
- * @param[in] landmarks A LandmarkCollection of 2D landmarks.
+ * @param[in] landmark_name Name of the landmark, often used as identifier.
  * @param[in] landmark_mapper A mapper which maps the 2D landmark identifiers to 3D model vertex indices.
- * @param[in] morphable_model Model to get the 3D point coordinates from.
- * @return A tuple of [image_points, model_points, vertex_indices].
+ * @param[in] landmark_definitions A set of landmark definitions for the model, mapping from identifiers to vertex indices.
+ * @return An optional int with the vertex index.
  */
-template <class T>
-inline auto get_corresponding_pointset(const T& landmarks, const core::LandmarkMapper& landmark_mapper,
-                                       const morphablemodel::MorphableModel& morphable_model)
+inline std::optional<int> get_vertex_index(const std::string landmark_name, const core::LandmarkMapper& landmark_mapper, 
+                            cpp17::optional<std::unordered_map<std::string, int>> landmark_definitions)
 {
-    using Eigen::Vector2f;
-    using Eigen::Vector4f;
-    using std::vector;
-
-    // These will be the final 2D and 3D points used for the fitting:
-    vector<Vector4f> model_points; // the points in the 3D shape model
-    vector<int> vertex_indices;    // their vertex indices
-    vector<Vector2f> image_points; // the corresponding 2D landmark points
-
-    // Sub-select all the landmarks which we have a mapping for (i.e. that are defined in the 3DMM):
-    for (int i = 0; i < landmarks.size(); ++i)
-    {
-        const auto converted_name = landmark_mapper.convert(landmarks[i].name);
-        if (!converted_name)
-        { // no mapping defined for the current landmark
-            continue;
-        }
-        const int vertex_idx = std::stoi(converted_name.get());
-        const auto vertex = morphable_model.get_shape_model().get_mean_at_point(vertex_idx);
-        model_points.emplace_back(vertex.homogeneous());
-        vertex_indices.emplace_back(vertex_idx);
-        image_points.emplace_back(landmarks[i].coordinates);
+    const auto converted_name = landmark_mapper.convert(landmark_name);
+    if (!converted_name)
+    { // no mapping defined for the current landmark
+        return std::nullopt;
     }
-    return std::make_tuple(image_points, model_points, vertex_indices);
-};
+    // If the MorphableModel does not contain landmark definitions, we expect the user to have given us
+    // direct mappings (e.g. directly from ibug identifiers to vertex ids). If the model does contain
+    // landmark definitions, we expect the user to use mappings from their landmark identifiers (e.g.
+    // ibug) to the landmark definitions. Users may also include direct mappings to create a "hybrid" mapping.
+    // Todo: This might be worth mentioning in the function documentation of fit_shape_and_pose.
+    int vertex_idx;
+    if (std::all_of(converted_name.value().begin(), converted_name.value().end(), ::isdigit))
+    {
+        vertex_idx = std::stoi(converted_name.value());
+    } else
+    {
+        if (landmark_definitions)
+        {
+            const auto found_vertex_idx = landmark_definitions.value().find(converted_name.value());
+            if (found_vertex_idx != std::end(landmark_definitions.value()))
+            {
+                vertex_idx = found_vertex_idx->second;
+            } else
+            {
+                return std::nullopt;
+            }
+        } else
+        {
+            return std::nullopt;
+        }
+    }
+    return vertex_idx;
+}
 
 /**
  * @brief Fits the given expression model to landmarks.
@@ -372,34 +366,13 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
     // and get the corresponding model points (mean if given no initial coeffs, from the computed shape otherwise):
     for (int i = 0; i < landmarks.size(); ++i)
     {
-        const auto converted_name = landmark_mapper.convert(landmarks[i].name);
-        if (!converted_name)
-        { // no mapping defined for the current landmark
+        std::optional<int> vertex_idx = get_vertex_index(landmarks[i].name, landmark_mapper, morphable_model.get_landmark_definitions());
+        if (!vertex_idx) // vertex index not defined for the current landmark
+        {
             continue;
         }
-        // If the MorphableModel does not contain landmark definitions, we expect the user to have given us
-        // direct mappings (e.g. directly from ibug identifiers to vertex ids). If the model does contain
-        // landmark definitions, we expect the user to use mappings from their landmark identifiers (e.g.
-        // ibug) to the landmark definitions, and not to vertex indices.
-        // Todo: This might be worth mentioning in the function documentation of fit_shape_and_pose.
-        int vertex_idx;
-        if (morphable_model.get_landmark_definitions())
-        {
-            const auto found_vertex_idx =
-                morphable_model.get_landmark_definitions().value().find(converted_name.value());
-            if (found_vertex_idx != std::end(morphable_model.get_landmark_definitions().value()))
-            {
-                vertex_idx = found_vertex_idx->second;
-            } else
-            {
-                continue;
-            }
-        } else
-        {
-            vertex_idx = std::stoi(converted_name.value());
-        }
-        model_points.emplace_back(current_mesh.vertices[vertex_idx].homogeneous());
-        vertex_indices.emplace_back(vertex_idx);
+        model_points.emplace_back(current_mesh.vertices[vertex_idx.value()].homogeneous());
+        vertex_indices.emplace_back(vertex_idx.value());
         image_points.emplace_back(landmarks[i].coordinates);
     }
 
@@ -857,34 +830,13 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
     // and get the corresponding model points (mean if given no initial coeffs, from the computed shape otherwise):
     for (int i = 0; i < landmarks.size(); ++i)
     {
-        const auto converted_name = landmark_mapper.convert(landmarks[i].name);
-        if (!converted_name)
-        { // no mapping defined for the current landmark
+        std::optional<int> vertex_idx = get_vertex_index(landmarks[i].name, landmark_mapper, morphable_model.get_landmark_definitions());
+        if (!vertex_idx) // vertex index not defined for the current landmark
+        {
             continue;
         }
-        // If the MorphableModel does not contain landmark definitions, we expect the user to have given us
-        // direct mappings (e.g. directly from ibug identifiers to vertex ids). If the model does contain
-        // landmark definitions, we expect the user to use mappings from their landmark identifiers (e.g.
-        // ibug) to the landmark definitions. Users may also include direct mappings to create a "hybrid" mapping.
-        // Todo: This might be worth mentioning in the function documentation of fit_shape_and_pose.
-        int vertex_idx;
-        if (std::all_of(converted_name.value().begin(), converted_name.value().end(), ::isdigit))
-        {
-            vertex_idx = std::stoi(converted_name.value());
-        } else
-        {
-            if (morphable_model.get_landmark_definitions())
-            {
-                const auto found_vertex_idx =
-                    morphable_model.get_landmark_definitions().value().find(converted_name.value());
-                if (found_vertex_idx != std::end(morphable_model.get_landmark_definitions().value()))
-                {
-                    vertex_idx = found_vertex_idx->second;
-                }
-            }
-        }
         // model_points.emplace_back(current_mesh.vertices[vertex_idx].homogeneous());
-        vertex_indices.emplace_back(vertex_idx);
+        vertex_indices.emplace_back(vertex_idx.value());
         image_points.emplace_back(landmarks[i].coordinates);
     }
 
