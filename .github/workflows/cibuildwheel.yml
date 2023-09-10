@@ -60,7 +60,7 @@ jobs:
         env:
           MACOSX_DEPLOYMENT_TARGET: 10.15
           CIBW_ARCHS_MACOS: "x86_64 universal2 arm64"
-          CIBW_TEST_REQUIRES: pytest
+          CIBW_TEST_REQUIRES: pytest numpy
           CIBW_TEST_COMMAND: pytest {package}/tests
 
       - uses: actions/upload-artifact@v3
@@ -69,7 +69,7 @@ jobs:
 
   upload_all:
     needs: [build_wheels, make_sdist]
-    environment: pypi numpy
+    environment: pypi
     permissions:
       id-token: write
     runs-on: ubuntu-latest
