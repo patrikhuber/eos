@@ -69,7 +69,7 @@ jobs:
 
   upload_all:
     needs: [build_wheels, make_sdist]
-    environment: pypi
+    environment: pypi numpy
     permissions:
       id-token: write
     runs-on: ubuntu-latest
