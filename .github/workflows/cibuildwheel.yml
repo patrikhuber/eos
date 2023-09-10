@@ -62,7 +62,7 @@ jobs:
           CIBW_ARCHS_MACOS: "x86_64 universal2 arm64"
           CIBW_TEST_REQUIRES: pytest numpy
           CIBW_TEST_COMMAND: pytest {package}/tests
-          CIBW_TEST_SKIP: *-macosx_arm64
+          CIBW_TEST_SKIP: "*-macosx_arm64"
 
       - uses: actions/upload-artifact@v3
         with:
