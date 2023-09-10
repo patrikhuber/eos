@@ -5,9 +5,9 @@ on:
   push:
     branches:
       - cibuildwheel
-  # release:
-  #   types:
-  #     - published
+  release:
+    types:
+      - published
 
 jobs:
   make_sdist:
@@ -60,6 +60,8 @@ jobs:
         env:
           MACOSX_DEPLOYMENT_TARGET: 10.15
           CIBW_ARCHS_MACOS: "x86_64 universal2 arm64"
+          CIBW_TEST_REQUIRES: pytest
+          CIBW_TEST_COMMAND: pytest {package}/tests
 
       - uses: actions/upload-artifact@v3
         with:
@@ -71,7 +73,7 @@ jobs:
     permissions:
       id-token: write
     runs-on: ubuntu-latest
-    # if: github.event_name == 'release' && github.event.action == 'published'
+    if: github.event_name == 'release' && github.event.action == 'published'
     steps:
     - uses: actions/download-artifact@v3
       with:
