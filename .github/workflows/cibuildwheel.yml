@@ -61,7 +61,7 @@ jobs:
           MACOSX_DEPLOYMENT_TARGET: 10.15
           CIBW_ARCHS_MACOS: "x86_64 universal2 arm64"
           CIBW_TEST_REQUIRES: pytest
-          CIBW_BEFORE_BUILD: pip install numpy -C-Dallow-noblas=true
+          CIBW_BEFORE_BUILD: pip install numpy --config-settings=setup-args="-Dallow-noblas=true" 
           CIBW_TEST_COMMAND: pytest {package}/tests
           CIBW_TEST_SKIP: "*-macosx_arm64 *-macosx_universal2:arm64"
 
