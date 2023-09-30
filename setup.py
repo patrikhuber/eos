@@ -69,7 +69,7 @@ with open(os.path.join(this_directory, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
-    name='omar-eos-py',
+    name='eos-py',
     version='1.4.1',
     author='Patrik Huber',
     author_email='patrikhuber@gmail.com',
