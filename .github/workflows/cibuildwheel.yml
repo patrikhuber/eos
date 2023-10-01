@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - cibuildwheel
+      - master
   release:
     types:
       - published
@@ -83,5 +83,3 @@ jobs:
         path: dist
 
     - uses: pypa/gh-action-pypi-publish@release/v1
-      with:
-        repository-url: https://test.pypi.org/legacy/
