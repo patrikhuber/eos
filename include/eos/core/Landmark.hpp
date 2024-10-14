@@ -25,6 +25,7 @@
 #include <algorithm>
 #include <string>
 #include <vector>
+#include <iterator>
 
 namespace eos {
 namespace core {
