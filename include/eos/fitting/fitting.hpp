@@ -150,53 +150,6 @@ inline Eigen::VectorXf fit_shape(Eigen::Matrix<float, 3, 4> affine_camera_matrix
 };
 
 /**
- * @brief Gets the vertex index from the given landmark name using the landmark mapper and if provided the landmark definitions.
- *
- * The function only returns the vertex index if the landmark mapper was able to convert the name.
- *
- * @param[in] landmark_name Name of the landmark, often used as identifier.
- * @param[in] landmark_mapper A mapper which maps the 2D landmark identifiers to 3D model vertex indices.
- * @param[in] landmark_definitions A set of landmark definitions for the model, mapping from identifiers to vertex indices.
- * @return An optional int with the vertex index.
- */
-inline cpp17::optional<int> get_vertex_index(const std::string landmark_name, const core::LandmarkMapper& landmark_mapper, 
-                            const cpp17::optional<std::unordered_map<std::string, int>>& landmark_definitions)
-{
-    const auto converted_name = landmark_mapper.convert(landmark_name);
-    if (!converted_name)
-    { // no mapping defined for the current landmark
-        return std::nullopt;
-    }
-    // If the MorphableModel does not contain landmark definitions, we expect the user to have given us
-    // direct mappings (e.g. directly from ibug identifiers to vertex ids). If the model does contain
-    // landmark definitions, we expect the user to use mappings from their landmark identifiers (e.g.
-    // ibug) to the landmark definitions. Users may also include direct mappings to create a "hybrid" mapping.
-    // Todo: This might be worth mentioning in the function documentation of fit_shape_and_pose.
-    int vertex_idx;
-    if (std::all_of(converted_name.value().begin(), converted_name.value().end(), ::isdigit))
-    {
-        vertex_idx = std::stoi(converted_name.value());
-    } else
-    {
-        if (landmark_definitions)
-        {
-            const auto found_vertex_idx = landmark_definitions.value().find(converted_name.value());
-            if (found_vertex_idx != std::end(landmark_definitions.value()))
-            {
-                vertex_idx = found_vertex_idx->second;
-            } else
-            {
-                return cpp17::nullopt;
-            }
-        } else
-        {
-            return cpp17::nullopt;
-        }
-    }
-    return vertex_idx;
-}
-
-/**
  * @brief Fits the given expression model to landmarks.
  *
  * The function uses fit_blendshapes_to_landmarks_nnls(...) if the given expression model consists of
@@ -366,7 +319,8 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
     // and get the corresponding model points (mean if given no initial coeffs, from the computed shape otherwise):
     for (int i = 0; i < landmarks.size(); ++i)
     {
-        const cpp17::optional<int> vertex_idx = get_vertex_index(landmarks[i].name, landmark_mapper, morphable_model.get_landmark_definitions());
+        const cpp17::optional<int> vertex_idx = core::get_vertex_index(
+            landmarks[i].name, landmark_mapper, morphable_model.get_landmark_definitions());
         if (!vertex_idx) // vertex index not defined for the current landmark
         {
             continue;
@@ -830,7 +784,8 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
     // and get the corresponding model points (mean if given no initial coeffs, from the computed shape otherwise):
     for (int i = 0; i < landmarks.size(); ++i)
     {
-        const cpp17::optional<int> vertex_idx = get_vertex_index(landmarks[i].name, landmark_mapper, morphable_model.get_landmark_definitions());
+        const cpp17::optional<int> vertex_idx = core::get_vertex_index(
+            landmarks[i].name, landmark_mapper, morphable_model.get_landmark_definitions());
         if (!vertex_idx) // vertex index not defined for the current landmark
         {
             continue;
