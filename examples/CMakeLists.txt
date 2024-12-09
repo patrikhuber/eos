@@ -23,18 +23,21 @@ find_package(Boost 1.71.0 REQUIRED COMPONENTS filesystem program_options)
 add_executable(fit-model-simple fit-model-simple.cpp)
 target_link_libraries(fit-model-simple PRIVATE eos ${OpenCV_LIBS} Boost::filesystem Boost::program_options)
 target_link_libraries(fit-model-simple PRIVATE "$<$<CXX_COMPILER_ID:GNU>:-pthread>$<$<CXX_COMPILER_ID:Clang>:-pthreads>")
+target_compile_options(fit-model-simple PRIVATE "$<$<CXX_COMPILER_ID:MSVC>:/bigobj>")
 target_include_directories(fit-model-simple PRIVATE ${OpenCV_INCLUDE_DIRS})
 
 # Model fitting example that fits orthographic camera, shape, blendshapes, and contours:
 add_executable(fit-model fit-model.cpp)
 target_link_libraries(fit-model PRIVATE eos ${OpenCV_LIBS} Boost::filesystem Boost::program_options)
 target_link_libraries(fit-model PRIVATE "$<$<CXX_COMPILER_ID:GNU>:-pthread>$<$<CXX_COMPILER_ID:Clang>:-pthreads>")
+target_compile_options(fit-model PRIVATE "$<$<CXX_COMPILER_ID:MSVC>:/bigobj>")
 target_include_directories(fit-model PRIVATE ${OpenCV_INCLUDE_DIRS})
 
 # Model fitting example that fits orthographic camera, shape, blendshapes, and contours to multiple images:
 add_executable(fit-model-multi fit-model-multi.cpp)
 target_link_libraries(fit-model-multi PRIVATE eos ${OpenCV_LIBS} Boost::filesystem Boost::program_options)
 target_link_libraries(fit-model-multi PRIVATE "$<$<CXX_COMPILER_ID:GNU>:-pthread>$<$<CXX_COMPILER_ID:Clang>:-pthreads>")
+target_compile_options(fit-model-multi PRIVATE "$<$<CXX_COMPILER_ID:MSVC>:/bigobj>")
 target_include_directories(fit-model-multi PRIVATE ${OpenCV_INCLUDE_DIRS})
 
 # Generate random samples from the model:
@@ -57,6 +60,7 @@ if(EOS_BUILD_CERES_EXAMPLE)
   # Single and multi-image non-linear model fitting with Ceres example:
   add_executable(fit-model-ceres fit-model-ceres.cpp)
   target_link_libraries(fit-model-ceres PRIVATE eos Ceres::ceres ${OpenCV_LIBS} Boost::filesystem Boost::program_options)
+  target_compile_options(fit-model-ceres PRIVATE "$<$<CXX_COMPILER_ID:MSVC>:/bigobj>")
   target_include_directories(fit-model-ceres PRIVATE ${OpenCV_INCLUDE_DIRS})
   install(TARGETS fit-model-ceres DESTINATION bin)
 endif()
