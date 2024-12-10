@@ -43,7 +43,7 @@ install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/data DESTINATION bin)
 
 if(EOS_BUILD_CERES_EXAMPLE)
   # Find Ceres, for the fit-model-ceres app:
-  find_package(Ceres REQUIRED)
+  find_package(Ceres CONFIG REQUIRED)
 
   # Single and multi-image non-linear model fitting with Ceres example:
   add_executable(fit-model-ceres fit-model-ceres.cpp)
