@@ -18,7 +18,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, windows-2019, ubuntu-latest, ubuntu-20.04, macos-latest, macos-11]
+        os: [windows-latest, windows-2019, ubuntu-24.04, ubuntu-latest, ubuntu-20.04, macos-latest, macos-13]
 
     name: ${{matrix.os}}
 
@@ -33,10 +33,21 @@ jobs:
       with:
         submodules: true
 
-    - name: "Set VCPKG_ROOT environment variable"
+    - name: Install vcpkg on macOS if not pre-installed
+      if: runner.os == 'macOS' && (matrix.os == 'macos-13' || matrix.os == 'macos-latest')
+      run: |
+        git clone https://github.com/microsoft/vcpkg.git
+        ./vcpkg/bootstrap-vcpkg.sh
+      shell: bash
+
+    - name: Set VCPKG_ROOT environment variable
       shell: bash
       run: |
-        echo "VCPKG_ROOT=$VCPKG_INSTALLATION_ROOT" >> $GITHUB_ENV
+        if [[ "$RUNNER_OS" == "macOS" ]]; then
+          echo "VCPKG_ROOT=$GITHUB_WORKSPACE/vcpkg" >> $GITHUB_ENV
+        else
+          echo "VCPKG_ROOT=$VCPKG_INSTALLATION_ROOT" >> $GITHUB_ENV
+        fi
 
     - name: Cache/restore vcpkg dependencies
       uses: actions/cache@v3
