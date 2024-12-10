@@ -32,9 +32,9 @@
 #include "eos/render/opencv/draw_utils.hpp"
 #include "eos/cpp17/optional.hpp"
 
-#include "opencv2/core/core.hpp"
-#include "opencv2/imgproc/imgproc.hpp"
-#include "opencv2/imgcodecs/imgcodecs.hpp"
+#include "opencv2/core.hpp"
+#include "opencv2/imgproc.hpp"
+#include "opencv2/imgcodecs.hpp"
 
 #include "boost/program_options.hpp"
 #include "boost/filesystem.hpp"
