@@ -1,18 +1,6 @@
 # The examples need a few additional dependencies (e.g. boost filesystem, program_options, and OpenCV highgui):
+find_package(OpenCV 4 CONFIG REQUIRED core imgproc imgcodecs)
 
-# Check installed version in order to include the correct OpenCV libraries:
-# First call find_package without a version to find any OpenCV. OpenCV_VERSION_MAJOR is then defined.
-find_package(OpenCV REQUIRED core)
-if("${OpenCV_VERSION_MAJOR}$" EQUAL 2)
-  message(STATUS "OpenCV 2.x detected")
-  find_package(OpenCV 2.4.3 REQUIRED core imgproc highgui)
-elseif("${OpenCV_VERSION_MAJOR}$" EQUAL 3)
-  message(STATUS "OpenCV 3.x detected")
-  find_package(OpenCV 3 REQUIRED core imgproc imgcodecs)
-elseif("${OpenCV_VERSION_MAJOR}$" EQUAL 4)
-  message(STATUS "OpenCV 4.x detected")
-  find_package(OpenCV 4 REQUIRED core imgproc imgcodecs)
-endif()
 # This allows us to compile in RelWithDebInfo. It'll use the Release-version of OpenCV:
 set_target_properties(${OpenCV_LIBS} PROPERTIES MAP_IMPORTED_CONFIG_RELWITHDEBINFO RELEASE)
 
