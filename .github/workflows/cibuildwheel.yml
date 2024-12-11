@@ -46,7 +46,7 @@ jobs:
           submodules: recursive
 
       # Used to host cibuildwheel
-      - uses: actions/setup-python@v3
+      - uses: actions/setup-python@v5
 
       - name: Use cmake
         run: cmake --version
