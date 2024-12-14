@@ -29,11 +29,11 @@
 #include "eos/render/detail/Vertex.hpp"
 #include "eos/render/detail/plane.hpp"
 #include "eos/render/detail/utils.hpp"
-#include "eos/cpp17/optional.hpp"
 
 #include "Eigen/Core"
 
 #include <limits>
+#include <optional>
 
 namespace eos {
 namespace render {
@@ -65,7 +65,7 @@ public:
      */
     template <typename T>
     void raster_triangle(const detail::Vertex<T>& point_a, const detail::Vertex<T>& point_b,
-                         const detail::Vertex<T>& point_c, const cpp17::optional<Texture>& texture)
+                         const detail::Vertex<T>& point_c, const std::optional<Texture>& texture)
     {
         // We already calculated this in the culling/clipping stage. Maybe we should save/cache it after all.
         const auto boundingBox = detail::calculate_clipped_bounding_box(

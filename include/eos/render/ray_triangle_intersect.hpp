@@ -22,11 +22,10 @@
 #ifndef EOS_RAY_TRIANGLE_INTERSECT_HPP
 #define EOS_RAY_TRIANGLE_INTERSECT_HPP
 
-#include "eos/cpp17/optional.hpp"
-
 #include "Eigen/Core"
 
 #include <utility>
+#include <optional>
 
 namespace eos {
 namespace render {
@@ -53,7 +52,7 @@ namespace render {
  *                               discarded.
  * @return Whether the ray intersects the triangle, and if yes, including the distance.
  */
-inline std::pair<bool, cpp17::optional<float>>
+inline std::pair<bool, std::optional<float>>
 ray_triangle_intersect(const Eigen::Vector3f& ray_origin, const Eigen::Vector3f& ray_direction,
                        const Eigen::Vector3f& v0, const Eigen::Vector3f& v1, const Eigen::Vector3f& v2,
                        bool enable_backculling)
@@ -73,24 +72,24 @@ ray_triangle_intersect(const Eigen::Vector3f& ray_origin, const Eigen::Vector3f&
         // If det is negative, the triangle is back-facing.
         // If det is close to 0, the ray misses the triangle.
         if (det < epsilon)
-            return {false, cpp17::nullopt};
+            return {false, std::nullopt};
     } else
     {
         // If det is close to 0, the ray and triangle are parallel.
         if (std::abs(det) < epsilon)
-            return {false, cpp17::nullopt};
+            return {false, std::nullopt};
     }
     const float inv_det = 1 / det;
 
     const Vector3f tvec = ray_origin - v0;
     const auto u = tvec.dot(pvec) * inv_det;
     if (u < 0 || u > 1)
-        return {false, cpp17::nullopt};
+        return {false, std::nullopt};
 
     const Vector3f qvec = tvec.cross(v0v1);
     const auto v = ray_direction.dot(qvec) * inv_det;
     if (v < 0 || u + v > 1)
-        return {false, cpp17::nullopt};
+        return {false, std::nullopt};
 
     const auto t = v0v2.dot(qvec) * inv_det;
 

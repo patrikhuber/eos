@@ -27,7 +27,6 @@
 #include "eos/render/transforms.hpp"
 #include "eos/render/detail/Vertex.hpp"
 #include "eos/render/Texture.hpp"
-#include "eos/cpp17/optional.hpp"
 
 #include "Eigen/Core"
 
@@ -35,6 +34,7 @@
 #include <cassert>
 #include <memory>
 #include <vector>
+#include <optional>
 
 /**
  * @file include/eos/render/SoftwareRenderer.hpp
@@ -97,7 +97,7 @@ public:
     template <typename T>
     core::Image4u render(const core::Mesh& mesh, const Eigen::Matrix4<T>& model_view_matrix,
                          const Eigen::Matrix4<T>& projection_matrix,
-                         const cpp17::optional<Texture>& texture = cpp17::nullopt)
+                         const std::optional<Texture>& texture = std::nullopt)
     {
         // The number of vertices has to be equal for both shape and colour, or, alternatively, it has to be a
         // shape-only model:
@@ -374,7 +374,7 @@ public:
     };
 
 public: // Todo: these should go private in the final implementation
-    cpp17::optional<Texture> texture = cpp17::nullopt;
+    std::optional<Texture> texture = std::nullopt;
     bool enable_backface_culling = false;
     bool enable_near_clipping = true;
 

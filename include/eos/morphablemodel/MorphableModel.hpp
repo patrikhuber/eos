@@ -26,7 +26,6 @@
 #include "eos/morphablemodel/PcaModel.hpp"
 #include "eos/morphablemodel/Blendshape.hpp"
 #include "eos/morphablemodel/ExpressionModel.hpp"
-#include "eos/cpp17/optional.hpp"
 #include "eos/cpp17/variant.hpp"
 
 #include "cereal/access.hpp"
@@ -34,7 +33,7 @@
 #include "cereal/types/array.hpp"
 #include "cereal/types/vector.hpp"
 #include "cereal/types/unordered_map.hpp"
-#include "eos/cpp17/optional_serialization.hpp"
+#include "cereal/types/optional.hpp"
 #include "eos/cpp17/variant_serialization.hpp"
 #include "eos/morphablemodel/io/eigen_cerealisation.hpp"
 #include "cereal/archives/binary.hpp"
@@ -50,6 +49,7 @@
 #include <unordered_map>
 #include <cassert>
 #include <stdexcept>
+#include <optional>
 
 namespace eos {
 namespace morphablemodel {
@@ -87,7 +87,7 @@ public:
      */
     MorphableModel(
         PcaModel shape_model, PcaModel color_model,
-        cpp17::optional<std::unordered_map<std::string, int>> landmark_definitions = cpp17::nullopt,
+        std::optional<std::unordered_map<std::string, int>> landmark_definitions = std::nullopt,
         std::vector<std::array<double, 2>> texture_coordinates = std::vector<std::array<double, 2>>(),
         std::vector<std::array<int, 3>> texture_triangle_indices = std::vector<std::array<int, 3>>())
         : shape_model(shape_model), color_model(color_model), landmark_definitions(landmark_definitions),
@@ -107,7 +107,7 @@ public:
      */
     MorphableModel(
         PcaModel shape_model, ExpressionModel expression_model, PcaModel color_model,
-        cpp17::optional<std::unordered_map<std::string, int>> landmark_definitions = cpp17::nullopt,
+        std::optional<std::unordered_map<std::string, int>> landmark_definitions = std::nullopt,
         std::vector<std::array<double, 2>> texture_coordinates = std::vector<std::array<double, 2>>(),
         std::vector<std::array<int, 3>> texture_triangle_indices = std::vector<std::array<int, 3>>())
         : shape_model(shape_model), color_model(color_model), landmark_definitions(landmark_definitions),
@@ -173,7 +173,7 @@ public:
         // blendshapes, there's nothing to add.
         if (get_expression_model_type() == ExpressionModelType::PcaModel)
         {
-            shape += cpp17::get<PcaModel>(expression_model.value()).get_mean();
+            shape += std::get<PcaModel>(expression_model.value()).get_mean();
         }
 
         core::Mesh mesh;
@@ -316,7 +316,7 @@ public:
         // Get a sample of the expression model, depending on whether it's a PcaModel or Blendshapes:
         if (get_expression_model_type() == ExpressionModelType::PcaModel)
         {
-            const auto& pca_expression_model = cpp17::get<PcaModel>(expression_model.value());
+            const auto& pca_expression_model = std::get<PcaModel>(expression_model.value());
             assert(pca_expression_model.get_data_dimension() == shape_model.get_data_dimension());
             if (expression_coefficients.empty())
             {
@@ -327,7 +327,7 @@ public:
             }
         } else if (get_expression_model_type() == ExpressionModelType::Blendshapes)
         {
-            const auto& expression_blendshapes = cpp17::get<Blendshapes>(expression_model.value());
+            const auto& expression_blendshapes = std::get<Blendshapes>(expression_model.value());
             assert(expression_blendshapes.size() > 0);
             assert(expression_blendshapes[0].deformation.rows() == shape_model.get_data_dimension());
             if (expression_coefficients.empty())
@@ -411,7 +411,7 @@ public:
      * The landmark definitions define mappings from a set of global landmark identifiers, like for
      * example "eye.right.outer_corner", to the model's respective vertex indices.
      */
-    void set_landmark_definitions(cpp17::optional<std::unordered_map<std::string, int>> landmark_definitions)
+    void set_landmark_definitions(std::optional<std::unordered_map<std::string, int>> landmark_definitions)
     {
         this->landmark_definitions = landmark_definitions;
     };
@@ -455,10 +455,10 @@ public:
         {
             return ExpressionModelType::None;
         }
-        if (cpp17::holds_alternative<Blendshapes>(expression_model.value()))
+        if (std::holds_alternative<Blendshapes>(expression_model.value()))
         {
             return ExpressionModelType::Blendshapes;
-        } else if (cpp17::holds_alternative<PcaModel>(expression_model.value()))
+        } else if (std::holds_alternative<PcaModel>(expression_model.value()))
         {
             return ExpressionModelType::PcaModel;
         } else
@@ -471,14 +471,14 @@ public:
     };
 
 private:
-    PcaModel shape_model;                              ///< A PCA model of the shape
-    PcaModel color_model;                              ///< A PCA model of vertex colour information
-    cpp17::optional<ExpressionModel> expression_model; ///< Blendshapes or PcaModel
-    cpp17::optional<std::unordered_map<std::string, int>> landmark_definitions; ///< A set of landmark
-                                                                                ///< definitions for the
-                                                                                ///< model, mapping from
-                                                                                ///< identifiers to vertex
-                                                                                ///< numbers
+    PcaModel shape_model;                            ///< A PCA model of the shape
+    PcaModel color_model;                            ///< A PCA model of vertex colour information
+    std::optional<ExpressionModel> expression_model; ///< Blendshapes or PcaModel
+    std::optional<std::unordered_map<std::string, int>> landmark_definitions; ///< A set of landmark
+                                                                              ///< definitions for the
+                                                                              ///< model, mapping from
+                                                                              ///< identifiers to vertex
+                                                                              ///< numbers
     std::vector<std::array<double, 2>> texture_coordinates;   ///< uv-coordinates for every vertex
     std::vector<std::array<int, 3>> texture_triangle_indices; ///< Triangulation for the uv-coordinates
 

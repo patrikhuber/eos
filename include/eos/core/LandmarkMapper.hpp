@@ -22,14 +22,13 @@
 #ifndef EOS_LANDMARKMAPPER_HPP
 #define EOS_LANDMARKMAPPER_HPP
 
-#include "eos/cpp17/optional.hpp"
-
 #include "toml.hpp"
 
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
 #include <algorithm>
+#include <optional>
 
 namespace eos {
 namespace core {
@@ -114,7 +113,7 @@ public:
      * @param[in] landmark_name A landmark name to convert.
      * @return The mapped landmark name if a mapping exists, an empty optional otherwise.
      */
-    cpp17::optional<std::string> convert(std::string landmark_name) const
+    std::optional<std::string> convert(std::string landmark_name) const
     {
         if (landmark_mappings.empty())
         {
@@ -129,7 +128,7 @@ public:
             return converted_landmark->second;
         } else
         { // landmark_name does not match the key of any element in the map
-            return cpp17::nullopt;
+            return std::nullopt;
         }
     };
 
@@ -170,9 +169,9 @@ private:
  * vertex indices.
  * @return An optional int with the vertex index.
  */
-inline cpp17::optional<int>
+inline std::optional<int>
 get_vertex_index(const std::string landmark_name, const core::LandmarkMapper& landmark_mapper,
-                 const cpp17::optional<std::unordered_map<std::string, int>>& landmark_definitions)
+                 const std::optional<std::unordered_map<std::string, int>>& landmark_definitions)
 {
     const auto converted_name = landmark_mapper.convert(landmark_name);
     if (!converted_name)
@@ -198,11 +197,11 @@ get_vertex_index(const std::string landmark_name, const core::LandmarkMapper& la
                 vertex_idx = found_vertex_idx->second;
             } else
             {
-                return cpp17::nullopt;
+                return std::nullopt;
             }
         } else
         {
-            return cpp17::nullopt;
+            return std::nullopt;
         }
     }
     return vertex_idx;

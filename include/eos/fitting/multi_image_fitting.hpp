@@ -34,13 +34,13 @@
 #include "eos/fitting/contour_correspondence.hpp"
 #include "eos/fitting/closest_edge_fitting.hpp"
 #include "eos/fitting/RenderingParameters.hpp"
-#include "eos/cpp17/optional.hpp"
 
 #include "Eigen/Core"
 
 #include <algorithm>
 #include <cassert>
 #include <vector>
+#include <optional>
 
 namespace eos {
 namespace fitting {
@@ -93,8 +93,8 @@ inline std::pair<std::vector<core::Mesh>, std::vector<fitting::RenderingParamete
     const core::LandmarkMapper& landmark_mapper, std::vector<int> image_width, std::vector<int> image_height,
     const morphablemodel::EdgeTopology& edge_topology, const fitting::ContourLandmarks& contour_landmarks,
     const fitting::ModelContour& model_contour, int num_iterations,
-    cpp17::optional<int> num_shape_coefficients_to_fit, float lambda,
-    cpp17::optional<fitting::RenderingParameters> initial_rendering_params,
+    std::optional<int> num_shape_coefficients_to_fit, float lambda,
+    std::optional<fitting::RenderingParameters> initial_rendering_params,
     std::vector<float>& pca_shape_coefficients, std::vector<std::vector<float>>& blendshape_coefficients,
     std::vector<std::vector<Eigen::Vector2f>>& fitted_image_points)
 {
@@ -374,7 +374,7 @@ fit_shape_and_pose(const morphablemodel::MorphableModel& morphable_model,
                    std::vector<int> image_height, const morphablemodel::EdgeTopology& edge_topology,
                    const fitting::ContourLandmarks& contour_landmarks,
                    const fitting::ModelContour& model_contour, int num_iterations = 5,
-                   cpp17::optional<int> num_shape_coefficients_to_fit = cpp17::nullopt, float lambda = 30.0f)
+                   std::optional<int> num_shape_coefficients_to_fit = std::nullopt, float lambda = 30.0f)
 {
     using std::vector;
     vector<float> pca_shape_coefficients;
@@ -383,7 +383,7 @@ fit_shape_and_pose(const morphablemodel::MorphableModel& morphable_model,
 
     return fit_shape_and_pose(morphable_model, blendshapes, landmarks, landmark_mapper, image_width,
                               image_height, edge_topology, contour_landmarks, model_contour, num_iterations,
-                              num_shape_coefficients_to_fit, lambda, cpp17::nullopt, pca_shape_coefficients,
+                              num_shape_coefficients_to_fit, lambda, std::nullopt, pca_shape_coefficients,
                               blendshape_coefficients, fitted_image_points);
 };
 

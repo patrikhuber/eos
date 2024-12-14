@@ -25,11 +25,10 @@
 #include "eos/fitting/orthographic_camera_estimation_linear.hpp"
 #include "eos/fitting/rotation_angles.hpp"
 #include "eos/render/matrix_projection.hpp"
-#include "eos/cpp17/optional.hpp"
-#include "eos/cpp17/optional_serialization.hpp"
 
 #include "eos/fitting/detail/eigen_quaternion_cerealisation.hpp"
 #include "cereal/cereal.hpp"
+#include "cereal/types/optional.hpp"
 #include "cereal/archives/json.hpp"
 
 #include "Eigen/Core"
@@ -37,6 +36,7 @@
 #include <string>
 #include <fstream>
 #include <stdexcept>
+#include <optional>
 
 namespace eos {
 namespace fitting {
@@ -192,7 +192,7 @@ public:
         return ea;
     };
 
-    void set_translation(float t_x, float t_y, cpp17::optional<float> t_z = cpp17::nullopt)
+    void set_translation(float t_x, float t_y, std::optional<float> t_z = std::nullopt)
     {
         this->t_x = t_x;
         this->t_y = t_y;
@@ -208,7 +208,7 @@ public:
         return {t_x, t_y, t_z.value_or(0.0f)};
     };
 
-    cpp17::optional<float> get_fov_y() const
+    std::optional<float> get_fov_y() const
     {
         return fov_y;
     };
@@ -277,10 +277,10 @@ private:
 
     float t_x;
     float t_y;
-    cpp17::optional<float> t_z;
+    std::optional<float> t_z;
 
-    cpp17::optional<float> fov_y; // Field of view in the y direction. Degree or radians? Only for certain
-                                  // camera types. Should it go into Frustum?
+    std::optional<float> fov_y; // Field of view in the y direction. Degree or radians? Only for certain
+                                // camera types. Should it go into Frustum?
 
     int screen_width; // (why) do we need these?
     int screen_height;

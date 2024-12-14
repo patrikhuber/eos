@@ -22,8 +22,6 @@
 #ifndef EOS_ORTHOGRAPHIC_CAMERA_ESTIMATION_LINEAR_HPP
 #define EOS_ORTHOGRAPHIC_CAMERA_ESTIMATION_LINEAR_HPP
 
-#include "eos/cpp17/optional.hpp"
-
 #include "Eigen/Core"
 #include "Eigen/Dense"
 #include "Eigen/SVD"
@@ -31,6 +29,7 @@
 
 #include <vector>
 #include <cassert>
+#include <optional>
 
 namespace eos {
 namespace fitting {
@@ -71,7 +70,7 @@ struct ScaledOrthoProjectionParameters
  */
 inline ScaledOrthoProjectionParameters estimate_orthographic_projection_linear(
     std::vector<Eigen::Vector2f> image_points, std::vector<Eigen::Vector4f> model_points,
-    bool is_viewport_upsidedown, cpp17::optional<int> viewport_height = cpp17::nullopt)
+    bool is_viewport_upsidedown, std::optional<int> viewport_height = std::nullopt)
 {
     using Eigen::Matrix;
     assert(image_points.size() == model_points.size());
@@ -81,7 +80,7 @@ inline ScaledOrthoProjectionParameters estimate_orthographic_projection_linear(
 
     if (is_viewport_upsidedown)
     {
-        if (viewport_height == cpp17::nullopt)
+        if (viewport_height == std::nullopt)
         {
             throw std::runtime_error(
                 "Error: If is_viewport_upsidedown is set to true, viewport_height needs to be given.");

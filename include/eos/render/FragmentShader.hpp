@@ -24,9 +24,10 @@
 
 #include "eos/render/detail/Vertex.hpp"
 #include "eos/render/detail/texturing.hpp"
-#include "eos/cpp17/optional.hpp"
 
 #include "Eigen/Core"
+
+#include <optional>
 
 // Fragment shaders are a more accurate name for the same functionality as Pixel shaders. They aren't pixels
 // yet, since the output still has to past several tests (depth, alpha, stencil) as well as the fact that one
@@ -65,7 +66,7 @@ public:
     Eigen::Vector4<T> shade_triangle_pixel(int x, int y, const detail::Vertex<T>& point_a,
                                            const detail::Vertex<T>& point_b, const detail::Vertex<T>& point_c,
                                            const Eigen::Vector3<T>& lambda,
-                                           const cpp17::optional<Texture>& texture, float dudx, float dudy,
+                                           const std::optional<Texture>& texture, float dudx, float dudy,
                                            float dvdx, float dvdy)
     {
         // attributes interpolation
@@ -98,7 +99,7 @@ public:
     Eigen::Vector4<T> shade_triangle_pixel(int x, int y, const detail::Vertex<T>& point_a,
                                            const detail::Vertex<T>& point_b, const detail::Vertex<T>& point_c,
                                            const Eigen::Vector3<T>& lambda,
-                                           const cpp17::optional<Texture>& texture, float dudx, float dudy,
+                                           const std::optional<Texture>& texture, float dudx, float dudy,
                                            float dvdx, float dvdy)
     {
         Eigen::Vector2<T> texcoords_persp =
@@ -173,7 +174,7 @@ public:
     Eigen::Vector4<T> shade_triangle_pixel(int x, int y, const detail::Vertex<T>& point_a,
                                            const detail::Vertex<T>& point_b, const detail::Vertex<T>& point_c,
                                            const Eigen::Vector3<T>& lambda,
-                                           const cpp17::optional<Texture>& texture, float dudx, float dudy,
+                                           const std::optional<Texture>& texture, float dudx, float dudy,
                                            float dvdx, float dvdy)
     {
         const auto corrected_lambda = compute_inverse_perspectively_correct_lambda(

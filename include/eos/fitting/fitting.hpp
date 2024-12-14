@@ -34,13 +34,13 @@
 #include "eos/fitting/contour_correspondence.hpp"
 #include "eos/fitting/closest_edge_fitting.hpp"
 #include "eos/fitting/RenderingParameters.hpp"
-#include "eos/cpp17/optional.hpp"
 
 #include "Eigen/Core"
 
 #include <algorithm>
 #include <cassert>
 #include <vector>
+#include <optional>
 
 namespace eos {
 namespace fitting {
@@ -71,7 +71,7 @@ inline Eigen::VectorXf fit_shape(Eigen::Matrix<float, 3, 4> affine_camera_matrix
                                  const std::vector<morphablemodel::Blendshape>& blendshapes,
                                  const std::vector<Eigen::Vector2f>& image_points,
                                  const std::vector<int>& vertex_indices, float lambda,
-                                 cpp17::optional<int> num_coefficients_to_fit,
+                                 std::optional<int> num_coefficients_to_fit,
                                  std::vector<float>& pca_shape_coefficients,
                                  std::vector<float>& blendshape_coefficients)
 {
@@ -142,7 +142,7 @@ inline Eigen::VectorXf fit_shape(Eigen::Matrix<float, 3, 4> affine_camera_matrix
                                  const std::vector<morphablemodel::Blendshape>& blendshapes,
                                  const std::vector<Eigen::Vector2f>& image_points,
                                  const std::vector<int>& vertex_indices, float lambda = 3.0f,
-                                 cpp17::optional<int> num_coefficients_to_fit = cpp17::optional<int>())
+                                 std::optional<int> num_coefficients_to_fit = std::optional<int>())
 {
     std::vector<float> unused;
     return fit_shape(affine_camera_matrix, morphable_model, blendshapes, image_points, vertex_indices, lambda,
@@ -171,8 +171,8 @@ inline std::vector<float>
 fit_expressions(const morphablemodel::ExpressionModel& expression_model, const Eigen::VectorXf& face_instance,
                 const Eigen::Matrix<float, 3, 4>& affine_camera_matrix,
                 const std::vector<Eigen::Vector2f>& landmarks, const std::vector<int>& vertex_ids,
-                cpp17::optional<float> lambda_expressions = cpp17::optional<float>(),
-                cpp17::optional<int> num_expression_coefficients_to_fit = cpp17::optional<int>())
+                std::optional<float> lambda_expressions = std::optional<float>(),
+                std::optional<int> num_expression_coefficients_to_fit = std::optional<int>())
 {
     std::vector<float> expression_coefficients;
     if (cpp17::holds_alternative<morphablemodel::PcaModel>(expression_model))
@@ -210,7 +210,7 @@ fit_expressions(const morphablemodel::ExpressionModel& expression_model, const E
  * starting values in the fitting. When the function returns, they contain the coefficients from
  * the last iteration.
  *
- * Use render::Mesh fit_shape_and_pose(const morphablemodel::MorphableModel&, const std::vector<morphablemodel::Blendshape>&, const core::LandmarkCollection<cv::Vec2f>&, const core::LandmarkMapper&, int, int, const morphablemodel::EdgeTopology&, const fitting::ContourLandmarks&, const fitting::ModelContour&, int, cpp17::optional<int>, float).
+ * Use render::Mesh fit_shape_and_pose(const morphablemodel::MorphableModel&, const std::vector<morphablemodel::Blendshape>&, const core::LandmarkCollection<cv::Vec2f>&, const core::LandmarkMapper&, int, int, const morphablemodel::EdgeTopology&, const fitting::ContourLandmarks&, const fitting::ModelContour&, int, std::optional<int>, float).
  * for a simpler overload with reasonable defaults and no optional output.
  *
  * \p num_iterations: Results are good for even a single iteration. For single-image fitting and
@@ -251,8 +251,8 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
     const core::LandmarkCollection<Eigen::Vector2f>& landmarks, const core::LandmarkMapper& landmark_mapper,
     int image_width, int image_height, const morphablemodel::EdgeTopology& edge_topology,
     const fitting::ContourLandmarks& contour_landmarks, const fitting::ModelContour& model_contour,
-    int num_iterations, cpp17::optional<int> num_shape_coefficients_to_fit, float lambda_identity,
-    cpp17::optional<int> num_expression_coefficients_to_fit, cpp17::optional<float> lambda_expressions,
+    int num_iterations, std::optional<int> num_shape_coefficients_to_fit, float lambda_identity,
+    std::optional<int> num_expression_coefficients_to_fit, std::optional<float> lambda_expressions,
     std::vector<float>& pca_shape_coefficients, std::vector<float>& expression_coefficients,
     std::vector<Eigen::Vector2f>& fitted_image_points)
 {
@@ -319,7 +319,7 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
     // and get the corresponding model points (mean if given no initial coeffs, from the computed shape otherwise):
     for (int i = 0; i < landmarks.size(); ++i)
     {
-        const cpp17::optional<int> vertex_idx = core::get_vertex_index(
+        const std::optional<int> vertex_idx = core::get_vertex_index(
             landmarks[i].name, landmark_mapper, morphable_model.get_landmark_definitions());
         if (!vertex_idx) // vertex index not defined for the current landmark
         {
@@ -452,7 +452,7 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
  *
  * If you want to access the values of shape or blendshape coefficients, or want to set starting
  * values for them, use the following overload to this function:
- * std::pair<render::Mesh, fitting::RenderingParameters> fit_shape_and_pose(const morphablemodel::MorphableModel&, const std::vector<morphablemodel::Blendshape>&, const core::LandmarkCollection<cv::Vec2f>&, const core::LandmarkMapper&, int, int, const morphablemodel::EdgeTopology&, const fitting::ContourLandmarks&, const fitting::ModelContour&, int, cpp17::optional<int>, float, cpp17::optional<fitting::RenderingParameters>, std::vector<float>&, std::vector<float>&, std::vector<cv::Vec2f>&)
+ * std::pair<render::Mesh, fitting::RenderingParameters> fit_shape_and_pose(const morphablemodel::MorphableModel&, const std::vector<morphablemodel::Blendshape>&, const core::LandmarkCollection<cv::Vec2f>&, const core::LandmarkMapper&, int, int, const morphablemodel::EdgeTopology&, const fitting::ContourLandmarks&, const fitting::ModelContour&, int, std::optional<int>, float, std::optional<fitting::RenderingParameters>, std::vector<float>&, std::vector<float>&, std::vector<cv::Vec2f>&)
  *
  * Todo: Add a convergence criterion.
  *
@@ -483,9 +483,9 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
     const core::LandmarkCollection<Eigen::Vector2f>& landmarks, const core::LandmarkMapper& landmark_mapper,
     int image_width, int image_height, const morphablemodel::EdgeTopology& edge_topology,
     const fitting::ContourLandmarks& contour_landmarks, const fitting::ModelContour& model_contour,
-    int num_iterations = 5, cpp17::optional<int> num_shape_coefficients_to_fit = cpp17::nullopt,
-    float lambda_identity = 50.0f, cpp17::optional<int> num_expression_coefficients_to_fit = cpp17::nullopt,
-    cpp17::optional<float> lambda_expressions = cpp17::nullopt)
+    int num_iterations = 5, std::optional<int> num_shape_coefficients_to_fit = std::nullopt,
+    float lambda_identity = 50.0f, std::optional<int> num_expression_coefficients_to_fit = std::nullopt,
+    std::optional<float> lambda_expressions = std::nullopt)
 {
     std::vector<float> pca_coeffs;
     std::vector<float> blendshape_coeffs;
@@ -541,8 +541,8 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
 inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
     const morphablemodel::MorphableModel& morphable_model, const std::vector<Eigen::Vector2f>& image_points,
     const std::vector<int>& vertex_indices, int image_width, int image_height, int num_iterations,
-    cpp17::optional<int> num_shape_coefficients_to_fit, float lambda_identity,
-    cpp17::optional<int> num_expression_coefficients_to_fit, cpp17::optional<float> lambda_expressions,
+    std::optional<int> num_shape_coefficients_to_fit, float lambda_identity,
+    std::optional<int> num_expression_coefficients_to_fit, std::optional<float> lambda_expressions,
     std::vector<float>& pca_shape_coefficients, std::vector<float>& expression_coefficients,
     std::vector<Eigen::Vector2f>& fitted_image_points)
 {
@@ -693,8 +693,8 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
 inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
     const morphablemodel::MorphableModel& morphable_model, const std::vector<Eigen::Vector2f>& image_points,
     const std::vector<int>& vertex_indices, int image_width, int image_height, int num_iterations,
-    cpp17::optional<int> num_shape_coefficients_to_fit, float lambda_identity,
-    cpp17::optional<int> num_expression_coefficients_to_fit, cpp17::optional<float> lambda_expressions)
+    std::optional<int> num_shape_coefficients_to_fit, float lambda_identity,
+    std::optional<int> num_expression_coefficients_to_fit, std::optional<float> lambda_expressions)
 {
     std::vector<float> pca_coeffs;
     std::vector<float> blendshape_coeffs;
@@ -750,8 +750,8 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
     const morphablemodel::MorphableModel& morphable_model,
     const core::LandmarkCollection<Eigen::Vector2f>& landmarks, const core::LandmarkMapper& landmark_mapper,
     int image_width, int image_height, int num_iterations,
-    cpp17::optional<int> num_shape_coefficients_to_fit, float lambda_identity,
-    cpp17::optional<int> num_expression_coefficients_to_fit, cpp17::optional<float> lambda_expressions,
+    std::optional<int> num_shape_coefficients_to_fit, float lambda_identity,
+    std::optional<int> num_expression_coefficients_to_fit, std::optional<float> lambda_expressions,
     std::vector<float>& pca_shape_coefficients, std::vector<float>& expression_coefficients,
     std::vector<Eigen::Vector2f>& fitted_image_points)
 {
@@ -784,7 +784,7 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
     // and get the corresponding model points (mean if given no initial coeffs, from the computed shape otherwise):
     for (int i = 0; i < landmarks.size(); ++i)
     {
-        const cpp17::optional<int> vertex_idx = core::get_vertex_index(
+        const std::optional<int> vertex_idx = core::get_vertex_index(
             landmarks[i].name, landmark_mapper, morphable_model.get_landmark_definitions());
         if (!vertex_idx) // vertex index not defined for the current landmark
         {
@@ -822,8 +822,8 @@ inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
 inline std::pair<core::Mesh, fitting::RenderingParameters> fit_shape_and_pose(
     const morphablemodel::MorphableModel& morphable_model, const core::LandmarkCollection<Eigen::Vector2f>& landmarks,
     const core::LandmarkMapper& landmark_mapper, int image_width, int image_height, int num_iterations,
-    cpp17::optional<int> num_shape_coefficients_to_fit, float lambda_identity,
-    cpp17::optional<int> num_expression_coefficients_to_fit, cpp17::optional<float> lambda_expressions)
+    std::optional<int> num_shape_coefficients_to_fit, float lambda_identity,
+    std::optional<int> num_expression_coefficients_to_fit, std::optional<float> lambda_expressions)
 {
     std::vector<float> pca_coeffs;
     std::vector<float> blendshape_coeffs;
