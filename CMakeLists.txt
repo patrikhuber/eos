@@ -1,7 +1,4 @@
-cmake_minimum_required(VERSION 3.8.2)
-if(MSVC)
-  cmake_minimum_required(VERSION 3.10.0) # needed for CMAKE_CXX_STANDARD 17 on >=VS2017.3
-endif()
+cmake_minimum_required(VERSION 3.23...3.29)
 project(eos VERSION 1.5.0 LANGUAGES CXX)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
@@ -185,6 +182,7 @@ endif()
 if(EOS_GENERATE_PYTHON_BINDINGS)
   set(PYBIND11_PATH "${eos_3RDPARTY_DIR}/pybind11")
   # If this fails, the repo has probably not been cloned with submodules. Run: git submodule update --init
+  set(PYBIND11_FINDPYTHON ON)
   add_subdirectory(${PYBIND11_PATH}) # add and initialise pybind11
   add_subdirectory(python) # the actual bindings
   install(DIRECTORY ${eos_3RDPARTY_DIR}/pybind11/include/ DESTINATION 3rdparty/pybind11/include) # pybind11 headers
