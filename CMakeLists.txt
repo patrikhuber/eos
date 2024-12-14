@@ -179,8 +179,12 @@ endif()
 
 if(EOS_GENERATE_PYTHON_BINDINGS)
   set(PYBIND11_PATH "${eos_3RDPARTY_DIR}/pybind11")
-  # If this fails, the repo has probably not been cloned with submodules. Run: git submodule update --init
   set(PYBIND11_FINDPYTHON ON)
+  # Note: I don't think this will work well on Multi-Configuration Generators, but there's nothing we can do:
+  if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+	set(PYTHON_IS_DEBUG ON)
+  endif()
+  # If this fails, the repo has probably not been cloned with submodules. Run: git submodule update --init
   add_subdirectory(${PYBIND11_PATH}) # add and initialise pybind11
   add_subdirectory(python) # the actual bindings
   install(DIRECTORY ${eos_3RDPARTY_DIR}/pybind11/include/ DESTINATION 3rdparty/pybind11/include) # pybind11 headers
