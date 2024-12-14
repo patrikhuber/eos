@@ -9,8 +9,6 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF) # This makes CMake use -std=c++xx instead of -std=gnu++xx
-# This list is likely not complete, but it should be sufficient to error out on old compilers that we cannot build on:
-set(EOS_CXX_COMPILE_FEATURES cxx_defaulted_functions cxx_generalized_initializers cxx_generic_lambdas cxx_lambdas cxx_nonstatic_member_init cxx_range_for cxx_right_angle_brackets cxx_strong_enums)
 
 # All the options for building the library. Can be changed on the command-line or in initial_cache.cmake.
 message(STATUS "Options:")
@@ -126,7 +124,7 @@ set(HEADERS
 )
 
 add_library(eos INTERFACE)
-target_compile_features(eos INTERFACE ${EOS_CXX_COMPILE_FEATURES})
+target_compile_features(eos INTERFACE cxx_std_17)
 
 # Add header includes:
 target_include_directories(eos INTERFACE "include")
