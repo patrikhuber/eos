@@ -39,17 +39,16 @@
 #include "opencv2/imgproc.hpp"
 #include "opencv2/imgcodecs.hpp"
 
-#include "boost/filesystem.hpp"
 #include "boost/program_options.hpp"
 
 #include <chrono>
 #include <iostream>
 #include <vector>
+#include <filesystem>
 
 using namespace eos;
 using namespace ceres;
 namespace po = boost::program_options;
-namespace fs = boost::filesystem;
 using eos::core::Landmark;
 using eos::core::LandmarkCollection;
 using cv::Mat;
@@ -85,26 +84,27 @@ std::ostream& operator<<(std::ostream& out, const std::vector<T>& v)
  */
 int main(int argc, char* argv[])
 {
-    fs::path modelfile, imagefile, landmarksfile, mappingsfile, contourfile, blendshapesfile, outputfile;
+    using std::filesystem::path;
+    path modelfile, imagefile, landmarksfile, mappingsfile, contourfile, blendshapesfile, outputfile;
     try
     {
         po::options_description desc("Allowed options");
         // clang-format off
         desc.add_options()
             ("help,h", "display the help message")
-            ("model,m", po::value<fs::path>(&modelfile)->required()->default_value("../share/sfm_3448.bin"),
+            ("model,m", po::value<path>(&modelfile)->required()->default_value("../share/sfm_3448.bin"),
                 "a Morphable Model, containing a shape and albedo model, stored as cereal BinaryArchive")
-            ("blendshapes,b", po::value<fs::path>(&blendshapesfile)->required()->default_value("../share/expression_blendshapes_3448.bin"),
+            ("blendshapes,b", po::value<path>(&blendshapesfile)->required()->default_value("../share/expression_blendshapes_3448.bin"),
                 "file with blendshapes")
-            ("image,i", po::value<fs::path>(&imagefile)->required()->default_value("data/image_0010.png"),
+            ("image,i", po::value<path>(&imagefile)->required()->default_value("data/image_0010.png"),
                 "an input image")
-            ("landmarks,l", po::value<fs::path>(&landmarksfile)->required()->default_value("data/image_0010.pts"),
+            ("landmarks,l", po::value<path>(&landmarksfile)->required()->default_value("data/image_0010.pts"),
                 "2D landmarks for the image, in ibug .pts format")
-            ("mapping,p", po::value<fs::path>(&mappingsfile)->required()->default_value("../share/ibug_to_sfm.txt"),
+            ("mapping,p", po::value<path>(&mappingsfile)->required()->default_value("../share/ibug_to_sfm.txt"),
                 "landmark identifier to model vertex number mapping")
-            ("model-contour,c", po::value<fs::path>(&contourfile)->required()->default_value("../share/sfm_model_contours.json"),
+            ("model-contour,c", po::value<path>(&contourfile)->required()->default_value("../share/sfm_model_contours.json"),
                 "file with model contour indices")
-            ("output,o", po::value<fs::path>(&outputfile)->required()->default_value("out"),
+            ("output,o", po::value<path>(&outputfile)->required()->default_value("out"),
                 "basename for the output obj file");
         // clang-format on
         po::variables_map vm;

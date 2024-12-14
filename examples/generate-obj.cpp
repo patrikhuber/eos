@@ -26,17 +26,16 @@
 #include "eos/render/matrix_projection.hpp"
 #include "eos/cpp17/optional.hpp"
 
-#include "boost/filesystem.hpp"
 #include "boost/program_options.hpp"
 
 #include "opencv2/core.hpp"
 #include "opencv2/imgcodecs.hpp"
 
 #include <iostream>
+#include <filesystem>
 
 using namespace eos;
 namespace po = boost::program_options;
-namespace fs = boost::filesystem;
 using std::cout;
 using std::endl;
 using std::string;
@@ -51,7 +50,8 @@ using std::vector;
  */
 int main(int argc, char* argv[])
 {
-    string model_file, output_file;
+    using std::filesystem::path;
+    path model_file, output_file;
     vector<float> shape_coefficients, color_coefficients;
 
     try
@@ -60,14 +60,14 @@ int main(int argc, char* argv[])
         // clang-format off
         desc.add_options()
             ("help", "produce help message")
-            ("model", po::value<string>(&model_file)->required(), "an eos .bin Morphable Model file")
+            ("model", po::value<path>(&model_file)->required(), "an eos .bin Morphable Model file")
             ("shape-coeffs", po::value<vector<float>>(&shape_coefficients)->multitoken(),
                 "optional parameter list of shape coefficients. All not specified will be set to zero. E.g.: "
                 "'--shape-coeffs 0.0 1.5'. If omitted, the mean is used.")
             ("color-coeffs", po::value<vector<float>>(&color_coefficients)->multitoken(),
                 "optional parameter list of colour coefficients. All not specified will be set to zero. E.g.: "
                 "'--colour-coeffs 0.0 1.5'. If omitted, the mean is used.")
-            ("output", po::value<string>(&output_file)->default_value("output.obj"),
+            ("output", po::value<path>(&output_file)->default_value("output.obj"),
                 "name of the output obj file (including .obj). Can be a full path.");
         // clang-format on
         po::variables_map vm;
@@ -90,7 +90,7 @@ int main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
-    morphablemodel::MorphableModel morphable_model = morphablemodel::load_model(model_file);
+    morphablemodel::MorphableModel morphable_model = morphablemodel::load_model(model_file.string());
 
     if (shape_coefficients.size() < morphable_model.get_shape_model().get_num_principal_components())
     {
@@ -105,7 +105,7 @@ int main(int argc, char* argv[])
     const core::Mesh sample_mesh = morphable_model.draw_sample(
         shape_coefficients, color_coefficients); // if one of the two vectors is empty, it uses get_mean()
 
-    core::write_obj(sample_mesh, output_file);
+    core::write_obj(sample_mesh, output_file.string());
 
     const auto perspective = render::perspective(core::radians(60.0f), 512.0f / 512.0f, 0.1f, 500.0f);
     // Could use orthographic projection accordingly:
@@ -117,7 +117,7 @@ int main(int argc, char* argv[])
 
     const core::Image4u rendering =
         render::render(sample_mesh, model_view, perspective, 512, 512, true, true, true);
-    fs::path filename_rendering(output_file);
+    std::filesystem::path filename_rendering(output_file);
     filename_rendering.replace_extension(".png");
     cv::imwrite(filename_rendering.string(), core::to_mat(rendering));
 

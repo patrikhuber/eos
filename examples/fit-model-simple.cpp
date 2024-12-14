@@ -31,7 +31,6 @@
 
 #include "Eigen/Core"
 
-#include "boost/filesystem.hpp"
 #include "boost/program_options.hpp"
 
 #include "opencv2/core.hpp"
@@ -40,10 +39,10 @@
 
 #include <iostream>
 #include <vector>
+#include <filesystem>
 
 using namespace eos;
 namespace po = boost::program_options;
-namespace fs = boost::filesystem;
 using eos::core::Landmark;
 using eos::core::LandmarkCollection;
 using Eigen::Vector2f;
@@ -65,22 +64,23 @@ using std::vector;
  */
 int main(int argc, char* argv[])
 {
-    string modelfile, imagefile, landmarksfile, mappingsfile, outputbasename;
+    using std::filesystem::path;
+    path modelfile, imagefile, landmarksfile, mappingsfile, outputbasename;
     try
     {
         po::options_description desc("Allowed options");
         // clang-format off
         desc.add_options()
             ("help,h", "display the help message")
-            ("model,m", po::value<string>(&modelfile)->required()->default_value("../share/sfm_shape_3448.bin"),
+            ("model,m", po::value<path>(&modelfile)->required()->default_value("../share/sfm_shape_3448.bin"),
                 "a Morphable Model stored as cereal BinaryArchive")
-            ("image,i", po::value<string>(&imagefile)->required()->default_value("data/image_0010.png"),
+            ("image,i", po::value<path>(&imagefile)->required()->default_value("data/image_0010.png"),
                 "an input image")
-            ("landmarks,l", po::value<string>(&landmarksfile)->required()->default_value("data/image_0010.pts"),
+            ("landmarks,l", po::value<path>(&landmarksfile)->required()->default_value("data/image_0010.pts"),
                 "2D landmarks for the image, in ibug .pts format")
-            ("mapping,p", po::value<string>(&mappingsfile)->required()->default_value("../share/ibug_to_sfm.txt"),
+            ("mapping,p", po::value<path>(&mappingsfile)->required()->default_value("../share/ibug_to_sfm.txt"),
                 "landmark identifier to model vertex number mapping")
-            ("output,o", po::value<string>(&outputbasename)->required()->default_value("out"),
+            ("output,o", po::value<path>(&outputbasename)->required()->default_value("out"),
                 "basename for the output rendering and obj files");
         // clang-format on
         po::variables_map vm;
@@ -100,11 +100,11 @@ int main(int argc, char* argv[])
     }
 
     // Load the image, landmarks, LandmarkMapper and the Morphable Model:
-    Mat image = cv::imread(imagefile);
+    Mat image = cv::imread(imagefile.string());
     LandmarkCollection<Eigen::Vector2f> landmarks;
     try
     {
-        landmarks = core::read_pts_landmarks(landmarksfile);
+        landmarks = core::read_pts_landmarks(landmarksfile.string());
     } catch (const std::runtime_error& e)
     {
         cout << "Error reading the landmarks: " << e.what() << endl;
@@ -113,7 +113,7 @@ int main(int argc, char* argv[])
     morphablemodel::MorphableModel morphable_model;
     try
     {
-        morphable_model = morphablemodel::load_model(modelfile);
+        morphable_model = morphablemodel::load_model(modelfile.string());
     } catch (const std::runtime_error& e)
     {
         cout << "Error loading the Morphable Model: " << e.what() << endl;
@@ -123,7 +123,7 @@ int main(int argc, char* argv[])
     core::LandmarkMapper landmark_mapper;
     try
     {
-        landmark_mapper = core::LandmarkMapper(mappingsfile);
+        landmark_mapper = core::LandmarkMapper(mappingsfile.string());
     } catch (const std::exception& e)
     {
         cout << "Error loading the landmark mappings: " << e.what() << endl;
@@ -182,7 +182,8 @@ int main(int argc, char* argv[])
                                 render::ProjectionType::Orthographic, core::from_mat_with_alpha(image));
 
     // Save the mesh as textured obj:
-    fs::path outputfile = outputbasename + ".obj";
+    path outputfile = outputbasename;
+    outputfile.replace_extension(".obj");
     core::write_textured_obj(mesh, outputfile.string());
 
     // And save the texture map:

@@ -37,16 +37,15 @@
 #include "opencv2/imgcodecs.hpp"
 
 #include "boost/program_options.hpp"
-#include "boost/filesystem.hpp"
 
 #include <vector>
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <filesystem>
 
 using namespace eos;
 namespace po = boost::program_options;
-namespace fs = boost::filesystem;
 using eos::core::Landmark;
 using eos::core::LandmarkCollection;
 using cv::Mat;
@@ -138,30 +137,30 @@ private:
  */
 int main(int argc, char *argv[])
 {
-    // Note: Could make these all std::string, see fit-model.cpp.
-    fs::path modelfile, mappingsfile, contourfile, edgetopologyfile, blendshapesfile, outputfilebase;
-    vector<fs::path> imagefiles, landmarksfiles;
+    using std::filesystem::path;
+    path modelfile, mappingsfile, contourfile, edgetopologyfile, blendshapesfile, outputfilebase;
+    vector<path> imagefiles, landmarksfiles;
     try
     {
         po::options_description desc("Allowed options");
         // clang-format off
         desc.add_options()
             ("help,h", "display the help message")
-            ("model,m", po::value<fs::path>(&modelfile)->required()->default_value("../share/sfm_shape_3448.bin"),
+            ("model,m", po::value<path>(&modelfile)->required()->default_value("../share/sfm_shape_3448.bin"),
                 "a Morphable Model stored as cereal BinaryArchive")
-            ("image,i", po::value<vector<fs::path>>(&imagefiles)->multitoken(),
+            ("image,i", po::value<vector<path>>(&imagefiles)->multitoken(),
                 "an input image")
-            ("landmarks,l", po::value<vector<fs::path>>(&landmarksfiles)->multitoken(),
+            ("landmarks,l", po::value<vector<path>>(&landmarksfiles)->multitoken(),
                 "2D landmarks for the image, in ibug .pts format")
-            ("mapping,p", po::value<fs::path>(&mappingsfile)->required()->default_value("../share/ibug_to_sfm.txt"),
+            ("mapping,p", po::value<path>(&mappingsfile)->required()->default_value("../share/ibug_to_sfm.txt"),
                 "landmark identifier to model vertex number mapping")
-            ("model-contour,c", po::value<fs::path>(&contourfile)->required()->default_value("../share/model_contours.json"),
+            ("model-contour,c", po::value<path>(&contourfile)->required()->default_value("../share/model_contours.json"),
                 "file with model contour indices")
-            ("edge-topology,e", po::value<fs::path>(&edgetopologyfile)->required()->default_value("../share/sfm_3448_edge_topology.json"),
+            ("edge-topology,e", po::value<path>(&edgetopologyfile)->required()->default_value("../share/sfm_3448_edge_topology.json"),
                 "file with model's precomputed edge topology")
-            ("blendshapes,b", po::value<fs::path>(&blendshapesfile)->required()->default_value("../share/expression_blendshapes_3448.bin"),
+            ("blendshapes,b", po::value<path>(&blendshapesfile)->required()->default_value("../share/expression_blendshapes_3448.bin"),
                 "file with blendshapes")
-            ("output,o", po::value<fs::path>(&outputfilebase)->required()->default_value("out"),
+            ("output,o", po::value<path>(&outputfilebase)->required()->default_value("out"),
                 "basename for the output rendering and obj files");
         // clang-format on
         po::variables_map vm;
@@ -287,9 +286,9 @@ int main(int argc, char *argv[])
         render::draw_wireframe(outimg, per_frame_meshes[i], per_frame_rendering_params[i].get_modelview(),
                                per_frame_rendering_params[i].get_projection(),
                                fitting::get_opencv_viewport(images[i].cols, images[i].rows));
-        fs::path outputfile = outputfilebase;
-        outputfile += fs::path(imagefiles[i].stem());
-        outputfile += fs::path(".png");
+        path outputfile = outputfilebase;
+        outputfile += path(imagefiles[i].stem());
+        outputfile += path(".png");
         cv::imwrite(outputfile.string(), outimg);
 
         // Save frontal rendering with texture:
@@ -317,8 +316,8 @@ int main(int argc, char *argv[])
     }
 
     // Save the merged texture map:
-    fs::path outputfile = outputfilebase;
-    outputfile += fs::path("merged.texture.png");
+    path outputfile = outputfilebase;
+    outputfile += path("merged.texture.png");
     cv::imwrite(outputfile.string(), merged_texturemap);
     outputfile.replace_extension("");
 
