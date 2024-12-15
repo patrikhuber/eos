@@ -57,7 +57,7 @@ namespace fitting {
  * starting values in the fitting. When the function returns, they contain the coefficients from
  * the last iteration.
  *
- * Use render::Mesh fit_shape_and_pose(const morphablemodel::MorphableModel&, const std::vector<morphablemodel::Blendshape>&, const core::LandmarkCollection<Eigen::Vector2f>&, const core::LandmarkMapper&, int, int, const morphablemodel::EdgeTopology&, const fitting::ContourLandmarks&, const fitting::ModelContour&, int, cpp17::optional<int>, float).
+ * Use render::Mesh fit_shape_and_pose(const morphablemodel::MorphableModel&, const std::vector<morphablemodel::Blendshape>&, const core::LandmarkCollection<Eigen::Vector2f>&, const core::LandmarkMapper&, int, int, const morphablemodel::EdgeTopology&, const fitting::ContourLandmarks&, const fitting::ModelContour&, int, std::optional<int>, float).
  * for a simpler overload with reasonable defaults and no optional output.
  *
  * \p num_iterations: Results are good for even a few iterations. For full convergence of all parameters,
@@ -344,7 +344,7 @@ inline std::pair<std::vector<core::Mesh>, std::vector<fitting::RenderingParamete
  *
  * If you want to access the values of shape or blendshape coefficients, or want to set starting
  * values for them, use the following overload to this function:
- * std::pair<render::Mesh, fitting::RenderingParameters> fit_shape_and_pose(const morphablemodel::MorphableModel&, const std::vector<morphablemodel::Blendshape>&, const core::LandmarkCollection<Eigen::Vector2f>&, const core::LandmarkMapper&, int, int, const morphablemodel::EdgeTopology&, const fitting::ContourLandmarks&, const fitting::ModelContour&, int, cpp17::optional<int>, float, cpp17::optional<fitting::RenderingParameters>, std::vector<float>&, std::vector<float>&, std::vector<Eigen::Vector2f>&)
+ * std::pair<render::Mesh, fitting::RenderingParameters> fit_shape_and_pose(const morphablemodel::MorphableModel&, const std::vector<morphablemodel::Blendshape>&, const core::LandmarkCollection<Eigen::Vector2f>&, const core::LandmarkMapper&, int, int, const morphablemodel::EdgeTopology&, const fitting::ContourLandmarks&, const fitting::ModelContour&, int, std::optional<int>, float, std::optional<fitting::RenderingParameters>, std::vector<float>&, std::vector<float>&, std::vector<Eigen::Vector2f>&)
  *
  * \p num_iterations: Results are good for even a few iterations. For full convergence of all parameters,
  * it can take up to 300 iterations. In tracking, particularly if initialising with the previous frame,

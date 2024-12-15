@@ -140,8 +140,6 @@ source_group(render REGULAR_EXPRESSION include/eos/render/*)
 source_group(render\\detail REGULAR_EXPRESSION include/eos/render/detail/*)
 source_group(render\\opencv REGULAR_EXPRESSION include/eos/render/opencv/*)
 source_group(video REGULAR_EXPRESSION include/eos/video/*)
-source_group(cpp17 REGULAR_EXPRESSION include/eos/cpp17/*)
-source_group(cpp17\\detail REGULAR_EXPRESSION include/eos/cpp17/detail/*)
 
 # The eos install target:
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/ DESTINATION include) # our library headers

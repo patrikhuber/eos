@@ -41,15 +41,13 @@
 #include "pybind11/eigen.h"
 #include "pybind11/stl.h"
 
-#include "eos/cpp17/optional.hpp"
-#include "pybind11_optional.hpp"
-#include "pybind11_variant.hpp"
 #include "pybind11_Image.hpp"
 
 #include "Eigen/Core"
 
 #include <cassert>
 #include <string>
+#include <optional>
 
 namespace py = pybind11;
 using namespace eos;
@@ -197,8 +195,8 @@ PYBIND11_MODULE(eos, eos_module)
         .value("PcaModel", morphablemodel::MorphableModel::ExpressionModelType::PcaModel);
 
     morphable_model
-        .def(py::init<morphablemodel::PcaModel, morphablemodel::PcaModel, cpp17::optional<std::unordered_map<std::string, int>>, std::vector<std::array<double, 2>>, std::vector<std::array<int, 3>>>(), "Create a Morphable Model from a shape and a colour PCA model, and optional vertex definitions and texture coordinates.", py::arg("shape_model"), py::arg("color_model"), py::arg("vertex_definitions") = cpp17::nullopt, py::arg("texture_coordinates") = std::vector<std::array<double, 2>>(), py::arg("texture_triangle_indices") = std::vector<std::array<int, 3>>())
-        .def(py::init<morphablemodel::PcaModel, morphablemodel::ExpressionModel, morphablemodel::PcaModel, cpp17::optional<std::unordered_map<std::string, int>>, std::vector<std::array<double, 2>>, std::vector<std::array<int, 3>>>(), "Create a Morphable Model from a shape and a colour PCA model, an expression PCA model or blendshapes, and optional vertex definitions and texture coordinates.", py::arg("shape_model"), py::arg("expression_model"), py::arg("color_model"), py::arg("vertex_definitions") = cpp17::nullopt, py::arg("texture_coordinates") = std::vector<std::array<double, 2>>(), py::arg("texture_triangle_indices") = std::vector<std::array<int, 3>>())
+        .def(py::init<morphablemodel::PcaModel, morphablemodel::PcaModel, std::optional<std::unordered_map<std::string, int>>, std::vector<std::array<double, 2>>, std::vector<std::array<int, 3>>>(), "Create a Morphable Model from a shape and a colour PCA model, and optional vertex definitions and texture coordinates.", py::arg("shape_model"), py::arg("color_model"), py::arg("vertex_definitions") = std::nullopt, py::arg("texture_coordinates") = std::vector<std::array<double, 2>>(), py::arg("texture_triangle_indices") = std::vector<std::array<int, 3>>())
+        .def(py::init<morphablemodel::PcaModel, morphablemodel::ExpressionModel, morphablemodel::PcaModel, std::optional<std::unordered_map<std::string, int>>, std::vector<std::array<double, 2>>, std::vector<std::array<int, 3>>>(), "Create a Morphable Model from a shape and a colour PCA model, an expression PCA model or blendshapes, and optional vertex definitions and texture coordinates.", py::arg("shape_model"), py::arg("expression_model"), py::arg("color_model"), py::arg("vertex_definitions") = std::nullopt, py::arg("texture_coordinates") = std::vector<std::array<double, 2>>(), py::arg("texture_triangle_indices") = std::vector<std::array<int, 3>>())
         .def("get_shape_model", &morphablemodel::MorphableModel::get_shape_model, "Returns the PCA shape model of this Morphable Model.") // Not sure if that'll really be const in Python? I think Python does a copy each time this gets called?
         .def("get_color_model", &morphablemodel::MorphableModel::get_color_model, "Returns the PCA colour (albedo) model of this Morphable Model.")
         .def("get_expression_model", &morphablemodel::MorphableModel::get_expression_model, "Returns the shape expression model or an empty optional if the Morphable Model does not have a separate expression model.")
@@ -245,7 +243,7 @@ PYBIND11_MODULE(eos, eos_module)
     morphablemodel_module.def("load_scm_model", &morphablemodel::load_scm_model,
                               "Load a shape and color model from a .scm file containing a Morphable Model in "
                               "the Surrey CVSSP binary format.",
-                              py::arg("model_filename"), py::arg("isomap_file") = cpp17::nullopt);
+                              py::arg("model_filename"), py::arg("isomap_file") = std::nullopt);
 
     /**
      * Bindings for the eos::pca namespace:
@@ -317,9 +315,9 @@ PYBIND11_MODULE(eos, eos_module)
            const core::LandmarkMapper& landmark_mapper, int image_width, int image_height,
            const morphablemodel::EdgeTopology& edge_topology,
            const fitting::ContourLandmarks& contour_landmarks, const fitting::ModelContour& model_contour,
-           int num_iterations, cpp17::optional<int> num_shape_coefficients_to_fit, float lambda_identity,
-           cpp17::optional<int> num_expression_coefficients_to_fit,
-           cpp17::optional<float> lambda_expressions) {
+           int num_iterations, std::optional<int> num_shape_coefficients_to_fit, float lambda_identity,
+           std::optional<int> num_expression_coefficients_to_fit,
+           std::optional<float> lambda_expressions) {
             std::vector<float> pca_coeffs;
             std::vector<float> blendshape_coeffs;
             std::vector<Eigen::Vector2f> fitted_image_points;
@@ -343,9 +341,9 @@ PYBIND11_MODULE(eos, eos_module)
         [](const morphablemodel::MorphableModel& morphable_model,
            const core::LandmarkCollection<Eigen::Vector2f>& landmarks,
            const core::LandmarkMapper& landmark_mapper, int image_width, int image_height,
-           int num_iterations, cpp17::optional<int> num_shape_coefficients_to_fit, float lambda_identity,
-           cpp17::optional<int> num_expression_coefficients_to_fit,
-           cpp17::optional<float> lambda_expressions,
+           int num_iterations, std::optional<int> num_shape_coefficients_to_fit, float lambda_identity,
+           std::optional<int> num_expression_coefficients_to_fit,
+           std::optional<float> lambda_expressions,
            std::vector<float> pca_coeffs,
            std::vector<float> blendshape_coeffs,
            std::vector<Eigen::Vector2f> fitted_image_points) {
@@ -370,9 +368,9 @@ PYBIND11_MODULE(eos, eos_module)
         [](const morphablemodel::PcaModel& shape_model,
            const Eigen::Matrix<float, 3, 4>& affine_camera_matrix,
            const std::vector<Eigen::Vector2f>& landmarks, const std::vector<int>& vertex_ids,
-           const Eigen::VectorXf& base_face, float lambda, cpp17::optional<int> num_coefficients_to_fit,
-           cpp17::optional<float> detector_standard_deviation,
-           cpp17::optional<float> model_standard_deviation) {
+           const Eigen::VectorXf& base_face, float lambda, std::optional<int> num_coefficients_to_fit,
+           std::optional<float> detector_standard_deviation,
+           std::optional<float> model_standard_deviation) {
             const auto result = fitting::fit_shape_to_landmarks_linear(
                 shape_model, affine_camera_matrix, landmarks, vertex_ids, base_face, lambda,
                 num_coefficients_to_fit, detector_standard_deviation, model_standard_deviation);
@@ -391,8 +389,8 @@ PYBIND11_MODULE(eos, eos_module)
         [](const morphablemodel::ExpressionModel& expression_model, const Eigen::VectorXf& face_instance,
            const Eigen::Matrix<float, 3, 4>& affine_camera_matrix,
            const std::vector<Eigen::Vector2f>& landmarks, const std::vector<int>& vertex_ids,
-           cpp17::optional<float> lambda_expressions,
-           cpp17::optional<int> num_expression_coefficients_to_fit) {
+           std::optional<float> lambda_expressions,
+           std::optional<int> num_expression_coefficients_to_fit) {
             const auto result =
                 fitting::fit_expressions(expression_model, face_instance, affine_camera_matrix, landmarks,
                                          vertex_ids, lambda_expressions, num_expression_coefficients_to_fit);

@@ -23,7 +23,6 @@
 #define EOS_IO_CVSSP_HPP
 
 #include "eos/morphablemodel/MorphableModel.hpp"
-#include "eos/cpp17/optional.hpp"
 
 #include "Eigen/Core"
 
@@ -33,6 +32,7 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include <optional>
 
 namespace eos {
 namespace morphablemodel {
@@ -62,7 +62,7 @@ std::vector<std::array<double, 2>> load_isomap(std::string isomap_file);
  * @throws std::runtime_error when reading either of the files fails.
  */
 inline MorphableModel load_scm_model(std::string model_filename,
-                                     cpp17::optional<std::string> isomap_file = cpp17::nullopt)
+                                     std::optional<std::string> isomap_file = std::nullopt)
 {
     using Eigen::MatrixXf;
     using Eigen::VectorXf;
@@ -255,7 +255,7 @@ inline MorphableModel load_scm_model(std::string model_filename,
         }
     }
 
-    return MorphableModel(shape_model, color_model, cpp17::nullopt, tex_coords);
+    return MorphableModel(shape_model, color_model, std::nullopt, tex_coords);
 };
 
 /**
