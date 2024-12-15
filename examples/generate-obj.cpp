@@ -25,7 +25,7 @@
 #include "eos/render/render.hpp"
 #include "eos/render/matrix_projection.hpp"
 
-#include "boost/program_options.hpp"
+#include <cxxopts.hpp>
 
 #include "opencv2/core.hpp"
 #include "opencv2/imgcodecs.hpp"
@@ -34,7 +34,6 @@
 #include <filesystem>
 
 using namespace eos;
-namespace po = boost::program_options;
 using std::cout;
 using std::endl;
 using std::string;
@@ -49,43 +48,51 @@ using std::vector;
  */
 int main(int argc, char* argv[])
 {
+    cxxopts::Options options("generate-obj", "Generates samples from the model and stores them as obj file "
+                                             "as well as outputs a frontal rendering of the sample.");
+    // clang-format off
+    options.add_options()
+        ("h,help", "display the help message")
+        ("m,model", "an eos .bin Morphable Model file", cxxopts::value<std::string>(), "filename")
+        ("shape-coeffs", "optional comma-separated list of shape coefficients. Do not use spaces between values. "
+            "E.g.: '--shape-coeffs 0.0,1.5,-1.0'. All coefficients not specified will be set to zero. "
+            "If omitted, the mean is used.",
+            cxxopts::value<std::vector<float>>())
+        ("color-coeffs", "optional comma-separated list of colour coefficients. Do not use spaces between values. "
+            "E.g.: '--colour-coeffs 0.0,1.0,-0.5'. All coefficients not specified will be set to zero. "
+            "If omitted, the mean is used.",
+            cxxopts::value<std::vector<float>>())
+        ("o,output", "name of the output obj file (including .obj). Can be a full path.",
+            cxxopts::value<std::string>()->default_value("output.obj"), "filename");
+    // clang-format on
+
     using std::filesystem::path;
     path model_file, output_file;
     vector<float> shape_coefficients, color_coefficients;
 
     try
     {
-        po::options_description desc("Allowed options");
-        // clang-format off
-        desc.add_options()
-            ("help", "produce help message")
-            ("model", po::value<path>(&model_file)->required(), "an eos .bin Morphable Model file")
-            ("shape-coeffs", po::value<vector<float>>(&shape_coefficients)->multitoken(),
-                "optional parameter list of shape coefficients. All not specified will be set to zero. E.g.: "
-                "'--shape-coeffs 0.0 1.5'. If omitted, the mean is used.")
-            ("color-coeffs", po::value<vector<float>>(&color_coefficients)->multitoken(),
-                "optional parameter list of colour coefficients. All not specified will be set to zero. E.g.: "
-                "'--colour-coeffs 0.0 1.5'. If omitted, the mean is used.")
-            ("output", po::value<path>(&output_file)->default_value("output.obj"),
-                "name of the output obj file (including .obj). Can be a full path.");
-        // clang-format on
-        po::variables_map vm;
-        // disabling short options to allow negative values for the coefficients, e.g. '--shape-coeffs 0.0 -1.5'
-        po::store(
-            po::parse_command_line(argc, argv, desc,
-                                   po::command_line_style::unix_style ^ po::command_line_style::allow_short),
-            vm);
-        if (vm.count("help"))
+        const auto result = options.parse(argc, argv);
+        if (result.count("help"))
         {
-            cout << "Usage: generate-obj [options]" << endl;
-            cout << desc;
+            std::cout << options.help() << std::endl;
             return EXIT_SUCCESS;
         }
-        po::notify(vm);
-    } catch (const po::error& e)
+
+        model_file = result["model"].as<std::string>();   // required (with default)
+        if (result.count("shape-coeffs"))                 // optional
+        {
+            shape_coefficients = result["shape-coeffs"].as<std::vector<float>>();
+        }
+        if (result.count("color-coeffs"))                 // optional
+        {
+            color_coefficients = result["color-coeffs"].as<std::vector<float>>();
+        }
+        output_file = result["output"].as<std::string>(); // required (with default)
+    } catch (const std::exception& e)
     {
-        cout << "Error while parsing command-line arguments: " << e.what() << endl;
-        cout << "Use --help to display a list of options." << endl;
+        std::cout << "Error while parsing command-line arguments: " << e.what() << std::endl;
+        std::cout << "Use --help to display a list of options." << std::endl;
         return EXIT_FAILURE;
     }
 

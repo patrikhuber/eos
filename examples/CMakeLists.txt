@@ -26,7 +26,7 @@ target_compile_options(fit-model-multi PRIVATE "$<$<CXX_COMPILER_ID:MSVC>:/bigob
 
 # Generate random samples from the model:
 add_executable(generate-obj generate-obj.cpp)
-target_link_libraries(generate-obj PRIVATE eos opencv_core opencv_imgproc opencv_imgcodecs Boost::program_options)
+target_link_libraries(generate-obj PRIVATE cxxopts::cxxopts eos opencv_core opencv_imgcodecs)
 
 # Install these targets:
 install(TARGETS fit-model-simple DESTINATION bin)
