@@ -32,8 +32,3 @@
  * @namespace eos::video
  * @brief Video keyframe extraction and fusion.
  */
-
- /**
- * @namespace eos::cpp17
- * @brief Replacement types and functions for C++17 standard library functionality for compilers who don't have them (for example AppleClang).
- */
