@@ -33,7 +33,7 @@
 int main(int argc, char* argv[])
 {
     cxxopts::Options options("scm-to-cereal",
-                             "Convert a CVSSP .scm morphable model file to an eos (Cereal) .bin file.");
+                             "Convert a CVSSP .scm morphable model file to an eos (cereal) .bin file.");
     // clang-format off
     options.add_options()
         ("h,help", "display the help message")
