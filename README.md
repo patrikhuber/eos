@@ -54,9 +54,9 @@ mkdir build && cd build # creates a build directory next to the 'eos' folder
 cmake -G "<your favourite generator>" ../eos -DCMAKE_INSTALL_PREFIX=../install/
 make && make install # or open the project file and build in an IDE like Visual Studio
 ```
-It is strongly recommended to use [vcpkg](https://github.com/Microsoft/vcpkg/) to install the dependencies on Windows. All modern IDEs support `vcpkg.json`. On the command-line, one can pass `CMAKE_TOOLCHAIN_FILE`=/path/to/vcpkg_root/scripts/buildsystems/vcpkg.cmake - see the [vcpkg documentation](https://github.com/microsoft/vcpkg).
-Users who wish to manage dependencies manually may need to populate `OpenCV_DIR` and potentially other `packagename_DIR` variables with the paths to their installations.
-On Linux (if not using an IDE that manages CMake configurations), you may also want to set `-DCMAKE_BUILD_TYPE=...` appropriately.
+It is strongly recommended to use [vcpkg](https://github.com/microsoft/vcpkg/) to install the dependencies on Windows. All modern IDEs support `vcpkg.json`. On the command-line, one can pass `CMAKE_TOOLCHAIN_FILE=/path/to/vcpkg_root/scripts/buildsystems/vcpkg.cmake` - see the [vcpkg documentation](https://github.com/microsoft/vcpkg).
+Users who wish to manage dependencies manually may need to populate `OpenCV_DIR` and potentially other `packagename_DIR` variables with the paths to their dependencies.
+On Linux (if not using an IDE that manages CMake configurations), you may also want to set `-DCMAKE_BUILD_TYPE=...` appropriately (e.g. to `Release`).
 
 
 ## Sample code
