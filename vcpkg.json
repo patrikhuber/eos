@@ -3,7 +3,6 @@
   "name": "eos",
   "version": "1.5.0",
   "dependencies": [
-    "boost-program-options",
     "cxxopts",
     {
       "name": "opencv4",
