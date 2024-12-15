@@ -24,10 +24,10 @@
 
 #include "eos/morphablemodel/PcaModel.hpp"
 #include "eos/morphablemodel/Blendshape.hpp"
-#include "eos/cpp17/variant.hpp"
 
 #include "Eigen/Core"
 
+#include <variant>
 #include <vector>
 #include <cassert>
 #include <stdexcept>
@@ -40,7 +40,7 @@ namespace morphablemodel {
  *
  * Defining a type alias so that we don't have to spell out the type everywhere.
  */
-using ExpressionModel = cpp17::variant<PcaModel, Blendshapes>;
+using ExpressionModel = std::variant<PcaModel, Blendshapes>;
 
 /**
  * Returns a sample from an expression model with the given expression coefficients.
@@ -57,9 +57,9 @@ inline Eigen::VectorXf draw_sample(const ExpressionModel& expression_model,
 {
     Eigen::VectorXf expression_sample;
     // Get a sample of the expression model, depending on whether it's a PcaModel or Blendshapes:
-    if (cpp17::holds_alternative<PcaModel>(expression_model))
+    if (std::holds_alternative<PcaModel>(expression_model))
     {
-        const auto& pca_expression_model = cpp17::get<PcaModel>(expression_model);
+        const auto& pca_expression_model = std::get<PcaModel>(expression_model);
         if (expression_coefficients.empty())
         {
             expression_sample = pca_expression_model.get_mean();
@@ -67,9 +67,9 @@ inline Eigen::VectorXf draw_sample(const ExpressionModel& expression_model,
         {
             expression_sample = pca_expression_model.draw_sample(expression_coefficients);
         }
-    } else if (cpp17::holds_alternative<Blendshapes>(expression_model))
+    } else if (std::holds_alternative<Blendshapes>(expression_model))
     {
-        const auto& expression_blendshapes = cpp17::get<Blendshapes>(expression_model);
+        const auto& expression_blendshapes = std::get<Blendshapes>(expression_model);
         assert(expression_blendshapes.size() > 0);
         if (expression_coefficients.empty())
         {

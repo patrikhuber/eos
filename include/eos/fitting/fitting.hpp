@@ -175,9 +175,9 @@ fit_expressions(const morphablemodel::ExpressionModel& expression_model, const E
                 std::optional<int> num_expression_coefficients_to_fit = std::optional<int>())
 {
     std::vector<float> expression_coefficients;
-    if (cpp17::holds_alternative<morphablemodel::PcaModel>(expression_model))
+    if (std::holds_alternative<morphablemodel::PcaModel>(expression_model))
     {
-        const auto& pca_expression_model = cpp17::get<morphablemodel::PcaModel>(expression_model);
+        const auto& pca_expression_model = std::get<morphablemodel::PcaModel>(expression_model);
         // Usually, one would pass the result of the PCA identity shape fitting as a face_instance to this
         // function. We then need to add the mean of the expression PCA model before performing the fitting,
         // since we solve for the differences.
@@ -188,9 +188,9 @@ fit_expressions(const morphablemodel::ExpressionModel& expression_model, const E
                                              vertex_ids, face_instance_with_expression_mean,
                                              lambda_expressions.value_or(65.0f),
                                              num_expression_coefficients_to_fit);
-    } else if (cpp17::holds_alternative<morphablemodel::Blendshapes>(expression_model))
+    } else if (std::holds_alternative<morphablemodel::Blendshapes>(expression_model))
     {
-        const auto& expression_blendshapes = cpp17::get<morphablemodel::Blendshapes>(expression_model);
+        const auto& expression_blendshapes = std::get<morphablemodel::Blendshapes>(expression_model);
         return fit_blendshapes_to_landmarks_nnls(expression_blendshapes, face_instance, affine_camera_matrix,
                                                  landmarks, vertex_ids);
     } else

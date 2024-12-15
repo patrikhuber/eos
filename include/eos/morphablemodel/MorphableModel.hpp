@@ -26,7 +26,6 @@
 #include "eos/morphablemodel/PcaModel.hpp"
 #include "eos/morphablemodel/Blendshape.hpp"
 #include "eos/morphablemodel/ExpressionModel.hpp"
-#include "eos/cpp17/variant.hpp"
 
 #include "cereal/access.hpp"
 #include "cereal/cereal.hpp"
@@ -34,7 +33,7 @@
 #include "cereal/types/vector.hpp"
 #include "cereal/types/unordered_map.hpp"
 #include "cereal/types/optional.hpp"
-#include "eos/cpp17/variant_serialization.hpp"
+#include "cereal/types/variant.hpp"
 #include "eos/morphablemodel/io/eigen_cerealisation.hpp"
 #include "cereal/archives/binary.hpp"
 

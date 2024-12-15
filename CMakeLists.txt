@@ -112,10 +112,6 @@ set(HEADERS
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/detail/Vertex.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/video/Keyframe.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/video/keyframe_merging.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/cpp17/variant.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/cpp17/variant_serialization.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/cpp17/detail/mpark_variant.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/cpp17/detail/mpark_variant_serialization.hpp
 )
 
 add_library(eos INTERFACE)
