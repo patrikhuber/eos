@@ -4,9 +4,11 @@ find_package(OpenCV 4 CONFIG REQUIRED core imgproc imgcodecs)
 set(Boost_NO_WARN_NEW_VERSIONS ON) # Supress "New Boost version may have incorrect dependencies or import targets" warning
 find_package(Boost 1.71.0 REQUIRED COMPONENTS program_options)
 
+find_package(cxxopts CONFIG REQUIRED)
+
 # Simple model fitting (orthographic camera & shape to landmarks) example:
 add_executable(fit-model-simple fit-model-simple.cpp)
-target_link_libraries(fit-model-simple PRIVATE eos opencv_core opencv_imgproc opencv_imgcodecs Boost::program_options)
+target_link_libraries(fit-model-simple PRIVATE cxxopts::cxxopts eos opencv_core opencv_imgproc opencv_imgcodecs)
 target_link_libraries(fit-model-simple PRIVATE "$<$<CXX_COMPILER_ID:GNU>:-pthread>$<$<CXX_COMPILER_ID:Clang>:-pthreads>")
 target_compile_options(fit-model-simple PRIVATE "$<$<CXX_COMPILER_ID:MSVC>:/bigobj>")
 

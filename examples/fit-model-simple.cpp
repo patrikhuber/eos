@@ -31,7 +31,7 @@
 
 #include "Eigen/Core"
 
-#include "boost/program_options.hpp"
+#include <cxxopts.hpp>
 
 #include "opencv2/core.hpp"
 #include "opencv2/imgproc.hpp"
@@ -42,7 +42,6 @@
 #include <filesystem>
 
 using namespace eos;
-namespace po = boost::program_options;
 using eos::core::Landmark;
 using eos::core::LandmarkCollection;
 using Eigen::Vector2f;
@@ -64,38 +63,44 @@ using std::vector;
  */
 int main(int argc, char* argv[])
 {
+    cxxopts::Options options("fit-model-simple",
+                             "A simple example of fitting a 3DMM shape model to 2D landmarks.");
+    // clang-format off
+    options.add_options()
+        ("h,help", "display the help message")
+        ("m,model", "a Morphable Model stored as cereal BinaryArchive",
+            cxxopts::value<std::string>()->default_value("../share/sfm_shape_3448.bin"), "filename")
+        ("i,image", "an input image",
+            cxxopts::value<std::string>()->default_value("data/image_0010.png"), "filename")
+        ("l,landmarks", "2D landmarks for the image, in ibug .pts format",
+            cxxopts::value<std::string>()->default_value("data/image_0010.pts"), "filename")
+        ("p,mapping", "landmark identifier to model vertex number mapping",
+            cxxopts::value<std::string>()->default_value("../share/ibug_to_sfm.txt"), "filename")
+        ("o,output", "basename for the output rendering and obj files",
+            cxxopts::value<std::string>()->default_value("out"), "basename");
+    // clang-format on
+
     using std::filesystem::path;
     path modelfile, imagefile, landmarksfile, mappingsfile, outputbasename;
+
     try
     {
-        po::options_description desc("Allowed options");
-        // clang-format off
-        desc.add_options()
-            ("help,h", "display the help message")
-            ("model,m", po::value<path>(&modelfile)->required()->default_value("../share/sfm_shape_3448.bin"),
-                "a Morphable Model stored as cereal BinaryArchive")
-            ("image,i", po::value<path>(&imagefile)->required()->default_value("data/image_0010.png"),
-                "an input image")
-            ("landmarks,l", po::value<path>(&landmarksfile)->required()->default_value("data/image_0010.pts"),
-                "2D landmarks for the image, in ibug .pts format")
-            ("mapping,p", po::value<path>(&mappingsfile)->required()->default_value("../share/ibug_to_sfm.txt"),
-                "landmark identifier to model vertex number mapping")
-            ("output,o", po::value<path>(&outputbasename)->required()->default_value("out"),
-                "basename for the output rendering and obj files");
-        // clang-format on
-        po::variables_map vm;
-        po::store(po::command_line_parser(argc, argv).options(desc).run(), vm);
-        if (vm.count("help"))
+        const auto result = options.parse(argc, argv);
+        if (result.count("help"))
         {
-            cout << "Usage: fit-model-simple [options]" << endl;
-            cout << desc;
+            std::cout << options.help() << std::endl;
             return EXIT_SUCCESS;
         }
-        po::notify(vm);
-    } catch (const po::error& e)
+
+        modelfile = result["model"].as<std::string>();         // required (with default)
+        imagefile = result["image"].as<std::string>();         // required (with default)
+        landmarksfile = result["landmarks"].as<std::string>(); // required (with default)
+        mappingsfile = result["mapping"].as<std::string>();    // required (with default)
+        outputbasename = result["output"].as<std::string>();   // required (with default)
+    } catch (const std::exception& e)
     {
-        cout << "Error while parsing command-line arguments: " << e.what() << endl;
-        cout << "Use --help to display a list of options." << endl;
+        std::cout << "Error while parsing command-line arguments: " << e.what() << std::endl;
+        std::cout << "Use --help to display a list of options." << std::endl;
         return EXIT_FAILURE;
     }
 
