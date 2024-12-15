@@ -37,13 +37,13 @@ int main(int argc, char* argv[])
     options.add_options()
         ("h,help", "display the help message")
         ("m,model", "a CVSSP .scm Morphable Model file",
-            cxxopts::value<std::string>())
+            cxxopts::value<std::string>(), "filename")
         ("t,isomap", "optional text file containing CVSSP texture mapping coordinates",
-            cxxopts::value<std::string>())
+            cxxopts::value<std::string>(), "filename")
         ("s,shape-only", "save only the shape-model part of the full 3DMM",
             cxxopts::value<bool>()->default_value("false")->implicit_value("true"))
         ("o,output", "output filename for the Morphable Model in cereal binary format",
-            cxxopts::value<std::string>()->default_value("converted_model.bin"));
+            cxxopts::value<std::string>()->default_value("converted_model.bin"), "filename");
     // clang-format on
 
     std::string scmmodelfile, outputfile;
