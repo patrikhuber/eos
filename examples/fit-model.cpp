@@ -28,7 +28,6 @@
 #include "eos/morphablemodel/MorphableModel.hpp"
 #include "eos/render/opencv/draw_utils.hpp"
 #include "eos/render/texture_extraction.hpp"
-#include "eos/cpp17/optional.hpp"
 
 #include "Eigen/Core"
 
@@ -142,7 +141,7 @@ int main(int argc, char* argv[])
         morphablemodel::load_blendshapes(blendshapesfile.string());
 
     morphablemodel::MorphableModel morphable_model_with_expressions(
-        morphable_model.get_shape_model(), blendshapes, morphable_model.get_color_model(), cpp17::nullopt,
+        morphable_model.get_shape_model(), blendshapes, morphable_model.get_color_model(), std::nullopt,
         morphable_model.get_texture_coordinates());
 
     // These two are used to fit the front-facing contour to the ibug contour landmarks:
@@ -167,7 +166,7 @@ int main(int argc, char* argv[])
     fitting::RenderingParameters rendering_params;
     std::tie(mesh, rendering_params) = fitting::fit_shape_and_pose(
         morphable_model_with_expressions, landmarks, landmark_mapper, image.cols, image.rows, edge_topology,
-        ibug_contour, model_contour, 5, cpp17::nullopt, 30.0f);
+        ibug_contour, model_contour, 5, std::nullopt, 30.0f);
 
     // The 3D head pose can be recovered as follows - the function returns an Eigen::Vector3f with yaw, pitch,
     // and roll angles:

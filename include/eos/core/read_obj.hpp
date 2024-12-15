@@ -23,7 +23,6 @@
 #define EOS_READ_OBJ_HPP
 
 #include "eos/core/Mesh.hpp"
-#include "eos/cpp17/optional.hpp"
 
 #include "Eigen/Core"
 
@@ -33,6 +32,7 @@
 #include <tuple>
 #include <utility>
 #include <vector>
+#include <optional>
 
 namespace eos {
 namespace core {
@@ -88,7 +88,7 @@ void tokenize(const std::string& str, ContainerType& tokens, const std::string& 
  * Another obj parser we can check: https://github.com/qnzhou/PyMesh/blob/master/src/IO/OBJParser.cpp (and
  * same file with .h)
  */
-inline std::pair<Eigen::Vector3f, cpp17::optional<Eigen::Vector3f>> parse_vertex(const std::string& line)
+inline std::pair<Eigen::Vector3f, std::optional<Eigen::Vector3f>> parse_vertex(const std::string& line)
 {
     std::vector<std::string> tokens;
     tokenize(line, tokens, " ", true); // compress multiple (and leading/trailing) whitespaces
@@ -99,7 +99,7 @@ inline std::pair<Eigen::Vector3f, cpp17::optional<Eigen::Vector3f>> parse_vertex
             "or 6 ('x y z r g b') numbers.");
     }
     const Eigen::Vector3f vertex(std::stof(tokens[0]), std::stof(tokens[1]), std::stof(tokens[2]));
-    cpp17::optional<Eigen::Vector3f> vertex_color;
+    std::optional<Eigen::Vector3f> vertex_color;
     if (tokens.size() == 6)
     {
         vertex_color = Eigen::Vector3f(std::stof(tokens[3]), std::stof(tokens[4]), std::stof(tokens[5]));

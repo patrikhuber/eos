@@ -140,7 +140,7 @@ public:
     /**
      * Returns the shape expression model, if this Morphable Model has one.
      *
-     * Returns an empty cpp17::optional if the Morphable Model does not have a separate expression
+     * Returns an empty std::optional if the Morphable Model does not have a separate expression
      * model (check with MorphableModel::has_separate_expression_model()).
      * If it does have an expression model, an std::variant<PcaModel, Blendshapes> is returned -
      * that is, either a PcaModel (if it is an expression PCA model), or Blendshapes.
