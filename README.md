@@ -1,4 +1,4 @@
-# eos: A lightweight header-only 3D Morphable Face Model fitting library in modern C++11/14.
+# eos: A lightweight header-only 3D Morphable Face Model fitting library in modern C++17.
 [![Latest release](http://img.shields.io/github/release/patrikhuber/eos.svg?style=flat-square)][release]
 [![Build status of master branch](https://github.com/patrikhuber/eos/actions/workflows/cmake.yml/badge.svg)][github-actions-build]
 [![Apache License 2.0](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg?style=flat-square)][license]
@@ -9,7 +9,7 @@
 [license]: https://github.com/patrikhuber/eos/blob/master/LICENSE
 [sponsor]: https://github.com/sponsors/patrikhuber
 
-eos is a lightweight 3D Morphable Face Model fitting library that provides basic functionality to use face models, as well as camera and shape fitting functionality. It's written in modern C++11/14.
+eos is a lightweight 3D Morphable Face Model fitting library that provides basic functionality to use face models, as well as camera and shape fitting functionality. It's written in modern C++17.
 
 At the moment, it mainly provides the following functionality:
 
@@ -28,8 +28,8 @@ An experimental model viewer to visualise 3D Morphable Models and blendshapes is
 
 ## Usage
 
-* Tested with the following compilers: >=gcc-6, >=clang-5, >=Visual Studio 2017 15.5, >=Xcode 9.2.
-* The library and python bindings **do not require any external dependencies**. The example applications require Boost (>=1.71.0) and OpenCV (>=2.4.3).
+* Tested with the following compilers: >=gcc-9.4, >=Visual Studio 2019 (MSVC >=14.29), >=Xcode 15.2 (AppleClang >=15.0).
+* The library and python bindings **do not require any external dependencies**. The example applications require cxxopts and OpenCV (>=4.0), which are installed via `vcpkg.json`.
 
 To use the library in your own project, just add the following directories to your include path:
 
@@ -44,7 +44,7 @@ To use the library in your own project, just add the following directories to yo
 
 ### Build the examples and tests
 
-* Needed dependencies for the example app: CMake (>=3.8.2, or >=3.10.0 for MSVC), Boost system, filesystem, program_options (>=1.71.0), OpenCV core, imgproc, highgui (>=2.4.3).
+* Needed dependencies for the example app: CMake (>=3.23), OpenCV core, imgproc, highgui (>=4.0), cxxopts.
 
 To build:
 
@@ -54,8 +54,9 @@ mkdir build && cd build # creates a build directory next to the 'eos' folder
 cmake -G "<your favourite generator>" ../eos -DCMAKE_INSTALL_PREFIX=../install/
 make && make install # or open the project file and build in an IDE like Visual Studio
 ```
-It is strongly recommended to use [vcpkg](https://github.com/Microsoft/vcpkg/) to install the dependencies on Windows.
-Users who wish to manage dependencies manually may find it helpful to copy `initial_cache.cmake.template` to `initial_cache.cmake`, edit the necessary paths and run `cmake` with `-C ../eos/initial_cache.cmake`. On Linux, you may also want to set `-DCMAKE_BUILD_TYPE=...` appropriately.
+It is strongly recommended to use [vcpkg](https://github.com/Microsoft/vcpkg/) to install the dependencies on Windows. All modern IDEs support `vcpkg.json`. On the command-line, one can pass `CMAKE_TOOLCHAIN_FILE`=/path/to/vcpkg_root/scripts/buildsystems/vcpkg.cmake - see the [vcpkg documentation](https://github.com/microsoft/vcpkg).
+Users who wish to manage dependencies manually may need to populate `OpenCV_DIR` and potentially other `packagename_DIR` variables with the paths to their installations.
+On Linux (if not using an IDE that manages CMake configurations), you may also want to set `-DCMAKE_BUILD_TYPE=...` appropriately.
 
 
 ## Sample code
@@ -98,7 +99,7 @@ More information about the model can be found on [www.4dface.io/4dfm](https://ww
 ## Python bindings
 
 eos includes python bindings for some of its functionality (and more can be added!). It can be installed from [PyPI](https://pypi.org/project/eos-py/) with `pip install eos-py`. You will still need the data files from this repository.
-Make sure that you've got >=gcc-7 or >=clang-5 as the default compiler on Linux (for example from the [ubuntu-toolchain-r/test](https://launchpad.net/~ubuntu-toolchain-r/+archive/ubuntu/test) repository) or do ``CC=`which gcc-7` CXX=`which g++-7` pip install eos-py``. Also make sure you've got >=cmake-3.8.2 (or >=cmake-3.10.0 for MSVC) in your path.
+Make sure that you've got >=gcc-9 or a recent clang as the default compiler on Linux (for example from the [ubuntu-toolchain-r/test](https://launchpad.net/~ubuntu-toolchain-r/+archive/ubuntu/test) repository) or do ``CC=`which gcc-xy` CXX=`which g++-xy` pip install eos-py``, where `xy` is your gcc version. Also make sure you've got >=cmake-3.23 in your path.
 In case of issues, the bindings can also be built manually: Clone the repository and set `-DEOS_GENERATE_PYTHON_BINDINGS=on` when running `cmake` (and optionally set `PYTHON_EXECUTABLE` to point to your python interpreter if it's not found automatically).
 
 After having obtained the bindings, they can be used like any python module:
