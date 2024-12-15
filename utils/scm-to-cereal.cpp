@@ -19,7 +19,6 @@
  */
 #include "eos/morphablemodel/MorphableModel.hpp"
 #include "eos/morphablemodel/io/cvssp.hpp"
-#include "eos/cpp17/optional.hpp"
 
 #include "boost/program_options.hpp"
 
@@ -70,8 +69,8 @@ int main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
-    cpp17::optional<std::string> isomapfile_optional =
-        isomapfile.empty() ? cpp17::nullopt : cpp17::optional<std::string>(isomapfile);
+    std::optional<std::string> isomapfile_optional =
+        isomapfile.empty() ? std::nullopt : std::optional<std::string>(isomapfile);
 
     // Load the .scm Morphable Model and save it as cereal model:
     morphablemodel::MorphableModel morphable_model =
@@ -81,7 +80,7 @@ int main(int argc, char* argv[])
     {
         // Save only the shape model - to generate the public sfm_shape_3448.bin
         const morphablemodel::MorphableModel shape_only_model(morphable_model.get_shape_model(),
-                                                              morphablemodel::PcaModel(), cpp17::nullopt,
+                                                              morphablemodel::PcaModel(), std::nullopt,
                                                               morphable_model.get_texture_coordinates());
         morphablemodel::save_model(shape_only_model, outputfile);
     } else
