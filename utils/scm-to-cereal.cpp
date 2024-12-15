@@ -66,7 +66,7 @@ int main(int argc, char* argv[])
             isomapfile = result["isomap"].as<std::string>();
         }
         save_shape_only = result["shape-only"].as<bool>(); // optional
-        outputfile = result["output"].as<std::string>();   // required
+        outputfile = result["output"].as<std::string>();   // required (with default)
     } catch (const std::exception& e)
     {
         std::cout << "Error while parsing command-line arguments: " << e.what() << std::endl;
