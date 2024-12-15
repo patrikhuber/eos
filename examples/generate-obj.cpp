@@ -24,7 +24,6 @@
 #include "eos/morphablemodel/MorphableModel.hpp"
 #include "eos/render/render.hpp"
 #include "eos/render/matrix_projection.hpp"
-#include "eos/cpp17/optional.hpp"
 
 #include "boost/program_options.hpp"
 
