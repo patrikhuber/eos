@@ -35,7 +35,7 @@
 #include "opencv2/imgproc.hpp"
 #include "opencv2/imgcodecs.hpp"
 
-#include "boost/program_options.hpp"
+#include <cxxopts.hpp>
 
 #include <vector>
 #include <iostream>
@@ -45,14 +45,11 @@
 #include <optional>
 
 using namespace eos;
-namespace po = boost::program_options;
 using eos::core::Landmark;
 using eos::core::LandmarkCollection;
 using cv::Mat;
 using std::cout;
 using std::endl;
-using std::vector;
-using std::string;
 
 /**
  * @brief Merges isomaps from a live video with a weighted averaging, based
@@ -137,56 +134,82 @@ private:
  */
 int main(int argc, char *argv[])
 {
+    using std::vector;
+    using std::string;
+    cxxopts::Options options(
+        "fit-model-multi",
+        "A simple example of fitting a 3DMM shape model to 2D landmarks of multiple images.");
+    // clang-format off
+    options.add_options()
+        ("h,help", "display the help message")
+        ("m,model", "a Morphable Model stored as cereal BinaryArchive",
+            cxxopts::value<string>()->default_value("../share/sfm_shape_3448.bin"), "filename")
+        ("i,image", "An input image. Repeat this option to input multiple images.",
+            cxxopts::value<vector<string>>(), "filename")
+        ("l,landmarks", "2D landmarks for the given images, in ibug .pts format. "
+            "Repeat this option to provide landmarks for multiple images, and make sure to us the same order as the input images.",
+            cxxopts::value<vector<string>>(), "filename")
+        ("p,mapping", "landmark identifier to model vertex number mapping",
+            cxxopts::value<string>()->default_value("../share/ibug_to_sfm.txt"), "filename")
+        ("c,model-contour", "file with model contour indices",
+            cxxopts::value<string>()->default_value("../share/sfm_model_contours.json"), "filename")
+        ("e,edge-topology", "file with model's precomputed edge topology",
+            cxxopts::value<string>()->default_value("../share/sfm_3448_edge_topology.json"), "filename")
+        ("b,blendshapes", "file with blendshapes",
+            cxxopts::value<string>()->default_value("../share/expression_blendshapes_3448.bin"), "filename")
+        ("o,output", "basename for the output rendering and obj files",
+            cxxopts::value<string>()->default_value("out"), "basename");
+    // clang-format on
+
     using std::filesystem::path;
     path modelfile, mappingsfile, contourfile, edgetopologyfile, blendshapesfile, outputfilebase;
     vector<path> imagefiles, landmarksfiles;
     try
     {
-        po::options_description desc("Allowed options");
-        // clang-format off
-        desc.add_options()
-            ("help,h", "display the help message")
-            ("model,m", po::value<path>(&modelfile)->required()->default_value("../share/sfm_shape_3448.bin"),
-                "a Morphable Model stored as cereal BinaryArchive")
-            ("image,i", po::value<vector<path>>(&imagefiles)->multitoken(),
-                "an input image")
-            ("landmarks,l", po::value<vector<path>>(&landmarksfiles)->multitoken(),
-                "2D landmarks for the image, in ibug .pts format")
-            ("mapping,p", po::value<path>(&mappingsfile)->required()->default_value("../share/ibug_to_sfm.txt"),
-                "landmark identifier to model vertex number mapping")
-            ("model-contour,c", po::value<path>(&contourfile)->required()->default_value("../share/model_contours.json"),
-                "file with model contour indices")
-            ("edge-topology,e", po::value<path>(&edgetopologyfile)->required()->default_value("../share/sfm_3448_edge_topology.json"),
-                "file with model's precomputed edge topology")
-            ("blendshapes,b", po::value<path>(&blendshapesfile)->required()->default_value("../share/expression_blendshapes_3448.bin"),
-                "file with blendshapes")
-            ("output,o", po::value<path>(&outputfilebase)->required()->default_value("out"),
-                "basename for the output rendering and obj files");
-        // clang-format on
-        po::variables_map vm;
-        po::store(po::command_line_parser(argc, argv).options(desc).run(), vm);
-        if (vm.count("help"))
+        const auto result = options.parse(argc, argv);
+        if (result.count("help"))
         {
-            cout << "Usage: fit-model-multi [options]" << endl;
-            cout << desc;
+            std::cout << options.help() << std::endl;
             return EXIT_SUCCESS;
         }
-        po::notify(vm);
-    } catch (const po::error& e)
+
+        modelfile = result["model"].as<string>();                // required (with default)
+        {
+            const auto imagefiles_str =
+                result["image"].as<vector<string>>();            // required
+            for (const auto& imagefile : imagefiles_str)
+            {
+                imagefiles.push_back(imagefile);
+            }
+        }
+        {
+            const auto landmarksfiles_str =
+                result["landmarks"].as<vector<string>>();        // required
+            for (const auto& landmarksfile : landmarksfiles_str)
+            {
+                landmarksfiles.push_back(landmarksfile);
+            }
+        }
+        mappingsfile = result["mapping"].as<string>();           // required (with default)
+        contourfile = result["model-contour"].as<string>();      // required (with default)
+        edgetopologyfile = result["edge-topology"].as<string>(); // required (with default)
+        blendshapesfile = result["blendshapes"].as<string>();    // required (with default)
+        outputfilebase = result["output"].as<string>();          // required (with default)
+    } catch (const std::exception& e)
     {
-        cout << "Error while parsing command-line arguments: " << e.what() << endl;
-        cout << "Use --help to display a list of options." << endl;
+        std::cout << "Error while parsing command-line arguments: " << e.what() << std::endl;
+        std::cout << "Use --help to display a list of options." << std::endl;
         return EXIT_FAILURE;
     }
 
     if (landmarksfiles.size() != imagefiles.size()) {
-        cout << "Number of landmarks files not equal to number of images given: " << landmarksfiles.size()
-             << "!=" << imagefiles.size() << endl;
+        cout << "Number of landmarks files not equal to number of images given. Image files: "
+             << imagefiles.size() << ", landmark files: " << landmarksfiles.size() << endl;
         return EXIT_FAILURE;
     }
 
     if (landmarksfiles.empty()) {
-        cout << "Please give at least 1 image and landmark file." << endl;
+        cout << "Please input at least 1 image and landmark file." << endl;
         return EXIT_FAILURE;
     }
     // Load the image, landmarks, LandmarkMapper and the Morphable Model:

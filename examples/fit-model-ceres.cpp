@@ -39,7 +39,7 @@
 #include "opencv2/imgproc.hpp"
 #include "opencv2/imgcodecs.hpp"
 
-#include "boost/program_options.hpp"
+#include <cxxopts.hpp>
 
 #include <chrono>
 #include <iostream>
@@ -48,15 +48,12 @@
 
 using namespace eos;
 using namespace ceres;
-namespace po = boost::program_options;
 using eos::core::Landmark;
 using eos::core::LandmarkCollection;
 using cv::Mat;
 using Eigen::Vector2f;
 using std::cout;
 using std::endl;
-using std::string;
-using std::vector;
 
 // print a vector:
 template <typename T>
@@ -84,42 +81,51 @@ std::ostream& operator<<(std::ostream& out, const std::vector<T>& v)
  */
 int main(int argc, char* argv[])
 {
+    using std::vector;
+    using std::string;
+    cxxopts::Options options("fit-model-ceres",
+                             "A simple example of fitting a 3D Morphable Model using Ceres Solver.");
+    // clang-format off
+    options.add_options()
+        ("h,help", "display the help message")
+        ("m,model", "a Morphable Model, containing a shape and albedo model, stored as cereal BinaryArchive",
+            cxxopts::value<string>()->default_value("../share/sfm_3448.bin"), "filename")
+        ("b,blendshapes", "file with blendshapes",
+            cxxopts::value<string>()->default_value("../share/expression_blendshapes_3448.bin"), "filename")
+        ("i,image", "an input image",
+            cxxopts::value<string>()->default_value("data/image_0010.png"), "filename")
+        ("l,landmarks", "2D landmarks for the image, in ibug .pts format",
+            cxxopts::value<string>()->default_value("data/image_0010.pts"), "filename")
+        ("p,mapping", "landmark identifier to model vertex number mapping",
+            cxxopts::value<string>()->default_value("../share/ibug_to_sfm.txt"), "filename")
+        ("c,model-contour", "file with model contour indices",
+            cxxopts::value<string>()->default_value("../share/sfm_model_contours.json"), "filename")
+        ("o,output", "basename for the output obj file",
+            cxxopts::value<string>()->default_value("out"), "basename");
+    // clang-format on
+
     using std::filesystem::path;
     path modelfile, imagefile, landmarksfile, mappingsfile, contourfile, blendshapesfile, outputfile;
     try
     {
-        po::options_description desc("Allowed options");
-        // clang-format off
-        desc.add_options()
-            ("help,h", "display the help message")
-            ("model,m", po::value<path>(&modelfile)->required()->default_value("../share/sfm_3448.bin"),
-                "a Morphable Model, containing a shape and albedo model, stored as cereal BinaryArchive")
-            ("blendshapes,b", po::value<path>(&blendshapesfile)->required()->default_value("../share/expression_blendshapes_3448.bin"),
-                "file with blendshapes")
-            ("image,i", po::value<path>(&imagefile)->required()->default_value("data/image_0010.png"),
-                "an input image")
-            ("landmarks,l", po::value<path>(&landmarksfile)->required()->default_value("data/image_0010.pts"),
-                "2D landmarks for the image, in ibug .pts format")
-            ("mapping,p", po::value<path>(&mappingsfile)->required()->default_value("../share/ibug_to_sfm.txt"),
-                "landmark identifier to model vertex number mapping")
-            ("model-contour,c", po::value<path>(&contourfile)->required()->default_value("../share/sfm_model_contours.json"),
-                "file with model contour indices")
-            ("output,o", po::value<path>(&outputfile)->required()->default_value("out"),
-                "basename for the output obj file");
-        // clang-format on
-        po::variables_map vm;
-        po::store(po::command_line_parser(argc, argv).options(desc).run(), vm);
-        if (vm.count("help"))
+        const auto result = options.parse(argc, argv);
+        if (result.count("help"))
         {
-            cout << "Usage: fit-model-ceres [options]" << endl;
-            cout << desc;
+            std::cout << options.help() << std::endl;
             return EXIT_SUCCESS;
         }
-        po::notify(vm);
-    } catch (const po::error& e)
+
+        modelfile = result["model"].as<string>();             // required (with default)
+        blendshapesfile = result["blendshapes"].as<string>(); // required (with default)
+        imagefile = result["image"].as<string>();             // required (with default)
+        landmarksfile = result["landmarks"].as<string>();     // required (with default)
+        mappingsfile = result["mapping"].as<string>();        // required (with default)
+        contourfile = result["model-contour"].as<string>();   // required (with default)
+        outputfile = result["output"].as<string>();           // required (with default)
+    } catch (const std::exception& e)
     {
-        cout << "Error while parsing command-line arguments: " << e.what() << endl;
-        cout << "Use --help to display a list of options." << endl;
+        std::cout << "Error while parsing command-line arguments: " << e.what() << std::endl;
+        std::cout << "Use --help to display a list of options." << std::endl;
         return EXIT_FAILURE;
     }
 

@@ -49,7 +49,6 @@ using Eigen::Vector4f;
 using cv::Mat;
 using std::cout;
 using std::endl;
-using std::string;
 using std::vector;
 
 /**
@@ -63,26 +62,26 @@ using std::vector;
  */
 int main(int argc, char* argv[])
 {
+    using std::string;
     cxxopts::Options options("fit-model-simple",
                              "A simple example of fitting a 3DMM shape model to 2D landmarks.");
     // clang-format off
     options.add_options()
         ("h,help", "display the help message")
         ("m,model", "a Morphable Model stored as cereal BinaryArchive",
-            cxxopts::value<std::string>()->default_value("../share/sfm_shape_3448.bin"), "filename")
+            cxxopts::value<string>()->default_value("../share/sfm_shape_3448.bin"), "filename")
         ("i,image", "an input image",
-            cxxopts::value<std::string>()->default_value("data/image_0010.png"), "filename")
+            cxxopts::value<string>()->default_value("data/image_0010.png"), "filename")
         ("l,landmarks", "2D landmarks for the image, in ibug .pts format",
-            cxxopts::value<std::string>()->default_value("data/image_0010.pts"), "filename")
+            cxxopts::value<string>()->default_value("data/image_0010.pts"), "filename")
         ("p,mapping", "landmark identifier to model vertex number mapping",
-            cxxopts::value<std::string>()->default_value("../share/ibug_to_sfm.txt"), "filename")
+            cxxopts::value<string>()->default_value("../share/ibug_to_sfm.txt"), "filename")
         ("o,output", "basename for the output rendering and obj files",
-            cxxopts::value<std::string>()->default_value("out"), "basename");
+            cxxopts::value<string>()->default_value("out"), "basename");
     // clang-format on
 
     using std::filesystem::path;
     path modelfile, imagefile, landmarksfile, mappingsfile, outputbasename;
-
     try
     {
         const auto result = options.parse(argc, argv);
@@ -92,11 +91,11 @@ int main(int argc, char* argv[])
             return EXIT_SUCCESS;
         }
 
-        modelfile = result["model"].as<std::string>();         // required (with default)
-        imagefile = result["image"].as<std::string>();         // required (with default)
-        landmarksfile = result["landmarks"].as<std::string>(); // required (with default)
-        mappingsfile = result["mapping"].as<std::string>();    // required (with default)
-        outputbasename = result["output"].as<std::string>();   // required (with default)
+        modelfile = result["model"].as<string>();         // required (with default)
+        imagefile = result["image"].as<string>();         // required (with default)
+        landmarksfile = result["landmarks"].as<string>(); // required (with default)
+        mappingsfile = result["mapping"].as<string>();    // required (with default)
+        outputbasename = result["output"].as<string>();   // required (with default)
     } catch (const std::exception& e)
     {
         std::cout << "Error while parsing command-line arguments: " << e.what() << std::endl;

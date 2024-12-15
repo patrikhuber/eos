@@ -50,7 +50,6 @@ int main(int argc, char* argv[])
     std::filesystem::path scmmodelfile, outputfile;
     std::optional<std::string> isomapfile;
     bool save_shape_only;
-
     try
     {
         const auto result = options.parse(argc, argv);
