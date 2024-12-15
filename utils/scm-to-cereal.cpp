@@ -20,15 +20,10 @@
 #include "eos/morphablemodel/MorphableModel.hpp"
 #include "eos/morphablemodel/io/cvssp.hpp"
 
-#include "boost/program_options.hpp"
+#include <cxxopts.hpp>
 
 #include <string>
 #include <iostream>
-
-using namespace eos;
-namespace po = boost::program_options;
-using std::cout;
-using std::endl;
 
 /**
  * Reads a CVSSP .scm Morphable Model file and converts it
@@ -36,45 +31,53 @@ using std::endl;
  */
 int main(int argc, char* argv[])
 {
-    std::string scmmodelfile, isomapfile, outputfile;
+    cxxopts::Options options("scm-to-cereal",
+                             "Convert a CVSSP .scm morphable model file to an eos (Cereal) .bin file.");
+    // clang-format off
+    options.add_options()
+        ("h,help", "display the help message")
+        ("m,model", "a CVSSP .scm Morphable Model file",
+            cxxopts::value<std::string>())
+        ("t,isomap", "optional text file containing CVSSP texture mapping coordinates",
+            cxxopts::value<std::string>())
+        ("s,shape-only", "save only the shape-model part of the full 3DMM",
+            cxxopts::value<bool>()->default_value("false")->implicit_value("true"))
+        ("o,output", "output filename for the Morphable Model in cereal binary format",
+            cxxopts::value<std::string>()->default_value("converted_model.bin"));
+    // clang-format on
+
+    std::string scmmodelfile, outputfile;
+    std::optional<std::string> isomapfile;
     bool save_shape_only;
+
     try
     {
-        po::options_description desc("Allowed options");
-        // clang-format off
-        desc.add_options()
-            ("help,h", "display the help message")
-            ("model,m", po::value<std::string>(&scmmodelfile)->required(),
-                "a CVSSP .scm Morphable Model file")
-            ("isomap,t", po::value<std::string>(&isomapfile),
-                "optional text file containing CVSSP texture mapping coordinates")
-            ("shape-only,s", po::value<bool>(&save_shape_only)->default_value(false)->implicit_value(true),
-                "save only the shape-model part of the full 3DMM")
-            ("output,o", po::value<std::string>(&outputfile)->required()->default_value("converted_model.bin"),
-                "output filename for the Morphable Model in cereal binary format");
-        // clang-format on
-        po::variables_map vm;
-        po::store(po::command_line_parser(argc, argv).options(desc).run(), vm);
-        if (vm.count("help"))
+        const auto result = options.parse(argc, argv);
+        if (result.count("help"))
         {
-            cout << "Usage: scm-to-cereal [options]" << endl;
-            cout << desc;
+            std::cout << options.help() << std::endl;
             return EXIT_SUCCESS;
         }
-        po::notify(vm);
-    } catch (const po::error& e)
+
+        scmmodelfile = result["model"].as<std::string>(); // required
+        if (result.count("isomap"))                       // optional
+        {
+            isomapfile = result["isomap"].as<std::string>();
+        }
+        save_shape_only = result["shape-only"].as<bool>(); // optional
+        outputfile = result["output"].as<std::string>();   // required
+    } catch (const std::exception& e)
     {
-        cout << "Error while parsing command-line arguments: " << e.what() << endl;
-        cout << "Use --help to display a list of options." << endl;
+        std::cout << "Error while parsing command-line arguments: " << e.what() << std::endl;
+        std::cout << "Use --help to display a list of options." << std::endl;
         return EXIT_FAILURE;
     }
 
-    std::optional<std::string> isomapfile_optional =
-        isomapfile.empty() ? std::nullopt : std::optional<std::string>(isomapfile);
+    using namespace eos;
 
     // Load the .scm Morphable Model and save it as cereal model:
     morphablemodel::MorphableModel morphable_model =
-        morphablemodel::load_scm_model(scmmodelfile, isomapfile_optional);
+        morphablemodel::load_scm_model(scmmodelfile, isomapfile);
 
     if (save_shape_only)
     {
@@ -88,6 +91,6 @@ int main(int argc, char* argv[])
         morphablemodel::save_model(morphable_model, outputfile);
     }
 
-    cout << "Saved converted model as " << outputfile << "." << endl;
+    std::cout << "Saved converted model as " << outputfile << "." << std::endl;
     return EXIT_SUCCESS;
 }
