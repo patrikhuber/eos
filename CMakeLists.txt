@@ -10,6 +10,8 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF) # This makes CMake use -std=c++xx instead of -std=gnu++xx
 
+set(CMAKE_VS_JUST_MY_CODE_DEBUGGING ON)
+
 # All the options for building the library. Can be changed on the command-line or in initial_cache.cmake.
 message(STATUS "Options:")
 option(EOS_BUILD_EXAMPLES "Build the example applications." ON)
