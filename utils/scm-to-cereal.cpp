@@ -24,6 +24,7 @@
 
 #include <string>
 #include <iostream>
+#include <filesystem>
 
 /**
  * Reads a CVSSP .scm Morphable Model file and converts it
@@ -46,7 +47,7 @@ int main(int argc, char* argv[])
             cxxopts::value<std::string>()->default_value("converted_model.bin"), "filename");
     // clang-format on
 
-    std::string scmmodelfile, outputfile;
+    std::filesystem::path scmmodelfile, outputfile;
     std::optional<std::string> isomapfile;
     bool save_shape_only;
 
@@ -77,7 +78,7 @@ int main(int argc, char* argv[])
 
     // Load the .scm Morphable Model and save it as cereal model:
     morphablemodel::MorphableModel morphable_model =
-        morphablemodel::load_scm_model(scmmodelfile, isomapfile);
+        morphablemodel::load_scm_model(scmmodelfile.string(), isomapfile);
 
     if (save_shape_only)
     {
@@ -85,10 +86,10 @@ int main(int argc, char* argv[])
         const morphablemodel::MorphableModel shape_only_model(morphable_model.get_shape_model(),
                                                               morphablemodel::PcaModel(), std::nullopt,
                                                               morphable_model.get_texture_coordinates());
-        morphablemodel::save_model(shape_only_model, outputfile);
+        morphablemodel::save_model(shape_only_model, outputfile.string());
     } else
     {
-        morphablemodel::save_model(morphable_model, outputfile);
+        morphablemodel::save_model(morphable_model, outputfile.string());
     }
 
     std::cout << "Saved converted model as " << outputfile << "." << std::endl;
