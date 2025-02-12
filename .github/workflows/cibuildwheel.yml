@@ -69,7 +69,7 @@ jobs:
       - name: Upload wheels artifact
         uses: actions/upload-artifact@v4
         with:
-          name: wheels-artifact
+          name: wheels-${{ matrix.os }}-artifact
           path: ./wheelhouse/*.whl
 
   upload_all:
@@ -82,11 +82,6 @@ jobs:
     steps:
     - uses: actions/download-artifact@v4
       with:
-        name: sdist-artifact
-        path: dist
-    - uses: actions/download-artifact@v4
-      with:
-        name: wheels-artifact
         path: dist
 
     - uses: pypa/gh-action-pypi-publish@release/v1
