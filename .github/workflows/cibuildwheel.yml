@@ -47,7 +47,7 @@ jobs:
           submodules: recursive
 
       # Used to host cibuildwheel
-      - uses: actions/setup-python@v3
+      - uses: actions/setup-python@v5
 
       - name: Use cmake
         run: cmake --version
@@ -59,9 +59,9 @@ jobs:
         run: python -m cibuildwheel --output-dir wheelhouse
         # to supply options, put them in 'env', like:
         env:
-          MACOSX_DEPLOYMENT_TARGET: 10.15
+          MACOSX_DEPLOYMENT_TARGET: 11.0
           CIBW_ARCHS_MACOS: "x86_64 universal2 arm64"
-          CIBW_SKIP: pp* *i686 cp36-*
+          CIBW_SKIP: pp* *i686 cp36-* cp38-macosx_arm64
           CIBW_TEST_REQUIRES: pytest numpy
           CIBW_TEST_COMMAND: pytest {package}/tests
           CIBW_TEST_SKIP: "*-macosx_arm64 *-macosx_universal2:arm64"
