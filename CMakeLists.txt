@@ -44,11 +44,6 @@ find_package(Eigen3 REQUIRED)
 message(STATUS "Eigen3 found: ${EIGEN3_FOUND}, version: ${EIGEN3_VERSION}")
 message(STATUS "Eigen3 include dir found at ${EIGEN3_INCLUDE_DIR}")
 
-# Set the include directories of the 3rd-party submodules that we use:
-set(CEREAL_INCLUDE_DIR "${eos_3RDPARTY_DIR}/cereal/include")
-set(nanoflann_INCLUDE_DIR "${eos_3RDPARTY_DIR}/nanoflann/include")
-set(eigen3_nnls_INCLUDE_DIR "${eos_3RDPARTY_DIR}/eigen3-nnls/src")
-set(toml11_INCLUDE_DIR "${eos_3RDPARTY_DIR}/toml11")
 
 # Header files of the eos library:
 set(eos_HEADERS
@@ -123,12 +118,28 @@ target_sources(eos
 )
 target_compile_features(eos INTERFACE cxx_std_17)
 
-# Add header includes:
-target_include_directories(eos INTERFACE ${CEREAL_INCLUDE_DIR})
-target_include_directories(eos INTERFACE ${EIGEN3_INCLUDE_DIR})
-target_include_directories(eos INTERFACE ${nanoflann_INCLUDE_DIR})
-target_include_directories(eos INTERFACE ${eigen3_nnls_INCLUDE_DIR})
-target_include_directories(eos INTERFACE ${toml11_INCLUDE_DIR})
+# Add 3rdparty header includes:
+target_include_directories(eos INTERFACE
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/cereal/include>
+    $<INSTALL_INTERFACE:3rdparty/cereal/include>
+)
+target_include_directories(eos INTERFACE
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/eigen>
+    $<INSTALL_INTERFACE:3rdparty/eigen>
+)
+target_include_directories(eos INTERFACE
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/nanoflann/include>
+    $<INSTALL_INTERFACE:3rdparty/nanoflann/include>
+)
+target_include_directories(eos INTERFACE
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/eigen3-nnls/src>
+    $<INSTALL_INTERFACE:3rdparty/eigen3-nnls/src>
+)
+target_include_directories(eos INTERFACE
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/toml11>
+    $<INSTALL_INTERFACE:3rdparty/toml11>
+)
+
 # Install the eos headers:
 install(TARGETS eos
     EXPORT eos-export
