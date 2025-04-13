@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.23...3.29)
+cmake_minimum_required(VERSION 3.23...3.30)
 project(eos VERSION 1.5.0 LANGUAGES CXX)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
