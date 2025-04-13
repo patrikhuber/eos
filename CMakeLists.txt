@@ -1,11 +1,9 @@
 cmake_minimum_required(VERSION 3.23...3.30)
 project(eos VERSION 1.5.0 LANGUAGES CXX)
 
-set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+set_property(GLOBAL PROPERTY USE_FOLDERS ON) # ON by default from CMake 3.26 onwards
 
-# This sets the C++ standard to c++17 and required for all the following targets that we define.
-# It has no effect on MSVC though - we thus define more specific requirements for each executable target respectively.
-# Also it will not apply to the eos library target, since it is an INTERFACE_LIBRARY, and these properties do not apply to interface libraries.
+# Set the C++ standard to C++17 and required for all the following targets that we define.
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF) # This makes CMake use -std=c++xx instead of -std=gnu++xx
