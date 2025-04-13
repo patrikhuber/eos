@@ -51,96 +51,90 @@ set(eigen3_nnls_INCLUDE_DIR "${eos_3RDPARTY_DIR}/eigen3-nnls/src")
 set(toml11_INCLUDE_DIR "${eos_3RDPARTY_DIR}/toml11")
 
 # Header files of the eos library:
-set(HEADERS
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/core/Landmark.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/core/LandmarkMapper.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/core/read_pts_landmarks.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/core/Image.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/core/image/Pixel.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/core/image/PixelTraits.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/core/image/utils.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/core/image/resize.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/core/image/opencv_interop.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/core/Mesh.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/core/read_obj.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/core/write_obj.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/core/Rect.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/core/math.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/morphablemodel/PcaModel.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/morphablemodel/MorphableModel.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/morphablemodel/Blendshape.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/morphablemodel/ExpressionModel.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/morphablemodel/coefficients.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/morphablemodel/EdgeTopology.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/morphablemodel/io/cvssp.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/morphablemodel/io/eigen_cerealisation.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/pca/pca.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/orthographic_camera_estimation_linear.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/nonlinear_camera_estimation.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/detail/nonlinear_camera_estimation_detail.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/detail/eigen_quaternion_cerealisation.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/linear_shape_fitting.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/contour_correspondence.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/blendshape_fitting.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/closest_edge_fitting.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/fitting.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/multi_image_fitting.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/ceres_nonlinear.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/RenderingParameters.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/rotation_angles.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/fitting/FittingResult.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/normals.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/transforms.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/matrix_projection.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/ray_triangle_intersect.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/draw_utils.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/opencv/draw_utils.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/render.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/detail/TriangleToRasterize.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/detail/plane.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/detail/utils.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/ProjectionType.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/detail/RayDirection.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/vertex_visibility.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/texture_extraction.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/detail/texturing.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/SoftwareRenderer.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/VertexShader.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/Rasterizer.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/FragmentShader.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/Texture.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/render/detail/Vertex.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/video/Keyframe.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/eos/video/keyframe_merging.hpp
+set(eos_HEADERS
+  include/eos/core/Landmark.hpp
+  include/eos/core/LandmarkMapper.hpp
+  include/eos/core/read_pts_landmarks.hpp
+  include/eos/core/Image.hpp
+  include/eos/core/image/Pixel.hpp
+  include/eos/core/image/PixelTraits.hpp
+  include/eos/core/image/utils.hpp
+  include/eos/core/image/resize.hpp
+  include/eos/core/image/opencv_interop.hpp
+  include/eos/core/Mesh.hpp
+  include/eos/core/read_obj.hpp
+  include/eos/core/write_obj.hpp
+  include/eos/core/Rect.hpp
+  include/eos/core/math.hpp
+  include/eos/morphablemodel/PcaModel.hpp
+  include/eos/morphablemodel/MorphableModel.hpp
+  include/eos/morphablemodel/Blendshape.hpp
+  include/eos/morphablemodel/ExpressionModel.hpp
+  include/eos/morphablemodel/coefficients.hpp
+  include/eos/morphablemodel/EdgeTopology.hpp
+  include/eos/morphablemodel/io/cvssp.hpp
+  include/eos/morphablemodel/io/eigen_cerealisation.hpp
+  include/eos/pca/pca.hpp
+  include/eos/fitting/orthographic_camera_estimation_linear.hpp
+  include/eos/fitting/nonlinear_camera_estimation.hpp
+  include/eos/fitting/detail/nonlinear_camera_estimation_detail.hpp
+  include/eos/fitting/detail/eigen_quaternion_cerealisation.hpp
+  include/eos/fitting/linear_shape_fitting.hpp
+  include/eos/fitting/contour_correspondence.hpp
+  include/eos/fitting/blendshape_fitting.hpp
+  include/eos/fitting/closest_edge_fitting.hpp
+  include/eos/fitting/fitting.hpp
+  include/eos/fitting/multi_image_fitting.hpp
+  include/eos/fitting/ceres_nonlinear.hpp
+  include/eos/fitting/RenderingParameters.hpp
+  include/eos/fitting/rotation_angles.hpp
+  include/eos/fitting/FittingResult.hpp
+  include/eos/render/normals.hpp
+  include/eos/render/transforms.hpp
+  include/eos/render/matrix_projection.hpp
+  include/eos/render/ray_triangle_intersect.hpp
+  include/eos/render/draw_utils.hpp
+  include/eos/render/opencv/draw_utils.hpp
+  include/eos/render/render.hpp
+  include/eos/render/detail/TriangleToRasterize.hpp
+  include/eos/render/detail/plane.hpp
+  include/eos/render/detail/utils.hpp
+  include/eos/render/ProjectionType.hpp
+  include/eos/render/detail/RayDirection.hpp
+  include/eos/render/vertex_visibility.hpp
+  include/eos/render/texture_extraction.hpp
+  include/eos/render/detail/texturing.hpp
+  include/eos/render/SoftwareRenderer.hpp
+  include/eos/render/VertexShader.hpp
+  include/eos/render/Rasterizer.hpp
+  include/eos/render/FragmentShader.hpp
+  include/eos/render/Texture.hpp
+  include/eos/render/detail/Vertex.hpp
+  include/eos/video/Keyframe.hpp
+  include/eos/video/keyframe_merging.hpp
 )
 
 add_library(eos INTERFACE)
+target_sources(eos
+    PUBLIC
+        FILE_SET HEADERS
+        BASE_DIRS include
+        FILES ${eos_HEADERS}
+)
 target_compile_features(eos INTERFACE cxx_std_17)
 
 # Add header includes:
-target_include_directories(eos INTERFACE "include")
 target_include_directories(eos INTERFACE ${CEREAL_INCLUDE_DIR})
 target_include_directories(eos INTERFACE ${EIGEN3_INCLUDE_DIR})
 target_include_directories(eos INTERFACE ${nanoflann_INCLUDE_DIR})
 target_include_directories(eos INTERFACE ${eigen3_nnls_INCLUDE_DIR})
 target_include_directories(eos INTERFACE ${toml11_INCLUDE_DIR})
+# Install the eos headers:
+install(TARGETS eos
+    EXPORT eos-export
+    FILE_SET HEADERS
+)
 
-# Custom target for the library, to make the headers show up in IDEs:
-add_custom_target(eos-headers SOURCES ${HEADERS})
-source_group(core REGULAR_EXPRESSION include/eos/core/*)
-source_group(core\\image REGULAR_EXPRESSION include/eos/core/image/*)
-source_group(morphablemodel REGULAR_EXPRESSION include/eos/morphablemodel/*)
-source_group(morphablemodel\\io REGULAR_EXPRESSION include/eos/morphablemodel/io/*)
-source_group(pca REGULAR_EXPRESSION include/eos/pca/*)
-source_group(fitting REGULAR_EXPRESSION include/eos/fitting/*)
-source_group(fitting\\detail REGULAR_EXPRESSION include/eos/fitting/detail/*)
-source_group(render REGULAR_EXPRESSION include/eos/render/*)
-source_group(render\\detail REGULAR_EXPRESSION include/eos/render/detail/*)
-source_group(render\\opencv REGULAR_EXPRESSION include/eos/render/opencv/*)
-source_group(video REGULAR_EXPRESSION include/eos/video/*)
-
-# The eos install target:
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/ DESTINATION include) # our library headers
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/share/ DESTINATION share) # the model and metadata
 # For 3rd party headers, we only copy the headers and licence files:
 install(DIRECTORY ${eos_3RDPARTY_DIR}/cereal/ DESTINATION 3rdparty/cereal) # cereal headers
